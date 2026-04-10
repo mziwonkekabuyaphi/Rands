@@ -3,103 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Rands Wallet - Bottom Tab Navigation</title>
+    <title>Bottom Nav - Pure Component</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
-        /* Bottom Tab Bar - UPDATED WITH NEW TAB NAMES */
-        .bottom-tab-bar {
-            position: sticky;
+
+        /* BOTTOM NAVIGATION BAR - CLEAN, READY TO INTEGRATE */
+        .bottom-nav {
+            position: fixed;
             bottom: 0;
-            z-index: 100;
-            background: #fff;
-            box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
-            border-top: 1px solid #edf2f8;
-            padding: 6px 12px 18px;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+            border-top: 1px solid #eef2f6;
+            padding: 8px 16px 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            z-index: 1000;
         }
-        
-        .tab-nav {
+
+        .nav-btn {
             flex: 1;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            padding: 4px 0;
+            padding: 6px 0;
             border-radius: 40px;
-            transition: 0.1s;
+            transition: all 0.2s ease;
+            font-family: 'Inter', system-ui, sans-serif;
         }
-        
-        .tab-nav .tab-icon {
-            font-size: 1.3rem;
+
+        .nav-btn .nav-icon {
+            font-size: 1.35rem;
             color: #94a3b8;
+            transition: color 0.2s;
         }
-        
-        .tab-nav .tab-label {
-            font-size: 0.6rem;
-            font-weight: 500;
+
+        .nav-btn .nav-label {
+            font-size: 0.65rem;
+            font-weight: 600;
             color: #7e8b9f;
-            margin-top: 2px;
+            letter-spacing: -0.2px;
         }
-        
-        .tab-nav.active .tab-icon,
-        .tab-nav.active .tab-label {
-            color: #E30613;
+
+        .nav-btn:active {
+            transform: scale(0.96);
+            background: rgba(0, 0, 0, 0.04);
         }
     </style>
 </head>
-<body>
-    <!-- BOTTOM TAB NAVIGATION - UPDATED WITH NEW TAB NAMES -->
-    <div class="bottom-tab-bar">
-        <div class="tab-nav" data-tab="home">
-            <div class="tab-icon"><i class="fas fa-home"></i></div>
-            <div class="tab-label">Home</div>
-        </div>
-        <div class="tab-nav" data-tab="my-ticket">
-            <div class="tab-icon"><i class="fas fa-ticket-alt"></i></div>
-            <div class="tab-label">My Ticket</div>
-        </div>
-        <div class="tab-nav" data-tab="transact">
-            <div class="tab-icon"><i class="fas fa-exchange-alt"></i></div>
-            <div class="tab-label">Transact</div>
-        </div>
-        <div class="tab-nav" data-tab="queue">
-            <div class="tab-icon"><i class="fas fa-clock"></i></div>
-            <div class="tab-label">Queue</div>
-        </div>
-        <div class="tab-nav" data-tab="vvip">
-            <div class="tab-icon"><i class="fas fa-gem"></i></div>
-            <div class="tab-label">VVIP</div>
-        </div>
+<body style="background: #f5f7fb; min-height: 100vh;">
+    <!-- 
+        PURE BOTTOM NAVIGATION - COPY THIS BLOCK INTO YOUR PROJECT
+        No instructions, no extra content, just the nav component.
+    -->
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="location.href='home.html'">
+            <div class="nav-icon"><i class="fas fa-home"></i></div>
+            <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-btn" onclick="location.href='queue.html'">
+            <div class="nav-icon"><i class="fas fa-clock"></i></div>
+            <span class="nav-label">Queue</span>
+        </button>
+        <button class="nav-btn" onclick="location.href='transact.html'">
+            <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
+            <span class="nav-label">Transact</span>
+        </button>
+        <button class="nav-btn" onclick="location.href='vvip.html'">
+            <div class="nav-icon"><i class="fas fa-gem"></i></div>
+            <span class="nav-label">VVIP</span>
+        </button>
+        <button class="nav-btn" onclick="location.href='ticket-store.html'">
+            <div class="nav-icon"><i class="fas fa-ticket-alt"></i></div>
+            <span class="nav-label">Tickets</span>
+        </button>
     </div>
-
-    <script>
-        // Tab switching functionality - ready to integrate
-        const tabs = document.querySelectorAll('.tab-nav');
-        
-        function setActiveTab(activeTab) {
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            activeTab.classList.add('active');
-        }
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                setActiveTab(tab);
-            });
-        });
-        
-        // Set Home as active by default
-        const homeTab = document.querySelector('.tab-nav[data-tab="home"]');
-        if (homeTab) {
-            homeTab.classList.add('active');
-        }
-    </script>
 </body>
 </html>
