@@ -22,6 +22,7 @@
             align-items: center;
             min-height: 100vh;
             padding: 16px;
+            padding-bottom: 80px; /* Space for external bottom nav */
         }
 
         .wallet-container {
@@ -364,7 +365,7 @@
 
         /* ========== VIBE BAR ========== */
         .vibe-section {
-            padding: 20px 20px 0 20px;
+            padding: 20px 20px 30px 20px;
             margin: 8px 0 4px 0;
         }
 
@@ -647,47 +648,6 @@
         .refund-note i {
             color: #E30613;
             font-size: 1rem;
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            background: white;
-            border-top: 1px solid #edf2f7;
-            padding: 10px 20px 22px;
-            display: flex;
-            justify-content: space-between;
-            margin-top: auto;
-        }
-
-        .nav-item {
-            flex: 1;
-            text-align: center;
-            cursor: pointer;
-            padding: 6px 0;
-            border-radius: 30px;
-            transition: 0.2s;
-        }
-
-        .nav-item:active {
-            transform: scale(0.94);
-        }
-
-        .nav-item i {
-            font-size: 1.3rem;
-            color: #94a3b8;
-        }
-
-        .nav-item span {
-            font-size: 0.6rem;
-            display: block;
-            margin-top: 4px;
-            color: #94a3b8;
-            font-weight: 500;
-        }
-
-        .nav-item.active i,
-        .nav-item.active span {
-            color: #E30613;
         }
 
         /* Modal Overlay */
@@ -996,15 +956,6 @@
                 <p style="font-size: 0.6rem; text-align: center; margin-top: 12px; color: #94a3b8;">Each check-in raises the vibe → free stuff for everyone!</p>
             </div>
         </div>
-
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
-            <div class="nav-item active" @click="switchTab('home')"><i class="fas fa-home"></i><span>Home</span></div>
-            <div class="nav-item" @click="switchTab('mytickets')"><i class="fas fa-ticket-alt"></i><span>My Tickets</span></div>
-            <div class="nav-item" @click="switchTab('transact')"><i class="fas fa-exchange-alt"></i><span>Transact</span></div>
-            <div class="nav-item" @click="switchTab('vvip')"><i class="fas fa-crown"></i><span>VVIP</span></div>
-            <div class="nav-item" @click="switchTab('queue')"><i class="fas fa-hourglass-half"></i><span>Queue</span></div>
-        </div>
     </div>
 
     <!-- Counter Selection Modal -->
@@ -1158,22 +1109,6 @@
             formatPrice(price) {
                 return price.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             },
-            switchTab(tab) {
-                this.activeTab = tab;
-                const tabNames = {
-                    home: 'Home Dashboard',
-                    mytickets: 'My Tickets - View your purchased event tickets',
-                    transact: 'Send / Receive Money',
-                    vvip: 'VVIP Experience - Coming Soon',
-                    queue: 'Queue Management'
-                };
-                this.showToast(`📱 ${tabNames[tab]}`);
-                document.querySelectorAll('.nav-item').forEach((item, idx) => {
-                    const navTabs = ['home', 'mytickets', 'transact', 'vvip', 'queue'];
-                    if (navTabs[idx] === tab) item.classList.add('active');
-                    else item.classList.remove('active');
-                });
-            },
             showToast(message, duration = 2500) {
                 if (this.toastTimer) clearTimeout(this.toastTimer);
                 this.toastMessage = message;
@@ -1213,7 +1148,6 @@
                 this.refundModalVisible = false;
             },
             submitRefundRequest() {
-                // Validate form
                 if (!this.refundRequest.amount || parseFloat(this.refundRequest.amount) <= 0) {
                     this.showToast('❌ Please enter a valid refund amount');
                     return;
@@ -1231,7 +1165,6 @@
                     return;
                 }
 
-                // Create refund request object to store in localStorage
                 const refundRequestData = {
                     id: Date.now(),
                     userId: 'Mziwonke',
@@ -1244,7 +1177,6 @@
                     dateSubmitted: new Date().toISOString()
                 };
 
-                // Store in localStorage for admin to review
                 let pendingRefunds = JSON.parse(localStorage.getItem('rands_refund_requests') || '[]');
                 pendingRefunds.push(refundRequestData);
                 localStorage.setItem('rands_refund_requests', JSON.stringify(pendingRefunds));
@@ -1253,7 +1185,6 @@
                 
                 this.closeRefundModal();
                 
-                // Reset form
                 this.refundRequest = {
                     amount: '',
                     transactionId: '',
