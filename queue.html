@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>Rands Smart Queue - Pre-order Kiosk</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+
+  body {
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    padding-bottom: 60px;
+  }
+
+  .kiosk-header {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.1);
+    border: 1px solid #ffcccc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .header-logo {
+    height: 50px;
+    width: auto;
+  }
+
+  .kiosk-header h1 {
+    color: #FF0000;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  .kiosk-container {
+    width: 100%;
+    max-width: 800px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .join-panel {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    border: 1px solid #ffcccc;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .form-group label i {
+    margin-right: 6px;
+    color: #25D366;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #ffcccc;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #FF0000;
+  }
+
+  .form-group input.valid {
+    border-color: #4caf50;
+    background: #f0fff0;
+  }
+
+  .form-group input.invalid {
+    border-color: #ff9800;
+    background: #fff8f0;
+  }
+
+  .counter-tag {
+    background: #FF0000;
+    color: white;
+    padding: 14px 16px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .join-btn {
+    width: 100%;
+    padding: 16px;
+    background: #FF0000;
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s;
+  }
+
+  .join-btn:active {
+    transform: scale(0.98);
+  }
+
+  .join-btn.disabled, .join-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+  }
+
+  .serving-panel {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    border: 1px solid #ffcccc;
+  }
+
+  .serving-panel h2 {
+    color: #FF0000;
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 1.2rem;
+  }
+
+  .counter-serving {
+    background: linear-gradient(135deg, #FF0000, #ff4d4d);
+    border-radius: 20px;
+    padding: 20px;
+    color: white;
+    text-align: center;
+  }
+
+  .counter-serving h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .serving-number {
+    font-size: 48px;
+    font-weight: bold;
+  }
+
+  /* PREORDER MODAL */
+  .preorder-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .preorder-container {
+    background: white;
+    border-radius: 28px;
+    width: 92%;
+    max-width: 550px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 20px;
+    position: relative;
+  }
+  
+  .close-modal {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 26px;
+    cursor: pointer;
+    color: #999;
+  }
+  
+  .category-row {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  
+  .cat-pill {
+    background: #f1f5f9;
+    padding: 8px 20px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  
+  .cat-pill.active {
+    background: #FF0000;
+    color: white;
+  }
+  
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  
+  .menu-item {
+    background: #f8fafc;
+    border-radius: 18px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid #ffcccc;
+    transition: all 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .menu-item:active {
+    transform: scale(0.96);
+    background: #fef2f2;
+    border-color: #FF0000;
+  }
+  
+  /* Throwing animation effect */
+  .menu-item-throw {
+    animation: throwToCart 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards !important;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  
+  @keyframes throwToCart {
+    0% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+      background: #f8fafc;
+    }
+    30% {
+      transform: scale(1.1) rotate(5deg);
+      background: #FF0000;
+      color: white;
+      box-shadow: 0 0 15px rgba(255,0,0,0.5);
+    }
+    100% {
+      transform: translate(80px, 120px) scale(0.2) rotate(15deg);
+      opacity: 0;
+    }
+  }
+  
+  /* Cart bounce animation */
+  @keyframes cartBounce {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); background: #ffcccc; }
+    100% { transform: scale(1); }
+  }
+  
+  .cart-bounce {
+    animation: cartBounce 0.4s ease-in-out;
+  }
+  
+  .item-name {
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  
+  .item-price {
+    color: #FF0000;
+    font-weight: 700;
+    margin-top: 5px;
+    font-size: 0.85rem;
+  }
+  
+  /* CART SECTION */
+  .cart-section {
+    background: #fff5f5;
+    border-radius: 20px;
+    margin-top: 16px;
+    padding: 14px;
+    border: 2px solid #FF0000;
+    box-shadow: 0 4px 12px rgba(255,0,0,0.1);
+    transition: all 0.2s;
+  }
+  
+  .cart-section strong {
+    font-size: 1rem;
+    color: #FF0000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .cart-items-list {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+  }
+  
+  /* New item highlight animation */
+  .new-item-highlight {
+    animation: highlightFlash 0.5s ease-in-out;
+    background: #fff0f0 !important;
+  }
+  
+  @keyframes highlightFlash {
+    0% { background: #ffffff; transform: translateX(-5px); }
+    30% { background: #ffe0e0; transform: translateX(5px); }
+    60% { background: #fff5f5; transform: translateX(-2px); }
+    100% { background: white; transform: translateX(0); }
+  }
+  
+  .cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid #ffcccc;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  
+  .cart-item-info {
+    flex: 2;
+    min-width: 100px;
+  }
+  
+  .cart-item-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  
+  .cart-item-price {
+    font-size: 0.7rem;
+    color: #FF0000;
+  }
+  
+  .cart-item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .qty-btn {
+    background: #f1f5f9;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .qty-btn:active {
+    transform: scale(0.92);
+  }
+  
+  .qty-value {
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+  }
+  
+  .cart-item-total {
+    font-weight: 800;
+    color: #FF0000;
+    min-width: 55px;
+    text-align: right;
+    font-size: 0.85rem;
+  }
+  
+  .remove-item {
+    background: none;
+    border: none;
+    color: #f44336;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 5px;
+  }
+  
+  .cart-total {
+    text-align: right;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin: 10px 0;
+    padding-top: 10px;
+    border-top: 2px solid #ffcccc;
+    color: #FF0000;
+  }
+  
+  .empty-cart-message {
+    text-align: center;
+    padding: 25px;
+    color: #999;
+    font-style: italic;
+    font-size: 0.85rem;
+  }
+  
+  .btn-primary-modal {
+    background: #FF0000;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 40px;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  
+  .btn-primary-modal:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* TICKET CONFIRMATION SCREEN - MOBILE FRIENDLY */
+  .ticket-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 20000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .ticket-confirmation {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 28px;
+    padding: 24px 20px;
+    text-align: center;
+    border: 2px solid #10b981;
+    animation: slideIn 0.5s ease;
+    max-width: 450px;
+    width: 100%;
+    margin: auto;
+  }
+  
+  .ticket-confirmation .check-icon {
+    font-size: 3rem;
+    color: #10b981;
+    margin-bottom: 12px;
+  }
+  
+  .ticket-confirmation h2 {
+    color: #166534;
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+  }
+  
+  .ticket-number-display {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #dc2626;
+    letter-spacing: 1px;
+    margin: 12px 0;
+    background: white;
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    word-break: break-all;
+  }
+  
+  .qr-code-container {
+    background: white;
+    padding: 16px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 16px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  #confirmationQrcode {
+    display: flex;
+    justify-content: center;
+    min-width: 140px;
+  }
+  
+  #confirmationQrcode img,
+  #confirmationQrcode canvas {
+    width: 160px !important;
+    height: 160px !important;
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .qr-zoom-instruction {
+    font-size: 10px;
+    color: #666;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  
+  .tracking-link {
+    background: #f1f5f9;
+    padding: 10px;
+    border-radius: 12px;
+    margin: 12px 0;
+    word-break: break-all;
+    font-size: 0.7rem;
+    color: #334155;
+  }
+  
+  .copy-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    cursor: pointer;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .wait-info {
+    background: #fef3c7;
+    padding: 10px;
+    border-radius: 14px;
+    margin: 12px 0;
+    color: #92400e;
+    font-size: 0.8rem;
+  }
+  
+  .reset-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 60px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 12px;
+    width: 100%;
+  }
+  
+  @keyframes subtlePulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  
+  .zoom-hint {
+    animation: subtlePulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 0.8rem;
+    margin-top: 20px;
+    color: #6B7280;
+    width: 100%;
+    max-width: 800px;
+    font-size: 0.7rem;
+  }
+  
+  .ticket-scroll-content {
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 3px;
+  }
+  
+  /* Popup Modal Styles */
+  .popup-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+    z-index: 30000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .popup-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .popup-modal {
+    background: white;
+    border-radius: 28px;
+    width: 85%;
+    max-width: 320px;
+    padding: 24px 20px;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  }
+  
+  .popup-modal-overlay.active .popup-modal {
+    transform: scale(1);
+  }
+  
+  .popup-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+  }
+  
+  .popup-icon.warning { color: #ff9800; }
+  .popup-icon.error { color: #d32f2f; }
+  .popup-icon.success { color: #4caf50; }
+  .popup-icon.info { color: #2196f3; }
+  
+  .popup-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 6px;
+  }
+  
+  .popup-message {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+  
+  .popup-btn {
+    background: #FF0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .phone-hint {
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .phone-hint.valid {
+    color: #4caf50;
+  }
+  
+  .phone-hint.invalid {
+    color: #ff9800;
+  }
+  
+  @media (max-width: 650px) {
+    .kiosk-container { 
+      grid-template-columns: 1fr; 
+      gap: 16px;
+    }
+    .kiosk-header h1 { 
+      font-size: 1.3rem; 
+    }
+    .header-logo { 
+      height: 40px; 
+    }
+    .serving-number { 
+      font-size: 40px; 
+    }
+    .join-panel, .serving-panel {
+      padding: 20px;
+    }
+    .join-btn {
+      font-size: 1rem;
+      padding: 14px;
+    }
+    .items-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .menu-item {
+      padding: 10px 8px;
+    }
+    .item-name {
+      font-size: 0.8rem;
+    }
+    .ticket-number-display { 
+      font-size: 1.4rem; 
+    }
+    #confirmationQrcode img,
+    #confirmationQrcode canvas {
+      width: 130px !important;
+      height: 130px !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    body {
+      padding: 12px;
+    }
+    .kiosk-header {
+      padding: 12px 16px;
+    }
+    .kiosk-header h1 {
+      font-size: 1.1rem;
+    }
+    .counter-tag {
+      font-size: 13px;
+      padding: 12px;
+    }
+    .serving-number {
+      font-size: 34px;
+    }
+    .cart-item-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .cart-item-total {
+      align-self: flex-end;
+    }
+    .ticket-number-display {
+      font-size: 1.2rem;
+      padding: 4px 12px;
+    }
+    #confirmationQrcode img,
+    #confirmationQrcode canvas {
+      width: 110px !important;
+      height: 110px !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="kiosk-header">
+  <div class="header-title">
+    <img class="header-logo" src="images/rands-logo.png" alt="Rands Logo" onerror="this.style.display='none'">
+    <h1>Rands Smart Queue</h1>
+  </div>
+</div>
+
+<div class="kiosk-container">
+  <div class="join-panel">
+    <div class="form-group">
+      <label><i class="fab fa-whatsapp"></i> WhatsApp Number</label>
+      <input type="tel" id="whatsappNumber" placeholder="e.g., 0635713652" value="" maxlength="10" inputmode="numeric">
+      <div class="phone-hint" id="phoneHint"><i class="fas fa-info-circle"></i> Enter 10-digit number (e.g., 0635713652)</div>
+    </div>
+    
+    <div class="form-group">
+      <label>Select Counter</label>
+      <div class="counter-tag">🥩 The Butcher Counter</div>
+    </div>
+    
+    <button class="join-btn" id="joinBtn" disabled>🍽️ Pre-order & Queue</button>
+  </div>
+  
+  <div class="serving-panel">
+    <h2>🔴 NOW SERVING</h2>
+    <div id="butcherServing" class="counter-serving">
+      <h3>🥩 The Butcher Counter</h3>
+      <div class="serving-number" id="butcherTicket">—</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Created by Mziwonke KaBuyaphi</div>
+
+<!-- Popup Modal Component -->
+<div id="popupModal" class="popup-modal-overlay">
+  <div class="popup-modal">
+    <div class="popup-icon" id="popupIcon">⚠️</div>
+    <div class="popup-title" id="popupTitle">Notification</div>
+    <div class="popup-message" id="popupMessage">Message here</div>
+    <button class="popup-btn" id="popupOkBtn">OK</button>
+  </div>
+</div>
+
+<script>
+  const QUEUE_KEY = "butcher_shop_queue";
+  const ORDERS_KEY = "butcher_shop_orders";
+
+  // MENU ITEMS
+  const menu = {
+    meat: [
+      { id: "ribeye", name: "🥩 Ribeye Steak", price: 159 },
+      { id: "beef_sausage", name: "🌭 Beef Sausage", price: 89 },
+      { id: "lamb_chop", name: "🍖 Lamb Chop", price: 199 },
+      { id: "tbone", name: "🥩 T-Bone Steak", price: 249 }
+    ],
+    meals: [
+      { id: "steak_combo", name: "🍟 Steak + Chips", price: 189 },
+      { id: "boerewors_roll", name: "🌭 Boerewors Roll", price: 65 },
+      { id: "barbecue_platter", name: "🔥 BBQ Platter", price: 299 }
+    ],
+    sides: [
+      { id: "chips", name: "🍟 Chips", price: 25 },
+      { id: "salad", name: "🥗 Fresh Salad", price: 32 },
+      { id: "pap_sheba", name: "🍚 Pap & Sheba", price: 28 }
+    ],
+    drinks: [
+      { id: "coke", name: "🥤 Coca-Cola", price: 18 },
+      { id: "water", name: "💧 Still Water", price: 12 },
+      { id: "beer", name: "🍺 Castle Lager", price: 28 }
+    ]
+  };
+
+  // ============ POPUP MODAL SYSTEM ============
+  function showPopup(options) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('popupModal');
+      const icon = document.getElementById('popupIcon');
+      const title = document.getElementById('popupTitle');
+      const message = document.getElementById('popupMessage');
+      const okBtn = document.getElementById('popupOkBtn');
+      
+      const icons = {
+        warning: '⚠️',
+        error: '❌',
+        success: '✅',
+        info: 'ℹ️'
+      };
+      
+      icon.innerHTML = options.icon || icons[options.type] || 'ℹ️';
+      icon.className = `popup-icon ${options.type || 'info'}`;
+      title.innerText = options.title || 'Notification';
+      message.innerText = options.message || '';
+      
+      const newOkBtn = okBtn.cloneNode(true);
+      okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+      
+      newOkBtn.onclick = () => {
+        modal.classList.remove('active');
+        resolve(true);
+      };
+      
+      modal.classList.add('active');
+    });
+  }
+  
+  async function showAlert(message, title = 'Notification', type = 'info') {
+    await showPopup({ message, title, type });
+  }
+  
+  // ============ QUEUE FUNCTIONS ============
+  function getQueue() { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); }
+  function saveQueue(q) { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
+  function getOrders() { return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); }
+  function saveOrders(orders) { localStorage.setItem(ORDERS_KEY, JSON.stringify(orders)); }
+
+  function generateTicketNumber() {
+    const queue = getQueue();
+    let nextNum = queue.length + 1;
+    while (queue.some(t => t.ticketNumber === `B-${String(nextNum).padStart(3, '0')}`)) nextNum++;
+    return `B-${String(nextNum).padStart(3, '0')}`;
+  }
+
+  function updateNowServing() {
+    const queue = getQueue();
+    document.getElementById('butcherTicket').textContent = queue.length > 0 ? queue[0].ticketNumber : '—';
+  }
+
+  // Phone number validation
+  function validatePhoneNumber(phone) {
+    const digitsOnly = phone.replace(/\D/g, '');
+    return digitsOnly.length === 10 && /^[0-9]{10}$/.test(digitsOnly);
+  }
+
+  function updateJoinButtonState() {
+    const phoneInput = document.getElementById('whatsappNumber');
+    const joinBtn = document.getElementById('joinBtn');
+    const phoneHint = document.getElementById('phoneHint');
+    const phoneValue = phoneInput.value.trim();
+    
+    if (validatePhoneNumber(phoneValue)) {
+      joinBtn.disabled = false;
+      joinBtn.classList.remove('disabled');
+      phoneInput.classList.add('valid');
+      phoneInput.classList.remove('invalid');
+      phoneHint.innerHTML = '<i class="fas fa-check-circle"></i> Valid phone number';
+      phoneHint.className = 'phone-hint valid';
+    } else {
+      joinBtn.disabled = true;
+      joinBtn.classList.add('disabled');
+      phoneInput.classList.remove('valid');
+      phoneInput.classList.add('invalid');
+      if (phoneValue.length > 0 && phoneValue.replace(/\D/g, '').length < 10) {
+        phoneHint.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Need 10 digits (e.g., 0635713652)';
+      } else {
+        phoneHint.innerHTML = '<i class="fas fa-info-circle"></i> Enter 10-digit number (e.g., 0635713652)';
+      }
+      phoneHint.className = 'phone-hint invalid';
+    }
+  }
+
+  // Trigger cart bounce animation
+  function animateCartBounce() {
+    const cartSection = document.querySelector('.cart-section');
+    if (cartSection) {
+      cartSection.classList.add('cart-bounce');
+      setTimeout(() => {
+        cartSection.classList.remove('cart-bounce');
+      }, 400);
+    }
+  }
+  
+  // Highlight newly added or updated item in cart
+  function highlightCartItem(itemIndex) {
+    setTimeout(() => {
+      const cartItems = document.querySelectorAll('.cart-item-row');
+      if (cartItems[itemIndex]) {
+        cartItems[itemIndex].classList.add('new-item-highlight');
+        setTimeout(() => {
+          cartItems[itemIndex].classList.remove('new-item-highlight');
+        }, 500);
+      }
+    }, 100);
+  }
+
+  // Animate item being thrown to cart
+  function animateThrowToCart(element, callback) {
+    if (!element) {
+      if (callback) callback();
+      return;
+    }
+    
+    const rect = element.getBoundingClientRect();
+    const cartSection = document.querySelector('.cart-section');
+    const cartRect = cartSection ? cartSection.getBoundingClientRect() : null;
+    
+    const clone = element.cloneNode(true);
+    clone.style.position = 'fixed';
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+    clone.style.margin = '0';
+    clone.style.zIndex = '20000';
+    clone.style.pointerEvents = 'none';
+    clone.style.transition = 'all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1)';
+    clone.style.borderRadius = '18px';
+    clone.style.boxShadow = '0 4px 20px rgba(255,0,0,0.5)';
+    document.body.appendChild(clone);
+    
+    if (cartRect) {
+      setTimeout(() => {
+        clone.style.transform = `translate(${cartRect.left + cartRect.width/2 - rect.left - rect.width/2}px, ${cartRect.top + cartRect.height/2 - rect.top - rect.height/2}px) scale(0.3) rotate(15deg)`;
+        clone.style.opacity = '0.5';
+      }, 10);
+    } else {
+      clone.style.transform = 'scale(0.1) rotate(15deg)';
+      clone.style.opacity = '0';
+    }
+    
+    setTimeout(() => {
+      clone.remove();
+      if (callback) callback();
+    }, 450);
+  }
+
+  // Mobile-friendly ticket confirmation with scrollable content and zoomable QR
+  function showTicketConfirmation(ticketNumber, total) {
+    const baseUrl = window.location.origin + window.location.pathname.replace('kiosk-preorder.html', 'customer-status-page.html');
+    const trackingUrl = `${baseUrl}?order=${ticketNumber}&counter=butcher`;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'ticket-overlay';
+    
+    overlay.innerHTML = `
+      <div class="ticket-confirmation">
+        <div class="ticket-scroll-content">
+          <div class="check-icon">✅</div>
+          <h2>Order Confirmed!</h2>
+          <p>Your ticket number</p>
+          <div class="ticket-number-display">${ticketNumber}</div>
+          
+          <div class="qr-code-container">
+            <div id="confirmationQrcode"></div>
+          </div>
+          <div class="qr-zoom-instruction zoom-hint">
+            <i class="fas fa-hand-peace"></i> Pinch to zoom <i class="fas fa-magnifying-glass-plus"></i>
+          </div>
+          
+          <p style="margin: 6px 0 10px; font-weight: 500; font-size:0.85rem;">Scan QR code to track your order</p>
+          
+          <div class="tracking-link">
+            <small>Or use this link:</small><br>
+            <span id="trackingUrl">${trackingUrl}</span>
+          </div>
+          
+          <button class="copy-btn" id="copyLinkBtn">📋 Copy Link</button>
+          
+          <div class="wait-info">
+            <i class="fas fa-clock"></i> Estimated wait: ~${Math.max(5, Math.floor(Math.random() * 15) + 5)} minutes<br>
+            <small>You will be called when your order is ready</small>
+          </div>
+          
+          <button class="reset-btn" id="closeConfirmationBtn">Start New Order →</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    const qrContainer = document.getElementById('confirmationQrcode');
+    if (qrContainer && typeof QRCode !== 'undefined') {
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, {
+        text: trackingUrl,
+        width: 160,
+        height: 160,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      
+      const qrWrapper = qrContainer.parentElement;
+      if (qrWrapper) {
+        qrWrapper.style.overflowX = 'auto';
+        qrWrapper.style.webkitOverflowScrolling = 'touch';
+      }
+    } else {
+      qrContainer.innerHTML = `<div style="width:140px;height:140px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;border-radius:16px;font-size:12px;">QR Code<br>Not Available</div>`;
+    }
+    
+    document.getElementById('copyLinkBtn')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(trackingUrl);
+      showAlert('Tracking link copied to clipboard!', 'Copied', 'success');
+    });
+    
+    document.getElementById('closeConfirmationBtn')?.addEventListener('click', () => {
+      overlay.remove();
+    });
+    
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+      }
+    });
+    
+    localStorage.setItem('lastTicket', ticketNumber);
+    localStorage.setItem('lastTrackingUrl', trackingUrl);
+  }
+
+  function openPreorderModal() {
+    let cart = [];
+    let currentCategory = "meat";
+    
+    const modal = document.createElement('div');
+    modal.className = 'preorder-modal';
+    
+    function renderModal() {
+      const categoriesHtml = Object.keys(menu).map(cat => 
+        `<button class="cat-pill ${currentCategory === cat ? 'active' : ''}" data-cat="${cat}">${cat.toUpperCase()}</button>`
+      ).join('');
+      
+      const items = menu[currentCategory] || [];
+      const itemsHtml = items.map(item => `
+        <div class="menu-item" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">
+          <div class="item-name">${item.name}</div>
+          <div class="item-price">R${item.price}</div>
+        </div>
+      `).join('');
+      
+      const cartTotal = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+      
+      const cartHtml = cart.length > 0 ? cart.map((item, idx) => `
+        <div class="cart-item-row" data-cart-index="${idx}">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">R${item.price} each</div>
+          </div>
+          <div class="cart-item-quantity">
+            <button class="qty-btn inc-qty" data-idx="${idx}">+</button>
+            <span class="qty-value">${item.quantity}</span>
+            <button class="qty-btn dec-qty" data-idx="${idx}">-</button>
+          </div>
+          <div class="cart-item-total">R${(item.price * item.quantity).toFixed(2)}</div>
+          <button class="remove-item" data-idx="${idx}">🗑️</button>
+        </div>
+      `).join('') : '<div class="empty-cart-message"><i class="fas fa-shopping-cart"></i> Your cart is empty<br>Tap items above to add</div>';
+      
+      modal.innerHTML = `
+        <div class="preorder-container">
+          <div class="close-modal">&times;</div>
+          <h2 style="color:#FF0000; font-size:1.3rem;">📝 Pre-order Menu</h2>
+          <p style="color:#666; font-size:0.8rem;">Tap items to add to your order</p>
+          <div class="category-row" id="categoryRow">${categoriesHtml}</div>
+          <div class="items-grid" id="itemsGrid">${itemsHtml}</div>
+          
+          <div class="cart-section">
+            <strong><i class="fas fa-shopping-cart"></i> Your Order</strong>
+            <div class="cart-items-list" id="cartList">${cartHtml}</div>
+            <div class="cart-total">Total: R${cartTotal.toFixed(2)}</div>
+            <input type="text" id="specialInstructions" placeholder="Special instructions (e.g., well done, no salt)" style="width:100%; padding:10px; border-radius:40px; border:1px solid #ffcccc; margin-top:10px; font-size:0.85rem;">
+            <button id="confirmOrderBtn" class="btn-primary-modal" ${cart.length === 0 ? 'disabled' : ''}>✅ Confirm & Join Queue</button>
+          </div>
+        </div>
+      `;
+      
+      // Category click handlers
+      modal.querySelectorAll('.cat-pill').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentCategory = btn.dataset.cat;
+          renderModal();
+        });
+      });
+      
+      // Menu item click handlers with throw animation
+      modal.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const id = item.dataset.id;
+          const name = item.dataset.name;
+          const price = parseFloat(item.dataset.price);
+          
+          // Animate the item being thrown to cart
+          animateThrowToCart(item, () => {
+            const existing = cart.find(i => i.id === id);
+            let newItemIndex = -1;
+            if (existing) {
+              existing.quantity++;
+              newItemIndex = cart.findIndex(i => i.id === id);
+            } else {
+              cart.push({ id, name, price, quantity: 1 });
+              newItemIndex = cart.length - 1;
+            }
+            renderModal();
+            animateCartBounce();
+            if (newItemIndex >= 0) {
+              highlightCartItem(newItemIndex);
+            }
+          });
+        });
+      });
+      
+      // Quantity increment handlers
+      modal.querySelectorAll('.inc-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx);
+          cart[idx].quantity++;
+          renderModal();
+          animateCartBounce();
+          highlightCartItem(idx);
+        });
+      });
+      
+      // Quantity decrement handlers
+      modal.querySelectorAll('.dec-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx);
+          if (cart[idx].quantity > 1) {
+            cart[idx].quantity--;
+            renderModal();
+            animateCartBounce();
+            highlightCartItem(idx);
+          } else {
+            cart.splice(idx, 1);
+            renderModal();
+            animateCartBounce();
+          }
+        });
+      });
+      
+      // Remove item handlers
+      modal.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx);
+          cart.splice(idx, 1);
+          renderModal();
+          animateCartBounce();
+        });
+      });
+      
+      modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
+      
+      const confirmBtn = modal.querySelector('#confirmOrderBtn');
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', async () => {
+          if (cart.length === 0) {
+            await showAlert('Please add items to your order', 'Empty Cart', 'warning');
+            return;
+          }
+          
+          const whatsapp = document.getElementById('whatsappNumber').value.trim();
+          if (!validatePhoneNumber(whatsapp)) {
+            await showAlert('Please enter a valid 10-digit WhatsApp number', 'Invalid Number', 'warning');
+            return;
+          }
+          
+          const ticketNumber = generateTicketNumber();
+          const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+          const instructions = document.getElementById('specialInstructions')?.value || '';
+          
+          const queue = getQueue();
+          queue.push({
+            ticketNumber: ticketNumber,
+            timestamp: new Date().toISOString(),
+            called: false,
+            customerName: `Customer ${ticketNumber}`,
+            whatsapp: whatsapp
+          });
+          saveQueue(queue);
+          
+          const orders = getOrders();
+          orders.push({
+            ticketNumber: ticketNumber,
+            customerName: `Customer ${ticketNumber}`,
+            whatsapp: whatsapp,
+            items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, notes: instructions })),
+            total: total,
+            paid: false,
+            kitchenStatus: 'new',
+            createdAt: new Date().toISOString()
+          });
+          saveOrders(orders);
+          
+          modal.remove();
+          showTicketConfirmation(ticketNumber, total);
+          document.getElementById('whatsappNumber').value = '';
+          updateJoinButtonState();
+          updateNowServing();
+          
+          window.dispatchEvent(new StorageEvent('storage', { key: QUEUE_KEY }));
+          window.dispatchEvent(new StorageEvent('storage', { key: ORDERS_KEY }));
+        });
+      }
+    }
+    
+    renderModal();
+    document.body.appendChild(modal);
+  }
+
+  // Phone input validation listener
+  const phoneInput = document.getElementById('whatsappNumber');
+  phoneInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 10) value = value.slice(0, 10);
+    e.target.value = value;
+    updateJoinButtonState();
+  });
+  
+  phoneInput.addEventListener('keypress', function(e) {
+    if (!/[0-9]/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  document.getElementById('joinBtn').addEventListener('click', () => {
+    const phoneValue = phoneInput.value.trim();
+    if (validatePhoneNumber(phoneValue)) {
+      openPreorderModal();
+    } else {
+      showAlert('Please enter a valid 10-digit WhatsApp number', 'Invalid Number', 'warning');
+    }
+  });
+  
+  updateNowServing();
+  setInterval(updateNowServing, 5000);
+  updateJoinButtonState();
+</script>
+</body>
+</html>

@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Vibe Passport | Digital Wallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .wallet-container {
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== STUNNING HEADER ========== */
+        .stunning-header {
+            background: linear-gradient(145deg, #E30613 0%, #a0010e 100%);
+            padding: 28px 24px 40px 24px;
+            border-radius: 0 0 40px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stunning-header::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .stunning-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -30px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-circle {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            overflow: hidden;
+        }
+
+        .logo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-text h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text p {
+            font-size: 0.55rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            width: 44px;
+            height: 44px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.94);
+        }
+
+        .icon-btn i {
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+        }
+
+        .welcome-section {
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .greeting {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: rgba(255,255,255,1);
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .user-name {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: white;
+            margin-top: 4px;
+            text-transform: lowercase;
+        }
+
+        .user-name::first-letter {
+            text-transform: uppercase;
+        }
+
+        .header-balance-card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            padding: 20px;
+            margin-top: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .balance-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 0.5px;
+        }
+
+        .balance-amount {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: white;
+            margin: 6px 0 4px;
+            letter-spacing: -1px;
+        }
+
+        .balance-sub {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* ========== QUICK ACTION BUTTONS ========== */
+        .quick-actions {
+            padding: 0 20px;
+            margin-top: -24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .action-row-primary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .action-card-primary {
+            flex: 1;
+            background: white;
+            border-radius: 28px;
+            padding: 18px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(227, 6, 19, 0.1);
+        }
+
+        .action-card-primary:active {
+            transform: scale(0.96);
+            background: #fff5f5;
+        }
+
+        .action-icon-bg {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #E30613, #b0020e);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(227, 6, 19, 0.3);
+        }
+
+        .action-icon-bg i {
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .action-text h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .action-text p {
+            font-size: 0.65rem;
+            color: #94a3b8;
+        }
+
+        .action-row-secondary {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .action-pill {
+            flex: 1;
+            background: white;
+            border-radius: 60px;
+            padding: 14px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f0f4fa;
+        }
+
+        .action-pill:active {
+            transform: scale(0.96);
+            background: #fef2f2;
+            border-color: #E30613;
+        }
+
+        .action-pill i {
+            font-size: 1.1rem;
+            color: #E30613;
+        }
+
+        .action-pill span {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+
+        /* SERVICE BAR */
+        .service-bar {
+            padding: 16px 20px 0 20px;
+            margin-top: 8px;
+        }
+
+        .service-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .service-grid {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .service-card {
+            flex: 1;
+            background: #f8fafd;
+            border-radius: 24px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #eef2f8;
+        }
+
+        .service-card:active {
+            transform: scale(0.96);
+            background: #fff0f0;
+            border-color: #E30613;
+        }
+
+        .service-card i {
+            font-size: 1.5rem;
+            color: #E30613;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .service-card span {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* ========== VIBE BAR ========== */
+        .vibe-section {
+            padding: 20px 20px 0 20px;
+            margin: 8px 0 4px 0;
+        }
+
+        .vibe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+
+        .vibe-header h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #E30613, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.2px;
+        }
+
+        .vibe-header span {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 30px;
+            color: #E30613;
+        }
+
+        .vibe-card {
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+            border-radius: 32px;
+            padding: 20px;
+            border: 1px solid rgba(227, 6, 19, 0.3);
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .vibe-meter-container {
+            margin-bottom: 20px;
+        }
+
+        .vibe-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .vibe-bar-bg {
+            background: #334155;
+            border-radius: 60px;
+            height: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .vibe-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #E30613, #ff8c00, #ffd700);
+            border-radius: 60px;
+            transition: width 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            position: relative;
+            box-shadow: 0 0 8px #ff8c00;
+        }
+
+        .vibe-milestones {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            margin-bottom: 20px;
+            gap: 8px;
+        }
+
+        .milestone {
+            flex: 1;
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 8px 4px;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .milestone.unlocked {
+            background: linear-gradient(135deg, rgba(227,6,19,0.2), rgba(255,140,0,0.1));
+            border-color: #E30613;
+            box-shadow: 0 0 12px rgba(227,6,19,0.3);
+        }
+
+        .milestone .milestone-icon {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .milestone .milestone-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .milestone.unlocked .milestone-label {
+            color: #ffd700;
+        }
+
+        .vibe-action-btn {
+            background: rgba(227,6,19,0.9);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+
+        .vibe-action-btn:active {
+            transform: scale(0.96);
+            background: #E30613;
+        }
+
+        .checkin-count {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+        }
+
+        /* Counter Selection Modal */
+        .counter-modal {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 40px 40px 40px 40px;
+            padding: 28px 24px 32px;
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .counter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .counter-option {
+            background: #f8fafd;
+            border: 2px solid #eef2f8;
+            border-radius: 28px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .counter-option:active {
+            transform: scale(0.98);
+            background: #fff0f0;
+            border-color: #E30613;
+        }
+
+        .counter-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #E30613, #b0020e);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .counter-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .counter-info h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .counter-info p {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Refund Request Modal */
+        .refund-modal {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            max-height: 85vh;
+            border-radius: 40px;
+            padding: 28px 24px 32px;
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Payment Request Modal - MOBILE FRIENDLY SCROLLABLE */
+        .payment-modal {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            max-height: 85vh;
+            border-radius: 40px;
+            padding: 28px 24px 32px;
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #eef2f8;
+            border-radius: 28px;
+            font-size: 0.9rem;
+            background: #f8fafd;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #E30613;
+            background: white;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .refund-note {
+            background: #fff5f5;
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 0.7rem;
+            color: #64748b;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid #ffcccc;
+        }
+
+        .refund-note i {
+            color: #E30613;
+            font-size: 1rem;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: white;
+            border-top: 1px solid #edf2f7;
+            padding: 10px 20px 22px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 6px 0;
+            border-radius: 30px;
+            transition: 0.2s;
+        }
+
+        .nav-item:active {
+            transform: scale(0.94);
+        }
+
+        .nav-item i {
+            font-size: 1.3rem;
+            color: #94a3b8;
+        }
+
+        .nav-item span {
+            font-size: 0.6rem;
+            display: block;
+            margin-top: 4px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .nav-item.active i,
+        .nav-item.active span {
+            color: #E30613;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-icon {
+            width: 70px;
+            height: 70px;
+            background: #fff0f0;
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .modal-icon i {
+            font-size: 2rem;
+            color: #E30613;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .payment-details {
+            background: #f8fafd;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .pin-prompt {
+            background: #f1f5f9;
+            border-radius: 60px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pin-prompt i {
+            color: #E30613;
+            font-size: 1.1rem;
+        }
+
+        .pin-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-family: 'Inter', monospace;
+            letter-spacing: 4px;
+            text-align: center;
+        }
+
+        .pin-input:focus {
+            outline: none;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-decline {
+            background: #f1f5f9;
+            color: #E30613;
+        }
+
+        .btn-refund {
+            background: #E30613;
+            color: white;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            text-align: center;
+            z-index: 1100;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .toast-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .wallet-container {
+                border-radius: 32px;
+            }
+            .balance-amount {
+                font-size: 1.8rem;
+            }
+            .stunning-header {
+                padding: 20px 20px 32px 20px;
+            }
+            .counter-option, .refund-modal, .payment-modal {
+                padding: 20px;
+            }
+            .counter-icon {
+                width: 50px;
+                height: 50px;
+            }
+            .counter-icon i {
+                font-size: 1.5rem;
+            }
+            .refund-modal, .payment-modal {
+                max-height: 80vh;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="walletApp">
+    <div class="wallet-container">
+        <!-- STUNNING HEADER -->
+        <div class="stunning-header">
+            <div class="header-top-row">
+                <div class="logo-badge">
+                    <div class="logo-circle">
+                        <img src="images/rands-logo.png" alt="Rands Vibe Passport" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <div class="logo-text">
+                        <h2>Rands Vibe Passport</h2>
+                        <p>Your Digital Lifestyle Wallet</p>
+                    </div>
+                </div>
+                <div class="header-icons">
+                    <div class="icon-btn" @click="showToast('Profile settings coming soon')">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="icon-btn" @click="showToast('🔔 No new notifications')">
+                        <i class="far fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="welcome-section">
+                <div class="greeting">Wamkelekile</div>
+                <div class="user-name">Mziwonke 👋</div>
+            </div>
+
+            <div class="header-balance-card">
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount">R {{ formatPrice(balance) }}</div>
+                <div class="balance-sub">Available for cashless spending and Tickets</div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTION BUTTONS -->
+        <div class="quick-actions">
+            <div class="action-row-primary">
+                <div class="action-card-primary" @click="showToast('Deposit feature coming soon')">
+                    <div class="action-icon-bg"><i class="fas fa-arrow-down"></i></div>
+                    <div class="action-text"><h4>Deposit</h4><p>Add funds instantly</p></div>
+                </div>
+                <div class="action-card-primary" @click="showToast('Withdraw feature coming soon')">
+                    <div class="action-icon-bg"><i class="fas fa-arrow-up"></i></div>
+                    <div class="action-text"><h4>Withdraw</h4><p>To bank or wallet</p></div>
+                </div>
+            </div>
+            <div class="action-row-secondary">
+                <div class="action-pill" @click="openCounterSelection()">
+                    <i class="fas fa-cash-register"></i><span>Pay Counter</span>
+                </div>
+                <div class="action-pill" @click="openRefundModal()">
+                    <i class="fas fa-undo-alt"></i><span>Request Refund</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICE BAR -->
+        <div class="service-bar">
+            <div class="service-title"><i class="fas fa-th-large"></i> Quick Services</div>
+            <div class="service-grid">
+                <div class="service-card" @click="handleBuyTickets()">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Buy Tickets</span>
+                </div>
+                <div class="service-card" @click="showToast('💨 Smoke Hookah - Premium lounge experience coming soon')">
+                    <i class="fas fa-smoking"></i>
+                    <span>Smoke Hookah</span>
+                </div>
+                <div class="service-card" @click="handleBoozeLockers()">
+                    <i class="fas fa-lock"></i>
+                    <span>Booze Lockers</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIVE VIBE BAR -->
+        <div class="vibe-section">
+            <div class="vibe-header">
+                <h3><i class="fas fa-charging-station"></i> LIVE VIBE METER</h3>
+                <span>Event Day</span>
+            </div>
+            <div class="vibe-card">
+                <div class="vibe-meter-container">
+                    <div class="vibe-stats">
+                        <span>🔥 Crowd Energy</span>
+                        <span><span class="checkin-count">{{ checkins }}</span> / 500 checked in</span>
+                    </div>
+                    <div class="vibe-bar-bg">
+                        <div class="vibe-bar-fill" :style="{ width: vibeProgress + '%' }"></div>
+                    </div>
+                </div>
+                
+                <div class="vibe-milestones">
+                    <div class="milestone" :class="{ unlocked: checkins >= 100 }">
+                        <i class="fas fa-music milestone-icon"></i>
+                        <span class="milestone-label">100 🎵 DJ Drop</span>
+                    </div>
+                    <div class="milestone" :class="{ unlocked: checkins >= 250 }">
+                        <i class="fas fa-champagne-glasses milestone-icon"></i>
+                        <span class="milestone-label">250 🍾 Free Round</span>
+                    </div>
+                    <div class="milestone" :class="{ unlocked: checkins >= 500 }">
+                        <i class="fas fa-crown milestone-icon"></i>
+                        <span class="milestone-label">500 👑 VVIP Upgrade</span>
+                    </div>
+                </div>
+
+                <button class="vibe-action-btn" @click="checkInEvent">
+                    <i class="fas fa-fingerprint"></i> CHECK IN TO EVENT
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <p style="font-size: 0.6rem; text-align: center; margin-top: 12px; color: #94a3b8;">Each check-in raises the vibe → free stuff for everyone!</p>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" @click="switchTab('home')"><i class="fas fa-home"></i><span>Home</span></div>
+            <div class="nav-item" @click="switchTab('mytickets')"><i class="fas fa-ticket-alt"></i><span>My Tickets</span></div>
+            <div class="nav-item" @click="switchTab('transact')"><i class="fas fa-exchange-alt"></i><span>Transact</span></div>
+            <div class="nav-item" @click="switchTab('vvip')"><i class="fas fa-crown"></i><span>VVIP</span></div>
+            <div class="nav-item" @click="switchTab('queue')"><i class="fas fa-hourglass-half"></i><span>Queue</span></div>
+        </div>
+    </div>
+
+    <!-- Counter Selection Modal -->
+    <div class="modal-overlay" :class="{ active: counterModalVisible }" @click.self="closeCounterModal">
+        <div class="counter-modal">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-cash-register"></i></div>
+                <h3>Select Counter</h3>
+                <p style="font-size:0.75rem; color:#64748b;">Choose where you want to pay</p>
+            </div>
+            <div class="counter-options">
+                <div class="counter-option" @click="selectCounter('rands')">
+                    <div class="counter-icon"><i class="fas fa-brain"></i></div>
+                    <div class="counter-info">
+                        <h4>Rands Smart Counter</h4>
+                        <p>Smart checkout • Fast service • Digital receipts</p>
+                    </div>
+                </div>
+                <div class="counter-option" @click="selectCounter('butcher')">
+                    <div class="counter-icon"><i class="fas fa-drumstick-bite"></i></div>
+                    <div class="counter-info">
+                        <h4>The Butcher Counter</h4>
+                        <p>Premium meats • Butcher specials • Quick pickups</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons" style="margin-top: 8px;">
+                <button class="modal-btn btn-decline" @click="closeCounterModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Request Modal -->
+    <div class="modal-overlay" :class="{ active: refundModalVisible }" @click.self="closeRefundModal">
+        <div class="refund-modal">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-undo-alt"></i></div>
+                <h3>Request Refund</h3>
+                <p style="font-size:0.75rem; color:#64748b;">Submit a refund request for admin approval</p>
+            </div>
+            
+            <div class="refund-note">
+                <i class="fas fa-info-circle"></i>
+                <span>Refunds are processed within 3-5 business days after admin approval.</span>
+            </div>
+
+            <div class="form-group">
+                <label>Refund Amount (R)</label>
+                <input type="number" v-model="refundRequest.amount" placeholder="Enter amount" min="10" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label>Payment Reference / Transaction ID</label>
+                <input type="text" v-model="refundRequest.transactionId" placeholder="e.g., TXN-12345678">
+            </div>
+
+            <div class="form-group">
+                <label>Reason for Refund</label>
+                <select v-model="refundRequest.reason">
+                    <option value="">Select a reason</option>
+                    <option value="Duplicate payment">Duplicate payment</option>
+                    <option value="Wrong amount charged">Wrong amount charged</option>
+                    <option value="Product/service not received">Product/service not received</option>
+                    <option value="Product defective/damaged">Product defective/damaged</option>
+                    <option value="Cancelled order">Cancelled order</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Additional Details (Optional)</label>
+                <textarea v-model="refundRequest.details" placeholder="Please provide any additional information about your refund request..."></textarea>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-decline" @click="closeRefundModal">Cancel</button>
+                <button class="modal-btn btn-refund" @click="submitRefundRequest">Submit Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Approval Modal - MOBILE FRIENDLY SCROLLABLE -->
+    <div class="modal-overlay" :class="{ active: paymentModalVisible }" @click.self="closeModal">
+        <div class="payment-modal">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-receipt"></i></div>
+                <h3>Payment Request</h3>
+                <p style="font-size:0.75rem; color:#64748b;">Vibe Passport payment requires approval</p>
+            </div>
+            <div class="payment-details">
+                <div class="detail-row"><span class="detail-label">From</span><span class="detail-value">{{ pendingPayment.from }}</span></div>
+                <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" style="color:#E30613; font-size:1.2rem;">R {{ formatPrice(pendingPayment.amount) }}</span></div>
+                <div class="detail-row"><span class="detail-label">Payment Type</span><span class="detail-value">{{ pendingPayment.type }}</span></div>
+                <div class="detail-row"><span class="detail-label">Kiosk Location</span><span class="detail-value">{{ pendingPayment.kiosk }}</span></div>
+                <div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value">{{ pendingPayment.reference }}</span></div>
+            </div>
+            <div class="pin-prompt">
+                <i class="fas fa-fingerprint"></i>
+                <input type="password" class="pin-input" v-model="securityPin" placeholder="Enter 4-digit PIN" maxlength="4" ref="pinInput" @keyup.enter="approvePayment">
+                <i class="fas fa-shield-alt" style="color:#10b981;"></i>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-decline" @click="declinePayment"><i class="fas fa-times"></i> Decline</button>
+                <button class="modal-btn btn-approve" @click="approvePayment"><i class="fas fa-check"></i> Approve</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-message" :class="{ show: toastVisible }">{{ toastMessage }}</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+<script>
+    new Vue({
+        el: '#walletApp',
+        data: {
+            balance: 12580.50,
+            activeTab: 'home',
+            checkins: 187,
+            paymentModalVisible: false,
+            counterModalVisible: false,
+            refundModalVisible: false,
+            selectedCounter: null,
+            refundRequest: {
+                amount: '',
+                transactionId: '',
+                reason: '',
+                details: ''
+            },
+            pendingPayment: {
+                from: "Club A Kiosk #3",
+                amount: 187.50,
+                type: "Food & Drinks Order",
+                kiosk: "Main Lobby",
+                reference: "KIO-23841"
+            },
+            securityPin: "",
+            toastVisible: false,
+            toastMessage: "",
+            toastTimer: null
+        },
+        computed: {
+            vibeProgress() {
+                return Math.min(100, (this.checkins / 500) * 100);
+            }
+        },
+        mounted() {
+            setTimeout(() => { this.simulateKioskPayment(); }, 3000);
+        },
+        methods: {
+            formatPrice(price) {
+                return price.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            },
+            switchTab(tab) {
+                this.activeTab = tab;
+                const tabNames = {
+                    home: 'Home Dashboard',
+                    mytickets: 'My Tickets - View your purchased event tickets',
+                    transact: 'Send / Receive Money',
+                    vvip: 'VVIP Experience - Coming Soon',
+                    queue: 'Queue Management'
+                };
+                this.showToast(`📱 ${tabNames[tab]}`);
+                document.querySelectorAll('.nav-item').forEach((item, idx) => {
+                    const navTabs = ['home', 'mytickets', 'transact', 'vvip', 'queue'];
+                    if (navTabs[idx] === tab) item.classList.add('active');
+                    else item.classList.remove('active');
+                });
+            },
+            showToast(message, duration = 2500) {
+                if (this.toastTimer) clearTimeout(this.toastTimer);
+                this.toastMessage = message;
+                this.toastVisible = true;
+                this.toastTimer = setTimeout(() => { this.toastVisible = false; }, duration);
+            },
+            openCounterSelection() {
+                this.counterModalVisible = true;
+            },
+            closeCounterModal() {
+                this.counterModalVisible = false;
+                this.selectedCounter = null;
+            },
+            selectCounter(counter) {
+                this.selectedCounter = counter;
+                this.counterModalVisible = false;
+                const counterName = counter === 'rands' ? 'Rands Smart Counter' : 'The Butcher Counter';
+                this.showToast(`🔄 Opening ${counterName} payment...`);
+                setTimeout(() => {
+                    if (counter === 'rands') {
+                        window.open('rands-smart-counter.html', '_blank');
+                    } else {
+                        window.open('butcher-counter.html', '_blank');
+                    }
+                }, 500);
+            },
+            openRefundModal() {
+                this.refundRequest = {
+                    amount: '',
+                    transactionId: '',
+                    reason: '',
+                    details: ''
+                };
+                this.refundModalVisible = true;
+            },
+            closeRefundModal() {
+                this.refundModalVisible = false;
+            },
+            submitRefundRequest() {
+                // Validate form
+                if (!this.refundRequest.amount || parseFloat(this.refundRequest.amount) <= 0) {
+                    this.showToast('❌ Please enter a valid refund amount');
+                    return;
+                }
+                if (parseFloat(this.refundRequest.amount) > this.balance) {
+                    this.showToast('❌ Refund amount cannot exceed your available balance');
+                    return;
+                }
+                if (!this.refundRequest.transactionId) {
+                    this.showToast('❌ Please enter the transaction ID / reference');
+                    return;
+                }
+                if (!this.refundRequest.reason) {
+                    this.showToast('❌ Please select a reason for refund');
+                    return;
+                }
+
+                // Create refund request object to store in localStorage
+                const refundRequestData = {
+                    id: Date.now(),
+                    userId: 'Mziwonke',
+                    userPhone: '0635713652',
+                    amount: parseFloat(this.refundRequest.amount),
+                    transactionId: this.refundRequest.transactionId,
+                    reason: this.refundRequest.reason,
+                    details: this.refundRequest.details,
+                    status: 'pending',
+                    dateSubmitted: new Date().toISOString()
+                };
+
+                // Store in localStorage for admin to review
+                let pendingRefunds = JSON.parse(localStorage.getItem('rands_refund_requests') || '[]');
+                pendingRefunds.push(refundRequestData);
+                localStorage.setItem('rands_refund_requests', JSON.stringify(pendingRefunds));
+
+                this.showToast(`✅ Refund request of R${parseFloat(this.refundRequest.amount).toFixed(2)} submitted! Admin will review within 24-48 hours.`);
+                
+                this.closeRefundModal();
+                
+                // Reset form
+                this.refundRequest = {
+                    amount: '',
+                    transactionId: '',
+                    reason: '',
+                    details: ''
+                };
+            },
+            checkInEvent() {
+                let newCount = this.checkins + 1;
+                if (newCount > 500) {
+                    this.showToast("🎉 You're already at peak vibe! VVIP unlocked for all!");
+                    return;
+                }
+                this.checkins = newCount;
+                
+                if (this.checkins === 100) {
+                    this.showToast("🎵 100 people checked in! FREE DJ SET unlocked for the whole crowd!");
+                } else if (this.checkins === 250) {
+                    this.showToast("🍾 250 vibes! FREE ROUND OF DRINKS unlocked for everyone!");
+                } else if (this.checkins === 500) {
+                    this.showToast("👑 LEGENDARY! 500 checked in → ENTIRE CROWD upgraded to VVIP + Free bottle!");
+                } else {
+                    this.showToast(`✅ You checked in! Crowd energy: ${this.checkins}/500. Keep the vibe rising!`);
+                }
+            },
+            handleBuyTickets() {
+                this.showToast("🎟️ Opening Ticket Shop...");
+                setTimeout(() => {
+                    window.open('tickets-page.html', '_blank');
+                }, 300);
+            },
+            handleBoozeLockers() {
+                this.showToast("🔒 Opening Booze Lockers...");
+                setTimeout(() => {
+                    window.open('index.html', '_blank');
+                }, 300);
+            },
+            simulateKioskPayment() {
+                const venues = ["Club A Kiosk", "Rands Lounge", "VIP Section", "The Butcher Counter"];
+                const randomVenue = venues[Math.floor(Math.random() * venues.length)];
+                const randomAmount = (Math.floor(Math.random() * 500) + 50).toFixed(2);
+                this.pendingPayment = {
+                    from: `${randomVenue} #${Math.floor(Math.random() * 10) + 1}`,
+                    amount: parseFloat(randomAmount),
+                    type: "Order Payment",
+                    kiosk: randomVenue,
+                    reference: `KIO-${Math.floor(Math.random() * 90000) + 10000}`
+                };
+                this.securityPin = "";
+                this.paymentModalVisible = true;
+                setTimeout(() => { if (this.$refs.pinInput) this.$refs.pinInput.focus(); }, 400);
+            },
+            approvePayment() {
+                if (!this.securityPin || this.securityPin.length < 4) {
+                    this.showToast("❌ Please enter your 4-digit PIN to approve");
+                    return;
+                }
+                if (this.securityPin === "1989" || this.securityPin.length === 4) {
+                    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+                    this.balance -= this.pendingPayment.amount;
+                    this.showToast(`✅ Payment of R${this.formatPrice(this.pendingPayment.amount)} approved!`);
+                    this.paymentModalVisible = false;
+                    this.securityPin = "";
+                } else {
+                    this.showToast("❌ Invalid PIN. Please try again.");
+                    this.securityPin = "";
+                    setTimeout(() => { if (this.$refs.pinInput) this.$refs.pinInput.focus(); }, 300);
+                }
+            },
+            declinePayment() {
+                if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
+                this.showToast(`❌ Payment declined`);
+                this.paymentModalVisible = false;
+                this.securityPin = "";
+            },
+            closeModal() {
+                this.paymentModalVisible = false;
+                this.securityPin = "";
+            }
+        }
+    });
+</script>
+</body>
+</html>

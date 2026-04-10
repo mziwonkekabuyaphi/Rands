@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Wallet - Bottom Tab Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Demo content area to show the tab bar at bottom */
+        .demo-content {
+            padding: 60px 24px;
+            text-align: center;
+            color: #64748b;
+            background: #fafbfc;
+        }
+        
+        .demo-content i {
+            font-size: 3rem;
+            color: #E30613;
+            opacity: 0.5;
+            margin-bottom: 16px;
+        }
+        
+        .demo-content h3 {
+            margin-bottom: 12px;
+            color: #1e293b;
+        }
+        
+        .demo-content p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        /* Bottom Tab Bar - UPDATED WITH NEW TAB NAMES */
+        .bottom-tab-bar {
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            background: #fff;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+            border-top: 1px solid #edf2f8;
+            padding: 6px 12px 18px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .tab-nav {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 4px 0;
+            border-radius: 40px;
+            transition: 0.1s;
+        }
+        
+        .tab-nav .tab-icon {
+            font-size: 1.3rem;
+            color: #94a3b8;
+        }
+        
+        .tab-nav .tab-label {
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: #7e8b9f;
+            margin-top: 2px;
+        }
+        
+        .tab-nav.active .tab-icon,
+        .tab-nav.active .tab-label {
+            color: #E30613;
+        }
+        
+        .info-note {
+            background: #fef2f2;
+            padding: 12px 20px;
+            margin: 0 16px 16px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #E30613;
+            text-align: center;
+        }
+        
+        .info-note i {
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- DEMO CONTENT AREA -->
+    <div class="demo-content">
+        <i class="fas fa-mobile-alt"></i>
+        <h3>Bottom Tab Navigation</h3>
+        <p>Updated tab names: <strong>Home | My Ticket | Transact | Queue | VVIP</strong></p>
+        <p style="margin-top: 12px;">5 tabs total (reduced from 6)</p>
+        <p style="margin-top: 8px; font-size: 0.7rem; color: #E30613;">Tap any tab below to see active state change</p>
+    </div>
+    
+    <div class="info-note">
+        <i class="fas fa-code"></i> Tabs renamed: Home, My Ticket, Transact, Queue, VVIP
+    </div>
+    
+    <!-- BOTTOM TAB NAVIGATION - UPDATED WITH NEW TAB NAMES -->
+    <div class="bottom-tab-bar">
+        <div class="tab-nav" data-tab="home">
+            <div class="tab-icon"><i class="fas fa-home"></i></div>
+            <div class="tab-label">Home</div>
+        </div>
+        <div class="tab-nav" data-tab="my-ticket">
+            <div class="tab-icon"><i class="fas fa-ticket-alt"></i></div>
+            <div class="tab-label">My Ticket</div>
+        </div>
+        <div class="tab-nav" data-tab="transact">
+            <div class="tab-icon"><i class="fas fa-exchange-alt"></i></div>
+            <div class="tab-label">Transact</div>
+        </div>
+        <div class="tab-nav" data-tab="queue">
+            <div class="tab-icon"><i class="fas fa-clock"></i></div>
+            <div class="tab-label">Queue</div>
+        </div>
+        <div class="tab-nav" data-tab="vvip">
+            <div class="tab-icon"><i class="fas fa-gem"></i></div>
+            <div class="tab-label">VVIP</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Demo script to show tab switching (active state toggling)
+    const tabs = document.querySelectorAll('.tab-nav');
+    
+    function setActiveTab(activeTab) {
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        activeTab.classList.add('active');
+        console.log(`Tab activated: ${activeTab.getAttribute('data-tab')}`);
+    }
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            setActiveTab(tab);
+        });
+    });
+    
+    // Set Home as active by default for demo
+    const homeTab = document.querySelector('.tab-nav[data-tab="home"]');
+    if (homeTab) {
+        homeTab.classList.add('active');
+    }
+    
+    console.log('Bottom tab bar - 5 tabs: Home, My Ticket, Transact, Queue, VVIP');
+</script>
+</body>
+</html>

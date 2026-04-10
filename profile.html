@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Wallet | Account Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fc 0%, #eef2f8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Main Container */
+        .profile-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: #ffffff;
+            border-radius: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlideUp 0.5s ease-out;
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Profile Cover */
+        .profile-cover {
+            background: linear-gradient(135deg, #E30613 0%, #9f0110 100%);
+            padding: 40px 24px 70px 24px;
+            position: relative;
+        }
+
+        /* Logout Button in Top Right Corner */
+        .logout-corner-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 40px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .logout-corner-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        .logout-corner-btn:active {
+            transform: scale(0.96);
+        }
+
+        .logout-corner-btn i {
+            font-size: 1rem;
+        }
+
+        .profile-avatar-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: 4px solid white;
+            font-size: 3rem;
+            color: #E30613;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .profile-avatar:hover { transform: scale(1.02); }
+        .profile-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+        .profile-name {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 6px;
+        }
+
+        .profile-phone {
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 6px 16px;
+            border-radius: 40px;
+            width: fit-content;
+            margin: 0 auto;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Section Headers */
+        .section-header {
+            padding: 20px 20px 8px 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            background: white;
+        }
+
+        /* Menu Items */
+        .profile-menu {
+            background: white;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eff3f8;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:active { background: #f8fafc; transform: scale(0.98); }
+        .menu-item:last-child { border-bottom: none; }
+
+        .menu-icon {
+            width: 48px;
+            height: 48px;
+            background: #fef2f2;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #E30613;
+        }
+
+        .menu-text { flex: 1; font-weight: 600; font-size: 0.95rem; color: #1e293b; }
+        .menu-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 2px; }
+        .menu-badge {
+            background: #E30613;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .menu-arrow { color: #cbd5e1; font-size: 0.8rem; transition: transform 0.2s; }
+        .menu-item:hover .menu-arrow { transform: translateX(4px); color: #E30613; }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: #E30613; }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; }
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 380px;
+            border-radius: 32px;
+            padding: 28px 24px;
+            animation: modalSlideUp 0.3s ease;
+        }
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-card h3 i { color: #E30613; }
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            background: #f8fafd;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #E30613;
+            box-shadow: 0 0 0 3px rgba(227,6,19,0.1);
+        }
+        .modal-btns { display: flex; gap: 12px; margin-top: 8px; }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+        }
+        .modal-btn.btn-cancel { background: #f1f5f9; color: #475569; }
+        .modal-btn.btn-confirm { background: #E30613; color: white; }
+        .modal-btn.btn-danger { background: #dc2626; color: white; }
+        .modal-btn:active { transform: scale(0.97); }
+
+        /* Toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .toast-msg.show { display: block; animation: fadeInUp 0.3s ease; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Session Item */
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .session-info .device { font-weight: 600; font-size: 0.85rem; }
+        .session-info .time { font-size: 0.7rem; color: #94a3b8; }
+        .session-current { background: #e6f7e6; padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; color: #10b981; }
+        .remove-session-btn { background: none; border: none; color: #E30613; cursor: pointer; font-size: 1rem; }
+
+        /* Linked Account Item */
+        .linked-account-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .bank-info .bank-name { font-weight: 600; font-size: 0.85rem; }
+        .bank-info .account-num { font-size: 0.7rem; color: #64748b; }
+        .unlink-btn { background: none; border: none; color: #E30613; cursor: pointer; font-size: 0.8rem; }
+
+        .divider { height: 1px; background: #eff3f8; margin: 0 20px; }
+        .profile-note {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            padding: 16px 20px 24px;
+            background: white;
+        }
+
+        /* Avatar upload hint */
+        .avatar-hint {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #E30613;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+        .avatar-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Logout Confirmation Modal specific */
+        .logout-warning {
+            text-align: center;
+            margin: 16px 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-card">
+        <!-- Profile Cover -->
+        <div class="profile-cover">
+            <!-- Logout Button in Top Right Corner -->
+            <div class="logout-corner-btn" id="logoutBtnHeader">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+
+            <div class="profile-avatar-wrapper">
+                <div class="avatar-wrapper">
+                    <div class="profile-avatar" id="profileAvatar"><i class="fas fa-user"></i></div>
+                    <div class="avatar-hint" id="uploadAvatarHint"><i class="fas fa-camera"></i></div>
+                </div>
+            </div>
+            <div class="profile-name" id="profileName">Mziwonke KaBuyaphi</div>
+            <div class="profile-phone" id="profilePhone"><i class="fas fa-phone-alt"></i> 0635713652</div>
+            <div class="verified-badge"><i class="fas fa-check-circle"></i> Identity Verified</div>
+        </div>
+
+        <!-- Account Management Section -->
+        <div class="section-header"><i class="fas fa-shield-alt"></i> ACCOUNT MANAGEMENT</div>
+        <div class="profile-menu">
+            <!-- Edit Profile Button -->
+            <div class="menu-item" id="editProfileBtn">
+                <div class="menu-icon"><i class="fas fa-user-edit"></i></div>
+                <div class="menu-text">Edit Profile</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+
+            <!-- Change PIN -->
+            <div class="menu-item" id="changePinBtn">
+                <div class="menu-icon"><i class="fas fa-key"></i></div>
+                <div class="menu-text">Change PIN</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+
+            <!-- Two-Factor Authentication -->
+            <div class="menu-item" id="twoFactorBtn">
+                <div class="menu-icon"><i class="fas fa-mobile-alt"></i></div>
+                <div class="menu-text">Two-Factor Authentication</div>
+                <div class="menu-sub">Secure your account</div>
+                <div class="toggle-switch" id="twoFactorToggleContainer">
+                    <input type="checkbox" id="twoFactorToggle">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+
+            <!-- Linked Accounts -->
+            <div class="menu-item" id="linkedAccountsBtn">
+                <div class="menu-icon"><i class="fas fa-university"></i></div>
+                <div class="menu-text">Linked Bank Accounts</div>
+                <div class="menu-badge" id="linkedAccountsCount">0</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+
+            <!-- Session Management -->
+            <div class="menu-item" id="sessionManagementBtn">
+                <div class="menu-icon"><i class="fas fa-laptop"></i></div>
+                <div class="menu-text">Active Sessions</div>
+                <div class="menu-badge" id="sessionCount">1</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+
+            <!-- Account Deletion -->
+            <div class="menu-item" id="accountDeletionBtn">
+                <div class="menu-icon"><i class="fas fa-trash-alt"></i></div>
+                <div class="menu-text">Delete Account</div>
+                <div class="menu-sub">Permanent action</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="profile-note">
+            <i class="fas fa-lock"></i> Your account security is our priority
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit Profile -->
+<div id="editProfileModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+        <input type="text" id="editName" class="input-field" placeholder="Full Name">
+        <input type="tel" id="editPhone" class="input-field" placeholder="Phone Number">
+        <input type="email" id="editEmail" class="input-field" placeholder="Email Address">
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="closeEditModalBtn">Cancel</button>
+            <button class="modal-btn btn-confirm" id="saveProfileBtn">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Change PIN -->
+<div id="pinModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-key"></i> Change PIN</h3>
+        <input type="password" id="currentPin" class="input-field" placeholder="Current PIN" maxlength="4">
+        <input type="password" id="newPin" class="input-field" placeholder="New PIN (4 digits)" maxlength="4">
+        <input type="password" id="confirmPin" class="input-field" placeholder="Confirm New PIN" maxlength="4">
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="closePinModal">Cancel</button>
+            <button class="modal-btn btn-confirm" id="savePinBtn">Update PIN</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: 2FA Setup -->
+<div id="twoFactorModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-shield-alt"></i> Two-Factor Auth</h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">Receive verification codes via SMS</p>
+        <input type="tel" id="twoFactorPhone" class="input-field" placeholder="Phone number for 2FA">
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="closeTwoFactorModal">Cancel</button>
+            <button class="modal-btn btn-confirm" id="enableTwoFactorBtn">Enable 2FA</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Linked Accounts -->
+<div id="linkedAccountsModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-university"></i> Linked Accounts</h3>
+        <div id="linkedAccountsList" style="max-height: 300px; overflow-y: auto;"></div>
+        <button id="addBankAccountBtn" style="width:100%; margin-top: 16px; padding:12px; background:#E30613; color:white; border:none; border-radius:40px; font-weight:600; cursor:pointer;">+ Add Bank Account</button>
+        <div class="modal-btns" style="margin-top: 16px;">
+            <button class="modal-btn btn-cancel" id="closeLinkedAccountsModal">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add Bank Account -->
+<div id="addBankModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-plus-circle"></i> Link Bank Account</h3>
+        <select id="bankName" class="input-field">
+            <option value="Standard Bank">Standard Bank</option>
+            <option value="FNB">FNB</option>
+            <option value="Absa">Absa</option>
+            <option value="Nedbank">Nedbank</option>
+            <option value="Capitec">Capitec</option>
+        </select>
+        <input type="text" id="accountNumber" class="input-field" placeholder="Account Number">
+        <input type="text" id="accountHolder" class="input-field" placeholder="Account Holder Name">
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="closeAddBankModal">Cancel</button>
+            <button class="modal-btn btn-confirm" id="confirmAddBankBtn">Link Account</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Session Management -->
+<div id="sessionModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-laptop"></i> Active Sessions</h3>
+        <div id="sessionsList" style="max-height: 350px; overflow-y: auto;"></div>
+        <button id="logoutAllSessionsBtn" style="width:100%; margin-top: 16px; padding:12px; background:#dc2626; color:white; border:none; border-radius:40px; font-weight:600; cursor:pointer;">Logout All Other Devices</button>
+        <div class="modal-btns" style="margin-top: 16px;">
+            <button class="modal-btn btn-cancel" id="closeSessionModal">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Account Deletion -->
+<div id="deleteAccountModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-exclamation-triangle"></i> Delete Account</h3>
+        <p style="font-size: 0.85rem; color: #dc2626; margin-bottom: 16px;">⚠️ This action is permanent and cannot be undone.</p>
+        <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 20px;">All your data, transactions, and tickets will be permanently removed.</p>
+        <input type="password" id="deleteConfirmPin" class="input-field" placeholder="Enter your PIN to confirm" maxlength="4">
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="closeDeleteModal">Cancel</button>
+            <button class="modal-btn btn-danger" id="confirmDeleteAccountBtn">Permanently Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Logout Confirmation -->
+<div id="logoutConfirmModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-sign-out-alt"></i> Logout</h3>
+        <div class="logout-warning">
+            <i class="fas fa-question-circle" style="font-size: 2rem; color: #E30613; margin-bottom: 12px; display: block;"></i>
+            <p>Are you sure you want to logout?</p>
+            <p style="font-size: 0.75rem; margin-top: 8px;">You'll need to login again to access your account.</p>
+        </div>
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="cancelLogoutBtn">Cancel</button>
+            <button class="modal-btn btn-confirm" id="confirmLogoutBtn">Logout</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden file input for avatar upload -->
+<input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+
+<div id="globalToast" class="toast-msg"></div>
+
+<script>
+    // ========== STORAGE KEYS ==========
+    const ACCOUNTS_KEY = 'rands_accounts_v2';
+    const LINKED_ACCOUNTS_KEY = 'rands_linked_accounts';
+    const SESSIONS_KEY = 'rands_sessions';
+    const TWOFA_KEY = 'rands_2fa';
+
+    let accounts = [];
+    let currentAccountId = null;
+    let linkedAccounts = [];
+    let activeSessions = [];
+    let twoFAEnabled = false;
+    let twoFAPhone = '';
+
+    function showToast(msg) {
+        let t = document.getElementById('globalToast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function saveAccounts() { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); }
+    function saveLinkedAccounts() { localStorage.setItem(LINKED_ACCOUNTS_KEY, JSON.stringify(linkedAccounts)); }
+    function saveSessions() { localStorage.setItem(SESSIONS_KEY, JSON.stringify(activeSessions)); }
+    function saveTwoFA() { localStorage.setItem(TWOFA_KEY, JSON.stringify({ enabled: twoFAEnabled, phone: twoFAPhone })); }
+
+    function getCurrentAccount() { return accounts.find(a => a.id === currentAccountId); }
+
+    function loadAccounts() {
+        const stored = localStorage.getItem(ACCOUNTS_KEY);
+        if (stored) accounts = JSON.parse(stored);
+        else accounts = [{ id: "0635713652", name: "Mziwonke KaBuyaphi", phone: "0635713652", email: "mziwonke@randswallet.com", balance: 5000, pin: "1989", verified: true, selfie: null }];
+        saveAccounts();
+    }
+
+    function loadLinkedAccounts() {
+        const stored = localStorage.getItem(LINKED_ACCOUNTS_KEY);
+        if (stored) linkedAccounts = JSON.parse(stored);
+        else linkedAccounts = [];
+        updateLinkedAccountsCount();
+    }
+
+    function loadSessions() {
+        const stored = localStorage.getItem(SESSIONS_KEY);
+        if (stored) activeSessions = JSON.parse(stored);
+        else {
+            activeSessions = [{
+                id: 'current_' + Date.now(),
+                device: 'This Device • Chrome',
+                location: 'Current session',
+                time: new Date().toISOString(),
+                isCurrent: true
+            }];
+            saveSessions();
+        }
+        updateSessionCount();
+    }
+
+    function loadTwoFA() {
+        const stored = localStorage.getItem(TWOFA_KEY);
+        if (stored) {
+            const data = JSON.parse(stored);
+            twoFAEnabled = data.enabled || false;
+            twoFAPhone = data.phone || '';
+        } else {
+            twoFAEnabled = false;
+            twoFAPhone = '';
+        }
+        document.getElementById('twoFactorToggle').checked = twoFAEnabled;
+    }
+
+    function updateLinkedAccountsCount() {
+        const count = linkedAccounts.length;
+        document.getElementById('linkedAccountsCount').innerText = count;
+    }
+
+    function updateSessionCount() {
+        document.getElementById('sessionCount').innerText = activeSessions.length;
+    }
+
+    function renderLinkedAccountsList() {
+        const container = document.getElementById('linkedAccountsList');
+        if (!container) return;
+        if (linkedAccounts.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">No linked accounts</div>';
+            return;
+        }
+        container.innerHTML = linkedAccounts.map((acc, idx) => `
+            <div class="linked-account-item">
+                <div class="bank-info">
+                    <div class="bank-name">${escapeHtml(acc.bankName)}</div>
+                    <div class="account-num">****${acc.accountNumber.slice(-4)}</div>
+                </div>
+                <button class="unlink-btn" data-idx="${idx}"><i class="fas fa-trash"></i> Unlink</button>
+            </div>
+        `).join('');
+        document.querySelectorAll('.unlink-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                linkedAccounts.splice(idx, 1);
+                saveLinkedAccounts();
+                renderLinkedAccountsList();
+                updateLinkedAccountsCount();
+                showToast("Bank account unlinked");
+            });
+        });
+    }
+
+    function renderSessionsList() {
+        const container = document.getElementById('sessionsList');
+        if (!container) return;
+        container.innerHTML = activeSessions.map(session => `
+            <div class="session-item">
+                <div class="session-info">
+                    <div class="device">${escapeHtml(session.device)}</div>
+                    <div class="time">${new Date(session.time).toLocaleString()}</div>
+                </div>
+                ${session.isCurrent ? '<span class="session-current">Current</span>' : 
+                  `<button class="remove-session-btn" data-id="${session.id}"><i class="fas fa-sign-out-alt"></i> Remove</button>`}
+            </div>
+        `).join('');
+        document.querySelectorAll('.remove-session-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = btn.getAttribute('data-id');
+                activeSessions = activeSessions.filter(s => s.id !== id);
+                saveSessions();
+                renderSessionsList();
+                updateSessionCount();
+                showToast("Session terminated");
+            });
+        });
+    }
+
+    // Logout Function
+    function logoutUser() {
+        // Clear current session
+        localStorage.removeItem('rands_current_account');
+        showToast("🔐 Logged out successfully");
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    }
+
+    // Edit Profile Function
+    function editProfile(name, phone, email) {
+        const acc = getCurrentAccount();
+        if (!acc) return false;
+        if (!name || name.trim() === '') { showToast("Name cannot be empty"); return false; }
+        if (!phone || phone.trim() === '') { showToast("Phone number cannot be empty"); return false; }
+        
+        acc.name = name.trim();
+        acc.phone = phone.trim();
+        acc.email = email ? email.trim() : acc.email || '';
+        saveAccounts();
+        updateProfileUI();
+        showToast("✅ Profile updated successfully!");
+        return true;
+    }
+
+    // Upload Avatar
+    function uploadAvatar(file) {
+        const acc = getCurrentAccount();
+        if (!acc) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            acc.selfie = e.target.result;
+            saveAccounts();
+            updateProfileUI();
+            showToast("✅ Profile picture updated!");
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Change PIN
+    function changePin(currentPin, newPin, confirmPin) {
+        const acc = getCurrentAccount();
+        if (!acc) return false;
+        if (acc.pin !== currentPin) { showToast("❌ Current PIN is incorrect"); return false; }
+        if (newPin.length !== 4 || isNaN(newPin)) { showToast("PIN must be 4 digits"); return false; }
+        if (newPin !== confirmPin) { showToast("New PINs do not match"); return false; }
+        acc.pin = newPin;
+        saveAccounts();
+        showToast("✅ PIN changed successfully!");
+        return true;
+    }
+
+    // Enable/Disable 2FA
+    function setupTwoFA(phone) {
+        if (!phone || phone.length < 10) { showToast("Valid phone number required"); return false; }
+        twoFAEnabled = true;
+        twoFAPhone = phone;
+        saveTwoFA();
+        document.getElementById('twoFactorToggle').checked = true;
+        showToast("✅ Two-Factor Authentication enabled!");
+        return true;
+    }
+
+    function disableTwoFA() {
+        twoFAEnabled = false;
+        twoFAPhone = '';
+        saveTwoFA();
+        document.getElementById('twoFactorToggle').checked = false;
+        showToast("2FA disabled");
+    }
+
+    // Add linked bank account
+    function addLinkedAccount(bankName, accountNumber, accountHolder) {
+        if (!bankName || !accountNumber || !accountHolder) { showToast("All fields required"); return false; }
+        if (accountNumber.length < 5) { showToast("Valid account number required"); return false; }
+        linkedAccounts.push({
+            id: Date.now(),
+            bankName: bankName,
+            accountNumber: accountNumber,
+            accountHolder: accountHolder,
+            linkedDate: new Date().toISOString()
+        });
+        saveLinkedAccounts();
+        renderLinkedAccountsList();
+        updateLinkedAccountsCount();
+        showToast(`✅ ${bankName} account linked successfully!`);
+        return true;
+    }
+
+    // Delete account
+    function deleteAccount(pin) {
+        const acc = getCurrentAccount();
+        if (!acc) return false;
+        if (acc.pin !== pin) { showToast("Incorrect PIN"); return false; }
+        accounts = accounts.filter(a => a.id !== currentAccountId);
+        saveAccounts();
+        localStorage.removeItem('rands_current_account');
+        localStorage.removeItem(LINKED_ACCOUNTS_KEY);
+        localStorage.removeItem(SESSIONS_KEY);
+        localStorage.removeItem(TWOFA_KEY);
+        showToast("⚠️ Account permanently deleted");
+        setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+        return true;
+    }
+
+    // Logout all other sessions
+    function logoutAllOtherSessions() {
+        activeSessions = activeSessions.filter(s => s.isCurrent === true);
+        saveSessions();
+        renderSessionsList();
+        updateSessionCount();
+        showToast("Logged out from all other devices");
+    }
+
+    function updateProfileUI() {
+        const acc = getCurrentAccount();
+        if (!acc) return;
+        document.getElementById('profileName').innerText = acc.name;
+        document.getElementById('profilePhone').innerHTML = `<i class="fas fa-phone-alt"></i> ${acc.phone}`;
+        const avatarDiv = document.getElementById('profileAvatar');
+        if (acc.selfie) avatarDiv.innerHTML = `<img src="${acc.selfie}" alt="Profile">`;
+        else avatarDiv.innerHTML = `<span style="font-size: 2rem;">${acc.name.charAt(0).toUpperCase()}</span>`;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function init() {
+        loadAccounts();
+        let saved = localStorage.getItem('rands_current_account');
+        if (saved && accounts.find(a => a.id === saved)) currentAccountId = saved;
+        else if (accounts.length > 0) { currentAccountId = accounts[0].id; localStorage.setItem('rands_current_account', currentAccountId); }
+        else { showToast("No account found"); return; }
+
+        loadLinkedAccounts();
+        loadSessions();
+        loadTwoFA();
+        updateProfileUI();
+
+        // Modal elements
+        const editProfileModal = document.getElementById('editProfileModal');
+        const pinModal = document.getElementById('pinModal');
+        const twoFactorModal = document.getElementById('twoFactorModal');
+        const linkedModal = document.getElementById('linkedAccountsModal');
+        const addBankModal = document.getElementById('addBankModal');
+        const sessionModal = document.getElementById('sessionModal');
+        const deleteModal = document.getElementById('deleteAccountModal');
+        const logoutConfirmModal = document.getElementById('logoutConfirmModal');
+        const avatarUpload = document.getElementById('avatarUpload');
+
+        // Logout Button Handler
+        document.getElementById('logoutBtnHeader').onclick = () => {
+            logoutConfirmModal.classList.add('active');
+        };
+        document.getElementById('cancelLogoutBtn').onclick = () => logoutConfirmModal.classList.remove('active');
+        document.getElementById('confirmLogoutBtn').onclick = () => {
+            logoutConfirmModal.classList.remove('active');
+            logoutUser();
+        };
+
+        // Edit Profile Button
+        document.getElementById('editProfileBtn').onclick = () => {
+            const acc = getCurrentAccount();
+            if (acc) {
+                document.getElementById('editName').value = acc.name;
+                document.getElementById('editPhone').value = acc.phone;
+                document.getElementById('editEmail').value = acc.email || '';
+            }
+            editProfileModal.classList.add('active');
+        };
+        document.getElementById('closeEditModalBtn').onclick = () => editProfileModal.classList.remove('active');
+        document.getElementById('saveProfileBtn').onclick = () => {
+            const name = document.getElementById('editName').value;
+            const phone = document.getElementById('editPhone').value;
+            const email = document.getElementById('editEmail').value;
+            if (editProfile(name, phone, email)) {
+                editProfileModal.classList.remove('active');
+            }
+        };
+
+        // Avatar Upload
+        document.getElementById('uploadAvatarHint').onclick = () => avatarUpload.click();
+        avatarUpload.onchange = (e) => {
+            if (e.target.files && e.target.files[0]) uploadAvatar(e.target.files[0]);
+        };
+
+        // Change PIN
+        document.getElementById('changePinBtn').onclick = () => pinModal.classList.add('active');
+        document.getElementById('closePinModal').onclick = () => pinModal.classList.remove('active');
+        document.getElementById('savePinBtn').onclick = () => {
+            const current = document.getElementById('currentPin').value;
+            const newPin = document.getElementById('newPin').value;
+            const confirm = document.getElementById('confirmPin').value;
+            if (changePin(current, newPin, confirm)) {
+                pinModal.classList.remove('active');
+                document.getElementById('currentPin').value = '';
+                document.getElementById('newPin').value = '';
+                document.getElementById('confirmPin').value = '';
+            }
+        };
+
+        // Two-Factor Authentication
+        document.getElementById('twoFactorBtn').onclick = () => {
+            if (!twoFAEnabled) twoFactorModal.classList.add('active');
+            else {
+                if (confirm("Disable Two-Factor Authentication?")) disableTwoFA();
+            }
+        };
+        document.getElementById('closeTwoFactorModal').onclick = () => twoFactorModal.classList.remove('active');
+        document.getElementById('enableTwoFactorBtn').onclick = () => {
+            const phone = document.getElementById('twoFactorPhone').value;
+            if (setupTwoFA(phone)) twoFactorModal.classList.remove('active');
+        };
+        document.getElementById('twoFactorToggle').onchange = (e) => {
+            if (!e.target.checked && twoFAEnabled) {
+                if (confirm("Disable Two-Factor Authentication?")) disableTwoFA();
+                else e.target.checked = true;
+            } else if (e.target.checked && !twoFAEnabled) {
+                twoFactorModal.classList.add('active');
+                e.target.checked = false;
+            }
+        };
+
+        // Linked Accounts
+        document.getElementById('linkedAccountsBtn').onclick = () => {
+            renderLinkedAccountsList();
+            linkedModal.classList.add('active');
+        };
+        document.getElementById('closeLinkedAccountsModal').onclick = () => linkedModal.classList.remove('active');
+        document.getElementById('addBankAccountBtn').onclick = () => {
+            linkedModal.classList.remove('active');
+            addBankModal.classList.add('active');
+        };
+        document.getElementById('closeAddBankModal').onclick = () => addBankModal.classList.remove('active');
+        document.getElementById('confirmAddBankBtn').onclick = () => {
+            const bank = document.getElementById('bankName').value;
+            const accNum = document.getElementById('accountNumber').value;
+            const holder = document.getElementById('accountHolder').value;
+            if (addLinkedAccount(bank, accNum, holder)) {
+                addBankModal.classList.remove('active');
+                document.getElementById('accountNumber').value = '';
+                document.getElementById('accountHolder').value = '';
+            }
+        };
+
+        // Session Management
+        document.getElementById('sessionManagementBtn').onclick = () => {
+            renderSessionsList();
+            sessionModal.classList.add('active');
+        };
+        document.getElementById('closeSessionModal').onclick = () => sessionModal.classList.remove('active');
+        document.getElementById('logoutAllSessionsBtn').onclick = () => {
+            if (confirm("Logout from all other devices?")) logoutAllOtherSessions();
+        };
+
+        // Account Deletion
+        document.getElementById('accountDeletionBtn').onclick = () => deleteModal.classList.add('active');
+        document.getElementById('closeDeleteModal').onclick = () => deleteModal.classList.remove('active');
+        document.getElementById('confirmDeleteAccountBtn').onclick = () => {
+            const pin = document.getElementById('deleteConfirmPin').value;
+            if (deleteAccount(pin)) deleteModal.classList.remove('active');
+        };
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+        });
+    }
+
+    init();
+</script>
+</body>
+</html>

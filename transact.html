@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Wallet | Transact & Transactions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fc 0%, #eef2f8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .main-header {
+            background: white;
+            border-radius: 32px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title h1 i {
+            color: #E30613;
+        }
+
+        .back-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #E30613;
+            font-size: 1.1rem;
+            transition: 0.2s;
+        }
+
+        .back-btn:active { transform: scale(0.94); }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #E30613 0%, #9f0110 100%);
+            border-radius: 28px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .balance-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        /* Tab Navigation - 3 tabs: Send, Receive, Contacts */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 6px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+
+        .tab-btn.active {
+            background: #E30613;
+            color: white;
+            box-shadow: 0 2px 8px rgba(227, 6, 19, 0.3);
+        }
+
+        /* Send Section */
+        .send-section, .receive-section, .contacts-section {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1e293b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #E30613;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            background: #f8fafd;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #E30613;
+            box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+        }
+
+        .amount-field {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .send-btn, .copy-btn {
+            width: 100%;
+            padding: 14px;
+            background: #E30613;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .send-btn:active, .copy-btn:active { transform: scale(0.97); }
+        .send-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        /* QR Container */
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #f8fafd;
+            border-radius: 24px;
+            margin-bottom: 16px;
+        }
+
+        #receiveQr {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+        }
+
+        .account-id {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .account-id-code {
+            background: white;
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border: 1px solid #e2e8f0;
+            display: inline-block;
+        }
+
+        .copy-id-btn {
+            background: none;
+            border: none;
+            color: #E30613;
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Contacts List */
+        .contacts-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f2f5;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .contact-item:active { background: #f8fafc; }
+        .contact-item:last-child { border-bottom: none; }
+
+        .contact-avatar {
+            width: 48px;
+            height: 48px;
+            background: #fef2f2;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #E30613;
+            margin-right: 14px;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+
+        .contact-phone {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .contact-pay-btn {
+            background: #E30613;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .add-contact-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 40px;
+            color: #E30613;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* ========== TRANSACTIONS SECTION STYLES ========== */
+        .transactions-wrapper {
+            background: white;
+            border-radius: 28px;
+            margin-top: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .transactions-header {
+            padding: 16px 20px;
+            background: white;
+            border-bottom: 1px solid #f0f2f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transactions-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .transactions-header h3 i {
+            color: #E30613;
+        }
+
+        /* Inner tabs for Transactions vs Statement */
+        .inner-tabs {
+            display: flex;
+            gap: 0;
+            background: #f8fafd;
+            padding: 4px;
+            margin: 0;
+            border-bottom: 1px solid #eef2f8;
+        }
+        .inner-tab {
+            flex: 1;
+            padding: 10px 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: 0.2s;
+        }
+        .inner-tab.active {
+            background: #E30613;
+            color: white;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            background: #f8fafd;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .filter-chip {
+            padding: 6px 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .filter-chip.active {
+            background: #E30613;
+            color: white;
+            border-color: #E30613;
+        }
+
+        /* Date Range Picker */
+        .date-range {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #f8fafd;
+            border-bottom: 1px solid #eef2f8;
+        }
+        .date-range.hidden { display: none; }
+
+        .date-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            background: white;
+        }
+
+        .apply-date-btn {
+            background: #E30613;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Transaction List */
+        .transactions-list, .statement-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .tx-group {
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .tx-date-header {
+            padding: 12px 20px;
+            background: #f8fafc;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #1e293b;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .tx-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f4fa;
+            transition: background 0.2s;
+        }
+
+        .tx-item:active { background: #f8fafc; }
+
+        .tx-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .tx-icon {
+            width: 40px;
+            height: 40px;
+            background: #fef2f2;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #E30613;
+        }
+
+        .tx-info {
+            flex: 1;
+        }
+
+        .tx-desc {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .tx-date {
+            font-size: 0.65rem;
+            color: #94a3b8;
+        }
+
+        .tx-amount {
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .tx-amount.positive { color: #10b981; }
+        .tx-amount.negative { color: #E30613; }
+
+        /* Statement Summary Stats */
+        .summary-stats {
+            background: #f8fafd;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 12px 16px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .stat-card {
+            text-align: center;
+            flex: 1;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+        .stat-value.income { color: #10b981; }
+        .stat-value.expense { color: #E30613; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+
+        /* Export Button */
+        .export-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #E30613;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .export-btn:active { transform: scale(0.98); background: #e2e8f0; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; }
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 380px;
+            border-radius: 32px;
+            padding: 28px 24px;
+            animation: modalSlideUp 0.3s ease;
+        }
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-card h3 i { color: #E30613; }
+        .modal-btns { display: flex; gap: 12px; margin-top: 20px; }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+        }
+        .modal-btn.btn-cancel { background: #f1f5f9; color: #475569; }
+        .modal-btn.btn-confirm { background: #E30613; color: white; }
+        .modal-btn:active { transform: scale(0.97); }
+
+        /* PIN Input */
+        .pin-input-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .pin-digit {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            background: #f8fafd;
+        }
+        .pin-digit:focus {
+            border-color: #E30613;
+            outline: none;
+        }
+
+        /* Toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+            font-size: 0.85rem;
+        }
+        .toast-msg.show { display: block; animation: fadeInUp 0.3s ease; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <!-- Header -->
+    <div class="main-header">
+        <div class="header-title">
+            <h1><i class="fas fa-exchange-alt"></i> Transact</h1>
+            <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i></button>
+        </div>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="balance-card">
+        <div class="balance-label">Available Balance</div>
+        <div class="balance-amount" id="currentBalance">R 0.00</div>
+    </div>
+
+    <!-- Tab Navigation - Send, Receive, Contacts -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="send"><i class="fas fa-paper-plane"></i> Send</button>
+        <button class="tab-btn" data-tab="receive"><i class="fas fa-qrcode"></i> Receive</button>
+        <button class="tab-btn" data-tab="contacts"><i class="fas fa-users"></i> Contacts</button>
+    </div>
+
+    <!-- Send Tab -->
+    <div id="sendTab" class="tab-pane active">
+        <div class="send-section">
+            <div class="section-title"><i class="fas fa-user-friends"></i> Send Money</div>
+            <div class="input-group">
+                <label class="input-label">Recipient Phone Number</label>
+                <input type="tel" id="recipientPhone" class="input-field" placeholder="e.g., 0635713652">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Amount (R)</label>
+                <input type="number" id="sendAmount" class="input-field amount-field" placeholder="0.00">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Note (Optional)</label>
+                <input type="text" id="sendNote" class="input-field" placeholder="What's this for?">
+            </div>
+            <button class="send-btn" id="sendMoneyBtn"><i class="fas fa-paper-plane"></i> Send Money</button>
+        </div>
+
+        <!-- TRANSACTIONS + STATEMENT SECTION -->
+        <div class="transactions-wrapper">
+            <!-- Inner Tabs: Transactions | Statement -->
+            <div class="inner-tabs">
+                <div class="inner-tab active" data-inner="transactions"><i class="fas fa-list-ul"></i> Transactions</div>
+                <div class="inner-tab" data-inner="statement"><i class="fas fa-file-invoice"></i> Statement</div>
+            </div>
+            
+            <!-- Transactions Panel -->
+            <div id="transactionsPanel">
+                <div class="filter-bar">
+                    <span class="filter-chip active" data-filter="all">All</span>
+                    <span class="filter-chip" data-filter="income">Income</span>
+                    <span class="filter-chip" data-filter="expense">Expenses</span>
+                    <span class="filter-chip" data-filter="this_week">This Week</span>
+                    <span class="filter-chip" data-filter="this_month">This Month</span>
+                    <span class="filter-chip" data-filter="custom">Custom Range</span>
+                </div>
+                <div class="date-range hidden" id="dateRangePicker">
+                    <input type="date" id="startDate" class="date-input">
+                    <input type="date" id="endDate" class="date-input">
+                    <button class="apply-date-btn" id="applyDateRange">Apply</button>
+                </div>
+                <div class="transactions-list" id="transactionsList"></div>
+                <button class="export-btn" id="exportHistoryBtn"><i class="fas fa-download"></i> Export Transactions (CSV)</button>
+            </div>
+            
+            <!-- Statement Panel (hidden by default) -->
+            <div id="statementPanel" style="display: none;">
+                <div class="summary-stats" id="summaryStats"></div>
+                <div class="statement-list" id="statementList"></div>
+                <button class="export-btn" id="exportStatementBtn"><i class="fas fa-file-pdf"></i> Download Statement (PDF)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receive Tab -->
+    <div id="receiveTab" class="tab-pane" style="display: none;">
+        <div class="receive-section">
+            <div class="section-title"><i class="fas fa-qrcode"></i> Receive Payment</div>
+            <div class="qr-container">
+                <div id="receiveQr"></div>
+                <div class="account-id">
+                    <span class="account-id-code" id="accountIdDisplay">Loading...</span>
+                    <button class="copy-id-btn" id="copyAccountIdBtn"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+                <p style="font-size: 0.7rem; color: #64748b; margin-top: 12px;">Share this QR code or ID to receive money</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacts Tab -->
+    <div id="contactsTab" class="tab-pane" style="display: none;">
+        <div class="contacts-section">
+            <div class="section-title"><i class="fas fa-address-book"></i> My Contacts</div>
+            <div class="contacts-list" id="contactsList"></div>
+            <button class="add-contact-btn" id="addContactBtn"><i class="fas fa-plus"></i> Add New Contact</button>
+        </div>
+    </div>
+</div>
+
+<!-- PIN Modal -->
+<div id="pinModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-lock"></i> Enter PIN</h3>
+        <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 16px;">Confirm transaction with your 4-digit PIN</p>
+        <div class="pin-input-group">
+            <input type="password" maxlength="1" class="pin-digit" id="pin1" autofocus>
+            <input type="password" maxlength="1" class="pin-digit" id="pin2">
+            <input type="password" maxlength="1" class="pin-digit" id="pin3">
+            <input type="password" maxlength="1" class="pin-digit" id="pin4">
+        </div>
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="cancelPinBtn">Cancel</button>
+            <button class="modal-btn btn-confirm" id="confirmPinBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Contact Modal -->
+<div id="addContactModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-user-plus"></i> Add Contact</h3>
+        <input type="text" id="contactName" class="input-field" placeholder="Full Name" style="margin-bottom: 12px;">
+        <input type="tel" id="contactPhoneNum" class="input-field" placeholder="Phone Number">
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="closeContactModalBtn">Cancel</button>
+            <button class="modal-btn btn-confirm" id="saveContactBtn">Save Contact</button>
+        </div>
+    </div>
+</div>
+
+<div id="globalToast" class="toast-msg"></div>
+
+<script>
+    // ========== STORAGE KEYS ==========
+    const ACCOUNTS_KEY = 'rands_accounts_v2';
+    const CONTACTS_KEY = 'rands_contacts';
+    
+    let accounts = [];
+    let currentAccountId = null;
+    let transactionsHistory = {};
+    let contacts = [];
+    let pendingSendData = null;
+    
+    // Filter state for transactions
+    let currentFilter = 'all';
+    let customStartDate = null;
+    let customEndDate = null;
+    let activeInnerTab = 'transactions'; // 'transactions' or 'statement'
+
+    function showToast(msg) {
+        let t = document.getElementById('globalToast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function saveAccounts() { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); }
+    function saveContacts() { localStorage.setItem(CONTACTS_KEY, JSON.stringify(contacts)); }
+    
+    function getCurrentAccount() { return accounts.find(a => a.id === currentAccountId); }
+
+    function loadAccounts() {
+        const stored = localStorage.getItem(ACCOUNTS_KEY);
+        if (stored) accounts = JSON.parse(stored);
+        else accounts = [{ id: "0635713652", name: "Mziwonke KaBuyaphi", phone: "0635713652", balance: 12580.50, pin: "1989", verified: true }];
+        saveAccounts();
+    }
+
+    function loadTransactions() {
+        const stored = localStorage.getItem('rands_transactions');
+        if (stored) transactionsHistory = JSON.parse(stored);
+        else {
+            transactionsHistory = {};
+            const sampleTx = [
+                { desc: "Received from John Doe", amount: 250, date: new Date().toISOString().slice(0,10) },
+                { desc: "Payment to Rands Kiosk", amount: -89.99, date: new Date(Date.now() - 86400000).toISOString().slice(0,10) },
+                { desc: "Ticket Purchase - Summer Fest", amount: -350, date: new Date(Date.now() - 172800000).toISOString().slice(0,10) },
+                { desc: "Salary Deposit", amount: 5000, date: new Date(Date.now() - 259200000).toISOString().slice(0,10) },
+                { desc: "Coffee Shop", amount: -45.50, date: new Date(Date.now() - 345600000).toISOString().slice(0,10) },
+                { desc: "Online Shopping", amount: -299.99, date: new Date(Date.now() - 432000000).toISOString().slice(0,10) },
+                { desc: "Refund from Store", amount: 120, date: new Date(Date.now() - 518400000).toISOString().slice(0,10) }
+            ];
+            transactionsHistory["0635713652"] = sampleTx;
+            localStorage.setItem('rands_transactions', JSON.stringify(transactionsHistory));
+        }
+    }
+
+    function loadContacts() {
+        const stored = localStorage.getItem(CONTACTS_KEY);
+        if (stored) contacts = JSON.parse(stored);
+        else {
+            contacts = [
+                { id: 1, name: "John Doe", phone: "0712345678" },
+                { id: 2, name: "Jane Smith", phone: "0823456789" },
+                { id: 3, name: "Mike Johnson", phone: "0734567890" }
+            ];
+            saveContacts();
+        }
+        renderContacts();
+    }
+
+    function addTransaction(desc, amount, toAccount = null) {
+        if (!transactionsHistory[currentAccountId]) transactionsHistory[currentAccountId] = [];
+        transactionsHistory[currentAccountId].unshift({ desc, amount, date: new Date().toISOString().slice(0,10) });
+        localStorage.setItem('rands_transactions', JSON.stringify(transactionsHistory));
+        
+        if (toAccount && toAccount !== currentAccountId) {
+            if (!transactionsHistory[toAccount]) transactionsHistory[toAccount] = [];
+            transactionsHistory[toAccount].unshift({ 
+                desc: `Received from ${getCurrentAccount().name}`, 
+                amount: Math.abs(amount), 
+                date: new Date().toISOString().slice(0,10) 
+            });
+            localStorage.setItem('rands_transactions', JSON.stringify(transactionsHistory));
+        }
+        
+        updateBalance();
+        renderTransactions();
+        renderStatement();
+    }
+
+    function updateBalance() {
+        const acc = getCurrentAccount();
+        if (acc) {
+            document.getElementById('currentBalance').innerHTML = `R ${acc.balance.toFixed(2)}`;
+        }
+    }
+
+    // Send Money Function
+    function sendMoney(recipientPhone, amount, note, pin) {
+        const sender = getCurrentAccount();
+        if (!sender) { showToast("No account found"); return false; }
+        if (sender.pin !== pin) { showToast("❌ Incorrect PIN"); return false; }
+        if (sender.balance < amount) { showToast("❌ Insufficient balance"); return false; }
+        
+        let cleanRecipient = recipientPhone.trim();
+        const recipient = accounts.find(a => a.phone === cleanRecipient || a.id === cleanRecipient);
+        if (!recipient) { showToast("❌ Recipient not found"); return false; }
+        if (recipient.id === sender.id) { showToast("❌ Cannot send money to yourself"); return false; }
+        
+        sender.balance -= amount;
+        recipient.balance += amount;
+        saveAccounts();
+        
+        const desc = note ? `Sent to ${recipient.name} - ${note}` : `Sent to ${recipient.name}`;
+        addTransaction(desc, -amount, recipient.id);
+        
+        showToast(`✅ Sent R${amount.toFixed(2)} to ${recipient.name}`);
+        document.getElementById('recipientPhone').value = '';
+        document.getElementById('sendAmount').value = '';
+        document.getElementById('sendNote').value = '';
+        return true;
+    }
+
+    // ========== TRANSACTIONS FUNCTIONS ==========
+    function getTransactions() {
+        const txs = transactionsHistory[currentAccountId] || [];
+        return [...txs].sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+
+    function filterTransactions(txs, filter, startDate = null, endDate = null) {
+        let filtered = [...txs];
+        if (startDate && endDate) {
+            filtered = filtered.filter(tx => {
+                const txDate = new Date(tx.date);
+                return txDate >= new Date(startDate) && txDate <= new Date(endDate);
+            });
+        } else {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            switch(filter) {
+                case 'income': filtered = filtered.filter(tx => tx.amount > 0); break;
+                case 'expense': filtered = filtered.filter(tx => tx.amount < 0); break;
+                case 'this_week':
+                    const weekAgo = new Date(today); weekAgo.setDate(today.getDate() - 7);
+                    filtered = filtered.filter(tx => new Date(tx.date) >= weekAgo); break;
+                case 'this_month':
+                    const monthAgo = new Date(today); monthAgo.setMonth(today.getMonth() - 1);
+                    filtered = filtered.filter(tx => new Date(tx.date) >= monthAgo); break;
+                default: break;
+            }
+        }
+        return filtered;
+    }
+
+    function groupByDate(txs) {
+        const groups = {};
+        txs.forEach(tx => { if (!groups[tx.date]) groups[tx.date] = []; groups[tx.date].push(tx); });
+        return groups;
+    }
+
+    function formatDateHeader(dateStr) {
+        const date = new Date(dateStr);
+        const today = new Date();
+        const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+        if (date.toDateString() === today.toDateString()) return "Today";
+        if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+        return date.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function formatAmount(amount) { return `R ${Math.abs(amount).toFixed(2)}`; }
+    function getTransactionIcon(desc) {
+        const lowerDesc = desc.toLowerCase();
+        if (lowerDesc.includes('received') || lowerDesc.includes('salary') || lowerDesc.includes('deposit') || lowerDesc.includes('refund'))
+            return '<i class="fas fa-arrow-down"></i>';
+        if (lowerDesc.includes('payment') || lowerDesc.includes('purchase') || lowerDesc.includes('ticket'))
+            return '<i class="fas fa-credit-card"></i>';
+        if (lowerDesc.includes('coffee') || lowerDesc.includes('grocery') || lowerDesc.includes('store'))
+            return '<i class="fas fa-shopping-bag"></i>';
+        return '<i class="fas fa-exchange-alt"></i>';
+    }
+
+    function renderTransactions() {
+        const container = document.getElementById('transactionsList');
+        if (!container) return;
+        let txs = getTransactions();
+        txs = filterTransactions(txs, currentFilter, customStartDate, customEndDate);
+        if (txs.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><p>No transactions found</p></div>`;
+            return;
+        }
+        const grouped = groupByDate(txs);
+        const sortedDates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
+        container.innerHTML = sortedDates.map(date => `
+            <div class="tx-group">
+                <div class="tx-date-header">${formatDateHeader(date)}</div>
+                ${grouped[date].map(tx => `
+                    <div class="tx-item">
+                        <div class="tx-left">
+                            <div class="tx-icon">${getTransactionIcon(tx.desc)}</div>
+                            <div class="tx-info">
+                                <div class="tx-desc">${escapeHtml(tx.desc)}</div>
+                                <div class="tx-date">${tx.date}</div>
+                            </div>
+                        </div>
+                        <div class="tx-amount ${tx.amount > 0 ? 'positive' : 'negative'}">
+                            ${tx.amount > 0 ? '+' : ''}${formatAmount(tx.amount)}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `).join('');
+    }
+
+    // ========== STATEMENT FUNCTIONS ==========
+    function renderStatement() {
+        const container = document.getElementById('statementList');
+        const statsContainer = document.getElementById('summaryStats');
+        const txs = getTransactions();
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        const monthTxs = txs.filter(tx => {
+            const txDate = new Date(tx.date);
+            return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+        });
+        
+        const totalIncome = monthTxs.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
+        const totalExpense = monthTxs.filter(tx => tx.amount < 0).reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+        const netChange = totalIncome - totalExpense;
+        
+        statsContainer.innerHTML = `
+            <div class="stat-card"><div class="stat-label">Total Income</div><div class="stat-value income">R ${totalIncome.toFixed(2)}</div></div>
+            <div class="stat-card"><div class="stat-label">Total Expenses</div><div class="stat-value expense">R ${totalExpense.toFixed(2)}</div></div>
+            <div class="stat-card"><div class="stat-label">Net Change</div><div class="stat-value ${netChange >= 0 ? 'income' : 'expense'}">${netChange >= 0 ? '+' : ''}R ${netChange.toFixed(2)}</div></div>
+        `;
+        
+        if (monthTxs.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-chart-line"></i><p>No transactions this month</p></div>`;
+            return;
+        }
+        
+        container.innerHTML = monthTxs.map(tx => `
+            <div class="tx-item">
+                <div class="tx-left">
+                    <div class="tx-icon">${getTransactionIcon(tx.desc)}</div>
+                    <div class="tx-info">
+                        <div class="tx-desc">${escapeHtml(tx.desc)}</div>
+                        <div class="tx-date">${tx.date}</div>
+                    </div>
+                </div>
+                <div class="tx-amount ${tx.amount > 0 ? 'positive' : 'negative'}">
+                    ${tx.amount > 0 ? '+' : ''}${formatAmount(tx.amount)}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function exportStatementPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const acc = getCurrentAccount();
+        const txs = getTransactions();
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const monthTxs = txs.filter(tx => {
+            const txDate = new Date(tx.date);
+            return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+        });
+        const totalIncome = monthTxs.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
+        const totalExpense = monthTxs.filter(tx => tx.amount < 0).reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+        
+        doc.setFillColor(227, 6, 19);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.setFont("helvetica", "bold");
+        doc.text("Rands Wallet", 105, 20, { align: "center" });
+        doc.setFontSize(12);
+        doc.text("Monthly Statement", 105, 32, { align: "center" });
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Account Holder: ${acc.name}`, 20, 55);
+        doc.text(`Account ID: ${acc.id}`, 20, 62);
+        doc.text(`Statement Period: ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}`, 20, 69);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 76);
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("Summary", 20, 90);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`Total Income: R ${totalIncome.toFixed(2)}`, 20, 100);
+        doc.text(`Total Expenses: R ${totalExpense.toFixed(2)}`, 20, 107);
+        doc.text(`Net Change: R ${(totalIncome - totalExpense).toFixed(2)}`, 20, 114);
+        doc.text(`Closing Balance: R ${acc.balance.toFixed(2)}`, 20, 121);
+        
+        let y = 140;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.text("Date", 20, y);
+        doc.text("Description", 55, y);
+        doc.text("Amount (R)", 170, y, { align: "right" });
+        y += 6;
+        doc.line(20, y, 190, y);
+        y += 4;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        
+        const displayTxs = monthTxs.slice(0, 20);
+        for (const tx of displayTxs) {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.text(tx.date, 20, y);
+            const desc = tx.desc.length > 30 ? tx.desc.substring(0, 27) + "..." : tx.desc;
+            doc.text(desc, 55, y);
+            doc.text(`${tx.amount >= 0 ? '+' : ''}R ${Math.abs(tx.amount).toFixed(2)}`, 170, y, { align: "right" });
+            y += 6;
+        }
+        if (monthTxs.length > 20) {
+            doc.setFont("italic");
+            doc.text(`... and ${monthTxs.length - 20} more transactions`, 20, y + 5);
+        }
+        
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: "center" });
+            doc.text("Rands Wallet - Secure Digital Wallet", 105, 285, { align: "center" });
+        }
+        doc.save(`Rands_Statement_${new Date().toISOString().slice(0,10)}.pdf`);
+        showToast("✅ PDF Statement downloaded!");
+    }
+
+    function exportToCSV() {
+        const txs = getTransactions();
+        if (txs.length === 0) { showToast("No transactions to export"); return; }
+        const headers = ["Date", "Description", "Amount (R)"];
+        const rows = txs.map(tx => [tx.date, tx.desc, tx.amount.toFixed(2)]);
+        const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `rands_transactions_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("✅ CSV exported successfully!");
+    }
+
+    // Receive QR
+    function generateReceiveQR() {
+        const acc = getCurrentAccount();
+        if (acc) {
+            const qrDiv = document.getElementById('receiveQr');
+            qrDiv.innerHTML = '';
+            new QRCode(qrDiv, { text: acc.id, width: 180, height: 180, colorDark: "#E30613", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+            document.getElementById('accountIdDisplay').innerHTML = acc.id;
+        }
+    }
+    function copyAccountId() { const acc = getCurrentAccount(); if(acc) { navigator.clipboard.writeText(acc.id); showToast("✅ Account ID copied!"); } }
+
+    // Contacts
+    function renderContacts() {
+        const container = document.getElementById('contactsList');
+        if (contacts.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">No contacts saved</div>'; return; }
+        container.innerHTML = contacts.map(contact => `
+            <div class="contact-item">
+                <div class="contact-avatar"><i class="fas fa-user-circle"></i></div>
+                <div class="contact-info"><div class="contact-name">${escapeHtml(contact.name)}</div><div class="contact-phone">${contact.phone}</div></div>
+                <div class="contact-actions"><button class="contact-pay-btn" data-phone="${contact.phone}" data-name="${escapeHtml(contact.name)}">Pay</button></div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.contact-pay-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('recipientPhone').value = btn.getAttribute('data-phone');
+                document.getElementById('sendAmount').focus();
+                switchTab('send');
+                showToast(`Ready to send to ${btn.getAttribute('data-name')}`);
+            });
+        });
+    }
+    function addContact(name, phone) {
+        if (!name || !phone) { showToast("Please fill all fields"); return false; }
+        if (contacts.find(c => c.phone === phone)) { showToast("Contact already exists"); return false; }
+        contacts.push({ id: Date.now(), name: name, phone: phone });
+        saveContacts(); renderContacts(); showToast(`✅ ${name} added to contacts`); return true;
+    }
+
+    // Tab Switching
+    function switchTab(tab) {
+        const sendTab = document.getElementById('sendTab');
+        const receiveTab = document.getElementById('receiveTab');
+        const contactsTab = document.getElementById('contactsTab');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+        sendTab.style.display = 'none'; receiveTab.style.display = 'none'; contactsTab.style.display = 'none';
+        if (tab === 'send') { sendTab.style.display = 'block'; document.querySelector('.tab-btn[data-tab="send"]').classList.add('active'); renderTransactions(); }
+        else if (tab === 'receive') { receiveTab.style.display = 'block'; document.querySelector('.tab-btn[data-tab="receive"]').classList.add('active'); generateReceiveQR(); }
+        else if (tab === 'contacts') { contactsTab.style.display = 'block'; document.querySelector('.tab-btn[data-tab="contacts"]').classList.add('active'); renderContacts(); }
+    }
+
+    // Inner Tab Switching (Transactions vs Statement)
+    function switchInnerTab(tab) {
+        activeInnerTab = tab;
+        const transactionsPanel = document.getElementById('transactionsPanel');
+        const statementPanel = document.getElementById('statementPanel');
+        const innerTabs = document.querySelectorAll('.inner-tab');
+        innerTabs.forEach(t => t.classList.remove('active'));
+        if (tab === 'transactions') {
+            transactionsPanel.style.display = 'block';
+            statementPanel.style.display = 'none';
+            document.querySelector('.inner-tab[data-inner="transactions"]').classList.add('active');
+            renderTransactions();
+        } else {
+            transactionsPanel.style.display = 'none';
+            statementPanel.style.display = 'block';
+            document.querySelector('.inner-tab[data-inner="statement"]').classList.add('active');
+            renderStatement();
+        }
+    }
+
+    // PIN handling
+    function getPinFromInputs() { return document.getElementById('pin1').value + document.getElementById('pin2').value + document.getElementById('pin3').value + document.getElementById('pin4').value; }
+    function clearPinInputs() { ['pin1','pin2','pin3','pin4'].forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('pin1').focus(); }
+    function setupPinAutoMove() {
+        const inputs = ['pin1','pin2','pin3','pin4'];
+        inputs.forEach((id, index) => {
+            const input = document.getElementById(id);
+            input.addEventListener('input', (e) => { if (e.target.value.length === 1 && index < 3) document.getElementById(inputs[index + 1]).focus(); });
+            input.addEventListener('keydown', (e) => { if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) document.getElementById(inputs[index - 1]).focus(); });
+        });
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':m); }
+
+    function init() {
+        loadAccounts();
+        let saved = localStorage.getItem('rands_current_account');
+        if (saved && accounts.find(a => a.id === saved)) currentAccountId = saved;
+        else if (accounts.length > 0) { currentAccountId = accounts[0].id; localStorage.setItem('rands_current_account', currentAccountId); }
+        else { showToast("No account found"); return; }
+        
+        loadTransactions();
+        loadContacts();
+        updateBalance();
+        renderTransactions();
+        renderStatement();
+        generateReceiveQR();
+        setupPinAutoMove();
+        
+        document.getElementById('backBtn').onclick = () => { window.location.href = 'index.html'; };
+        document.querySelectorAll('.tab-btn').forEach(btn => { btn.onclick = () => switchTab(btn.getAttribute('data-tab')); });
+        document.querySelectorAll('.inner-tab').forEach(btn => { btn.onclick = () => switchInnerTab(btn.getAttribute('data-inner')); });
+        
+        document.getElementById('sendMoneyBtn').onclick = () => {
+            const recipient = document.getElementById('recipientPhone').value.trim();
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+            const note = document.getElementById('sendNote').value;
+            if (!recipient) { showToast("Please enter recipient phone number"); return; }
+            if (!amount || amount <= 0) { showToast("Please enter a valid amount"); return; }
+            if (amount > getCurrentAccount().balance) { showToast("Insufficient balance"); return; }
+            pendingSendData = { recipient, amount, note };
+            document.getElementById('pinModal').classList.add('active');
+            clearPinInputs();
+        };
+        document.getElementById('confirmPinBtn').onclick = () => {
+            const pin = getPinFromInputs();
+            if (pin.length !== 4) { showToast("Please enter 4-digit PIN"); return; }
+            if (pendingSendData && sendMoney(pendingSendData.recipient, pendingSendData.amount, pendingSendData.note, pin)) {
+                document.getElementById('pinModal').classList.remove('active');
+                clearPinInputs(); pendingSendData = null; renderTransactions(); renderStatement();
+            } else { document.getElementById('pinModal').classList.remove('active'); clearPinInputs(); pendingSendData = null; }
+        };
+        document.getElementById('cancelPinBtn').onclick = () => { document.getElementById('pinModal').classList.remove('active'); clearPinInputs(); pendingSendData = null; };
+        document.getElementById('copyAccountIdBtn').onclick = copyAccountId;
+        document.getElementById('addContactBtn').onclick = () => { document.getElementById('addContactModal').classList.add('active'); };
+        document.getElementById('closeContactModalBtn').onclick = () => { document.getElementById('addContactModal').classList.remove('active'); document.getElementById('contactName').value = ''; document.getElementById('contactPhoneNum').value = ''; };
+        document.getElementById('saveContactBtn').onclick = () => { if(addContact(document.getElementById('contactName').value.trim(), document.getElementById('contactPhoneNum').value.trim())) { document.getElementById('addContactModal').classList.remove('active'); document.getElementById('contactName').value = ''; document.getElementById('contactPhoneNum').value = ''; } };
+        document.querySelectorAll('.filter-chip[data-filter]').forEach(chip => {
+            chip.onclick = () => {
+                document.querySelectorAll('.filter-chip[data-filter]').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentFilter = chip.getAttribute('data-filter');
+                if (currentFilter === 'custom') { document.getElementById('dateRangePicker').classList.remove('hidden'); customStartDate = null; customEndDate = null; }
+                else { document.getElementById('dateRangePicker').classList.add('hidden'); customStartDate = null; customEndDate = null; renderTransactions(); }
+            };
+        });
+        document.getElementById('applyDateRange').onclick = () => {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            if (start && end) { customStartDate = start; customEndDate = end; renderTransactions(); }
+            else showToast("Please select both start and end dates");
+        };
+        document.getElementById('exportHistoryBtn').onclick = exportToCSV;
+        document.getElementById('exportStatementBtn').onclick = exportStatementPDF;
+        document.querySelectorAll('.modal').forEach(modal => { modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); }); });
+    }
+    init();
+</script>
+</body>
+</html>
