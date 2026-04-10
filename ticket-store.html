@@ -435,6 +435,13 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
+        .ticket-price {
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin: 8px 0 0 0;
+            display: block;
+        }
+        
         .ticket-body {
             padding: 25px 30px 30px 30px;
             background: rgba(15, 23, 42, 0.6);
@@ -743,6 +750,35 @@
             .cart-sidebar { width: 100%; right: -100%; }
             .store-cart-btn { width: 42px; height: 42px; font-size: 1.2rem; top: -5px; left: -5px; }
             body { padding-bottom: 90px; }
+            /* Ensure checkout button is visible on small screens */
+            .checkout-btn {
+                margin: 16px 20px 25px;
+                padding: 14px;
+                font-size: 1rem;
+            }
+            .cart-total {
+                padding: 18px 20px;
+                font-size: 1.1rem;
+            }
+            .cart-total span:last-child {
+                font-size: 1.3rem;
+            }
+            .cart-header {
+                padding: 20px 24px;
+            }
+            .cart-header h3 {
+                font-size: 1.4rem;
+            }
+            .cart-items {
+                padding: 16px;
+                gap: 12px;
+            }
+            .cart-item {
+                padding: 14px;
+            }
+            .ticket-price {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
@@ -1200,7 +1236,7 @@
             return `
                 <div class="ticket ${type.classSlug}" data-type="${type.key}">
                     ${type.popular ? '<div class="popular-badge">MOST POPULAR</div>' : ''}
-                    <div class="ticket-header"><div class="ticket-type">${type.emoji} ${type.label} ${isSoldOut ? '<span class="sold-out-tag">SOLD OUT</span>' : ''}</div><div class="ticket-price">R${ticketData.price.toLocaleString()}</div><p class="ticket-description">${type.desc}</p></div>
+                    <div class="ticket-header"><div class="ticket-type">${type.emoji} ${type.label} ${isSoldOut ? '<span class="sold-out-tag">SOLD OUT</span>' : ''}</div><div class="ticket-price" style="font-weight:800;">R${ticketData.price.toLocaleString()}</div><p class="ticket-description">${type.desc}</p></div>
                     <div class="ticket-body"><ul class="features-list">${type.features.map(f => `<li><span class="feature-icon"><i class="fas fa-check-circle"></i></span> ${f}</li>`).join('')}<li><span class="feature-icon"><i class="fas fa-ticket-alt"></i></span> Remaining: ${remaining} / ${ticketData.capacity}</li></ul>
                     ${!isSoldOut ? `<div class="quantity-selector" data-type="${type.key}"><button class="quantity-btn minus">−</button><span class="quantity-display">1</span><button class="quantity-btn plus">+</button></div>` : ''}</div>
                     <div class="ticket-footer"><button class="buy-btn" data-type="${type.key}" ${isSoldOut ? 'disabled' : ''}>${isSoldOut ? 'Sold Out' : 'Add to Cart'}</button></div>
