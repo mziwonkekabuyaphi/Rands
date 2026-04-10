@@ -1046,7 +1046,7 @@
         </div>
     </div>
 
-    <!-- Payment Approval Modal - MOBILE FRIENDLY SCROLLABLE -->
+    <!-- Payment Approval Modal - MOBILE FRIENDLY SCROLLABLE (Payment Type and Kiosk Location removed) -->
     <div class="modal-overlay" :class="{ active: paymentModalVisible }" @click.self="closeModal">
         <div class="payment-modal">
             <div class="modal-header">
@@ -1057,8 +1057,6 @@
             <div class="payment-details">
                 <div class="detail-row"><span class="detail-label">From</span><span class="detail-value">{{ pendingPayment.from }}</span></div>
                 <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" style="color:#E30613; font-size:1.2rem;">R {{ formatPrice(pendingPayment.amount) }}</span></div>
-                <div class="detail-row"><span class="detail-label">Payment Type</span><span class="detail-value">{{ pendingPayment.type }}</span></div>
-                <div class="detail-row"><span class="detail-label">Kiosk Location</span><span class="detail-value">{{ pendingPayment.kiosk }}</span></div>
                 <div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value">{{ pendingPayment.reference }}</span></div>
             </div>
             <div class="pin-prompt">
