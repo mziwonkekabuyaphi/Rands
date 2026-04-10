@@ -314,8 +314,8 @@
     }
     
     function redirectToWallet() {
-        // Redirect to wallet.html
-        window.location.href = 'wallet.html';
+        // Redirect to home.html
+        window.location.href = 'home.html';
     }
 
     // Initialize
@@ -326,7 +326,7 @@
         let saved = localStorage.getItem('rands_current_account');
         if (saved && accounts.find(a => a.id === saved)) {
             currentAccountId = saved;
-            // Redirect immediately to wallet if already logged in
+            // Redirect immediately to home if already logged in
             redirectToWallet();
             return;
         }
