@@ -728,11 +728,21 @@
             font-weight: bold;
         }
         
+        /* Bottom nav container */
+        #bottomNav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
         @media (max-width: 700px) {
             h1 { font-size: 2.5rem; }
             .tickets-grid { grid-template-columns: 1fr; }
             .cart-sidebar { width: 100%; right: -100%; }
             .store-cart-btn { width: 42px; height: 42px; font-size: 1.2rem; top: -5px; left: -5px; }
+            body { padding-bottom: 90px; }
         }
     </style>
 </head>
@@ -814,6 +824,10 @@
 </div>
 <div id="toast" class="toast"></div>
 
+<!-- Bottom navigation container -->
+<div id="bottomNav"></div>
+
+<script src="app.js"></script>
 <script>
     const EVENTS_KEY = 'rands_events';
     const TICKETS_KEY = 'rands_tickets';
@@ -1270,6 +1284,11 @@
         document.getElementById('deletePastBtn').addEventListener('click', deletePastEventTickets);
         switchTab(false);
         window.addEventListener('storage', (e) => { if(e.key === EVENTS_KEY){ loadEvents(); if(document.getElementById('storePanel').style.display !== 'none') populateEventSelectorStore(); updateWalletUI(); } if(e.key === TICKETS_KEY) updateWalletUI(); });
+        
+        // Load bottom navigation after page loads
+        if (typeof loadBottomNav === 'function') {
+            loadBottomNav();
+        }
     }
     init();
 </script>
