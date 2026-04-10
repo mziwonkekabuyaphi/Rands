@@ -13,52 +13,6 @@
             box-sizing: border-box;
         }
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f4f6fa;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .app-container {
-            max-width: 500px;
-            width: 100%;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: 40px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            position: relative;
-        }
-        
-        /* Demo content area to show the tab bar at bottom */
-        .demo-content {
-            padding: 60px 24px;
-            text-align: center;
-            color: #64748b;
-            background: #fafbfc;
-        }
-        
-        .demo-content i {
-            font-size: 3rem;
-            color: #E30613;
-            opacity: 0.5;
-            margin-bottom: 16px;
-        }
-        
-        .demo-content h3 {
-            margin-bottom: 12px;
-            color: #1e293b;
-        }
-        
-        .demo-content p {
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-        
         /* Bottom Tab Bar - UPDATED WITH NEW TAB NAMES */
         .bottom-tab-bar {
             position: sticky;
@@ -97,37 +51,9 @@
         .tab-nav.active .tab-label {
             color: #E30613;
         }
-        
-        .info-note {
-            background: #fef2f2;
-            padding: 12px 20px;
-            margin: 0 16px 16px 16px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #E30613;
-            text-align: center;
-        }
-        
-        .info-note i {
-            margin-right: 6px;
-        }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <!-- DEMO CONTENT AREA -->
-    <div class="demo-content">
-        <i class="fas fa-mobile-alt"></i>
-        <h3>Bottom Tab Navigation</h3>
-        <p>Updated tab names: <strong>Home | My Ticket | Transact | Queue | VVIP</strong></p>
-        <p style="margin-top: 12px;">5 tabs total (reduced from 6)</p>
-        <p style="margin-top: 8px; font-size: 0.7rem; color: #E30613;">Tap any tab below to see active state change</p>
-    </div>
-    
-    <div class="info-note">
-        <i class="fas fa-code"></i> Tabs renamed: Home, My Ticket, Transact, Queue, VVIP
-    </div>
-    
     <!-- BOTTOM TAB NAVIGATION - UPDATED WITH NEW TAB NAMES -->
     <div class="bottom-tab-bar">
         <div class="tab-nav" data-tab="home">
@@ -151,33 +77,29 @@
             <div class="tab-label">VVIP</div>
         </div>
     </div>
-</div>
 
-<script>
-    // Demo script to show tab switching (active state toggling)
-    const tabs = document.querySelectorAll('.tab-nav');
-    
-    function setActiveTab(activeTab) {
+    <script>
+        // Tab switching functionality - ready to integrate
+        const tabs = document.querySelectorAll('.tab-nav');
+        
+        function setActiveTab(activeTab) {
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            activeTab.classList.add('active');
+        }
+        
         tabs.forEach(tab => {
-            tab.classList.remove('active');
+            tab.addEventListener('click', () => {
+                setActiveTab(tab);
+            });
         });
-        activeTab.classList.add('active');
-        console.log(`Tab activated: ${activeTab.getAttribute('data-tab')}`);
-    }
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            setActiveTab(tab);
-        });
-    });
-    
-    // Set Home as active by default for demo
-    const homeTab = document.querySelector('.tab-nav[data-tab="home"]');
-    if (homeTab) {
-        homeTab.classList.add('active');
-    }
-    
-    console.log('Bottom tab bar - 5 tabs: Home, My Ticket, Transact, Queue, VVIP');
-</script>
+        
+        // Set Home as active by default
+        const homeTab = document.querySelector('.tab-nav[data-tab="home"]');
+        if (homeTab) {
+            homeTab.classList.add('active');
+        }
+    </script>
 </body>
 </html>

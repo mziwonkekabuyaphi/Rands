@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Rands Wallet Header - Preview</title>
+    <title>Rands Wallet Header</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
     <style>
@@ -13,28 +13,7 @@
             box-sizing: border-box;
         }
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f4f6fa;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .app-container {
-            max-width: 500px;
-            width: 100%;
-            margin: 0 auto;
-            background: #ffffff;
-            border-radius: 40px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            position: relative;
-        }
-        
-        #movableHeaderGroup {
+        .movable-header-group {
             position: sticky;
             top: 0;
             z-index: 100;
@@ -112,37 +91,10 @@
             color: transparent;
             font-weight: 800;
         }
-        
-        /* Demo content to show scrolling behavior */
-        .demo-content {
-            padding: 40px 24px;
-            text-align: center;
-            color: #64748b;
-            border-top: 1px solid #eff3f8;
-        }
-        
-        .demo-content p {
-            margin: 10px 0;
-        }
-        
-        .info-note {
-            background: #fef2f2;
-            padding: 12px 20px;
-            margin: 16px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #E30613;
-            text-align: center;
-        }
-        
-        .info-note i {
-            margin-right: 6px;
-        }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <!-- EXTRACTED HEADER - Quick action bar REMOVED, Welcome changed to Molo -->
+    <!-- HEADER COMPONENT - Ready to Integrate -->
     <div class="movable-header-group" id="movableHeaderGroup">
         <div class="app-header">
             <img src="images/rands-logo.png" alt="Rands Wallet" class="logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'">
@@ -156,61 +108,29 @@
             <i class="fas fa-hand-peace"></i> <span id="greetingName">Molo, User</span>
             <span id="pendingRequestIndicator" style="display: none;">⏳ Unlock Pending</span>
         </div>
-        <!-- QUICK ACTION BAR REMOVED -->
     </div>
-    
-    <!-- DEMO CONTENT - Shows the header in context (not part of original header) -->
-    <div class="info-note">
-        <i class="fas fa-info-circle"></i> Quick action bar removed | "Welcome" changed to "Molo" (Xhosa)
-    </div>
-    
-    <div class="demo-content">
-        <i class="fas fa-arrow-down" style="font-size: 2rem; color: #E30613; opacity: 0.5;"></i>
-        <p>Scroll down to see header hide on scroll</p>
-        <p>↓</p>
-        <p style="margin-top: 30px;">The header stays sticky at the top</p>
-        <p>It hides when scrolling down</p>
-        <p>And reappears when scrolling up</p>
-        <p style="margin-top: 40px;"><strong>Header components (updated):</strong></p>
-        <p>• Logo (Rands Wallet)</p>
-        <p>• Logout icon (🔓)</p>
-        <p>• POS Mode icon (💵)</p>
-        <p>• Profile icon (👤)</p>
-        <p>• Molo greeting with user name (Xhosa for welcome)</p>
-        <p>• Pending unlock indicator (hidden by default)</p>
-        <p>• <span style="color: #E30613;">✓ Quick action bar removed</span></p>
-    </div>
-</div>
 
-<script>
-    // Simple demo to show the header scroll behavior (from your original code)
-    const header = document.getElementById('movableHeaderGroup');
-    const container = document.querySelector('.app-container');
-    let lastScroll = 0;
-    
-    if (header && container) {
-        // Make the demo content taller to enable scrolling
-        const demoContent = document.querySelector('.demo-content');
-        if (demoContent) {
-            demoContent.style.minHeight = '800px';
+    <script>
+        // Header scroll behavior
+        const header = document.getElementById('movableHeaderGroup');
+        let lastScroll = 0;
+        
+        if (header) {
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.scrollY;
+                if (currentScroll > lastScroll && currentScroll > 50) {
+                    header.classList.add('header-hidden');
+                } else if (currentScroll < lastScroll) {
+                    header.classList.remove('header-hidden');
+                }
+                lastScroll = currentScroll;
+            }, { passive: true });
         }
         
-        // Add scroll event to the window to demonstrate header hide/show
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.scrollY;
-            if (currentScroll > lastScroll && currentScroll > 50) {
-                header.classList.add('header-hidden');
-            } else if (currentScroll < lastScroll) {
-                header.classList.remove('header-hidden');
-            }
-            lastScroll = currentScroll;
-        }, { passive: true });
-    }
-    
-    // Demo click handlers to show the buttons work (just console logs)
-    document.getElementById('logoutHeaderBtn')?.addEventListener('click', () => console.log('Logout clicked'));
-    document.getElementById('posModeBtn')?.addEventListener('click', () => console.log('POS Mode clicked'));
-    document.getElementById('profileBtn')?.addEventListener('click', () => console.log('Profile clicked'));
-</script>
+        // Header button handlers - ready for integration
+        document.getElementById('logoutHeaderBtn')?.addEventListener('click', () => console.log('Logout clicked'));
+        document.getElementById('posModeBtn')?.addEventListener('click', () => console.log('POS Mode clicked'));
+        document.getElementById('profileBtn')?.addEventListener('click', () => console.log('Profile clicked'));
+    </script>
 </body>
 </html>
