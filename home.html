@@ -22,7 +22,7 @@
             align-items: center;
             min-height: 100vh;
             padding: 16px;
-            padding-bottom: 80px; /* Space for external bottom nav */
+            padding-bottom: 80px;
         }
 
         .wallet-container {
@@ -812,6 +812,15 @@
             opacity: 1;
         }
 
+        /* Bottom nav container */
+        #bottomNav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
         @media (max-width: 480px) {
             .wallet-container {
                 border-radius: 32px;
@@ -1067,7 +1076,11 @@
     <div class="toast-message" :class="{ show: toastVisible }">{{ toastMessage }}</div>
 </div>
 
+<!-- Bottom navigation container -->
+<div id="bottomNav"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+<script src="app.js"></script>
 <script>
     new Vue({
         el: '#walletApp',
@@ -1104,6 +1117,10 @@
         },
         mounted() {
             setTimeout(() => { this.simulateKioskPayment(); }, 3000);
+            // Load bottom navigation after page loads
+            if (typeof loadBottomNav === 'function') {
+                loadBottomNav();
+            }
         },
         methods: {
             formatPrice(price) {
