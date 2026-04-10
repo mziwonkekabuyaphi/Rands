@@ -31,11 +31,6 @@
             backdrop-filter: blur(2px);
         }
         
-        /* Header container styling */
-        #header {
-            width: 100%;
-        }
-        
         /* Bottom navigation container */
         #bottomNav {
             width: 100%;
@@ -401,9 +396,6 @@
 </head>
 <body>
 <div class="app-container">
-    <!-- Header will be loaded here -->
-    <div id="header"></div>
-    
     <div class="app-main">
         <div id="vvipTab" class="tab-content">
             <div class="sovereign-title">
@@ -792,11 +784,8 @@
         setInterval(checkForSovereignPayments, 4000);
     }
     
-    // Load header and bottom navigation after page loads
+    // Load bottom navigation after page loads
     document.addEventListener('DOMContentLoaded', function() {
-        if (typeof loadHeader === 'function') {
-            loadHeader();
-        }
         if (typeof loadBottomNav === 'function') {
             loadBottomNav();
         }
