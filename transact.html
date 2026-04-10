@@ -20,6 +20,7 @@
             background: linear-gradient(135deg, #f5f7fc 0%, #eef2f8 100%);
             min-height: 100vh;
             padding: 20px;
+            padding-bottom: 80px;
         }
 
         /* Main Container */
@@ -644,7 +645,7 @@
         /* Toast */
         .toast-msg {
             position: fixed;
-            bottom: 30px;
+            bottom: 90px;
             left: 20px;
             right: 20px;
             background: #1e293b;
@@ -661,18 +662,20 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Bottom Navigation Spacing */
+        #bottomNav {
+            margin-top: 16px;
+        }
     </style>
 </head>
 <body>
-<div class="main-container">
-    <!-- Header -->
-    <div class="main-header">
-        <div class="header-title">
-            <h1><i class="fas fa-exchange-alt"></i> Transact</h1>
-            <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i></button>
-        </div>
-    </div>
+<!-- ========== DYNAMIC HEADER ========== -->
+<div id="header"></div>
 
+<div class="main-container">
+    <!-- Original Header Content Removed, Now Handled by loadHeader() -->
+    
     <!-- Balance Card -->
     <div class="balance-card">
         <div class="balance-label">Available Balance</div>
@@ -766,6 +769,9 @@
     </div>
 </div>
 
+<!-- ========== BOTTOM NAVIGATION ========== -->
+<div id="bottomNav"></div>
+
 <!-- PIN Modal -->
 <div id="pinModal" class="modal">
     <div class="modal-card">
@@ -798,6 +804,9 @@
 </div>
 
 <div id="globalToast" class="toast-msg"></div>
+
+<!-- Include external app.js -->
+<script src="app.js"></script>
 
 <script>
     // ========== STORAGE KEYS ==========
@@ -1236,7 +1245,21 @@
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':m); }
 
-    function init() {
+    // Wait for DOM and external app.js to be ready, then load header + bottomNav
+    function initPage() {
+        // Load header and bottom navigation from app.js
+        if (typeof loadHeader === 'function') {
+            loadHeader();
+        } else {
+            console.warn("loadHeader() not found in app.js");
+        }
+        if (typeof loadBottomNav === 'function') {
+            loadBottomNav();
+        } else {
+            console.warn("loadBottomNav() not found in app.js");
+        }
+        
+        // Existing initialization
         loadAccounts();
         let saved = localStorage.getItem('rands_current_account');
         if (saved && accounts.find(a => a.id === saved)) currentAccountId = saved;
@@ -1251,7 +1274,6 @@
         generateReceiveQR();
         setupPinAutoMove();
         
-        document.getElementById('backBtn').onclick = () => { window.location.href = 'index.html'; };
         document.querySelectorAll('.tab-btn').forEach(btn => { btn.onclick = () => switchTab(btn.getAttribute('data-tab')); });
         document.querySelectorAll('.inner-tab').forEach(btn => { btn.onclick = () => switchInnerTab(btn.getAttribute('data-inner')); });
         
@@ -1298,7 +1320,9 @@
         document.getElementById('exportStatementBtn').onclick = exportStatementPDF;
         document.querySelectorAll('.modal').forEach(modal => { modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); }); });
     }
-    init();
+    
+    // Execute after DOM fully loaded, give time for app.js to load functions
+    window.addEventListener('DOMContentLoaded', initPage);
 </script>
 </body>
 </html>
