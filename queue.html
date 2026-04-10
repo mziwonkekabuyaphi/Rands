@@ -24,6 +24,24 @@
     padding-bottom: 60px;
   }
 
+  /* Header container styling - will be populated by loadHeader() */
+  #header {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+  }
+
+  /* Bottom navigation container */
+  #bottomNav {
+    width: 100%;
+    max-width: 480px;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+
   .kiosk-header {
     width: 100%;
     max-width: 800px;
@@ -64,6 +82,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    margin-bottom: 70px;
   }
 
   .join-panel {
@@ -801,6 +820,9 @@
 </head>
 <body>
 
+<!-- Header will be loaded here -->
+<div id="header"></div>
+
 <div class="kiosk-header">
   <div class="header-title">
     <img class="header-logo" src="images/rands-logo.png" alt="Rands Logo" onerror="this.style.display='none'">
@@ -835,6 +857,9 @@
 
 <div class="footer">Created by Mziwonke KaBuyaphi</div>
 
+<!-- Bottom navigation will be loaded here -->
+<div id="bottomNav"></div>
+
 <!-- Popup Modal Component -->
 <div id="popupModal" class="popup-modal-overlay">
   <div class="popup-modal">
@@ -845,6 +870,7 @@
   </div>
 </div>
 
+<script src="app.js"></script>
 <script>
   const QUEUE_KEY = "butcher_shop_queue";
   const ORDERS_KEY = "butcher_shop_orders";
@@ -1029,7 +1055,7 @@
 
   // Mobile-friendly ticket confirmation with scrollable content and zoomable QR
   function showTicketConfirmation(ticketNumber, total) {
-    const baseUrl = window.location.origin + window.location.pathname.replace('kiosk-preorder.html', 'customer-status-page.html');
+    const baseUrl = window.location.origin + window.location.pathname.replace('queue.html', 'customer-status-page.html');
     const trackingUrl = `${baseUrl}?order=${ticketNumber}&counter=butcher`;
     
     const overlay = document.createElement('div');
@@ -1329,6 +1355,16 @@
   updateNowServing();
   setInterval(updateNowServing, 5000);
   updateJoinButtonState();
+
+  // Load header and bottom navigation after page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof loadHeader === 'function') {
+      loadHeader();
+    }
+    if (typeof loadBottomNav === 'function') {
+      loadBottomNav();
+    }
+  });
 </script>
 </body>
 </html>
