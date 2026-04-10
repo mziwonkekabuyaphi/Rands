@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Wallet | Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: #f4f6fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
+        .app-container { max-width: 500px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 40px; box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08); overflow: hidden; position: relative; }
+        .app-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eff3f8; }
+        .logo { height: 45px; width: auto; max-width: 180px; object-fit: contain; border-radius: 12px; }
+        .login-container { padding: 40px 20px; text-align: center; }
+        .circular-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E30613, #b0020e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px -5px rgba(227,6,19,0.4);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .circular-logo:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(227,6,19,0.5);
+        }
+        .circular-logo img {
+            width: 70%;
+            height: auto;
+            object-fit: contain;
+        }
+        .input-field {
+            background: #f8fafd;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 60px;
+            width: 100%;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .whatsapp-login-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .whatsapp-login-btn:active { transform: scale(0.98); }
+        .camera-container { text-align: center; margin: 15px 0; }
+        .video-preview { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 3px solid #E30613; margin: 0 auto; background: #f0f2f5; }
+        .camera-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .camera-btn { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; cursor: pointer; }
+        .selfie-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 10px auto; display: block; border: 2px solid #10b981; }
+        .toast-msg { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #1e2a3a; color: white; padding: 10px 16px; border-radius: 60px; text-align: center; z-index: 3500; display: none; font-size: 0.8rem; }
+        .toast-msg.show { display: block; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="app-header">
+        <div class="logo"></div>
+    </div>
+    <div class="login-container">
+        <div class="circular-logo">
+            <img src="images/rands-logo2.png" alt="Rands Wallet" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'67\' font-size=\'45\' text-anchor=\'middle\' fill=\'white\' font-family=\'Arial\'%3ER%3C/text%3E%3C/svg%3E'">
+        </div>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="margin-top: 20px;">Rands Wallet</h2>
+            <p style="color: #64748b;">Your phone number is your account ID</p>
+        </div>
+        <div id="loginForm">
+            <input type="tel" id="loginWhatsapp" class="input-field" placeholder="Phone Number (e.g., 0635713652)" style="margin-bottom: 15px;">
+            <input type="password" id="loginPin" class="input-field" placeholder="4-digit PIN" maxlength="4" style="margin-bottom: 15px;">
+            <button class="whatsapp-login-btn" id="loginBtn"><i class="fab fa-whatsapp"></i> Login</button>
+            <p style="text-align: center; margin: 15px 0; color: #64748b;">or</p>
+            <button class="whatsapp-login-btn" id="showSignupBtn" style="background: #E30613;"><i class="fas fa-user-plus"></i> Create New Account</button>
+        </div>
+        <div id="signupForm" style="display: none;">
+            <input type="tel" id="signupWhatsapp" class="input-field" placeholder="Phone Number (e.g., 0635713652)" style="margin-bottom: 15px;">
+            <input type="text" id="signupName" class="input-field" placeholder="Full Name" style="margin-bottom: 15px;">
+            <input type="password" id="signupPin" class="input-field" placeholder="Create 4-digit PIN" maxlength="4" style="margin-bottom: 15px;">
+            <input type="password" id="signupConfirmPin" class="input-field" placeholder="Confirm 4-digit PIN" maxlength="4" style="margin-bottom: 15px;">
+            
+            <!-- Selfie Verification Section -->
+            <div id="selfieSection" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">📸 Account Verification (Selfie Required)</label>
+                <div class="camera-container">
+                    <video id="selfieVideo" class="video-preview" autoplay playsinline style="display: none;"></video>
+                    <canvas id="selfieCanvas" style="display: none;"></canvas>
+                    <img id="selfiePreview" class="selfie-preview" style="display: none;">
+                    <div id="selfiePlaceholder" style="width: 200px; height: 200px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: #94a3b8; flex-direction: column;">
+                        <i class="fas fa-camera" style="font-size: 48px; margin-bottom: 8px;"></i>
+                        <span style="font-size: 12px;">Take a selfie</span>
+                    </div>
+                    <div class="camera-buttons">
+                        <button type="button" class="camera-btn" id="startCameraBtn"><i class="fas fa-camera"></i> Take Selfie</button>
+                        <button type="button" class="camera-btn" id="captureSelfieBtn" style="display: none; background: #10b981;"><i class="fas fa-check"></i> Capture</button>
+                        <button type="button" class="camera-btn" id="retakeSelfieBtn" style="display: none;"><i class="fas fa-redo"></i> Retake</button>
+                    </div>
+                </div>
+                <input type="hidden" id="selfieData" value="">
+                <p id="selfieError" style="color: #E30613; font-size: 0.7rem; margin-top: 8px; text-align: center;"></p>
+            </div>
+            
+            <button class="whatsapp-login-btn" id="createAccountBtn" style="background: #25D366;"><i class="fab fa-whatsapp"></i> Create Account</button>
+            <p style="text-align: center; margin-top: 15px;"><button id="backToLoginBtn" style="background: none; border: none; color: #E30613; cursor: pointer;">← Back to Login</button></p>
+        </div>
+    </div>
+</div>
+<div id="globalToast" class="toast-msg"></div>
+
+<script>
+    // Storage keys
+    const ACCOUNTS_KEY = 'rands_accounts_v2';
+    let accounts = [];
+    let currentAccountId = null;
+    let stream = null;
+    let capturedSelfie = null;
+
+    // Helper functions
+    function showToastMsg(msg) { 
+        let t = document.getElementById('globalToast'); 
+        t.innerText = msg; 
+        t.classList.add('show'); 
+        setTimeout(() => t.classList.remove('show'), 2000); 
+    }
+    
+    function saveAccounts() { 
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); 
+    }
+    
+    function loadAccounts() { 
+        const stored = localStorage.getItem(ACCOUNTS_KEY); 
+        if (stored) {
+            accounts = JSON.parse(stored);
+        } else { 
+            // Default account: Mziwonke KaBuyaphi with PIN 1989
+            accounts = [{ 
+                id: "0635713652", 
+                name: "Mziwonke KaBuyaphi", 
+                phone: "0635713652", 
+                balance: 5000, 
+                cardNumber: "4532 1234 5678 9012", 
+                cvv: "123", 
+                expiry: "12/28", 
+                pin: "1989", 
+                status: "Active", 
+                cardTheme: "card-theme-1", 
+                selfie: null, 
+                verified: true 
+            }]; 
+            saveAccounts(); 
+        } 
+    }
+
+    // Selfie functions
+    async function startCamera() {
+        const video = document.getElementById('selfieVideo');
+        const placeholder = document.getElementById('selfiePlaceholder');
+        const startBtn = document.getElementById('startCameraBtn');
+        const captureBtn = document.getElementById('captureSelfieBtn');
+        const retakeBtn = document.getElementById('retakeSelfieBtn');
+        
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            placeholder.style.display = 'none';
+            startBtn.style.display = 'none';
+            captureBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'none';
+            document.getElementById('selfieError').innerHTML = '';
+        } catch (err) {
+            document.getElementById('selfieError').innerHTML = 'Camera access denied. Please allow camera to verify your identity.';
+            console.error(err);
+        }
+    }
+    
+    function captureSelfie() {
+        const video = document.getElementById('selfieVideo');
+        const canvas = document.getElementById('selfieCanvas');
+        const preview = document.getElementById('selfiePreview');
+        const captureBtn = document.getElementById('captureSelfieBtn');
+        const retakeBtn = document.getElementById('retakeSelfieBtn');
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        video.style.display = 'none';
+        
+        capturedSelfie = canvas.toDataURL('image/jpeg', 0.8);
+        preview.src = capturedSelfie;
+        preview.style.display = 'block';
+        document.getElementById('selfieData').value = capturedSelfie;
+        
+        captureBtn.style.display = 'none';
+        retakeBtn.style.display = 'inline-block';
+        document.getElementById('selfieError').innerHTML = '<span style="color:#10b981;">✓ Selfie captured successfully!</span>';
+    }
+    
+    function retakeSelfie() {
+        const preview = document.getElementById('selfiePreview');
+        preview.style.display = 'none';
+        capturedSelfie = null;
+        document.getElementById('selfieData').value = '';
+        startCamera();
+    }
+    
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+
+    // Account functions
+    function login(phoneNumber, pin) {
+        let cleanNumber = phoneNumber.trim();
+        const account = accounts.find(a => a.id === cleanNumber);
+        if (!account) { 
+            showToastMsg("Account not found. Please create an account first."); 
+            return false; 
+        }
+        if (account.pin !== pin) { 
+            showToastMsg("Incorrect PIN"); 
+            return false; 
+        }
+        if (account.status === "Blocked") { 
+            showToastMsg("Account blocked. Contact support."); 
+            return false; 
+        }
+        currentAccountId = account.id;
+        localStorage.setItem('rands_current_account', currentAccountId);
+        showToastMsg(`Welcome back, ${account.name.split(' ')[0]}!`);
+        return true;
+    }
+    
+    function createNewAccount(phoneNumber, name, pin, confirmPin) {
+        let cleanNumber = phoneNumber.trim();
+        if (!/^[0-9]{10,15}$/.test(cleanNumber)) { 
+            showToastMsg("Valid phone number required (e.g., 0635713652)"); 
+            return false; 
+        }
+        if (accounts.find(a => a.id === cleanNumber)) { 
+            showToastMsg("Account already exists. Please login instead."); 
+            return false; 
+        }
+        if (!name || name.trim().length < 2) { 
+            showToastMsg("Please enter your full name"); 
+            return false; 
+        }
+        if (!pin || pin.length !== 4 || !/^\d+$/.test(pin)) { 
+            showToastMsg("Please create a valid 4-digit PIN"); 
+            return false; 
+        }
+        if (pin !== confirmPin) {
+            showToastMsg("PINs do not match. Please re-enter.");
+            return false;
+        }
+        
+        const selfieData = document.getElementById('selfieData').value;
+        if (!selfieData) {
+            showToastMsg("⚠️ Please take a selfie for account verification");
+            return false;
+        }
+        
+        const randomTheme = "card-theme-1";
+        const newAccount = {
+            id: cleanNumber, 
+            name: name.trim(), 
+            phone: cleanNumber, 
+            balance: 100,
+            cardNumber: "4532 " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000),
+            cvv: Math.floor(100 + Math.random() * 900).toString(), 
+            expiry: "12/28", 
+            pin: pin, 
+            status: "Active",
+            createdAt: new Date().toISOString(), 
+            cardTheme: randomTheme,
+            selfie: selfieData,
+            verified: true,
+            verifiedAt: new Date().toISOString()
+        };
+        accounts.push(newAccount);
+        saveAccounts();
+        currentAccountId = newAccount.id;
+        localStorage.setItem('rands_current_account', currentAccountId);
+        
+        stopCamera();
+        
+        showToastMsg(`🎉 Welcome to Rands Wallet, ${name.trim().split(' ')[0]}! Account verified with selfie.`);
+        return true;
+    }
+    
+    function redirectToWallet() {
+        // Redirect to wallet.html
+        window.location.href = 'wallet.html';
+    }
+
+    // Initialize
+    function init() {
+        loadAccounts();
+        
+        // Check if already logged in
+        let saved = localStorage.getItem('rands_current_account');
+        if (saved && accounts.find(a => a.id === saved)) {
+            currentAccountId = saved;
+            // Redirect immediately to wallet if already logged in
+            redirectToWallet();
+            return;
+        }
+        
+        // Selfie button handlers
+        document.getElementById("startCameraBtn")?.addEventListener("click", startCamera);
+        document.getElementById("captureSelfieBtn")?.addEventListener("click", captureSelfie);
+        document.getElementById("retakeSelfieBtn")?.addEventListener("click", retakeSelfie);
+        
+        // Login button
+        document.getElementById("loginBtn")?.addEventListener("click", () => {
+            if(login(document.getElementById("loginWhatsapp").value, document.getElementById("loginPin").value)) {
+                redirectToWallet();
+            }
+        });
+        
+        // Show signup form
+        document.getElementById("showSignupBtn")?.addEventListener("click", () => { 
+            document.getElementById("loginForm").style.display = "none"; 
+            document.getElementById("signupForm").style.display = "block"; 
+        });
+        
+        // Back to login
+        document.getElementById("backToLoginBtn")?.addEventListener("click", () => { 
+            document.getElementById("signupForm").style.display = "none"; 
+            document.getElementById("loginForm").style.display = "block";
+            stopCamera();
+            // Clear signup form
+            document.getElementById("signupWhatsapp").value = "";
+            document.getElementById("signupName").value = "";
+            document.getElementById("signupPin").value = "";
+            document.getElementById("signupConfirmPin").value = "";
+            document.getElementById("selfieData").value = "";
+            document.getElementById("selfiePreview").style.display = "none";
+            document.getElementById("selfieVideo").style.display = "none";
+            document.getElementById("selfiePlaceholder").style.display = "flex";
+            document.getElementById("startCameraBtn").style.display = "inline-block";
+            document.getElementById("captureSelfieBtn").style.display = "none";
+            document.getElementById("retakeSelfieBtn").style.display = "none";
+            capturedSelfie = null;
+        });
+        
+        // Create account button
+        document.getElementById("createAccountBtn")?.addEventListener("click", () => {
+            if(createNewAccount(
+                document.getElementById("signupWhatsapp").value,
+                document.getElementById("signupName").value,
+                document.getElementById("signupPin").value,
+                document.getElementById("signupConfirmPin").value
+            )) {
+                redirectToWallet();
+            }
+        });
+        
+        // Enter key support for login
+        const loginPinInput = document.getElementById("loginPin");
+        if (loginPinInput) {
+            loginPinInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    document.getElementById("loginBtn").click();
+                }
+            });
+        }
+        
+        const loginPhoneInput = document.getElementById("loginWhatsapp");
+        if (loginPhoneInput) {
+            loginPhoneInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    document.getElementById("loginBtn").click();
+                }
+            });
+        }
+    }
+    
+    init();
+</script>
+</body>
+</html>
