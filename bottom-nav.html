@@ -13,11 +13,6 @@
             box-sizing: border-box;
         }
 
-        body {
-            background: #f5f7fb;
-            min-height: 100vh;
-        }
-
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -100,6 +95,7 @@
     </style>
 </head>
 <body>
+    <!-- BOTTOM NAVIGATION - COPY THIS BLOCK INTO YOUR PROJECT -->
     <div class="bottom-nav">
         <button class="nav-btn" data-url="home.html">
             <div class="nav-icon"><i class="fas fa-home"></i></div>
@@ -133,8 +129,8 @@
             }
             
             function getCurrentPage() {
-                let fullPath = window.location.pathname;
-                let filename = fullPath.substring(fullPath.lastIndexOf('/') + 1);
+                let path = window.location.pathname;
+                let filename = path.substring(path.lastIndexOf('/') + 1);
                 let page = filename.split('.')[0];
                 if (page === '' || page === 'index') page = 'home';
                 return page.toLowerCase();
@@ -164,7 +160,6 @@
                 btn.addEventListener('click', function(e) {
                     const url = this.getAttribute('data-url');
                     if (url) {
-                        setActiveTab(this);
                         window.location.href = url;
                     }
                 });
