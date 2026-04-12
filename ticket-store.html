@@ -139,6 +139,30 @@
             line-height: 1;
         }
         
+        /* Special styling for Delete Past card to ensure consistent padding and spacing */
+        .stat-card.delete-past-card {
+            cursor: pointer;
+        }
+        
+        .stat-card.delete-past-card .stat-number {
+            font-size: 1.2rem;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            color: #dc2626;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        
+        /* Ensure the content inside delete card is properly padded */
+        .stat-card.delete-past-card .stat-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
         .tabs-container {
             display: flex;
             gap: 12px;
@@ -754,10 +778,6 @@
             opacity: 1;
         }
         
-        #deletePastBtn .stat-icon i {
-            color: #dc2626;
-        }
-        
         .sold-out-tag {
             background: #dc2626;
             color: white;
@@ -847,11 +867,11 @@
             <div class="stat-number" id="qrCountStat">0</div>
         </div>
     </div>
-    <div class="stat-card" id="deletePastBtn" style="cursor: pointer;">
+    <div class="stat-card delete-past-card" id="deletePastBtn">
         <div class="stat-icon"><i class="fas fa-trash-alt"></i></div>
         <div class="stat-info">
             <h3>Delete Past</h3>
-            <div class="stat-number" style="font-size: 1.2rem;">🗑️ Past Events</div>
+            <div class="stat-number"><i class="fas fa-trash-alt" style="font-size: 0.9rem;"></i> Past Events</div>
         </div>
     </div>
 </div>
