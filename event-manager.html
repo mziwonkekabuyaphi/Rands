@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Cape Town - Venue Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #ffffff 50%, #dc2626 100%);
+            min-height: 100vh;
+            padding: 16px;
+            position: relative;
+        }
+
+        /* Mobile-optimized padding */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .bg-animation .pattern {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle, rgba(220, 38, 38, 0.1) 2px, transparent 2px);
+            background-size: 30px 30px;
+            animation: movePattern 20s linear infinite;
+        }
+
+        @keyframes movePattern {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(100px) translateY(100px); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Mobile-first top bar with logo and buttons */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo img {
+            height: 48px;
+            width: auto;
+        }
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #dc2626;
+        }
+        .logo-text p {
+            color: #666;
+            font-size: 11px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #fff, #fef2f2);
+            padding: 12px 16px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            flex: 1;
+            min-width: 70px;
+        }
+
+        .stat-number {
+            font-size: 22px;
+            font-weight: 800;
+            color: #dc2626;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .create-btn {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+        }
+
+        .venue-info {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .venue-info h2 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .venue-info p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 12px;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .event-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-banner {
+            height: 150px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .event-banner i {
+            position: relative;
+            z-index: 1;
+            font-size: 40px;
+            color: white;
+        }
+
+        .event-status {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 10px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .status-active {
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+        }
+
+        .status-upcoming {
+            background: rgba(255, 193, 7, 0.9);
+            color: #333;
+        }
+
+        .status-ended {
+            background: rgba(156, 163, 175, 0.9);
+            color: white;
+        }
+
+        .event-content {
+            padding: 16px;
+        }
+
+        .event-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .detail-item i {
+            width: 18px;
+            color: #dc2626;
+            font-size: 12px;
+        }
+
+        .ticket-types {
+            margin: 12px 0;
+            padding: 12px;
+            background: rgba(220, 38, 38, 0.05);
+            border-radius: 12px;
+        }
+
+        .ticket-type-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(220, 38, 38, 0.2);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ticket-type-item:last-child {
+            border-bottom: none;
+        }
+
+        .ticket-type-name {
+            font-weight: 600;
+            color: #dc2626;
+            min-width: 90px;
+            font-size: 12px;
+        }
+
+        .ticket-type-price {
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .ticket-type-sold {
+            color: #666;
+            font-size: 11px;
+        }
+
+        .sell-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .sell-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sell-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .warning-badge {
+            background: #f97316;
+            color: white;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+        }
+
+        .ticket-stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 10px 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .ticket-stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .ticket-stat-number {
+            font-size: 16px;
+            font-weight: 700;
+            color: #dc2626;
+        }
+
+        .ticket-stat-label {
+            font-size: 9px;
+            color: #666;
+        }
+
+        .event-revenue {
+            background: #fef2f2;
+            padding: 8px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: 700;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .edit-btn {
+            background: #dc2626;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #6b7280;
+            color: white;
+        }
+
+        .view-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .duplicate-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 24px 24px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 13px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .ticket-pricing {
+            background: linear-gradient(135deg, #fef2f2, #fff5f5);
+            border-radius: 18px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(220, 38, 38, 0.15);
+        }
+
+        .ticket-pricing h3 {
+            color: #dc2626;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticket-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .ticket-row:hover {
+            border-color: #dc2626;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+        }
+
+        .ticket-row .ticket-label {
+            font-weight: 700;
+            color: #dc2626;
+            font-size: 12px;
+        }
+
+        .price-input {
+            position: relative;
+        }
+
+        .price-input input {
+            width: 100%;
+            padding: 8px 10px;
+            padding-left: 24px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .price-input input:focus {
+            border-color: #dc2626;
+            outline: none;
+        }
+
+        .price-input::before {
+            content: "R";
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 11px;
+            z-index: 1;
+        }
+
+        .capacity-input input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .capacity-input input:focus {
+            border-color: #dc2626;
+            outline: none;
+        }
+
+        .total-capacity {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            padding: 12px;
+            border-radius: 14px;
+            text-align: center;
+            margin-top: 16px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        .image-upload {
+            transition: all 0.2s;
+        }
+
+        .image-upload:hover {
+            border-color: #dc2626 !important;
+            background: #fff5f5 !important;
+        }
+
+        .image-preview {
+            margin-top: 12px;
+            position: relative;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(400px);
+            transition: transform 0.3s;
+            z-index: 1100;
+            border-left: 4px solid #dc2626;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .export-btn {
+            background: #4b5563;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover {
+            background: #374151;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .ticket-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .sell-controls {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+            .modal-body {
+                padding: 16px;
+            }
+            .modal-header {
+                padding: 16px;
+            }
+            .stat-number {
+                font-size: 18px;
+            }
+            .action-btn {
+                font-size: 10px;
+                padding: 8px 6px;
+            }
+            .event-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"><div class="pattern"></div></div>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="top-bar">
+                    <div class="logo">
+                        <img src="images/rands-logo.png" alt="Rands Cape Town Logo" onerror="this.style.display='none'; document.getElementById('fallbackLogo').style.display='flex';">
+                        <div id="fallbackLogo" class="logo-text" style="display: none;">
+                            <h1><i class="fas fa-building"></i> Rands Cape Town</h1>
+                            <p>Premium Venue Management</p>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <div class="export-buttons">
+                            <button class="export-btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                            <button class="export-btn" onclick="exportToJSON()"><i class="fas fa-code"></i> JSON</button>
+                        </div>
+                        <button class="create-btn" onclick="openCreateModal()"><i class="fas fa-plus"></i> Create</button>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="totalEvents">0</div><div class="stat-label">Events</div></div>
+                    <div class="stat-card"><div class="stat-number" id="activeEvents">0</div><div class="stat-label">Active</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalTickets">0</div><div class="stat-label">Sold</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalRevenue">R0</div><div class="stat-label">Revenue</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="venue-info">
+            <div><h2><i class="fas fa-map-marker-alt"></i> Rands Cape Town</h2><p>Where unforgettable moments become legendary events</p></div>
+            <div class="venue-rating"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span>5.0 (128)</span></div>
+        </div>
+        <div id="eventsGrid" class="events-grid"></div>
+    </div>
+
+    <div id="eventModal" class="modal">
+        <div class="modal-container">
+            <div class="modal-header"><h2 id="modalTitle">Create New Event</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <input type="hidden" id="eventId">
+                    <input type="hidden" id="eventImageData">
+                    <div class="form-group"><label>Event Name *</label><input type="text" id="eventName" required placeholder="Enter event name"></div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group"><label>Event Date *</label><input type="date" id="eventDate" required min=""></div>
+                        <div class="form-group"><label>Event Time *</label><input type="time" id="eventTime" required></div>
+                    </div>
+                    <div class="form-group"><label>Location / Venue *</label><input type="text" id="eventLocation" required value="Rands Cape Town"></div>
+                    
+                    <div class="form-group">
+                        <label>Event Banner Image</label>
+                        <div class="image-upload" style="border: 2px dashed #e0e0e0; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer; background: #f8f9fa;" onclick="document.getElementById('imageInput').click()">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 36px; color: #dc2626;"></i>
+                            <p style="margin-top: 8px; font-size: 12px;">Click to upload image</p>
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+                        <div class="image-preview" id="imagePreview" style="display: none;">
+                            <img id="previewImg" src="" style="width: 100%; height: 130px; object-fit: cover; border-radius: 12px;">
+                            <button type="button" class="remove-image" onclick="removeImage()">×</button>
+                        </div>
+                    </div>
+                    
+                    <div class="ticket-pricing">
+                        <h3><i class="fas fa-ticket-alt"></i> Ticket Types</h3>
+                        <div class="ticket-row"><div class="ticket-label">🎟️ Early Bird</div><div class="price-input"><input type="number" id="earlyBirdPrice" placeholder="Price" min="0" step="0.01"></div><div class="capacity-input"><input type="number" id="earlyBirdCapacity" placeholder="Capacity" min="0"></div></div>
+                        <div class="ticket-row"><div class="ticket-label">👥 General</div><div class="price-input"><input type="number" id="generalPrice" placeholder="Price" min="0" step="0.01"></div><div class="capacity-input"><input type="number" id="generalCapacity" placeholder="Capacity" min="0"></div></div>
+                        <div class="ticket-row"><div class="ticket-label">👑 VIP</div><div class="price-input"><input type="number" id="vipPrice" placeholder="Price" min="0" step="0.01"></div><div class="capacity-input"><input type="number" id="vipCapacity" placeholder="Capacity" min="0"></div></div>
+                        <div class="total-capacity" id="totalCapacityDisplay">Total Capacity: 0</div>
+                    </div>
+                    <button type="button" class="submit-btn" onclick="saveEvent()">Save Event</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewModal" class="modal"><div class="modal-container"><div class="modal-header"><h2>Event Details</h2><button class="close-modal" onclick="closeViewModal()">&times;</button></div><div class="modal-body"><div id="viewEventContent"></div><button class="submit-btn" onclick="generateTicketLink()" style="margin-top: 20px;"><i class="fas fa-link"></i> Get Ticket Link</button></div></div></div>
+
+    <div id="deleteModal" class="modal"><div class="modal-container"><div class="modal-header" style="background: linear-gradient(135deg, #dc2626, #b91c1c);"><h2>Delete Event</h2><button class="close-modal" onclick="closeDeleteModal()">&times;</button></div><div class="modal-body"><div style="text-align: center;"><i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #dc2626; margin-bottom: 16px;"></i><p id="deleteEventName" style="font-weight: bold; margin: 10px 0;">Are you sure?</p><p style="font-size: 13px;">This action cannot be undone.</p><div style="display: flex; gap: 12px; margin-top: 20px;"><button class="confirm-btn" onclick="closeDeleteModal()" style="flex:1; padding:10px; background:#6b7280; color:white; border:none; border-radius:12px;">Cancel</button><button class="confirm-btn" onclick="confirmDelete()" style="flex:1; padding:10px; background:#dc2626; color:white; border:none; border-radius:12px;">Delete</button></div></div></div></div></div>
+
+    <div id="ticketActionModal" class="modal"><div class="modal-container"><div class="modal-header" style="background: linear-gradient(135deg, #dc2626, #b91c1c);"><h2 id="ticketActionTitle">Confirm Ticket Action</h2><button class="close-modal" onclick="closeTicketActionModal()">&times;</button></div><div class="modal-body"><div style="text-align: center;"><i id="ticketActionIcon" class="fas fa-question-circle" style="font-size: 48px; margin-bottom: 16px;"></i><p id="ticketActionMessage" style="margin-bottom: 20px; font-size: 14px;">Are you sure?</p><div style="display: flex; gap: 12px;"><button class="confirm-btn" onclick="closeTicketActionModal()" style="flex:1; padding:10px; background:#6b7280; color:white; border:none; border-radius:12px;">Cancel</button><button id="ticketActionConfirmBtn" class="confirm-btn" style="flex:1; padding:10px; background:#dc2626; color:white; border:none; border-radius:12px;">Confirm</button></div></div></div></div></div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const STORAGE_KEY = 'rands_events';
+        let events = [];
+        let deleteId = null;
+        let currentViewEvent = null;
+        let pendingTicketAction = null;
+
+        function getEventStatus(eventDate, eventTime) {
+            const eventDateTime = new Date(`${eventDate}T${eventTime}`);
+            const now = new Date();
+            return eventDateTime < now ? 'ended' : 'upcoming';
+        }
+
+        function loadEvents() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            events = stored ? JSON.parse(stored) : [];
+            let needsUpdate = false;
+            events.forEach(event => {
+                const newStatus = getEventStatus(event.date, event.time);
+                if (event.status !== newStatus) {
+                    event.status = newStatus;
+                    needsUpdate = true;
+                }
+            });
+            if (needsUpdate) saveEvents();
+            renderEvents();
+            updateStats();
+        }
+
+        function updateTotalCapacity() {
+            const earlyCap = parseInt(document.getElementById('earlyBirdCapacity').value) || 0;
+            const generalCap = parseInt(document.getElementById('generalCapacity').value) || 0;
+            const vipCap = parseInt(document.getElementById('vipCapacity').value) || 0;
+            document.getElementById('totalCapacityDisplay').innerHTML = `Total Capacity: ${earlyCap + generalCap + vipCap} tickets`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            ['earlyBirdCapacity', 'generalCapacity', 'vipCapacity'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateTotalCapacity);
+            });
+            const logoImg = document.querySelector('.logo img');
+            if (logoImg) {
+                logoImg.onerror = () => {
+                    logoImg.style.display = 'none';
+                    document.getElementById('fallbackLogo').style.display = 'flex';
+                };
+            }
+            const dateInput = document.getElementById('eventDate');
+            if (dateInput) {
+                dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+            }
+        });
+
+        function saveEvents() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+            updateStats();
+        }
+
+        function renderEvents() {
+            const grid = document.getElementById('eventsGrid');
+            if (!events.length) {
+                grid.innerHTML = `<div style="text-align: center; padding: 40px; background: white; border-radius: 24px;">
+                    <i class="fas fa-calendar-times" style="font-size: 60px; color: #dc2626;"></i>
+                    <h3 style="margin-top: 16px; color: #dc2626;">No Events Yet</h3>
+                    <p style="margin-top: 8px; color: #666;">Create your first event at Rands Cape Town</p>
+                    <button class="create-btn" onclick="openCreateModal()" style="margin-top: 16px; display: inline-flex;">Create Your First Event</button>
+                </div>`;
+                return;
+            }
+            grid.innerHTML = events.map(event => {
+                const totalSold = event.ticketTypes.earlyBird.sold + event.ticketTypes.general.sold + event.ticketTypes.vip.sold;
+                const totalCap = event.ticketTypes.earlyBird.capacity + event.ticketTypes.general.capacity + event.ticketTypes.vip.capacity;
+                const eventRevenue = event.ticketTypes.earlyBird.sold * event.ticketTypes.earlyBird.price + event.ticketTypes.general.sold * event.ticketTypes.general.price + event.ticketTypes.vip.sold * event.ticketTypes.vip.price;
+                const bannerStyle = event.imageData ? `background-image: url(${event.imageData}); background-size: cover;` : `background: linear-gradient(135deg, #dc2626, #b91c1c);`;
+                const getWarning = (sold, cap) => (cap && (cap - sold) > 0 && (cap - sold) / cap < 0.1) ? '<span class="warning-badge">Almost sold out!</span>' : '';
+                return `<div class="event-card">
+                    <div class="event-banner" style="${bannerStyle}">${!event.imageData ? '<i class="fas fa-calendar-alt"></i>' : ''}<span class="event-status status-${event.status}">${event.status === 'ended' ? 'Past Event' : event.status.toUpperCase()}</span></div>
+                    <div class="event-content">
+                        <h3 class="event-title">${escapeHtml(event.name)}</h3>
+                        <div class="detail-item"><i class="fas fa-calendar"></i><span>${formatDate(event.date)} at ${event.time}</span></div>
+                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(event.location)}</span></div>
+                        <div class="ticket-types">
+                            ${['earlyBird','general','vip'].map(t => {
+                                const label = {earlyBird:'🎟️ Early Bird', general:'👥 General', vip:'👑 VIP'}[t];
+                                const tt = event.ticketTypes[t];
+                                return `<div class="ticket-type-item">
+                                    <span class="ticket-type-name">${label}</span>
+                                    <span class="ticket-type-price">R ${formatPrice(tt.price)}</span>
+                                    <span class="ticket-type-sold">${tt.sold}/${tt.capacity}</span>
+                                    ${getWarning(tt.sold, tt.capacity)}
+                                    <div class="sell-controls">
+                                        <button class="sell-btn" onclick="openTicketActionModal('${event.id}', '${t}', -1)" ${tt.sold <= 0 ? 'disabled' : ''}>-</button>
+                                        <button class="sell-btn" onclick="openTicketActionModal('${event.id}', '${t}', 1)" ${tt.sold >= tt.capacity ? 'disabled' : ''}>+</button>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                        <div class="ticket-stats">
+                            <div class="ticket-stat"><div class="ticket-stat-number">${totalSold}</div><div class="ticket-stat-label">Sold</div></div>
+                            <div class="ticket-stat"><div class="ticket-stat-number">${totalCap - totalSold}</div><div class="ticket-stat-label">Left</div></div>
+                            <div class="ticket-stat"><div class="ticket-stat-number">${Math.round((totalSold/totalCap)*100)}%</div><div class="ticket-stat-label">Fill</div></div>
+                        </div>
+                        <div class="event-revenue">Revenue: R ${formatPrice(eventRevenue)}</div>
+                        <div class="event-actions">
+                            <button class="action-btn view-btn" onclick="viewEventDetails('${event.id}')"><i class="fas fa-eye"></i> View</button>
+                            <button class="action-btn edit-btn" onclick="openEditModal('${event.id}')"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="action-btn duplicate-btn" onclick="duplicateEvent('${event.id}')"><i class="fas fa-copy"></i> Copy</button>
+                            <button class="action-btn delete-btn" onclick="openDeleteModal('${event.id}')"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openTicketActionModal(eventId, ticketType, delta) {
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+            const ticket = event.ticketTypes[ticketType];
+            if (delta === 1 && ticket.sold >= ticket.capacity) { showToast("No more tickets available", "error"); return; }
+            if (delta === -1 && ticket.sold <= 0) { showToast("No tickets to refund", "error"); return; }
+            const actionText = delta === 1 ? "Buy" : "Refund";
+            const typeName = {earlyBird:"Early Bird", general:"General", vip:"VIP"}[ticketType];
+            document.getElementById('ticketActionTitle').innerText = `Confirm ${actionText}`;
+            const icon = document.getElementById('ticketActionIcon');
+            icon.className = delta === 1 ? "fas fa-shopping-cart" : "fas fa-undo-alt";
+            icon.style.color = delta === 1 ? "#10b981" : "#f97316";
+            document.getElementById('ticketActionMessage').innerHTML = `<strong>${escapeHtml(event.name)}</strong><br>Ticket: ${typeName}<br>Price: R ${formatPrice(ticket.price)}<br>You are about to <strong>${actionText.toLowerCase()}</strong> 1 ticket.<br><span style="color: ${delta === 1 ? '#dc2626' : '#f97316'}">Current sold: ${ticket.sold} / ${ticket.capacity}</span>`;
+            pendingTicketAction = { eventId, ticketType, delta };
+            document.getElementById('ticketActionConfirmBtn').onclick = () => executeTicketAction();
+            document.getElementById('ticketActionModal').style.display = 'flex';
+        }
+
+        function executeTicketAction() {
+            if (!pendingTicketAction) return;
+            const { eventId, ticketType, delta } = pendingTicketAction;
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                const ticket = event.ticketTypes[ticketType];
+                const newSold = ticket.sold + delta;
+                if (newSold >= 0 && newSold <= ticket.capacity) {
+                    ticket.sold = newSold;
+                    saveEvents();
+                    renderEvents();
+                    showToast(delta > 0 ? `Sold 1 ${ticketType} ticket` : `Refunded 1 ${ticketType} ticket`, "success");
+                }
+            }
+            closeTicketActionModal();
+        }
+
+        function closeTicketActionModal() { document.getElementById('ticketActionModal').style.display = 'none'; pendingTicketAction = null; }
+
+        function duplicateEvent(eventId) {
+            const original = events.find(e => e.id === eventId);
+            if (!original) return;
+            const newEvent = JSON.parse(JSON.stringify(original));
+            newEvent.id = 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            newEvent.name = original.name + ' (Copy)';
+            newEvent.ticketTypes.earlyBird.sold = 0;
+            newEvent.ticketTypes.general.sold = 0;
+            newEvent.ticketTypes.vip.sold = 0;
+            const newDate = new Date(original.date);
+            newDate.setDate(newDate.getDate() + 7);
+            newEvent.date = newDate.toISOString().split('T')[0];
+            newEvent.status = getEventStatus(newEvent.date, newEvent.time);
+            events.push(newEvent);
+            saveEvents();
+            renderEvents();
+            showToast('Event duplicated', 'success');
+        }
+
+        function exportToCSV() {
+            let rows = [['Event ID','Event Name','Date','Time','Location','Status','Early Bird Price','Early Bird Capacity','Early Bird Sold','General Price','General Capacity','General Sold','VIP Price','VIP Capacity','VIP Sold','Total Tickets Sold','Total Revenue (R)']];
+            events.forEach(e => {
+                const totalSold = e.ticketTypes.earlyBird.sold + e.ticketTypes.general.sold + e.ticketTypes.vip.sold;
+                const totalRev = e.ticketTypes.earlyBird.sold*e.ticketTypes.earlyBird.price + e.ticketTypes.general.sold*e.ticketTypes.general.price + e.ticketTypes.vip.sold*e.ticketTypes.vip.price;
+                rows.push([e.id, e.name, e.date, e.time, e.location, e.status, e.ticketTypes.earlyBird.price, e.ticketTypes.earlyBird.capacity, e.ticketTypes.earlyBird.sold, e.ticketTypes.general.price, e.ticketTypes.general.capacity, e.ticketTypes.general.sold, e.ticketTypes.vip.price, e.ticketTypes.vip.capacity, e.ticketTypes.vip.sold, totalSold, totalRev].map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','));
+            });
+            const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `rands_events_${new Date().toISOString().slice(0,19)}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('CSV exported', 'success');
+        }
+
+        function exportToJSON() {
+            const dataStr = JSON.stringify(events, null, 2);
+            const blob = new Blob([dataStr], {type:'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `rands_events_${new Date().toISOString().slice(0,19)}.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('JSON exported', 'success');
+        }
+
+        function updateStats() {
+            document.getElementById('totalEvents').textContent = events.length;
+            document.getElementById('activeEvents').textContent = events.filter(e => e.status === 'upcoming' || e.status === 'active').length;
+            let totalTickets = 0, totalRevenue = 0;
+            events.forEach(e => {
+                totalTickets += e.ticketTypes.earlyBird.sold + e.ticketTypes.general.sold + e.ticketTypes.vip.sold;
+                totalRevenue += e.ticketTypes.earlyBird.sold*e.ticketTypes.earlyBird.price + e.ticketTypes.general.sold*e.ticketTypes.general.price + e.ticketTypes.vip.sold*e.ticketTypes.vip.price;
+            });
+            document.getElementById('totalTickets').textContent = totalTickets;
+            document.getElementById('totalRevenue').textContent = `R ${formatPrice(totalRevenue)}`;
+        }
+
+        function saveEvent() {
+            const eventId = document.getElementById('eventId').value;
+            const name = document.getElementById('eventName').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const location = document.getElementById('eventLocation').value;
+            const imageData = document.getElementById('eventImageData').value;
+            let earlyPrice = parseFloat(document.getElementById('earlyBirdPrice').value) || 0;
+            let earlyCapacity = parseInt(document.getElementById('earlyBirdCapacity').value) || 0;
+            let generalPrice = parseFloat(document.getElementById('generalPrice').value) || 0;
+            let generalCapacity = parseInt(document.getElementById('generalCapacity').value) || 0;
+            let vipPrice = parseFloat(document.getElementById('vipPrice').value) || 0;
+            let vipCapacity = parseInt(document.getElementById('vipCapacity').value) || 0;
+            
+            if (!name) { showToast('Please enter event name', 'error'); return; }
+            if (!date) { showToast('Please select event date', 'error'); return; }
+            if (!time) { showToast('Please select event time', 'error'); return; }
+            
+            const selectedDateTime = new Date(`${date}T${time}`);
+            if (selectedDateTime < new Date()) {
+                showToast('Cannot create an event in the past. Please select a future date and time.', 'error');
+                return;
+            }
+            
+            const status = getEventStatus(date, time);
+            
+            if (eventId) {
+                const existing = events.find(e => e.id === eventId);
+                if (existing) {
+                    if (earlyCapacity < existing.ticketTypes.earlyBird.sold) { showToast(`Early Bird capacity cannot be less than already sold (${existing.ticketTypes.earlyBird.sold})`, 'error'); return; }
+                    if (generalCapacity < existing.ticketTypes.general.sold) { showToast(`General capacity cannot be less than already sold (${existing.ticketTypes.general.sold})`, 'error'); return; }
+                    if (vipCapacity < existing.ticketTypes.vip.sold) { showToast(`VIP capacity cannot be less than already sold (${existing.ticketTypes.vip.sold})`, 'error'); return; }
+                }
+            }
+            
+            const newEvent = {
+                id: eventId || 'evt_' + Date.now(),
+                name, date, time, location, status, imageData: imageData || null,
+                ticketTypes: {
+                    earlyBird: { price: earlyPrice, capacity: earlyCapacity, sold: 0 },
+                    general: { price: generalPrice, capacity: generalCapacity, sold: 0 },
+                    vip: { price: vipPrice, capacity: vipCapacity, sold: 0 }
+                }
+            };
+            
+            if (eventId) {
+                const existing = events.find(e => e.id === eventId);
+                if (existing) {
+                    newEvent.ticketTypes.earlyBird.sold = existing.ticketTypes.earlyBird.sold;
+                    newEvent.ticketTypes.general.sold = existing.ticketTypes.general.sold;
+                    newEvent.ticketTypes.vip.sold = existing.ticketTypes.vip.sold;
+                }
+                const idx = events.findIndex(e => e.id === eventId);
+                events[idx] = newEvent;
+                showToast('Event updated', 'success');
+            } else {
+                events.push(newEvent);
+                showToast('Event created', 'success');
+            }
+            saveEvents();
+            renderEvents();
+            closeModal();
+        }
+
+        function viewEventDetails(eventId) {
+            currentViewEvent = events.find(e => e.id === eventId);
+            if (currentViewEvent) {
+                const totalSold = currentViewEvent.ticketTypes.earlyBird.sold + currentViewEvent.ticketTypes.general.sold + currentViewEvent.ticketTypes.vip.sold;
+                const totalCap = currentViewEvent.ticketTypes.earlyBird.capacity + currentViewEvent.ticketTypes.general.capacity + currentViewEvent.ticketTypes.vip.capacity;
+                const bannerHtml = currentViewEvent.imageData ? `<img src="${currentViewEvent.imageData}" style="width:100%; height:160px; object-fit:cover; border-radius:14px; margin-bottom:16px;">` : `<div style="width:100%; height:160px; background: linear-gradient(135deg, #dc2626, #b91c1c); border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:16px;"><i class="fas fa-calendar-alt" style="font-size:40px; color:white;"></i></div>`;
+                document.getElementById('viewEventContent').innerHTML = `
+                    <div style="text-align:center;">${bannerHtml}<h3 style="color:#dc2626; margin-bottom:16px;">${escapeHtml(currentViewEvent.name)}</h3></div>
+                    <div style="background:#fef2f2; padding:14px; border-radius:14px; margin-bottom:14px;"><h4>Event Info</h4><div>Date: ${formatDate(currentViewEvent.date)} at ${currentViewEvent.time}</div><div>Location: ${escapeHtml(currentViewEvent.location)}</div><div>Status: ${currentViewEvent.status.toUpperCase()}</div></div>
+                    <div style="background:#fef2f2; padding:14px; border-radius:14px;"><h4>Ticket Summary</h4><div>Early Bird: R${currentViewEvent.ticketTypes.earlyBird.price} (${currentViewEvent.ticketTypes.earlyBird.sold}/${currentViewEvent.ticketTypes.earlyBird.capacity})</div><div>General: R${currentViewEvent.ticketTypes.general.price} (${currentViewEvent.ticketTypes.general.sold}/${currentViewEvent.ticketTypes.general.capacity})</div><div>VIP: R${currentViewEvent.ticketTypes.vip.price} (${currentViewEvent.ticketTypes.vip.sold}/${currentViewEvent.ticketTypes.vip.capacity})</div><hr><div>Total Sold: ${totalSold}/${totalCap} (${Math.round((totalSold/totalCap)*100)}%)</div></div>`;
+                document.getElementById('viewModal').style.display = 'flex';
+            }
+        }
+
+        function generateTicketLink() {
+            if (currentViewEvent) {
+                const url = `eTickets.html?event=${currentViewEvent.id}`;
+                navigator.clipboard.writeText(window.location.origin + window.location.pathname.replace('Event-manager.html', '') + url);
+                showToast('Ticket link copied', 'success');
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Create New Event';
+            document.getElementById('eventForm').reset();
+            document.getElementById('eventId').value = '';
+            document.getElementById('eventLocation').value = 'Rands Cape Town';
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('eventDate').value = tomorrow.toISOString().split('T')[0];
+            document.getElementById('eventTime').value = '18:00';
+            document.getElementById('earlyBirdCapacity').value = 100;
+            document.getElementById('generalCapacity').value = 300;
+            document.getElementById('vipCapacity').value = 50;
+            updateTotalCapacity();
+            removeImage();
+            document.getElementById('eventModal').style.display = 'flex';
+        }
+
+        function openEditModal(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                document.getElementById('modalTitle').textContent = 'Edit Event';
+                document.getElementById('eventId').value = event.id;
+                document.getElementById('eventName').value = event.name;
+                document.getElementById('eventDate').value = event.date;
+                document.getElementById('eventTime').value = event.time;
+                document.getElementById('eventLocation').value = event.location;
+                document.getElementById('earlyBirdPrice').value = event.ticketTypes.earlyBird.price;
+                document.getElementById('earlyBirdCapacity').value = event.ticketTypes.earlyBird.capacity;
+                document.getElementById('generalPrice').value = event.ticketTypes.general.price;
+                document.getElementById('generalCapacity').value = event.ticketTypes.general.capacity;
+                document.getElementById('vipPrice').value = event.ticketTypes.vip.price;
+                document.getElementById('vipCapacity').value = event.ticketTypes.vip.capacity;
+                updateTotalCapacity();
+                if (event.imageData) {
+                    document.getElementById('previewImg').src = event.imageData;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('eventImageData').value = event.imageData;
+                } else removeImage();
+                document.getElementById('eventModal').style.display = 'flex';
+            }
+        }
+
+        function openDeleteModal(eventId) {
+            deleteId = eventId;
+            const event = events.find(e => e.id === eventId);
+            document.getElementById('deleteEventName').innerHTML = `Are you sure you want to delete "<strong>${escapeHtml(event?.name || 'this event')}</strong>"?`;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function confirmDelete() {
+            if (deleteId) {
+                events = events.filter(e => e.id !== deleteId);
+                saveEvents();
+                renderEvents();
+                showToast('Event deleted', 'success');
+                closeDeleteModal();
+                deleteId = null;
+            }
+        }
+
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    document.getElementById('previewImg').src = dataUrl;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('eventImageData').value = dataUrl;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('previewImg').src = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('eventImageData').value = '';
+            document.getElementById('imageInput').value = '';
+        }
+
+        function formatDate(dateString) { return dateString ? new Date(dateString).toLocaleDateString('en-ZA', { year:'numeric', month:'long', day:'numeric' }) : ''; }
+        function formatPrice(p) { return p.toLocaleString('en-ZA', { minimumFractionDigits:2 }); }
+        function escapeHtml(t) { if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+        function showToast(msg, type) { const t=document.getElementById('toast'); t.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i><span>${msg}</span>`; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+        function closeModal() { document.getElementById('eventModal').style.display = 'none'; }
+        function closeViewModal() { document.getElementById('viewModal').style.display = 'none'; }
+        function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; deleteId=null; }
+        
+        window.onclick = function(e) { 
+            if(e.target.classList.contains('modal')) closeModal(); 
+            if(e.target.id==='viewModal') closeViewModal(); 
+            if(e.target.id==='deleteModal') closeDeleteModal(); 
+            if(e.target.id==='ticketActionModal') closeTicketActionModal(); 
+        }
+        
+        setInterval(() => {
+            let needsUpdate = false;
+            events.forEach(event => {
+                const newStatus = getEventStatus(event.date, event.time);
+                if (event.status !== newStatus) {
+                    event.status = newStatus;
+                    needsUpdate = true;
+                }
+            });
+            if (needsUpdate) {
+                saveEvents();
+                renderEvents();
+            }
+        }, 60000);
+        
+        loadEvents();
+    </script>
+</body>
+</html>
