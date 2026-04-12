@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Rands Vibe Passport | Digital Wallet</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -583,7 +585,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Payment Request Modal - MOBILE FRIENDLY SCROLLABLE */
+        /* Payment Request Modal */
         .payment-modal {
             background: white;
             width: 100%;
@@ -596,6 +598,172 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+        }
+
+        /* Deposit & Withdrawal Modals */
+        .transaction-modal {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 40px;
+            padding: 28px 24px 32px;
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .transaction-amount-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #eef2f8;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            text-align: center;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+        .transaction-amount-input:focus {
+            outline: none;
+            border-color: #E30613;
+        }
+
+        /* Booze Lockers Selection Modal */
+        .booze-modal {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 40px;
+            padding: 28px 24px 32px;
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .booze-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .booze-option {
+            background: #f8fafd;
+            border: 2px solid #eef2f8;
+            border-radius: 28px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .booze-option:active {
+            transform: scale(0.98);
+            background: #fff0f0;
+            border-color: #E30613;
+        }
+        .booze-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #E30613, #b0020e);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .booze-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+        .booze-info h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .booze-info p {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Scrollable Alert Modal */
+        .alert-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .alert-modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .alert-modal {
+            background: white;
+            width: 90%;
+            max-width: 380px;
+            max-height: 70vh;
+            border-radius: 40px;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        .alert-modal-overlay.active .alert-modal {
+            transform: scale(1);
+        }
+        .alert-modal-header {
+            background: linear-gradient(135deg, #E30613, #b0020e);
+            padding: 20px 24px;
+            text-align: center;
+        }
+        .alert-modal-header i {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .alert-modal-header h3 {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        .alert-modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+            max-height: 50vh;
+            color: #1e293b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .alert-modal-footer {
+            padding: 16px 24px 24px;
+            border-top: 1px solid #eef2f8;
+        }
+        .alert-modal-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(95deg, #E30613, #b0020e);
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .alert-modal-btn:active {
+            transform: scale(0.97);
         }
 
         .form-group {
@@ -788,6 +956,11 @@
             color: white;
         }
 
+        .btn-primary {
+            background: linear-gradient(95deg, #E30613, #b0020e);
+            color: white;
+        }
+
         .toast-message {
             position: fixed;
             bottom: 100px;
@@ -821,6 +994,268 @@
             z-index: 1000;
         }
 
+        /* ========== VVIP MODAL - FULL IMPERIAL WRISTBAND ========== */
+        .vvip-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .vvip-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .vvip-modal-content {
+            background: #ffffff;
+            border-radius: 48px;
+            max-width: 480px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+            border: 2px solid #E30613;
+        }
+        .vvip-modal-content::-webkit-scrollbar { width: 4px; }
+        .vvip-modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .vvip-modal-content::-webkit-scrollbar-thumb { background: #E30613; border-radius: 10px; }
+        
+        .close-vvip-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 10;
+        }
+        .close-vvip-modal:hover {
+            background: #E30613;
+            color: white;
+        }
+        
+        .sovereign-title {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .crown-icon {
+            font-size: 52px;
+            background: linear-gradient(135deg, #FFD700, #FFA500, #E30613);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            filter: drop-shadow(0 0 8px rgba(227,6,19,0.3));
+            animation: crownPulse 2s infinite;
+        }
+        @keyframes crownPulse {
+            0% { transform: scale(1); text-shadow: 0 0 0 rgba(227,6,19,0); }
+            50% { transform: scale(1.05); text-shadow: 0 0 15px rgba(227,6,19,0.4); }
+            100% { transform: scale(1); text-shadow: 0 0 0 rgba(227,6,19,0); }
+        }
+        .main-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(115deg, #FFD700, #FFA07A, #E30613, #FFD700);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            margin-top: 8px;
+            animation: shimmerText 4s ease infinite;
+        }
+        @keyframes shimmerText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .subhead {
+            font-size: 0.75rem;
+            color: #B8860B;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        .gold-divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #E30613, #FFD700, #E30613);
+            margin: 12px auto 0;
+            border-radius: 3px;
+        }
+        
+        .cashless-note { 
+            background: rgba(227, 6, 19, 0.08);
+            border-radius: 60px; 
+            padding: 10px 18px; 
+            margin: 8px 0 24px 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 12px; 
+            font-size: 0.75rem; 
+            color: #B8860B; 
+            border: 1px solid rgba(227, 6, 19, 0.3);
+            font-weight: 600;
+            text-align: center;
+        }
+        .cashless-note i { font-size: 1.1rem; color: #FFD700; }
+        
+        .vvip-band-card { 
+            background: linear-gradient(145deg, #f8f9fa, #ffffff); 
+            border-radius: 40px; 
+            padding: 28px 20px; 
+            margin: 8px 0 20px; 
+            border: 2px solid;
+            border-image: linear-gradient(135deg, #E30613, #FFD700, #E30613) 1;
+            box-shadow: 0 25px 40px -12px rgba(227, 6, 19, 0.2), 0 0 0 1px rgba(255, 215, 0, 0.2) inset;
+            text-align: center; 
+            transition: all 0.3s ease;
+        }
+        .band-icon {
+            font-size: 54px;
+            background: linear-gradient(135deg, #FFD700, #E30613);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+        .vvip-band-card h3 { 
+            color: #1a1a2e; 
+            margin-bottom: 6px; 
+            font-size: 1.5rem; 
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+        .tagline {
+            color: #666; 
+            font-size: 0.7rem; 
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            border-top: 1px dashed rgba(227, 6, 19, 0.3);
+            display: inline-block;
+            padding-top: 8px;
+        }
+        .vvip-band-number { 
+            font-family: 'Courier New', monospace; 
+            font-size: 1rem; 
+            font-weight: 800; 
+            color: #E30613; 
+            letter-spacing: 2px; 
+            background: #f0f0f0; 
+            padding: 8px 18px; 
+            border-radius: 60px; 
+            display: inline-block; 
+            margin: 12px 0; 
+            word-break: break-all; 
+            border: 1px solid #E30613;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .vvip-band-qr { 
+            background: white; 
+            padding: 12px; 
+            border-radius: 32px; 
+            display: inline-block; 
+            margin: 16px 0; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .vvip-band-qr:hover { transform: scale(1.02); }
+        
+        .print-band-btn { 
+            background: linear-gradient(95deg, #E30613, #b0020e); 
+            color: white; 
+            border: none; 
+            padding: 14px 20px; 
+            border-radius: 60px; 
+            font-weight: 800; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            margin-top: 16px; 
+            width: 100%; 
+            transition: 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            box-shadow: 0 5px 12px rgba(227,6,19,0.3);
+        }
+        .print-band-btn:active { transform: scale(0.97); background: #9a0010; }
+        .print-band-btn.secondary {
+            background: #f0f0f0;
+            border: 1px solid #E30613;
+            color: #E30613;
+            box-shadow: none;
+        }
+        
+        .vvip-band-info { 
+            background: rgba(0,0,0,0.04); 
+            border-radius: 28px; 
+            padding: 16px; 
+            margin: 20px 0 12px; 
+            font-size: 0.8rem; 
+            color: #444; 
+            text-align: left; 
+            border: 1px solid rgba(227, 6, 19, 0.15);
+        }
+        .vvip-band-info div { 
+            margin: 10px 0; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .vvip-band-info i { 
+            width: 24px; 
+            color: #E30613; 
+            font-size: 1rem; 
+        }
+        .vvip-band-info strong { 
+            color: #1a1a2e; 
+            font-weight: 700; 
+        }
+        
+        .feature-badge { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            background: rgba(227,6,19,0.08); 
+            padding: 6px 14px; 
+            border-radius: 40px; 
+            font-size: 0.7rem; 
+            color: #E30613; 
+            margin: 4px; 
+            font-weight: 600;
+            border: 0.5px solid rgba(227,6,19,0.3);
+        }
+        .instruction-text { 
+            font-size: 0.65rem; 
+            color: #888; 
+            margin-top: 18px; 
+            text-align: center; 
+            letter-spacing: 0.5px;
+        }
+
         @media (max-width: 480px) {
             .wallet-container {
                 border-radius: 32px;
@@ -831,18 +1266,21 @@
             .stunning-header {
                 padding: 20px 20px 32px 20px;
             }
-            .counter-option, .refund-modal, .payment-modal {
+            .counter-option, .refund-modal, .payment-modal, .booze-option {
                 padding: 20px;
             }
-            .counter-icon {
+            .counter-icon, .booze-icon {
                 width: 50px;
                 height: 50px;
             }
-            .counter-icon i {
+            .counter-icon i, .booze-icon i {
                 font-size: 1.5rem;
             }
             .refund-modal, .payment-modal {
                 max-height: 80vh;
+            }
+            .main-title {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -863,10 +1301,10 @@
                     </div>
                 </div>
                 <div class="header-icons">
-                    <div class="icon-btn" @click="showToast('Profile settings coming soon')">
+                    <div class="icon-btn" @click="showAlert('Profile settings coming soon')">
                         <i class="fas fa-user-circle"></i>
                     </div>
-                    <div class="icon-btn" @click="showToast('🔔 No new notifications')">
+                    <div class="icon-btn" @click="showAlert('🔔 No new notifications')">
                         <i class="far fa-bell"></i>
                         <span class="notification-dot"></span>
                     </div>
@@ -874,7 +1312,7 @@
             </div>
 
             <div class="welcome-section">
-                <div class="greeting">Wamkelekile</div>
+                <div class="greeting">Wamkelekile,</div>
                 <div class="user-name">Mziwonke 👋</div>
             </div>
 
@@ -888,11 +1326,11 @@
         <!-- QUICK ACTION BUTTONS -->
         <div class="quick-actions">
             <div class="action-row-primary">
-                <div class="action-card-primary" @click="showToast('Deposit feature coming soon')">
+                <div class="action-card-primary" @click="openDepositModal()">
                     <div class="action-icon-bg"><i class="fas fa-arrow-down"></i></div>
                     <div class="action-text"><h4>Deposit</h4><p>Add funds instantly</p></div>
                 </div>
-                <div class="action-card-primary" @click="showToast('Withdraw feature coming soon')">
+                <div class="action-card-primary" @click="openWithdrawModal()">
                     <div class="action-icon-bg"><i class="fas fa-arrow-up"></i></div>
                     <div class="action-text"><h4>Withdraw</h4><p>To bank or wallet</p></div>
                 </div>
@@ -911,15 +1349,15 @@
         <div class="service-bar">
             <div class="service-title"><i class="fas fa-th-large"></i> Quick Services</div>
             <div class="service-grid">
-                <div class="service-card" @click="handleBuyTickets()">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span>Buy Tickets</span>
+                <div class="service-card" @click="openVVIPModal()">
+                    <i class="fas fa-crown"></i>
+                    <span>VVIP Tab</span>
                 </div>
-                <div class="service-card" @click="showToast('💨 Smoke Hookah - Premium lounge experience coming soon')">
+                <div class="service-card" @click="showAlert('💨 Smoke Hookah - Premium lounge experience coming soon')">
                     <i class="fas fa-smoking"></i>
                     <span>Smoke Hookah</span>
                 </div>
-                <div class="service-card" @click="handleBoozeLockers()">
+                <div class="service-card" @click="openBoozeModal()">
                     <i class="fas fa-lock"></i>
                     <span>Booze Lockers</span>
                 </div>
@@ -963,6 +1401,91 @@
                     <i class="fas fa-arrow-right"></i>
                 </button>
                 <p style="font-size: 0.6rem; text-align: center; margin-top: 12px; color: #94a3b8;">Each check-in raises the vibe → free stuff for everyone!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scrollable Alert Modal -->
+    <div id="alertModalOverlay" class="alert-modal-overlay">
+        <div class="alert-modal">
+            <div class="alert-modal-header">
+                <i class="fas fa-info-circle"></i>
+                <h3>Notice</h3>
+            </div>
+            <div class="alert-modal-body" id="alertModalMessage">
+                Message here
+            </div>
+            <div class="alert-modal-footer">
+                <button class="alert-modal-btn" onclick="document.getElementById('alertModalOverlay').classList.remove('active')">Got It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal-overlay" :class="{ active: depositModalVisible }" @click.self="closeDepositModal">
+        <div class="transaction-modal">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-arrow-down"></i></div>
+                <h3>Deposit Funds</h3>
+                <p style="font-size:0.75rem; color:#64748b;">Add money to your wallet</p>
+            </div>
+            <input type="number" class="transaction-amount-input" v-model="depositAmount" placeholder="Enter amount (R)" min="10" step="0.01">
+            <div class="modal-buttons">
+                <button class="modal-btn btn-decline" @click="closeDepositModal">Cancel</button>
+                <button class="modal-btn btn-primary" @click="processDeposit">Deposit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal-overlay" :class="{ active: withdrawModalVisible }" @click.self="closeWithdrawModal">
+        <div class="transaction-modal">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-arrow-up"></i></div>
+                <h3>Withdraw Funds</h3>
+                <p style="font-size:0.75rem; color:#64748b;">Withdraw to your bank account</p>
+            </div>
+            <input type="number" class="transaction-amount-input" v-model="withdrawAmount" placeholder="Enter amount (R)" min="10" step="0.01">
+            <div class="modal-buttons">
+                <button class="modal-btn btn-decline" @click="closeWithdrawModal">Cancel</button>
+                <button class="modal-btn btn-primary" @click="processWithdraw">Withdraw</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booze Lockers Selection Modal -->
+    <div class="modal-overlay" :class="{ active: boozeModalVisible }" @click.self="closeBoozeModal">
+        <div class="booze-modal">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-lock"></i></div>
+                <h3>Booze Lockers</h3>
+                <p style="font-size:0.75rem; color:#64748b;">Manage your premium beverage storage</p>
+            </div>
+            <div class="booze-options">
+                <div class="booze-option" @click="selectBoozeOption('keep')">
+                    <div class="booze-icon"><i class="fas fa-wine-bottle"></i></div>
+                    <div class="booze-info">
+                        <h4>Keep Booze</h4>
+                        <p>Store your bottles in our premium lockers</p>
+                    </div>
+                </div>
+                <div class="booze-option" @click="selectBoozeOption('collect')">
+                    <div class="booze-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                    <div class="booze-info">
+                        <h4>Collect Booze</h4>
+                        <p>Retrieve your stored bottles from lockers</p>
+                    </div>
+                </div>
+                <div class="booze-option" @click="selectBoozeOption('vault')">
+                    <div class="booze-icon"><i class="fas fa-database"></i></div>
+                    <div class="booze-info">
+                        <h4>My Booze Vault</h4>
+                        <p>View all your stored beverages</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons" style="margin-top: 8px;">
+                <button class="modal-btn btn-decline" @click="closeBoozeModal">Cancel</button>
             </div>
         </div>
     </div>
@@ -1046,7 +1569,7 @@
         </div>
     </div>
 
-    <!-- Payment Approval Modal - MOBILE FRIENDLY SCROLLABLE (Payment Type and Kiosk Location removed) -->
+    <!-- Payment Approval Modal -->
     <div class="modal-overlay" :class="{ active: paymentModalVisible }" @click.self="closeModal">
         <div class="payment-modal">
             <div class="modal-header">
@@ -1071,6 +1594,60 @@
         </div>
     </div>
 
+    <!-- VVIP MODAL - FULL IMPERIAL WRISTBAND MODAL -->
+    <div id="vvipModalOverlay" class="vvip-modal-overlay">
+        <div class="vvip-modal-content">
+            <div class="close-vvip-modal" onclick="document.getElementById('vvipModalOverlay').classList.remove('active')">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="sovereign-title">
+                <div class="crown-icon"><i class="fas fa-crown"></i></div>
+                <div class="main-title">RANDS SOVEREIGN'S CIRCLE</div>
+                <div class="subhead">✦ Beyond Prestige — Beyond Limits ✦</div>
+                <div class="gold-divider"></div>
+            </div>
+            
+            <div class="cashless-note">
+                <i class="fas fa-gem"></i>
+                <span><strong>THE ULTIMATE ACCESS</strong> · Tap & Command · VVIP Only</span>
+                <i class="fas fa-bolt"></i>
+            </div>
+            
+            <div class="vvip-band-card" id="vvipBandCard">
+                <div class="band-icon"><i class="fas fa-hand-peace"></i></div>
+                <h3>Imperial Wristband</h3>
+                <div class="tagline">∞ Cashless Throne | Gate of Legends ∞</div>
+                
+                <div id="vvipBandNumber" class="vvip-band-number">— LOADING ELITE STATUS —</div>
+                
+                <div class="vvip-band-qr" id="vvipBandQR"></div>
+                
+                <div class="vvip-band-info">
+                    <div><i class="fas fa-tag"></i> Sovereign ID: <strong id="bandIdDisplay">—</strong></div>
+                    <div><i class="fas fa-user-astronaut"></i> Chosen One: <strong id="bandWalletName">—</strong></div>
+                    <div><i class="fas fa-door-closed"></i> Access: <strong style="color: #E30613;">All Sanctuaries + VVIP Sanctum</strong></div>
+                    <div><i class="fas fa-coins"></i> Cashless Power: <strong style="color: #E30613;">Infinite Velocity</strong></div>
+                    <div><i class="fas fa-shield-alt"></i> Status: <strong style="color: #10b981;">Immortal Active</strong></div>
+                </div>
+                
+                <button class="print-band-btn" id="printVVIPBandBtn"><i class="fas fa-print"></i> Forge Physical Band</button>
+                <button class="print-band-btn secondary" id="howToPayBtn"><i class="fas fa-crown"></i> Decree of Cashless Rule</button>
+                
+                <div class="instruction-text">
+                    <i class="fas fa-qrcode"></i> Present this edict (QR) at any Sovereign Gate or Imperial POS
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0 0;">
+                <span class="feature-badge"><i class="fas fa-champagne-glasses"></i> Private Lounge</span>
+                <span class="feature-badge"><i class="fas fa-wine-bottle"></i> Unlimited Prestige</span>
+                <span class="feature-badge"><i class="fas fa-store"></i> Sovereign Boutique</span>
+                <span class="feature-badge"><i class="fas fa-ticket"></i> Instant Throne Entry</span>
+                <span class="feature-badge"><i class="fas fa-headset"></i> 24k Concierge</span>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-message" :class="{ show: toastVisible }">{{ toastMessage }}</div>
 </div>
 
@@ -1080,6 +1657,16 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
 <script src="app.js"></script>
 <script>
+    // Scrollable Alert function - replaces all alerts
+    function showScrollableAlert(message, title = 'Notice') {
+        const overlay = document.getElementById('alertModalOverlay');
+        const messageEl = document.getElementById('alertModalMessage');
+        const titleEl = document.querySelector('#alertModalOverlay .alert-modal-header h3');
+        if (titleEl) titleEl.innerText = title;
+        messageEl.innerText = message;
+        overlay.classList.add('active');
+    }
+
     new Vue({
         el: '#walletApp',
         data: {
@@ -1089,6 +1676,11 @@
             paymentModalVisible: false,
             counterModalVisible: false,
             refundModalVisible: false,
+            depositModalVisible: false,
+            withdrawModalVisible: false,
+            boozeModalVisible: false,
+            depositAmount: '',
+            withdrawAmount: '',
             selectedCounter: null,
             refundRequest: {
                 amount: '',
@@ -1130,6 +1722,239 @@
                 this.toastVisible = true;
                 this.toastTimer = setTimeout(() => { this.toastVisible = false; }, duration);
             },
+            showAlert(message, title = 'Notice') {
+                showScrollableAlert(message, title);
+            },
+            openDepositModal() {
+                this.depositAmount = '';
+                this.depositModalVisible = true;
+            },
+            closeDepositModal() {
+                this.depositModalVisible = false;
+                this.depositAmount = '';
+            },
+            processDeposit() {
+                let amount = parseFloat(this.depositAmount);
+                if (isNaN(amount) || amount <= 0) {
+                    this.showAlert('❌ Please enter a valid deposit amount (minimum R10)');
+                    return;
+                }
+                this.balance += amount;
+                this.showAlert(`✅ Successfully deposited R${amount.toFixed(2)}! New balance: R${this.balance.toFixed(2)}`);
+                this.closeDepositModal();
+            },
+            openWithdrawModal() {
+                this.withdrawAmount = '';
+                this.withdrawModalVisible = true;
+            },
+            closeWithdrawModal() {
+                this.withdrawModalVisible = false;
+                this.withdrawAmount = '';
+            },
+            processWithdraw() {
+                let amount = parseFloat(this.withdrawAmount);
+                if (isNaN(amount) || amount <= 0) {
+                    this.showAlert('❌ Please enter a valid withdrawal amount (minimum R10)');
+                    return;
+                }
+                if (amount > this.balance) {
+                    this.showAlert('❌ Insufficient balance for this withdrawal');
+                    return;
+                }
+                this.balance -= amount;
+                this.showAlert(`✅ Successfully withdrew R${amount.toFixed(2)}! New balance: R${this.balance.toFixed(2)}`);
+                this.closeWithdrawModal();
+            },
+            openBoozeModal() {
+                this.boozeModalVisible = true;
+            },
+            closeBoozeModal() {
+                this.boozeModalVisible = false;
+            },
+            selectBoozeOption(option) {
+                this.boozeModalVisible = false;
+                if (option === 'keep') {
+                    this.showAlert('🔒 Opening Keep Booze - Premium Locker Storage\n\nYou will be redirected to manage your bottle storage.');
+                    setTimeout(() => {
+                        window.open('keep-booze.html', '_blank');
+                    }, 500);
+                } else if (option === 'collect') {
+                    this.showAlert('🎯 Opening Collect Booze - Retrieve Your Bottles\n\nYou will be redirected to collect your stored items.');
+                    setTimeout(() => {
+                        window.open('collect-booze.html', '_blank');
+                    }, 500);
+                } else if (option === 'vault') {
+                    this.showAlert('🏦 Opening My Booze Vault\n\nView all your premium beverages in storage.');
+                    setTimeout(() => {
+                        window.open('my-booze-vault.html', '_blank');
+                    }, 500);
+                }
+            },
+            openVVIPModal() {
+                // Initialize VVIP band data before showing modal
+                this.initVVIPBand();
+                document.getElementById('vvipModalOverlay').classList.add('active');
+            },
+            initVVIPBand() {
+                const ACCOUNTS_KEY = 'rands_accounts_v2';
+                const VVIP_BANDS_KEY = 'vvip_bands';
+                let accounts = [];
+                let vvipBands = {};
+                
+                function loadAccounts() { 
+                    const stored = localStorage.getItem(ACCOUNTS_KEY); 
+                    if (stored) {
+                        accounts = JSON.parse(stored);
+                    } else {
+                        accounts = [{ 
+                            id: "0635713652", 
+                            name: "Mziwonke KaBuyaphi", 
+                            phone: "0635713652", 
+                            balance: 28500, 
+                            status: "Active", 
+                            verified: true,
+                            tier: "Sovereign"
+                        }]; 
+                        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+                    }
+                }
+                
+                function loadVVIPBands() {
+                    const stored = localStorage.getItem(VVIP_BANDS_KEY);
+                    vvipBands = stored ? JSON.parse(stored) : {};
+                }
+                
+                function saveVVIPBands() { localStorage.setItem(VVIP_BANDS_KEY, JSON.stringify(vvipBands)); }
+                
+                function generateMajesticBandId(accountId, name) {
+                    const prefix = "SVRGN";
+                    const code = accountId.replace(/[^0-9]/g, '').slice(-5);
+                    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    const royalSuffix = Math.floor(Math.random() * 9000 + 1000);
+                    return `${prefix}-${code}${initials}-${royalSuffix}`;
+                }
+                
+                function ensureVVIPBand() {
+                    const acc = accounts[0];
+                    if (!acc) return;
+                    
+                    if (vvipBands[acc.id]) {
+                        document.getElementById('vvipBandNumber').textContent = vvipBands[acc.id].bandId;
+                        document.getElementById('bandIdDisplay').textContent = vvipBands[acc.id].bandId;
+                        document.getElementById('bandWalletName').textContent = acc.name.toUpperCase();
+                        
+                        const qrContainer = document.getElementById('vvipBandQR');
+                        if (qrContainer && typeof QRCode !== 'undefined') {
+                            qrContainer.innerHTML = "";
+                            const qrPayload = `SOVEREIGN:${vvipBands[acc.id].bandId}|${acc.id}|${acc.name}|CASHless|THRONE`;
+                            new QRCode(qrContainer, { 
+                                text: qrPayload, 
+                                width: 130, 
+                                height: 130, 
+                                colorDark: "#E30613",
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                        }
+                    } else {
+                        const majesticId = generateMajesticBandId(acc.id, acc.name);
+                        const newBand = { 
+                            bandId: majesticId, 
+                            accountId: acc.id, 
+                            accountName: acc.name, 
+                            status: "Sovereign Active",
+                            createdAt: new Date().toISOString(),
+                            cashlessEnabled: true,
+                            accessLevel: "Absolute VVIP"
+                        };
+                        vvipBands[acc.id] = newBand;
+                        saveVVIPBands();
+                        
+                        document.getElementById('vvipBandNumber').textContent = newBand.bandId;
+                        document.getElementById('bandIdDisplay').textContent = newBand.bandId;
+                        document.getElementById('bandWalletName').textContent = acc.name.toUpperCase();
+                        
+                        const qrContainer = document.getElementById('vvipBandQR');
+                        if (qrContainer && typeof QRCode !== 'undefined') {
+                            qrContainer.innerHTML = "";
+                            const qrPayload = `SOVEREIGN:${newBand.bandId}|${acc.id}|${acc.name}|CASHless|THRONE`;
+                            new QRCode(qrContainer, { 
+                                text: qrPayload, 
+                                width: 130, 
+                                height: 130, 
+                                colorDark: "#E30613",
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                        }
+                    }
+                }
+                
+                async function printVVIPBandFn() {
+                    const acc = accounts[0];
+                    if (!acc) return;
+                    const band = vvipBands[acc.id];
+                    if (band) {
+                        const printWindow = window.open('', '_blank');
+                        printWindow.document.write(`
+                            <html>
+                            <head>
+                                <title>RANDS SOVEREIGN'S CIRCLE - ${band.bandId}</title>
+                                <style>
+                                    body { font-family: 'Playfair Display', 'Inter', serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #ffffff; margin: 0; padding: 20px; }
+                                    .band-card { background: linear-gradient(145deg, #ffffff, #f8f9fa); border: 3px solid #E30613; border-radius: 48px; padding: 32px; text-align: center; max-width: 420px; width: 100%; box-shadow: 0 25px 40px rgba(227,6,19,0.15); }
+                                    .crown-icon { font-size: 64px; color: #FFD700; margin-bottom: 8px; }
+                                    h1 { color: #1a1a2e; font-size: 24px; margin: 5px 0; letter-spacing: 2px; }
+                                    .sub { color: #B8860B; font-size: 11px; text-transform: uppercase; }
+                                    .band-id { font-family: monospace; font-size: 18px; font-weight: bold; color: #E30613; background: #f0f0f0; padding: 8px 16px; border-radius: 40px; display: inline-block; margin: 15px 0; border: 1px solid #E30613; }
+                                    .qr-container { background: white; padding: 15px; border-radius: 32px; display: inline-block; margin: 15px 0; }
+                                    .info { text-align: left; background: rgba(0,0,0,0.04); border-radius: 28px; padding: 16px; margin: 15px 0; color: #444; border: 1px solid rgba(227,6,19,0.15); }
+                                    .info div { margin: 8px 0; display: flex; gap: 12px; }
+                                    .info i { color: #E30613; width: 24px; }
+                                    .footer { font-size: 9px; color: #888; margin-top: 20px; }
+                                    button { background: #E30613; color: white; border: none; padding: 12px 20px; border-radius: 60px; font-weight: bold; margin-top: 15px; cursor: pointer; width: 100%; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="band-card">
+                                    <div class="crown-icon"><i class="fas fa-crown"></i></div>
+                                    <h1>RANDS SOVEREIGN'S CIRCLE</h1>
+                                    <div class="sub">✦ Imperial Access & Cashless Rule ✦</div>
+                                    <div class="band-id">${band.bandId}</div>
+                                    <div class="qr-container" id="printQR"></div>
+                                    <div class="info">
+                                        <div><i class="fas fa-tag"></i> <strong>Sovereign ID:</strong> ${band.bandId}</div>
+                                        <div><i class="fas fa-user"></i> <strong>Chosen:</strong> ${acc.name}</div>
+                                        <div><i class="fas fa-door-open"></i> <strong>Access:</strong> All VVIP Realms + Sanctum</div>
+                                        <div><i class="fas fa-credit-card"></i> <strong>Cashless:</strong> Infinite Command at POS</div>
+                                    </div>
+                                    <div class="footer">Present this QR at any Sovereign Gate or Imperial Kiosk</div>
+                                    <button onclick="window.print();">⚡ Forge Physical Wristband ⚡</button>
+                                </div>
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+                                <script>
+                                    new QRCode(document.getElementById("printQR"), { text: "SOVEREIGN:${band.bandId}|${acc.id}|${acc.name}|CASHless|THRONE", width: 150, height: 150, colorDark: "#E30613" });
+                                <\/script>
+                            </body>
+                            </html>
+                        `);
+                        printWindow.document.close();
+                        this.showToast(`👑 Imperial Wristband "${band.bandId}" forged!`);
+                    }
+                }
+                
+                function showPaymentInstructionsFn() {
+                    showScrollableAlert(
+                        "⚜️ THE SOVEREIGN'S CASHLESS DECREE ⚜️\n\nAt any VVIP POS or Kiosk:\n\n1️⃣ Present your QR wristband (Imperial Seal).\n2️⃣ The system will recognize your Sovereign tier.\n3️⃣ Amount is deducted instantly from your Rands Wallet.\n4️⃣ Receive real-time throne notification.\n\n✨ Benefits: No queues, exclusive limits, VIP treatment.\n👑 Access includes: Royal Bars, Designer Shops, VIP Lounges, Fast Lane.",
+                        "Cashless Decree"
+                    );
+                }
+                
+                loadAccounts();
+                loadVVIPBands();
+                ensureVVIPBand();
+                
+                document.getElementById('printVVIPBandBtn')?.addEventListener('click', printVVIPBandFn.bind(this));
+                document.getElementById('howToPayBtn')?.addEventListener('click', showPaymentInstructionsFn);
+            },
             openCounterSelection() {
                 this.counterModalVisible = true;
             },
@@ -1164,19 +1989,19 @@
             },
             submitRefundRequest() {
                 if (!this.refundRequest.amount || parseFloat(this.refundRequest.amount) <= 0) {
-                    this.showToast('❌ Please enter a valid refund amount');
+                    this.showAlert('❌ Please enter a valid refund amount');
                     return;
                 }
                 if (parseFloat(this.refundRequest.amount) > this.balance) {
-                    this.showToast('❌ Refund amount cannot exceed your available balance');
+                    this.showAlert('❌ Refund amount cannot exceed your available balance');
                     return;
                 }
                 if (!this.refundRequest.transactionId) {
-                    this.showToast('❌ Please enter the transaction ID / reference');
+                    this.showAlert('❌ Please enter the transaction ID / reference');
                     return;
                 }
                 if (!this.refundRequest.reason) {
-                    this.showToast('❌ Please select a reason for refund');
+                    this.showAlert('❌ Please select a reason for refund');
                     return;
                 }
 
@@ -1196,7 +2021,7 @@
                 pendingRefunds.push(refundRequestData);
                 localStorage.setItem('rands_refund_requests', JSON.stringify(pendingRefunds));
 
-                this.showToast(`✅ Refund request of R${parseFloat(this.refundRequest.amount).toFixed(2)} submitted! Admin will review within 24-48 hours.`);
+                this.showAlert(`✅ Refund request of R${parseFloat(this.refundRequest.amount).toFixed(2)} submitted! Admin will review within 24-48 hours.`);
                 
                 this.closeRefundModal();
                 
@@ -1210,32 +2035,20 @@
             checkInEvent() {
                 let newCount = this.checkins + 1;
                 if (newCount > 500) {
-                    this.showToast("🎉 You're already at peak vibe! VVIP unlocked for all!");
+                    this.showAlert("🎉 You're already at peak vibe! VVIP unlocked for all!");
                     return;
                 }
                 this.checkins = newCount;
                 
                 if (this.checkins === 100) {
-                    this.showToast("🎵 100 people checked in! FREE DJ SET unlocked for the whole crowd!");
+                    this.showAlert("🎵 100 people checked in! FREE DJ SET unlocked for the whole crowd!");
                 } else if (this.checkins === 250) {
-                    this.showToast("🍾 250 vibes! FREE ROUND OF DRINKS unlocked for everyone!");
+                    this.showAlert("🍾 250 vibes! FREE ROUND OF DRINKS unlocked for everyone!");
                 } else if (this.checkins === 500) {
-                    this.showToast("👑 LEGENDARY! 500 checked in → ENTIRE CROWD upgraded to VVIP + Free bottle!");
+                    this.showAlert("👑 LEGENDARY! 500 checked in → ENTIRE CROWD upgraded to VVIP + Free bottle!");
                 } else {
-                    this.showToast(`✅ You checked in! Crowd energy: ${this.checkins}/500. Keep the vibe rising!`);
+                    this.showAlert(`✅ You checked in! Crowd energy: ${this.checkins}/500. Keep the vibe rising!`);
                 }
-            },
-            handleBuyTickets() {
-                this.showToast("🎟️ Opening Ticket Shop...");
-                setTimeout(() => {
-                    window.open('tickets-page.html', '_blank');
-                }, 300);
-            },
-            handleBoozeLockers() {
-                this.showToast("🔒 Opening Booze Lockers...");
-                setTimeout(() => {
-                    window.open('index.html', '_blank');
-                }, 300);
             },
             simulateKioskPayment() {
                 const venues = ["Club A Kiosk", "Rands Lounge", "VIP Section", "The Butcher Counter"];
@@ -1254,24 +2067,24 @@
             },
             approvePayment() {
                 if (!this.securityPin || this.securityPin.length < 4) {
-                    this.showToast("❌ Please enter your 4-digit PIN to approve");
+                    this.showAlert("❌ Please enter your 4-digit PIN to approve");
                     return;
                 }
                 if (this.securityPin === "1989" || this.securityPin.length === 4) {
                     if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
                     this.balance -= this.pendingPayment.amount;
-                    this.showToast(`✅ Payment of R${this.formatPrice(this.pendingPayment.amount)} approved!`);
+                    this.showAlert(`✅ Payment of R${this.formatPrice(this.pendingPayment.amount)} approved!`);
                     this.paymentModalVisible = false;
                     this.securityPin = "";
                 } else {
-                    this.showToast("❌ Invalid PIN. Please try again.");
+                    this.showAlert("❌ Invalid PIN. Please try again.");
                     this.securityPin = "";
                     setTimeout(() => { if (this.$refs.pinInput) this.$refs.pinInput.focus(); }, 300);
                 }
             },
             declinePayment() {
                 if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
-                this.showToast(`❌ Payment declined`);
+                this.showAlert(`❌ Payment declined`);
                 this.paymentModalVisible = false;
                 this.securityPin = "";
             },
