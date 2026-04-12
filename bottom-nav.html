@@ -59,6 +59,16 @@
             font-weight: 600;
             color: #7e8b9f;
             letter-spacing: -0.2px;
+            transition: color 0.2s;
+        }
+
+        /* Active tab styles */
+        .nav-btn.active .nav-icon {
+            color: #E30613;
+        }
+
+        .nav-btn.active .nav-label {
+            color: #E30613;
         }
 
         .nav-btn:active {
@@ -73,26 +83,58 @@
         No instructions, no extra content, just the nav component.
     -->
     <div class="bottom-nav">
-        <button class="nav-btn" onclick="location.href='home.html'">
+        <button class="nav-btn" data-page="home" onclick="setActiveTab(this); location.href='home.html'">
             <div class="nav-icon"><i class="fas fa-home"></i></div>
             <span class="nav-label">Home</span>
         </button>
-        <button class="nav-btn" onclick="location.href='queue.html'">
+        <button class="nav-btn" data-page="queue" onclick="setActiveTab(this); location.href='queue.html'">
             <div class="nav-icon"><i class="fas fa-clock"></i></div>
             <span class="nav-label">Queue</span>
         </button>
-        <button class="nav-btn" onclick="location.href='transact.html'">
+        <button class="nav-btn" data-page="transact" onclick="setActiveTab(this); location.href='transact.html'">
             <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
             <span class="nav-label">Transact</span>
         </button>
-        <button class="nav-btn" onclick="location.href='vvip.html'">
-            <div class="nav-icon"><i class="fas fa-gem"></i></div>
-            <span class="nav-label">VVIP</span>
+        <button class="nav-btn" data-page="card" onclick="setActiveTab(this); location.href='card.html'">
+            <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
+            <span class="nav-label">Card</span>
         </button>
-        <button class="nav-btn" onclick="location.href='ticket-store.html'">
+        <button class="nav-btn" data-page="ticket-store" onclick="setActiveTab(this); location.href='ticket-store.html'">
             <div class="nav-icon"><i class="fas fa-ticket-alt"></i></div>
             <span class="nav-label">Tickets</span>
         </button>
     </div>
+
+    <script>
+        // Function to set active tab based on current page
+        function setActiveTab(clickedBtn) {
+            // Remove active class from all buttons
+            const allBtns = document.querySelectorAll('.nav-btn');
+            allBtns.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            clickedBtn.classList.add('active');
+        }
+
+        // Automatically highlight the correct tab based on current URL
+        function highlightCurrentPage() {
+            const currentPath = window.location.pathname;
+            const currentPage = currentPath.split('/').pop().split('.')[0] || 'home';
+            
+            const allBtns = document.querySelectorAll('.nav-btn');
+            allBtns.forEach(btn => {
+                const btnPage = btn.getAttribute('data-page');
+                if (btnPage === currentPage) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Run highlight when page loads
+        document.addEventListener('DOMContentLoaded', highlightCurrentPage);
+    </script>
 </body>
 </html>
