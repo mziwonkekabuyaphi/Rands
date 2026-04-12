@@ -13,24 +13,35 @@
             box-sizing: border-box;
         }
 
-        /* BOTTOM NAVIGATION BAR - CLEAN, READY TO INTEGRATE */
+        body {
+            background: #f5f7fb;
+            min-height: 100vh;
+        }
+
+        /* BOTTOM NAVIGATION BAR */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: #ffffff;
-            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
             border-top: 1px solid #eef2f6;
-            padding: 8px 16px 20px;
+            padding: 8px 12px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
             max-width: 500px;
             margin: 0 auto;
             width: 100%;
             z-index: 1000;
-            border-radius: 0 0 24px 24px;
+        }
+
+        /* Safe area for iOS */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .bottom-nav {
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            }
         }
 
         .nav-btn {
@@ -38,11 +49,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 4px;
             background: transparent;
             border: none;
             cursor: pointer;
-            padding: 6px 0;
+            padding: 8px 4px;
             border-radius: 40px;
             transition: all 0.2s ease;
             font-family: 'Inter', system-ui, sans-serif;
@@ -56,85 +68,104 @@
 
         .nav-btn .nav-label {
             font-size: 0.65rem;
-            font-weight: 600;
-            color: #7e8b9f;
+            font-weight: 500;
+            color: #94a3b8;
             letter-spacing: -0.2px;
-            transition: color 0.2s;
         }
 
-        /* Active tab styles */
-        .nav-btn.active .nav-icon {
-            color: #E30613;
-        }
-
+        /* Active tab - RED */
+        .nav-btn.active .nav-icon,
         .nav-btn.active .nav-label {
             color: #E30613;
         }
 
+        .nav-btn.active .nav-label {
+            font-weight: 600;
+        }
+
+        /* Click feedback */
         .nav-btn:active {
-            transform: scale(0.96);
-            background: rgba(0, 0, 0, 0.04);
+            transform: scale(0.95);
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .bottom-nav {
+                padding: 6px 8px 18px;
+            }
+            .nav-btn .nav-icon {
+                font-size: 1.2rem;
+            }
+            .nav-btn .nav-label {
+                font-size: 0.6rem;
+            }
         }
     </style>
 </head>
-<body style="background: #f5f7fb; min-height: 100vh;">
-    <!-- 
-        PURE BOTTOM NAVIGATION - COPY THIS BLOCK INTO YOUR PROJECT
-        No instructions, no extra content, just the nav component.
-    -->
+<body>
+    <!-- PURE BOTTOM NAVIGATION - COPY THIS BLOCK -->
     <div class="bottom-nav">
-        <button class="nav-btn" data-page="home" onclick="setActiveTab(this); location.href='home.html'">
+        <button class="nav-btn" data-page="home" data-url="home.html">
             <div class="nav-icon"><i class="fas fa-home"></i></div>
             <span class="nav-label">Home</span>
         </button>
-        <button class="nav-btn" data-page="queue" onclick="setActiveTab(this); location.href='queue.html'">
+        <button class="nav-btn" data-page="queue" data-url="queue.html">
             <div class="nav-icon"><i class="fas fa-clock"></i></div>
             <span class="nav-label">Queue</span>
         </button>
-        <button class="nav-btn" data-page="transact" onclick="setActiveTab(this); location.href='transact.html'">
+        <button class="nav-btn" data-page="transact" data-url="transact.html">
             <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
             <span class="nav-label">Transact</span>
         </button>
-        <button class="nav-btn" data-page="card" onclick="setActiveTab(this); location.href='card.html'">
+        <button class="nav-btn" data-page="card" data-url="card.html">
             <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
             <span class="nav-label">Card</span>
         </button>
-        <button class="nav-btn" data-page="ticket-store" onclick="setActiveTab(this); location.href='ticket-store.html'">
+        <button class="nav-btn" data-page="ticket-store" data-url="ticket-store.html">
             <div class="nav-icon"><i class="fas fa-ticket-alt"></i></div>
             <span class="nav-label">Tickets</span>
         </button>
     </div>
 
     <script>
-        // Function to set active tab based on current page
-        function setActiveTab(clickedBtn) {
-            // Remove active class from all buttons
-            const allBtns = document.querySelectorAll('.nav-btn');
-            allBtns.forEach(btn => {
-                btn.classList.remove('active');
-            });
-            // Add active class to clicked button
-            clickedBtn.classList.add('active');
-        }
-
-        // Automatically highlight the correct tab based on current URL
-        function highlightCurrentPage() {
-            const currentPath = window.location.pathname;
-            const currentPage = currentPath.split('/').pop().split('.')[0] || 'home';
+        (function() {
+            const navBtns = document.querySelectorAll('.nav-btn');
             
-            const allBtns = document.querySelectorAll('.nav-btn');
-            allBtns.forEach(btn => {
-                const btnPage = btn.getAttribute('data-page');
-                if (btnPage === currentPage) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+            function setActive(btn) {
+                navBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            
+            function getCurrentPage() {
+                let page = window.location.pathname.split('/').pop().split('.')[0];
+                return (page === '' || page === 'index') ? 'home' : page.toLowerCase();
+            }
+            
+            function highlightTab() {
+                const current = getCurrentPage();
+                let matched = false;
+                navBtns.forEach(btn => {
+                    if (btn.dataset.page === current) {
+                        setActive(btn);
+                        matched = true;
+                    }
+                });
+                if (!matched && navBtns[0]) setActive(navBtns[0]);
+            }
+            
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const url = btn.dataset.url;
+                    if (url) {
+                        setActive(btn);
+                        setTimeout(() => { window.location.href = url; }, 30);
+                    }
+                });
             });
-        }
-
-        // Run highlight when page loads
-        document.addEventListener('DOMContentLoaded', highlightCurrentPage);
+            
+            highlightTab();
+            window.addEventListener('pageshow', highlightTab);
+        })();
     </script>
 </body>
 </html>
