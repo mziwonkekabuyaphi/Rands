@@ -1,173 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Bottom Nav - Pure Component</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Bottom Navigation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ========== BOTTOM-NAV.CSS ========== */
+    .bottom-nav,
+    .bottom-nav * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      padding-bottom: 80px !important;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px 28px 0 0;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s ease;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      padding-top: 8px;
+    }
+    
+    .bottom-nav-inner {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 6px 12px 10px 12px;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      flex: 1;
+      gap: 4px;
+      padding: 6px 4px;
+      border-radius: 40px;
+      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .nav-item:active {
+      transform: scale(0.94);
+      background: rgba(220, 38, 38, 0.08);
+    }
+    
+    .nav-icon {
+      font-size: 22px;
+      color: #8e9aaf;
+      transition: all 0.2s ease;
+    }
+    
+    .nav-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #8e9aaf;
+      transition: all 0.2s ease;
+      letter-spacing: 0.3px;
+    }
+    
+    .nav-item.active .nav-icon {
+      color: #dc2626;
+      text-shadow: 0 0 6px rgba(220, 38, 38, 0.3);
+    }
+    
+    .nav-item.active .nav-label {
+      color: #dc2626;
+      font-weight: 600;
+      transform: translateY(1px);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .bottom-nav {
+        background: rgba(18, 18, 24, 0.94);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+      }
+      .nav-icon {
+        color: #9ca3af;
+      }
+      .nav-label {
+        color: #9ca3af;
+      }
+      .nav-item.active .nav-icon {
+        color: #f87171;
+      }
+      .nav-item.active .nav-label {
+        color: #f87171;
+      }
+    }
+    
+    @media (max-height: 600px) {
+      .bottom-nav {
+        padding-top: 4px;
+      }
+      .bottom-nav-inner {
+        padding: 2px 8px 6px 8px;
+      }
+      .nav-icon {
+        font-size: 20px;
+      }
+      .nav-label {
+        font-size: 10px;
+      }
+    }
+    
+    @supports (backdrop-filter: blur(20px)) {
+      .bottom-nav {
+        background: rgba(255, 255, 255, 0.88);
+      }
+      @media (prefers-color-scheme: dark) {
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-            border-top: 1px solid #eef2f6;
-            padding: 8px 12px 20px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            max-width: 500px;
-            margin: 0 auto;
-            width: 100%;
-            z-index: 1000;
-            border-radius: 0 0 24px 24px;
+          background: rgba(20, 20, 28, 0.92);
         }
-
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .bottom-nav {
-                padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            }
-        }
-
-        .nav-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 8px 4px;
-            border-radius: 40px;
-            transition: all 0.2s ease;
-            font-family: 'Inter', system-ui, sans-serif;
-        }
-
-        .nav-btn .nav-icon {
-            font-size: 1.35rem;
-            color: #94a3b8;
-            transition: color 0.2s;
-        }
-
-        .nav-btn .nav-label {
-            font-size: 0.65rem;
-            font-weight: 500;
-            color: #94a3b8;
-            letter-spacing: -0.2px;
-        }
-
-        .nav-btn.active .nav-icon,
-        .nav-btn.active .nav-label {
-            color: #E30613;
-        }
-
-        .nav-btn.active .nav-label {
-            font-weight: 600;
-        }
-
-        .nav-btn:active {
-            transform: scale(0.95);
-        }
-
-        @media (max-width: 400px) {
-            .bottom-nav {
-                padding: 6px 8px 18px;
-                border-radius: 0 0 20px 20px;
-            }
-            .nav-btn .nav-icon {
-                font-size: 1.2rem;
-            }
-            .nav-btn .nav-label {
-                font-size: 0.6rem;
-            }
-        }
-    </style>
+      }
+    }
+    
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .bottom-nav {
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- BOTTOM NAVIGATION - COPY THIS BLOCK INTO YOUR PROJECT -->
-    <div class="bottom-nav">
-        <button class="nav-btn" data-url="home.html">
-            <div class="nav-icon"><i class="fas fa-home"></i></div>
-            <span class="nav-label">Home</span>
-        </button>
-        <button class="nav-btn" data-url="queue.html">
-            <div class="nav-icon"><i class="fas fa-clock"></i></div>
-            <span class="nav-label">Queue</span>
-        </button>
-        <button class="nav-btn" data-url="transact.html">
-            <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
-            <span class="nav-label">Transact</span>
-        </button>
-        <button class="nav-btn" data-url="card.html">
-            <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
-            <span class="nav-label">Card</span>
-        </button>
-        <button class="nav-btn" data-url="ticket-store.html">
-            <div class="nav-icon"><i class="fas fa-ticket-alt"></i></div>
-            <span class="nav-label">Tickets</span>
-        </button>
+  <nav class="bottom-nav" id="bottomNav">
+    <div class="bottom-nav-inner">
+      <a href="home.html" class="nav-item" data-page="home">
+        <div class="nav-icon"><i class="fas fa-home"></i></div>
+        <span class="nav-label">Home</span>
+      </a>
+      <a href="queue.html" class="nav-item" data-page="queue">
+        <div class="nav-icon"><i class="fas fa-clock"></i></div>
+        <span class="nav-label">Queue</span>
+      </a>
+      <a href="transact.html" class="nav-item" data-page="transact">
+        <div class="nav-icon"><i class="fas fa-arrow-right-arrow-left"></i></div>
+        <span class="nav-label">Transact</span>
+      </a>
+      <a href="card.html" class="nav-item" data-page="card">
+        <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
+        <span class="nav-label">Card</span>
+      </a>
+      <a href="ticket-store.html" class="nav-item" data-page="tickets">
+        <div class="nav-icon"><i class="fas fa-ticket-alt"></i></div>
+        <span class="nav-label">Tickets</span>
+      </a>
     </div>
+  </nav>
 
-    <script>
-        (function() {
-            const navBtns = document.querySelectorAll('.nav-btn');
-            
-            function setActiveTab(activeBtn) {
-                navBtns.forEach(btn => btn.classList.remove('active'));
-                activeBtn.classList.add('active');
+  <script>
+    (function() {
+      'use strict';
+      
+      function initBottomNav() {
+        const navItems = document.querySelectorAll('.nav-item');
+        if (!navItems.length) return;
+        
+        const currentPath = window.location.pathname;
+        let currentPage = '';
+        
+        if (currentPath.includes('home.html') || currentPath === '/' || currentPath === '/index.html') {
+          currentPage = 'home';
+        } else if (currentPath.includes('queue.html')) {
+          currentPage = 'queue';
+        } else if (currentPath.includes('transact.html')) {
+          currentPage = 'transact';
+        } else if (currentPath.includes('card.html')) {
+          currentPage = 'card';
+        } else if (currentPath.includes('ticket-store.html')) {
+          currentPage = 'tickets';
+        } else {
+          for (let i = 0; i < navItems.length; i++) {
+            const item = navItems[i];
+            const pageAttr = item.getAttribute('data-page');
+            if (pageAttr && currentPath.includes(pageAttr)) {
+              currentPage = pageAttr;
+              break;
             }
-            
-            function getCurrentPage() {
-                let path = window.location.pathname;
-                let filename = path.substring(path.lastIndexOf('/') + 1);
-                let page = filename.split('.')[0];
-                if (page === '' || page === 'index') page = 'home';
-                return page.toLowerCase();
-            }
-            
-            function highlightCurrentTab() {
-                const currentPage = getCurrentPage();
-                let matched = false;
-                
-                navBtns.forEach(btn => {
-                    const url = btn.getAttribute('data-url');
-                    if (url) {
-                        const btnPage = url.replace('.html', '').toLowerCase();
-                        if (btnPage === currentPage) {
-                            setActiveTab(btn);
-                            matched = true;
-                        }
-                    }
+          }
+        }
+        
+        navItems.forEach(item => {
+          item.classList.remove('active');
+          const pageAttr = item.getAttribute('data-page');
+          if (pageAttr === currentPage) {
+            item.classList.add('active');
+          }
+        });
+        
+        navItems.forEach(link => {
+          link.addEventListener('click', function(e) {
+            if (this.classList.contains('active')) return;
+            this.style.transition = 'transform 0.1s ease';
+            setTimeout(() => {
+              if (this) this.style.transition = '';
+            }, 100);
+          });
+        });
+        
+        let lastUrl = location.href;
+        new MutationObserver(() => {
+          const url = location.href;
+          if (url !== lastUrl) {
+            lastUrl = url;
+            setTimeout(() => {
+              const newPath = window.location.pathname;
+              let newPage = '';
+              if (newPath.includes('home.html') || newPath === '/' || newPath === '/index.html') newPage = 'home';
+              else if (newPath.includes('queue.html')) newPage = 'queue';
+              else if (newPath.includes('transact.html')) newPage = 'transact';
+              else if (newPath.includes('card.html')) newPage = 'card';
+              else if (newPath.includes('ticket-store.html')) newPage = 'tickets';
+              else newPage = '';
+              
+              if (newPage) {
+                navItems.forEach(item => {
+                  item.classList.remove('active');
+                  if (item.getAttribute('data-page') === newPage) {
+                    item.classList.add('active');
+                  }
                 });
-                
-                if (!matched && navBtns.length > 0) {
-                    setActiveTab(navBtns[0]);
-                }
-            }
-            
-            navBtns.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    const url = this.getAttribute('data-url');
-                    if (url) {
-                        window.location.href = url;
-                    }
-                });
-            });
-            
-            highlightCurrentTab();
-            window.addEventListener('pageshow', highlightCurrentTab);
-        })();
-    </script>
+              }
+            }, 20);
+          }
+        }).observe(document, { subtree: true, childList: true });
+      }
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBottomNav);
+      } else {
+        initBottomNav();
+      }
+    })();
+  </script>
 </body>
 </html>
