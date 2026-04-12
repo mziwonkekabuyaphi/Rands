@@ -35,12 +35,14 @@
             margin: 0 auto;
             width: 100%;
             z-index: 1000;
+            border-radius: 0 0 24px 24px;
         }
 
         /* Safe area for iOS */
         @supports (padding-bottom: env(safe-area-inset-bottom)) {
             .bottom-nav {
                 padding-bottom: calc(20px + env(safe-area-inset-bottom));
+                border-radius: 0 0 24px 24px;
             }
         }
 
@@ -92,6 +94,7 @@
         @media (max-width: 400px) {
             .bottom-nav {
                 padding: 6px 8px 18px;
+                border-radius: 0 0 20px 20px;
             }
             .nav-btn .nav-icon {
                 font-size: 1.2rem;
