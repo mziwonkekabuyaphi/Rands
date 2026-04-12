@@ -18,7 +18,6 @@
             min-height: 100vh;
         }
 
-        /* BOTTOM NAVIGATION BAR */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -38,11 +37,9 @@
             border-radius: 0 0 24px 24px;
         }
 
-        /* Safe area for iOS */
         @supports (padding-bottom: env(safe-area-inset-bottom)) {
             .bottom-nav {
                 padding-bottom: calc(20px + env(safe-area-inset-bottom));
-                border-radius: 0 0 24px 24px;
             }
         }
 
@@ -75,7 +72,6 @@
             letter-spacing: -0.2px;
         }
 
-        /* Active tab - RED */
         .nav-btn.active .nav-icon,
         .nav-btn.active .nav-label {
             color: #E30613;
@@ -85,12 +81,10 @@
             font-weight: 600;
         }
 
-        /* Click feedback */
         .nav-btn:active {
             transform: scale(0.95);
         }
 
-        /* Responsive */
         @media (max-width: 400px) {
             .bottom-nav {
                 padding: 6px 8px 18px;
@@ -106,25 +100,24 @@
     </style>
 </head>
 <body>
-    <!-- PURE BOTTOM NAVIGATION - COPY THIS BLOCK -->
     <div class="bottom-nav">
-        <button class="nav-btn" data-page="home" data-url="home.html">
+        <button class="nav-btn" data-url="home.html">
             <div class="nav-icon"><i class="fas fa-home"></i></div>
             <span class="nav-label">Home</span>
         </button>
-        <button class="nav-btn" data-page="queue" data-url="queue.html">
+        <button class="nav-btn" data-url="queue.html">
             <div class="nav-icon"><i class="fas fa-clock"></i></div>
             <span class="nav-label">Queue</span>
         </button>
-        <button class="nav-btn" data-page="transact" data-url="transact.html">
+        <button class="nav-btn" data-url="transact.html">
             <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
             <span class="nav-label">Transact</span>
         </button>
-        <button class="nav-btn" data-page="card" data-url="card.html">
+        <button class="nav-btn" data-url="card.html">
             <div class="nav-icon"><i class="fas fa-credit-card"></i></div>
             <span class="nav-label">Card</span>
         </button>
-        <button class="nav-btn" data-page="ticket-store" data-url="ticket-store.html">
+        <button class="nav-btn" data-url="ticket-store.html">
             <div class="nav-icon"><i class="fas fa-ticket-alt"></i></div>
             <span class="nav-label">Tickets</span>
         </button>
@@ -134,40 +127,51 @@
         (function() {
             const navBtns = document.querySelectorAll('.nav-btn');
             
-            function setActive(btn) {
-                navBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+            function setActiveTab(activeBtn) {
+                navBtns.forEach(btn => btn.classList.remove('active'));
+                activeBtn.classList.add('active');
             }
             
             function getCurrentPage() {
-                let page = window.location.pathname.split('/').pop().split('.')[0];
-                return (page === '' || page === 'index') ? 'home' : page.toLowerCase();
+                let fullPath = window.location.pathname;
+                let filename = fullPath.substring(fullPath.lastIndexOf('/') + 1);
+                let page = filename.split('.')[0];
+                if (page === '' || page === 'index') page = 'home';
+                return page.toLowerCase();
             }
             
-            function highlightTab() {
-                const current = getCurrentPage();
+            function highlightCurrentTab() {
+                const currentPage = getCurrentPage();
                 let matched = false;
+                
                 navBtns.forEach(btn => {
-                    if (btn.dataset.page === current) {
-                        setActive(btn);
-                        matched = true;
+                    const url = btn.getAttribute('data-url');
+                    if (url) {
+                        const btnPage = url.replace('.html', '').toLowerCase();
+                        if (btnPage === currentPage) {
+                            setActiveTab(btn);
+                            matched = true;
+                        }
                     }
                 });
-                if (!matched && navBtns[0]) setActive(navBtns[0]);
+                
+                if (!matched && navBtns.length > 0) {
+                    setActiveTab(navBtns[0]);
+                }
             }
             
             navBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const url = btn.dataset.url;
+                btn.addEventListener('click', function(e) {
+                    const url = this.getAttribute('data-url');
                     if (url) {
-                        setActive(btn);
-                        setTimeout(() => { window.location.href = url; }, 30);
+                        setActiveTab(this);
+                        window.location.href = url;
                     }
                 });
             });
             
-            highlightTab();
-            window.addEventListener('pageshow', highlightTab);
+            highlightCurrentTab();
+            window.addEventListener('pageshow', highlightCurrentTab);
         })();
     </script>
 </body>
