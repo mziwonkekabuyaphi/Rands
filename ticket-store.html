@@ -195,6 +195,15 @@
             box-shadow: 0 4px 15px rgba(220,38,38,0.25);
         }
         
+        .tab-btn.staff-tab {
+            background: #1e293b;
+            color: white;
+        }
+        
+        .tab-btn.staff-tab:hover {
+            background: #dc2626;
+        }
+        
         .tickets-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -862,6 +871,15 @@
             html, body {
                 border-radius: 20px;
             }
+            .tabs-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                border-radius: 40px;
+            }
+            .tab-btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
@@ -906,6 +924,7 @@
 <div class="tabs-container">
     <button class="tab-btn" id="tabStoreBtn"><i class="fas fa-store"></i> Ticket Store</button>
     <button class="tab-btn active" id="tabWalletBtn"><i class="fas fa-wallet"></i> My Tickets</button>
+    <button class="tab-btn staff-tab" id="tabStaffBtn"><i class="fas fa-user-shield"></i> Staff Only</button>
 </div>
 
 <div id="walletPanel" style="width:100%; display:block;">
@@ -1372,6 +1391,10 @@
         checkoutBtn.onclick = performCheckout;
     }
     
+    function goToStaffPage() {
+        window.location.href = 'ticket-office.html';
+    }
+    
     function escapeHtml(str) { if(!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
     
     function switchTab(walletActive) {
@@ -1396,8 +1419,9 @@
         updateWalletUI();
         document.getElementById('tabWalletBtn').onclick = () => switchTab(true);
         document.getElementById('tabStoreBtn').onclick = () => switchTab(false);
+        document.getElementById('tabStaffBtn').onclick = goToStaffPage;
         document.getElementById('deletePastBtn').addEventListener('click', deletePastEventTickets);
-        switchTab(false);
+        switchTab(true);
         window.addEventListener('storage', (e) => { if(e.key === EVENTS_KEY){ loadEvents(); if(document.getElementById('storePanel').style.display !== 'none') populateEventSelectorStore(); updateWalletUI(); } if(e.key === TICKETS_KEY) updateWalletUI(); });
         
         if (typeof loadBottomNav === 'function') {
