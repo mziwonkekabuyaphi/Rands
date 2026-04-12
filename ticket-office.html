@@ -205,6 +205,13 @@
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
+        .office-logo {
+            width: 70px;
+            height: auto;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
         .ticket-office-card i {
             font-size: 48px;
             color: #E30613;
@@ -260,6 +267,18 @@
             color: #E30613;
             transition: 0.2s;
         }
+        
+        @media (max-width: 480px) {
+            .office-logo {
+                width: 55px;
+            }
+            .ticket-office-card {
+                padding: 24px 20px;
+            }
+            .ticket-office-card h2 {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -267,7 +286,7 @@
 <!-- Main Dashboard Content (hidden until PIN verified) -->
 <div id="dashboardContent" class="dashboard-content">
     <div class="ticket-office-card">
-        <i class="fas fa-ticket-alt"></i>
+        <img class="office-logo" src="images/rands-logo.png" alt="Rands Logo" onerror="this.style.display='none'">
         <div class="staff-badge">
             <i class="fas fa-user-shield"></i> STAFF ACCESS ONLY
         </div>
@@ -275,10 +294,13 @@
         <p>Manage events, validate tickets, and access staff tools</p>
         <div class="action-buttons">
             <button class="office-btn" id="manageEventsBtn">
-                <i class="fas fa-calendar-alt"></i> Manage Events
+                <i class="fas fa-calendar-alt"></i> Manage Events & Wallets
             </button>
             <button class="office-btn" id="validateTicketsBtn">
                 <i class="fas fa-qrcode"></i> Validate Tickets
+            </button>
+            <button class="office-btn" id="vvipManagementBtn">
+                <i class="fas fa-crown"></i> VVIP Management
             </button>
             <button class="office-btn" onclick="showToast('Reports coming soon')">
                 <i class="fas fa-chart-line"></i> View Reports
@@ -470,6 +492,7 @@
     function setupDashboardButtons() {
         const manageBtn = document.getElementById('manageEventsBtn');
         const validateBtn = document.getElementById('validateTicketsBtn');
+        const vvipBtn = document.getElementById('vvipManagementBtn');
         
         if (manageBtn) {
             manageBtn.addEventListener('click', () => {
@@ -480,6 +503,12 @@
         if (validateBtn) {
             validateBtn.addEventListener('click', () => {
                 window.location.href = 'mobile-scanner.html';
+            });
+        }
+        
+        if (vvipBtn) {
+            vvipBtn.addEventListener('click', () => {
+                window.location.href = 'vvip-management.html';
             });
         }
     }
@@ -518,10 +547,12 @@
     - Toast notifications for feedback
     - Dashboard content hidden until PIN is verified
     - Cancel/outside click redirects to ticket-store.html
+    - Rands logo displayed at the top with rounded corners
     
     BUTTON REDIRECTS:
-    - "Manage Events" → event-manager.html
+    - "Manage Events & Wallets" → event-manager.html
     - "Validate Tickets" → mobile-scanner.html
+    - "VVIP Management" → vvip-management.html
     - "View Reports" → shows toast (coming soon)
     - "Staff Settings" → shows toast (coming soon)
     
