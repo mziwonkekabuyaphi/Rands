@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Rands · Mobile Ticket Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Light Mode Variables */
+        :root {
+            --bg-primary: #0a0c0f;
+            --bg-card: #1a1e24;
+            --text-primary: white;
+            --text-secondary: #a0a8b5;
+            --border-color: rgba(255,255,255,0.1);
+            --result-bg: #0f1217;
+            --btn-secondary: #2a2f36;
+        }
+
+        body.light-mode {
+            --bg-primary: #f5f5f5;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: rgba(0,0,0,0.1);
+            --result-bg: #f8f9fa;
+            --btn-secondary: #e8e8e8;
+        }
+
+        body {
+            background: var(--bg-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(227, 6, 19, 0.15);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0c0f 0%, #1a1e24 100%);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            text-align: center;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #E30613, #b3000c);
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 20px 40px rgba(227, 6, 19, 0.4);
+            animation: pulseLogo 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseLogo {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 20px 40px rgba(227, 6, 19, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 30px 60px rgba(227, 6, 19, 0.6);
+            }
+        }
+
+        .splash-logo i {
+            font-size: 56px;
+            color: white;
+        }
+
+        .splash-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #E30613, #ff4d5a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .splash-subtitle {
+            color: #a0a8b5;
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+            letter-spacing: 1px;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(227, 6, 19, 0.2);
+            border-radius: 3px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .loading-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #E30613, #ff4d5a);
+            border-radius: 3px;
+            animation: loading 2s ease-out forwards;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            30% { width: 45%; }
+            60% { width: 75%; }
+            100% { width: 100%; }
+        }
+
+        /* Login Container */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 1500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-container.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: all;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border-radius: 48px;
+            padding: 40px 32px;
+            border: 1px solid rgba(227, 6, 19, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 420px;
+            margin: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            border-color: rgba(227, 6, 19, 0.6);
+            box-shadow: 0 30px 60px -12px rgba(227, 6, 19, 0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #E30613, #b3000c);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 25px rgba(227, 6, 19, 0.4);
+        }
+
+        .login-icon i {
+            font-size: 40px;
+            color: white;
+        }
+
+        .login-header h2 {
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #E30613;
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 16px 16px 52px;
+            background: var(--result-bg);
+            border: 2px solid rgba(227, 6, 19, 0.2);
+            border-radius: 60px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #E30613;
+            box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.2);
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: #E30613;
+        }
+
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            font-size: 0.85rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .remember-me input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #E30613;
+        }
+
+        .forgot-link {
+            color: #E30613;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #E30613, #b3000c);
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(227, 6, 19, 0.4);
+        }
+
+        .divider {
+            text-align: center;
+            position: relative;
+            margin: 24px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 60px);
+            height: 1px;
+            background: rgba(227, 6, 19, 0.2);
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .divider span {
+            background: var(--bg-card);
+            padding: 0 16px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .demo-credentials {
+            background: rgba(227, 6, 19, 0.1);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(227, 6, 19, 0.2);
+        }
+
+        .demo-credentials p {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            margin-bottom: 6px;
+        }
+
+        .cred-row {
+            font-size: 0.7rem;
+            font-family: monospace;
+        }
+
+        .cred-row span:first-child {
+            color: var(--text-secondary);
+        }
+
+        .cred-row span:last-child {
+            color: #E30613;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid #ef4444;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #ef4444;
+            font-size: 0.85rem;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        /* Scanner Container (hidden until login) */
+        .scanner-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-card);
+            border-radius: 32px;
+            padding: 24px 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .scanner-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #E30613;
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--btn-secondary);
+            padding: 8px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-toggle:hover {
+            background: var(--border-color);
+        }
+
+        .mode-toggle i {
+            font-size: 14px;
+            color: #E30613;
+        }
+
+        .mode-toggle span {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        .preview-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 3px solid #E30613;
+            box-shadow: 0 0 20px rgba(227, 6, 19, 0.3);
+        }
+
+        #preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.4) 100%);
+        }
+
+        .scan-corners {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 240px;
+            height: 240px;
+            pointer-events: none;
+        }
+
+        .corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: #E30613;
+            border-style: solid;
+            border-width: 0;
+        }
+
+        .corner-tl { top: 0; left: 0; border-top-width: 4px; border-left-width: 4px; }
+        .corner-tr { top: 0; right: 0; border-top-width: 4px; border-right-width: 4px; }
+        .corner-bl { bottom: 0; left: 0; border-bottom-width: 4px; border-left-width: 4px; }
+        .corner-br { bottom: 0; right: 0; border-bottom-width: 4px; border-right-width: 4px; }
+
+        .scan-line-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #E30613, #ff4d5a, #E30613, transparent);
+            box-shadow: 0 0 15px #E30613, 0 0 8px #ff4d5a;
+            animation: scanMove 2.5s ease-in-out infinite;
+        }
+
+        @keyframes scanMove {
+            0% { top: 10%; opacity: 0.8; }
+            50% { top: 85%; opacity: 1; }
+            100% { top: 10%; opacity: 0.8; }
+        }
+
+        .scan-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #E30613;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #E30613;
+            animation: pulseDot 1.5s ease-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulseDot {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+
+        .shake { animation: shakeAnim 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+        @keyframes shakeAnim {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-5px); }
+            20% { transform: translateX(5px); }
+            30% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            50% { transform: translateX(-3px); }
+            60% { transform: translateX(3px); }
+            70% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+            90% { transform: translateX(-1px); }
+            100% { transform: translateX(0); }
+        }
+
+        .result-panel {
+            background: var(--result-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .result-header h3 { color: #E30613; font-weight: 600; }
+        .status-badge { padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: #2a2f36; color: #a0a8b5; }
+        .status-badge.valid { background: #10b981; color: white; }
+        .status-badge.invalid { background: #ef4444; color: white; }
+        .status-badge.duplicate { background: #ff9800; color: white; }
+        .ticket-detail { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color); }
+        .ticket-detail:last-child { border-bottom: none; }
+        .detail-label { color: var(--text-secondary); font-size: 0.9rem; }
+        .detail-value { font-weight: 600; color: var(--text-primary); text-align: right; word-break: break-word; max-width: 60%; }
+        .button-group { display: flex; gap: 12px; margin-top: 16px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; background: var(--btn-secondary); color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: #E30613; color: white; }
+        .btn-primary:active { background: #b3000c; transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 2px solid #E30613; color: #E30613; }
+        .footer-note { margin-top: 20px; font-size: 0.75rem; color: var(--text-secondary); text-align: center; }
+        .flash { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 1000; display: none; font-size: 0.9rem; white-space: nowrap; }
+        .demo-hint { background: rgba(227,6,19,0.1); border-radius: 12px; padding: 10px; margin-top: 12px; font-size: 0.7rem; color: var(--text-secondary); text-align: center; }
+        .demo-hint span { color: #E30613; font-weight: 600; }
+        .camera-active { position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; background: #E30613; border-radius: 50%; box-shadow: 0 0 8px #E30613; animation: blink 1s infinite; z-index: 10; display: none; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 32px 24px; }
+            .splash-title { font-size: 1.6rem; }
+            .flash { white-space: normal; text-align: center; width: 90%; font-size: 0.8rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div class="splash-title">Rands Scanner</div>
+            <div class="splash-subtitle">Mobile Ticket Verification</div>
+            <div class="loading-bar">
+                <div class="loading-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2>Staff Login</h2>
+                <p>Enter your credentials to access the scanner</p>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid username or password</span>
+            </div>
+
+            <form id="loginForm" onsubmit="return false;">
+                <div class="input-group">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="username" placeholder="Username" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" placeholder="Password">
+                    <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                </div>
+                <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe"> Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fas fa-arrow-right-to-bracket"></i>
+                    Sign In
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>Demo Credentials</span>
+            </div>
+
+            <div class="demo-credentials">
+                <p><i class="fas fa-info-circle"></i> Use these credentials to login:</p>
+                <div class="cred-row">
+                    <span>Username:</span> <span>Staff</span>
+                </div>
+                <div class="cred-row">
+                    <span>Password:</span> <span>randscapetown</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner Container -->
+    <div class="scanner-container" id="scannerContainer">
+        <div class="header-row">
+            <h1>🎟️ Rands Scanner</h1>
+            <div class="mode-toggle" id="modeToggle">
+                <i class="fas fa-sun" id="modeIcon"></i>
+                <span id="modeText">Light Mode</span>
+            </div>
+        </div>
+        <div class="subtitle">Position QR code in the center</div>
+
+        <div class="preview-wrapper">
+            <video id="preview" playsinline autoplay muted></video>
+            <div class="scan-overlay"></div>
+            <div class="scan-corners">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+            </div>
+            <div class="scan-line-container">
+                <div class="scan-line"></div>
+            </div>
+            <div class="scan-dot"></div>
+            <div class="camera-active" id="cameraActive"></div>
+        </div>
+
+        <div class="result-panel" id="resultPanel">
+            <div class="result-header">
+                <h3>Ticket Details</h3>
+                <span class="status-badge" id="statusBadge">Unknown</span>
+            </div>
+            <div class="ticket-detail">
+                <span class="detail-label">Ticket Code</span>
+                <span class="detail-value" id="ticketCode">—</span>
+            </div>
+            <div class="ticket-detail">
+                <span class="detail-label">Event</span>
+                <span class="detail-value" id="eventName">—</span>
+            </div>
+            <div class="ticket-detail">
+                <span class="detail-label">Ticket Type</span>
+                <span class="detail-value" id="ticketType">—</span>
+            </div>
+            <div class="ticket-detail">
+                <span class="detail-label">Ticket Holder</span>
+                <span class="detail-value" id="ticketHolder">—</span>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" id="confirmBtn">✓ Confirm Entry</button>
+                <button class="btn btn-outline" id="rescanBtn">↺ Scan Again</button>
+            </div>
+        </div>
+
+        <div class="button-group" id="cameraControls">
+            <button class="btn btn-primary" id="startCamera">📷 Start Camera</button>
+            <button class="btn btn-outline" id="switchCamera">🔄 Switch Camera</button>
+        </div>
+
+        <div class="demo-hint">
+            <i class="fas fa-qrcode"></i> Scan any ticket purchased from the wallet or box office.
+        </div>
+        <div class="footer-note">
+            <i class="fas fa-lightbulb"></i> Hold steady over QR code • Scanning line active
+        </div>
+    </div>
+
+    <div class="flash" id="flashMessage"></div>
+
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    <script>
+        // ========== UNIFIED TICKET STORAGE (same as wallet) ==========
+        const TICKETS_KEY = 'rands_tickets';
+        let allTickets = []; // array of ticket objects
+
+        function loadTickets() {
+            const stored = localStorage.getItem(TICKETS_KEY);
+            if (stored) {
+                allTickets = JSON.parse(stored);
+            } else {
+                allTickets = [];
+            }
+        }
+
+        function saveTickets() {
+            localStorage.setItem(TICKETS_KEY, JSON.stringify(allTickets));
+        }
+
+        function findTicket(ticketId) {
+            return allTickets.find(t => t.ticketId === ticketId);
+        }
+
+        function checkInTicket(ticketId) {
+            const ticket = findTicket(ticketId);
+            if (ticket && !ticket.checkedIn) {
+                ticket.checkedIn = true;
+                ticket.checkinTime = new Date().toISOString();
+                saveTickets();
+                return true;
+            }
+            return false;
+        }
+
+        // Also listen for storage events from other tabs (wallet, gate scanner)
+        window.addEventListener('storage', (e) => {
+            if (e.key === TICKETS_KEY) {
+                loadTickets();
+                // If there's an active scan display, maybe refresh something? Not needed.
+            }
+        });
+
+        // ========== SCANNER LOGIC ==========
+        let currentTicketData = null;
+        let isScanning = false;
+        let scanner = null;
+        let currentCamera = 'environment';
+
+        function showFlash(msg, isError = false, isWarning = false) {
+            const flash = document.getElementById('flashMessage');
+            flash.textContent = msg;
+            flash.style.display = 'block';
+            flash.style.background = isWarning ? '#ff9800' : (isError ? '#ef4444' : '#10b981');
+            setTimeout(() => flash.style.display = 'none', 2000);
+        }
+
+        function shakeElement(el) {
+            el.classList.add('shake');
+            setTimeout(() => el.classList.remove('shake'), 500);
+        }
+
+        function extractTicketId(qrText) {
+            // Try to parse as URL with ticket param, otherwise treat as raw ID
+            try {
+                const url = new URL(qrText);
+                return url.searchParams.get('ticket') || qrText;
+            } catch (e) {
+                return qrText;
+            }
+        }
+
+        function processScan(content) {
+            if (isScanning) return;
+            isScanning = true;
+
+            const ticketId = extractTicketId(content).toUpperCase();
+            const ticket = findTicket(ticketId);
+            let status = 'invalid';
+            let statusText = '❌ INVALID';
+            let statusClass = 'invalid';
+
+            if (ticket) {
+                if (ticket.checkedIn) {
+                    status = 'duplicate';
+                    statusText = '⚠️ DUPLICATE';
+                    statusClass = 'duplicate';
+                } else {
+                    status = 'valid';
+                    statusText = '✅ VALID';
+                    statusClass = 'valid';
+                }
+            }
+
+            // Update UI with ticket details
+            document.getElementById('ticketCode').textContent = ticketId;
+            if (ticket) {
+                document.getElementById('eventName').textContent = ticket.eventName || '—';
+                document.getElementById('ticketType').textContent = ticket.ticketType;
+                document.getElementById('ticketHolder').textContent = ticket.attendeeName;
+            } else {
+                document.getElementById('eventName').textContent = '—';
+                document.getElementById('ticketType').textContent = '—';
+                document.getElementById('ticketHolder').textContent = 'Not Found';
+            }
+
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = statusText;
+            statusBadge.className = `status-badge ${statusClass}`;
+
+            if (status === 'invalid' || status === 'duplicate') {
+                shakeElement(document.querySelector('.preview-wrapper'));
+            }
+
+            if (status === 'valid') {
+                if (navigator.vibrate) navigator.vibrate(200);
+                showFlash(`✅ Valid ticket for ${ticket.attendeeName}!`, false);
+            } else if (status === 'duplicate') {
+                if (navigator.vibrate) navigator.vibrate([100, 100, 100]);
+                const checkinTime = ticket.checkinTime ? new Date(ticket.checkinTime).toLocaleTimeString() : 'earlier';
+                showFlash(`⚠️ Already scanned at ${checkinTime}`, false, true);
+            } else {
+                if (navigator.vibrate) navigator.vibrate([100, 200, 100]);
+                showFlash(`❌ Invalid ticket: ${ticketId}`, true);
+            }
+
+            // Stop scanner and show result
+            if (scanner) scanner.stop();
+            document.getElementById('cameraActive').style.display = 'none';
+            document.getElementById('resultPanel').style.display = 'block';
+            document.getElementById('cameraControls').style.display = 'none';
+
+            currentTicketData = {
+                id: ticketId,
+                name: ticket ? ticket.attendeeName : 'Unknown',
+                type: ticket ? ticket.ticketType : 'INVALID',
+                status: status,
+                ticket: ticket
+            };
+
+            setTimeout(() => { isScanning = false; }, 1000);
+        }
+
+        function resetScanner() {
+            document.getElementById('resultPanel').style.display = 'none';
+            document.getElementById('cameraControls').style.display = 'flex';
+            document.getElementById('cameraActive').style.display = 'block';
+            if (scanner) scanner.start();
+        }
+
+        document.getElementById('confirmBtn').addEventListener('click', function() {
+            if (currentTicketData && currentTicketData.status === 'valid' && currentTicketData.ticket) {
+                // Mark checked in (if not already)
+                if (!currentTicketData.ticket.checkedIn) {
+                    checkInTicket(currentTicketData.id);
+                    currentTicketData.ticket.checkedIn = true;
+                    currentTicketData.ticket.checkinTime = new Date().toISOString();
+                    showFlash(`✅ Entry confirmed for ${currentTicketData.name}!`, false);
+                } else {
+                    showFlash(`⚠️ This ticket was already used`, false, true);
+                }
+                setTimeout(() => resetScanner(), 1200);
+            } else if (currentTicketData && currentTicketData.status === 'duplicate') {
+                showFlash(`⚠️ This ticket was already used`, false, true);
+            } else {
+                showFlash(`❌ Cannot confirm invalid ticket`, true);
+            }
+        });
+
+        document.getElementById('rescanBtn').addEventListener('click', () => resetScanner());
+
+        // Camera and scanner initialization
+        function startScanner(camera = currentCamera) {
+            if (scanner) { try { scanner.stop(); } catch(e) {} }
+            scanner = new Instascan.Scanner({ video: document.getElementById('preview'), mirror: false, scanPeriod: 1, refractoryPeriod: 500 });
+            scanner.addListener('scan', (content) => processScan(content));
+            Instascan.Camera.getCameras().then(cameras => {
+                if (cameras.length > 0) {
+                    let selected = cameras.find(c => c.name.toLowerCase().includes(camera)) || cameras[0];
+                    scanner.start(selected);
+                    document.getElementById('cameraActive').style.display = 'block';
+                    showFlash('Camera ready! Position QR code in frame', false);
+                } else {
+                    showFlash('No cameras found', true);
+                }
+            }).catch(err => showFlash('Camera error: ' + err.message, true));
+        }
+
+        document.getElementById('startCamera').addEventListener('click', () => startScanner(currentCamera));
+        document.getElementById('switchCamera').addEventListener('click', () => {
+            currentCamera = currentCamera === 'environment' ? 'front' : 'environment';
+            startScanner(currentCamera);
+        });
+
+        // Handle visibility change to stop scanner when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && scanner) scanner.stop();
+        });
+
+        // Initialize after login
+        const loginContainer = document.getElementById('loginContainer');
+        const scannerContainer = document.getElementById('scannerContainer');
+        const splashScreen = document.getElementById('splashScreen');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const rememberCheckbox = document.getElementById('rememberMe');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // Load saved credentials
+        if (localStorage.getItem('scannerUser') === 'Staff') {
+            usernameInput.value = localStorage.getItem('scannerUser');
+            passwordInput.value = localStorage.getItem('scannerPass');
+            rememberCheckbox.checked = true;
+        }
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        function showLoginError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => errorMessage.classList.remove('show'), 3000);
+        }
+
+        function shakeCard() {
+            const card = document.querySelector('.login-card');
+            card.style.transform = 'translateX(0)';
+            card.style.transform = 'translateX(-5px)';
+            setTimeout(() => card.style.transform = 'translateX(5px)', 50);
+            setTimeout(() => card.style.transform = 'translateX(-5px)', 100);
+            setTimeout(() => card.style.transform = 'translateX(5px)', 150);
+            setTimeout(() => card.style.transform = 'translateX(0)', 200);
+        }
+
+        loginBtn.addEventListener('click', function() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!username) { showLoginError('Please enter your username'); shakeCard(); return; }
+            if (!password) { showLoginError('Please enter your password'); shakeCard(); return; }
+
+            if (username === 'Staff' && password === 'randscapetown') {
+                if (rememberCheckbox.checked) {
+                    localStorage.setItem('scannerUser', username);
+                    localStorage.setItem('scannerPass', password);
+                } else {
+                    localStorage.removeItem('scannerUser');
+                    localStorage.removeItem('scannerPass');
+                }
+
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Logging in...';
+                loginBtn.disabled = true;
+
+                setTimeout(() => {
+                    loginContainer.classList.remove('active');
+                    scannerContainer.classList.add('visible');
+                    showFlash('Welcome! Camera ready to scan', false);
+                    loadTickets(); // load tickets from storage
+                }, 800);
+            } else {
+                showLoginError('Invalid username or password');
+                shakeCard();
+                usernameInput.style.borderColor = '#ef4444';
+                passwordInput.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    usernameInput.style.borderColor = '';
+                    passwordInput.style.borderColor = '';
+                }, 2000);
+            }
+        });
+
+        document.querySelector('.forgot-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginError('Contact your system administrator to reset your password');
+        });
+
+        document.getElementById('username').addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+        document.getElementById('password').addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+
+        // Splash screen duration
+        setTimeout(() => {
+            splashScreen.classList.add('fade-out');
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                loginContainer.classList.add('active');
+            }, 800);
+        }, 2500);
+
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 6 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 8 + 4}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Light/Dark Mode Toggle
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const modeText = document.getElementById('modeText');
+
+        function toggleMode() {
+            const body = document.body;
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                modeIcon.className = 'fas fa-sun';
+                modeText.textContent = 'Light Mode';
+                localStorage.setItem('mobileScannerMode', 'dark');
+            } else {
+                body.classList.add('light-mode');
+                modeIcon.className = 'fas fa-moon';
+                modeText.textContent = 'Dark Mode';
+                localStorage.setItem('mobileScannerMode', 'light');
+            }
+        }
+
+        const savedMode = localStorage.getItem('mobileScannerMode');
+        if (savedMode === 'light') {
+            document.body.classList.add('light-mode');
+            modeIcon.className = 'fas fa-moon';
+            modeText.textContent = 'Dark Mode';
+        }
+
+        modeToggle.addEventListener('click', toggleMode);
+    </script>
+</body>
+</html>
