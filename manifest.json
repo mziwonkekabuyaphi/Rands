@@ -1,9 +1,9 @@
 {
-  "name": "Rands Wallet",
+  "name": "Rands Vibe Pass",
   "short_name": "Rands",
   "description": "Secure digital wallet for everyday transactions",
-  "start_url": "/Wallet-/",
-  "scope": "/Wallet-/",
+  "start_url": "/Rands/index.html",
+  "scope": "/Rands/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#E31B23",
@@ -72,17 +72,17 @@
   ],
   "shortcuts": [
     {
-      "name": "Send Money",
-      "short_name": "Send",
-      "description": "Quickly send money",
-      "url": "/Rands/wallet.html",
+      "name": "Home",
+      "short_name": "Home",
+      "description": "Go to home page",
+      "url": "/Rands/home.html",
       "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "View Balance",
-      "short_name": "Balance",
-      "description": "Check your wallet balance",
-      "url": "/Rands/wallet.html",
+      "name": "Send Money",
+      "short_name": "Send",
+      "description": "Quickly send money",
+      "url": "/Rands/transact.html",
       "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ],
