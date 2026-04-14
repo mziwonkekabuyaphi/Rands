@@ -458,12 +458,33 @@
     updateMessageContent(currentMessage);
   }
   
-  // REDIRECT TO LOGIN.HTML (UPDATED)
+  // CHECK LOGIN STATUS - Added without breaking existing code
+  function checkLoginStatus() {
+    // Check for various possible login indicators
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userToken = localStorage.getItem('userToken');
+    const userSession = sessionStorage.getItem('userSession');
+    const authToken = localStorage.getItem('authToken');
+    
+    // Return true if any login indicator exists
+    return isLoggedIn || userToken || userSession || authToken;
+  }
+  
+  // REDIRECT TO LOGIN OR HOME BASED ON LOGIN STATUS (UPDATED)
   function redirectToLogin() {
     if (!hasRedirected) {
       hasRedirected = true;
-      // Redirect to login.html as requested (core authentication page)
-      window.location.href = 'login.html';
+      
+      // Check if user is already logged in
+      const userIsLoggedIn = checkLoginStatus();
+      
+      if (userIsLoggedIn) {
+        // User is logged in - go to home page
+        window.location.href = 'home.html';
+      } else {
+        // User is not logged in - go to login page
+        window.location.href = 'login.html';
+      }
     }
   }
   
