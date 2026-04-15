@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* All styles remain the same - keeping compact for response */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; padding-bottom: 80px; }
         .wallet-container { max-width: 480px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 48px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); overflow: hidden; position: relative; min-height: 700px; display: flex; flex-direction: column; }
@@ -228,7 +227,7 @@
                     <div class="logo-text"><h2>Rands Vibe Passport</h2><p>Your Digital Lifestyle Wallet</p></div>
                 </div>
                 <div class="header-icons">
-                    <div class="icon-btn" @click="showAlert('Profile settings coming soon')"><i class="fas fa-user-circle"></i></div>
+                    <div class="icon-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
                     <div class="icon-btn" @click="showAlert('🔔 No new notifications')"><i class="far fa-bell"></i><span class="notification-dot"></span></div>
                 </div>
             </div>
