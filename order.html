@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>Rands POS | Customer Order</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222; min-height: 100vh; overflow-x: hidden; }
+
+/* Rands Color Theme: Red (#b30000 / #cc0000) and White (#fff / #f5f5f5) */
+.pos-container { min-height: 100vh; padding: 16px; background: #fff; display: block; }
+
+/* Mobile-first quick status - red & white theme */
+.quick-status { 
+    background: #b30000; 
+    padding: 12px 18px; 
+    border-radius: 40px; 
+    border: none; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px; 
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; animation: pulse 1.5s infinite; flex-shrink: 0; }
+@keyframes pulse { 0% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0.7); } 70% { opacity: 0.7; box-shadow: 0 0 0 10px rgba(255,255,255,0); } 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
+.status-text { color: #fff; font-weight: bold; font-size: 14px; }
+.status-stats { display: flex; gap: 15px; color: #ffe0e0; font-size: 13px; }
+.status-stats span { color: #fff; font-weight: bold; }
+.back-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 30px; cursor: pointer; font-size: 13px; white-space: nowrap; text-decoration: none; display: inline-block; }
+.back-btn:hover { background: rgba(255,255,255,0.3); }
+.vendor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.current-vendor { background: #b30000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; color: #fff; }
+
+/* Tab Navigation Styles */
+.tab-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: #f5f5f5;
+    padding: 6px;
+    border-radius: 60px;
+}
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+.tab-btn.active {
+    background: #b30000;
+    color: white;
+    box-shadow: 0 2px 8px rgba(179,0,0,0.3);
+}
+.tab-btn:not(.active):hover {
+    background: #e0e0e0;
+    color: #b30000;
+}
+
+/* Customer active bar - red theme */
+.customer-active-bar { background: #b30000; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: #fff; }
+.customer-active-bar span:first-child { font-weight: bold; }
+.reset-order-btn { background: #fff; color: #b30000; border: none; padding: 6px 14px; border-radius: 30px; cursor: pointer; font-size: 12px; font-weight: bold; }
+.reset-order-btn:hover { background: #ffe0e0; }
+
+/* Mobile friendly grid: menu and cart stacked */
+.pos-main-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.menu-section { background: #fff; border-radius: 20px; padding: 16px; order: 1; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.cart-section { order: 2; }
+
+.cart-container { background: #fff; border: 2px solid #b30000; border-radius: 20px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.cart-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 20px; font-weight: bold; color: #b30000; }
+.cart-header span:last-child { background: #b30000; padding: 5px 15px; border-radius: 30px; font-size: 14px; color: white; margin-left: auto; }
+.cart-items { max-height: 350px; overflow-y: auto; margin-bottom: 15px; min-height: 100px; }
+.cart-item { background: #f9f9f9; border-radius: 14px; padding: 12px; margin-bottom: 8px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.cart-item-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+.cart-item-details { flex: 1; }
+.cart-item-name { font-weight: bold; color: #b30000; font-size: 15px; }
+.cart-item-price { font-size: 12px; color: #888; }
+.cart-item-quantity { display: flex; align-items: center; gap: 10px; }
+.cart-qty-btn { width: 32px; height: 32px; border-radius: 50%; background: #b30000; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 16px; }
+.cart-item-total { color: #b30000; font-weight: bold; min-width: 70px; text-align: right; }
+.cart-remove { background: none; border: none; color: #b30000; cursor: pointer; font-size: 20px; padding: 5px 8px; }
+.cart-summary { background: #f5f5f5; border-radius: 12px; padding: 15px; margin: 15px 0; }
+.cart-summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.cart-summary-total { color: #b30000; font-weight: bold; font-size: 20px; }
+.cart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cart-btn { background: #b30000; border: none; padding: 12px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+.cart-btn.secondary { background: #f0f0f0; color: #b30000; border: 1px solid #b30000; }
+.menu-item { background: #fff; border-radius: 14px; padding: 14px; border: 1px solid #eee; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.menu-item:hover { border-color: #b30000; transform: scale(1.02); box-shadow: 0 4px 12px rgba(179,0,0,0.15); }
+.add-to-cart-btn { background: #b30000; border: none; padding: 10px; border-radius: 40px; color: white; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 14px; }
+.vendor-group { margin-bottom: 20px; background: #fafafa; border-radius: 12px; padding: 10px; }
+.vendor-group h5 { color: #b30000; margin: 0 0 10px 0; border-bottom: 2px solid #b30000; padding-bottom: 5px; font-size: 16px; }
+.footer { margin-top: 30px; padding: 20px 0; text-align: center; color: #888; border-top: 1px solid #eee; font-size: 12px; }
+.footer .creator { color: #b30000; font-weight: bold; }
+
+/* PIN Modal - FULLY FLEXIBLE & SCROLLABLE for small phones */
+.pin-modal { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    background: rgba(0,0,0,0.85); 
+    z-index: 4000; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    display: none; 
+    padding: 16px;
+    overflow-y: auto;
+}
+.pin-modal.active { display: flex; }
+.pin-modal-content { 
+    background: #fff; 
+    border-radius: 28px; 
+    padding: 24px; 
+    max-width: 400px; 
+    width: 100%; 
+    margin: auto;
+    border: 2px solid #b30000;
+    max-height: 95vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.pin-header { text-align: center; margin-bottom: 20px; }
+.pin-header h3 { color: #b30000; font-size: 24px; }
+.pin-display { background: #f5f5f5; padding: 20px; border-radius: 16px; margin-bottom: 20px; text-align: center; }
+.pin-digits { font-size: 40px; letter-spacing: 15px; font-weight: bold; color: #b30000; font-family: monospace; }
+.pin-digits-placeholder { font-size: 40px; letter-spacing: 15px; font-weight: bold; color: #ccc; font-family: monospace; }
+.pin-keypad { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 12px; 
+    margin-bottom: 20px; 
+}
+.pin-key { 
+    background: #f0f0f0; 
+    border: 1px solid #ddd; 
+    padding: 18px; 
+    border-radius: 60px; 
+    color: #b30000; 
+    font-size: 26px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: all 0.2s;
+}
+.pin-key:hover { background: #b30000; color: white; border-color: #b30000; }
+.pin-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pin-action-btn { padding: 14px; border: none; border-radius: 60px; font-weight: bold; cursor: pointer; font-size: 16px; }
+.pin-action-btn.cancel { background: #f0f0f0; color: #b30000; border: 1px solid #ddd; }
+.pin-action-btn.submit { background: #b30000; color: white; }
+.pin-error { color: #b30000; text-align: center; margin-top: 10px; display: none; }
+.pin-error.show { display: block; }
+
+#quickCartModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 16px; }
+#quickCartModal > div { background: #fff; width: 100%; max-width: 500px; border-radius: 24px; padding: 20px; border: 2px solid #b30000; max-height: 80vh; overflow-y: auto; }
+.notification { position: fixed; top: 80px; right: 20px; background: #b30000; color: white; padding: 14px 18px; border-radius: 16px; display: flex; align-items: center; gap: 12px; z-index: 1500; box-shadow: 0 5px 20px rgba(0,0,0,0.3); max-width: 320px; animation: slideInRight 0.3s ease; font-size: 14px; }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* Enhanced mobile responsiveness */
+@media (max-width: 640px) {
+    .pos-container { padding: 12px; }
+    .quick-status { flex-direction: column; align-items: stretch; gap: 8px; }
+    .status-stats { justify-content: space-between; }
+    .back-btn { align-self: flex-start; width: fit-content; }
+    .vendor-header { flex-direction: row; justify-content: space-between; }
+    .tab-nav { margin-bottom: 16px; }
+    .tab-btn { padding: 10px 12px; font-size: 14px; }
+    .cart-item { flex-direction: column; align-items: stretch; }
+    .cart-item-left { width: 100%; }
+    .cart-item-quantity { justify-content: center; }
+    .cart-actions { grid-template-columns: 1fr; gap: 8px; }
+    .cart-btn { width: 100%; }
+    .pin-key { padding: 14px; font-size: 22px; }
+    .notification { left: 16px; right: 16px; top: auto; bottom: 20px; width: auto; }
+    .pin-modal-content { padding: 20px; max-height: 90vh; }
+    .pin-keypad { gap: 8px; }
+    .pin-key { padding: 14px; font-size: 22px; }
+}
+
+/* make menu grid responsive on mobile */
+#vendorMenu {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+</style>
+</head>
+<body style="background: #fff;">
+
+<div class="pos-container" id="posContainer">
+    <div class="quick-status">
+        <a href="home.html" class="back-btn">← BACK</a>
+        <div class="status-dot"></div>
+        <div class="status-text">ORDER READY</div>
+        <div class="status-stats"><div></div></div>
+    </div>
+    <div class="vendor-header">
+        <h3>Select Your Counter</h3>
+        <span class="current-vendor" id="currentVendorDisplay">All Rands Counters</span>
+    </div>
+    
+    <!-- Tab Navigation instead of dropdown -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-vendor="all">🏪 All Counters</button>
+        <button class="tab-btn" data-vendor="Rands Smart Counter">🍺 Smart Counter</button>
+        <button class="tab-btn" data-vendor="The Butcher Shop">🥩 Butcher Shop</button>
+    </div>
+
+    <!-- Active customer session (auto-logged in) -->
+    <div class="customer-active-bar" id="customerActiveBar">
+        <span>✅ You are logged in as <strong id="activeCustomerName">Customer</strong></span>
+        <button class="reset-order-btn" onclick="resetOrder()">🔄 New Order</button>
+    </div>
+
+    <div class="pos-main-grid">
+        <div class="menu-section"><h4 style="margin-top:0; margin-bottom:12px; color:#b30000;">🍽️ MENU ITEMS</h4><div id="vendorMenu"></div></div>
+        <div class="cart-section">
+            <div class="cart-container">
+                <div class="cart-header"><span id="cartTitle">Your Rands Order</span><span id="cartItemCount">0</span></div>
+                <div id="cartItems" class="cart-items"></div>
+                <div class="cart-summary"><div class="cart-summary-row"><span>Total:</span><span class="cart-summary-total" id="cartSubtotal">R0</span></div><div style="display:flex; justify-content:space-between; color:#888;"><span>Items:</span><span id="cartTotalItems">0</span></div></div>
+                <div class="cart-actions"><button class="cart-btn" onclick="checkoutCart()" id="checkoutBtn" style="grid-column:span 2;" disabled>💳 CHECKOUT (R<span id="checkoutAmount">0</span>)</button><button class="cart-btn secondary" onclick="clearCart()">🗑️ CLEAR</button><button class="cart-btn secondary" onclick="showQuickCart()">📋 QUICK VIEW</button></div>
+            </div>
+        </div>
+    </div>
+    <div id="quickCartModal"><div><h3 style="color:#b30000; display:flex; justify-content:space-between;"><span id="quickCartModalTitle">Your Rands Order</span><button onclick="closeQuickCart()" style="background:none; border:none; color:#b30000; font-size:20px;">✕</button></h3><div id="quickCartItems" style="max-height:400px; overflow-y:auto; margin-bottom:15px;"></div><div style="background:#f5f5f5; padding:15px; border-radius:8px;"><div style="display:flex; justify-content:space-between;"><span>Total:</span><span style="color:#b30000; font-weight:bold;" id="quickCartTotal">R0</span></div></div><button onclick="closeQuickCart()" style="width:100%; background:#b30000; color:white; border:none; padding:12px; border-radius:8px; margin-top:15px;">CLOSE</button></div></div>
+    <div class="footer">Created by <span class="creator">Mziwonke KaBuyaphi</span></div>
+</div>
+
+<!-- PIN Modal - FLEXIBLE & SCROLLABLE for small phones -->
+<div id="pinModal" class="pin-modal"><div class="pin-modal-content"><div class="pin-header"><h3>🔐 Enter PIN to Pay</h3><p id="pinAccountDisplay"></p></div><div class="pin-display"><div id="pinDigits" class="pin-digits-placeholder">⚫⚫⚫⚫</div></div><div class="pin-keypad"><button class="pin-key" onclick="addPinDigit('1')">1</button><button class="pin-key" onclick="addPinDigit('2')">2</button><button class="pin-key" onclick="addPinDigit('3')">3</button><button class="pin-key" onclick="addPinDigit('4')">4</button><button class="pin-key" onclick="addPinDigit('5')">5</button><button class="pin-key" onclick="addPinDigit('6')">6</button><button class="pin-key" onclick="addPinDigit('7')">7</button><button class="pin-key" onclick="addPinDigit('8')">8</button><button class="pin-key" onclick="addPinDigit('9')">9</button><button class="pin-key clear" onclick="clearPin()">⌫</button><button class="pin-key zero" onclick="addPinDigit('0')">0</button><button class="pin-key clear" onclick="clearAllPin()">C</button></div><div class="pin-actions"><button class="pin-action-btn cancel" onclick="closePinModal()">CANCEL</button><button class="pin-action-btn submit" id="submitPinBtn" onclick="submitPin()" disabled>VERIFY</button></div><div id="pinError" class="pin-error"></div></div></div>
+
+<script>
+    // ========== SIMPLIFIED WALLET SYSTEM - Customer auto-login ==========
+    // Default customer account (would come from wallet login in real app)
+    let currentCustomer = {
+        id: "+27812345678",
+        name: "Mziwonke KaBuyaphi",
+        phone: "+27 81 234 5678",
+        balance: 2450,
+        pin: "1994"
+    };
+    
+    let accounts = [currentCustomer];
+    
+    function loadAccounts() {
+        const saved = localStorage.getItem('rands_accounts_v2');
+        if (saved) {
+            accounts = JSON.parse(saved);
+            // find and set current customer from saved or keep default
+            const found = accounts.find(acc => acc.id === currentCustomer.id);
+            if (found) currentCustomer = found;
+            else accounts.push(currentCustomer);
+        } else {
+            saveAccounts();
+        }
+        updateWalletUI();
+    }
+    
+    function saveAccounts() { 
+        localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts)); 
+    }
+    
+    function getWalletBalance() { return currentCustomer.balance; }
+    
+    function updateWalletBalance(newBalance) {
+        currentCustomer.balance = newBalance;
+        const accIndex = accounts.findIndex(a => a.id === currentCustomer.id);
+        if (accIndex !== -1) accounts[accIndex].balance = newBalance;
+        saveAccounts();
+        updateWalletUI();
+        // Also update legacy storage
+        localStorage.setItem(`wallet_${currentCustomer.id}`, newBalance);
+    }
+    
+    function addTransaction(desc, amount) {
+        let txHistory = JSON.parse(localStorage.getItem('rands_transactions') || '{}');
+        if (!txHistory[currentCustomer.id]) txHistory[currentCustomer.id] = [];
+        txHistory[currentCustomer.id].unshift({ desc, amount, date: new Date().toISOString().slice(0,10) });
+        localStorage.setItem('rands_transactions', JSON.stringify(txHistory));
+    }
+    
+    function updateWalletUI() {
+        document.getElementById("activeCustomerName").innerText = currentCustomer.name.split(" ")[0];
+    }
+
+    // ========== ORDER SYSTEM ==========
+    let currentCart = [];
+    let nextOrderId = 1000;
+    let pendingPinAccount = null;
+    let currentPin = "";
+    let checkoutTotal = 0;
+
+    const vendorMenus = {
+        "Rands Smart Counter": [
+            { name: "Castle Lager", price: 45, desc: "Classic South African lager" },
+            { name: "Windhoek Lager", price: 55, desc: "Premium Namibian beer" },
+            { name: "Heineken", price: 60, desc: "Dutch premium lager" },
+            { name: "Jameson & Coke", price: 75, desc: "Irish whiskey with coke" },
+            { name: "Jack Daniel's & Coke", price: 85, desc: "Tennessee whiskey" },
+            { name: "Smirnoff Vodka", price: 60, desc: "Single shot with mixer" }
+        ],
+        "The Butcher Shop": [
+            { name: "Boerewors Roll", price: 85, desc: "Traditional sausage with chakalaka" },
+            { name: "Steak & Chips", price: 150, desc: "Grilled rump steak with slap chips" },
+            { name: "Pap & Sous", price: 60, desc: "Maize meal with tomato relish" },
+            { name: "Bunny Chow", price: 120, desc: "Durban curry in bread" }
+        ]
+    };
+
+    // Function to update cart title based on selected vendor
+    function updateCartTitle(vendorValue) {
+        const cartTitleElement = document.getElementById('cartTitle');
+        const quickCartModalTitle = document.getElementById('quickCartModalTitle');
+        if (vendorValue === 'Rands Smart Counter') {
+            cartTitleElement.innerText = '🍺 Your Booze Bucket';
+            if (quickCartModalTitle) quickCartModalTitle.innerText = '🍺 Your Booze Bucket';
+        } else if (vendorValue === 'The Butcher Shop') {
+            cartTitleElement.innerText = '🥩 Your Platter';
+            if (quickCartModalTitle) quickCartModalTitle.innerText = '🥩 Your Platter';
+        } else {
+            cartTitleElement.innerText = '📦 Your Rands Order';
+            if (quickCartModalTitle) quickCartModalTitle.innerText = '📦 Your Rands Order';
+        }
+    }
+
+    // Tab navigation setup
+    function setupTabs() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all tabs
+                tabButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                // Get vendor value
+                const vendorValue = this.getAttribute('data-vendor');
+                // Update cart title based on selected vendor
+                updateCartTitle(vendorValue);
+                // Update the menu
+                updateVendorMenu(vendorValue);
+                // Update current vendor display
+                const vendorDisplay = document.getElementById('currentVendorDisplay');
+                if (vendorValue === 'all') {
+                    vendorDisplay.innerText = 'All Rands Counters';
+                } else if (vendorValue === 'Rands Smart Counter') {
+                    vendorDisplay.innerText = 'Smart Counter';
+                } else {
+                    vendorDisplay.innerText = 'Butcher Shop';
+                }
+            });
+        });
+    }
+    
+    function updateVendorMenu(filter = "all") {
+        let menuContainer = document.getElementById("vendorMenu");
+        menuContainer.innerHTML = "";
+        let vendorsToShow = filter === "all" ? ["Rands Smart Counter", "The Butcher Shop"] : [filter];
+        for (let vendor of vendorsToShow) {
+            let vendorHeader = document.createElement("div");
+            vendorHeader.style.gridColumn = "1 / -1";
+            vendorHeader.style.marginBottom = "10px";
+            vendorHeader.style.paddingBottom = "5px";
+            vendorHeader.style.borderBottom = "2px solid #b30000";
+            let icon = vendor === "Rands Smart Counter" ? "🍺" : "🥩";
+            vendorHeader.innerHTML = `<h5 style="color:#b30000;">${icon} ${vendor}</h5>`;
+            menuContainer.appendChild(vendorHeader);
+            vendorMenus[vendor].forEach(item => {
+                let card = document.createElement("div"); 
+                card.className = "menu-item";
+                card.innerHTML = `<div style="display:flex; justify-content:space-between;"><span style="font-size:20px;">${icon}</span><span style="background:#b30000; padding:3px 8px; border-radius:4px; color:white;">R${item.price}</span></div><div style="font-size:18px; font-weight:bold; margin:8px 0; color:#222;">${item.name}</div><div style="font-size:12px; color:#888;">${item.desc}</div><button class="add-to-cart-btn">ADD TO CART</button>`;
+                let btn = card.querySelector('.add-to-cart-btn');
+                btn.onclick = () => addToCart(item.name, item.price, vendor);
+                card.ondblclick = () => addToCart(item.name, item.price, vendor);
+                menuContainer.appendChild(card);
+            });
+        }
+    }
+    
+    function addToCart(itemName, itemPrice, vendor) {
+        let existing = currentCart.find(i => i.name === itemName && i.vendor === vendor);
+        if (existing) existing.quantity++;
+        else currentCart.push({ name: itemName, price: itemPrice, vendor: vendor, quantity: 1 });
+        updateCartDisplay();
+        showToast(`➕ ${itemName} added`, 'success');
+    }
+    
+    function updateCartDisplay() {
+        let subtotal = 0, totalItems = 0, html = "", grouped = {};
+        currentCart.forEach(item => { 
+            if (!grouped[item.vendor]) grouped[item.vendor] = []; 
+            grouped[item.vendor].push(item); 
+        });
+        for (let vendor in grouped) {
+            let icon = vendor === "Rands Smart Counter" ? "🍺" : "🥩";
+            html += `<div class="vendor-group"><h5>${icon} ${vendor}</h5>`;
+            grouped[vendor].forEach((item, idx) => {
+                let globalIdx = currentCart.findIndex(i => i.name === item.name && i.vendor === item.vendor);
+                let itemTotal = item.price * item.quantity;
+                subtotal += itemTotal; 
+                totalItems += item.quantity;
+                html += `<div class="cart-item"><div class="cart-item-left"><div class="cart-item-details"><div class="cart-item-name">${item.name}</div><div class="cart-item-price">R${item.price} each</div></div></div><div class="cart-item-quantity"><button onclick="updateQuantity(${globalIdx}, -1)" class="cart-qty-btn">−</button><span>${item.quantity}</span><button onclick="updateQuantity(${globalIdx}, 1)" class="cart-qty-btn">+</button></div><span class="cart-item-total">R${itemTotal}</span><button onclick="removeFromCart(${globalIdx})" class="cart-remove">✕</button></div>`;
+            });
+            html += `</div>`;
+        }
+        document.getElementById("cartItems").innerHTML = html || `<div class="cart-empty">Your cart is empty. Add items from menu!</div>`;
+        document.getElementById("cartItemCount").innerText = totalItems;
+        document.getElementById("cartSubtotal").innerText = "R" + subtotal;
+        document.getElementById("cartTotalItems").innerText = totalItems;
+        document.getElementById("checkoutBtn").disabled = currentCart.length === 0;
+        document.getElementById("checkoutAmount").innerText = subtotal;
+    }
+    
+    function updateQuantity(index, change) { 
+        if (index >= 0 && index < currentCart.length) { 
+            currentCart[index].quantity += change; 
+            if (currentCart[index].quantity <= 0) currentCart.splice(index, 1); 
+            updateCartDisplay(); 
+        } 
+    }
+    
+    function removeFromCart(index) { currentCart.splice(index, 1); updateCartDisplay(); }
+    function clearCart() { currentCart = []; updateCartDisplay(); showToast("Cart cleared", 'info'); }
+    function resetOrder() { clearCart(); showToast("New order started", 'success'); }
+    
+    function showQuickCart() {
+        if (currentCart.length === 0) { alert("Your order is empty"); return; }
+        let subtotal = 0, html = "", grouped = {};
+        currentCart.forEach(item => { if (!grouped[item.vendor]) grouped[item.vendor] = []; grouped[item.vendor].push(item); });
+        for (let vendor in grouped) {
+            html += `<div style="margin-top:10px;"><span style="color:#b30000;">${vendor}</span></div>`;
+            grouped[vendor].forEach(item => { let total = item.price * item.quantity; subtotal += total; html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;"><div>${item.quantity}x ${item.name}</div><div style="color:#b30000;">R${total}</div></div>`; });
+        }
+        document.getElementById("quickCartItems").innerHTML = html;
+        document.getElementById("quickCartTotal").innerText = "R" + subtotal;
+        document.getElementById("quickCartModal").style.display = "flex";
+    }
+    function closeQuickCart() { document.getElementById("quickCartModal").style.display = "none"; }
+    
+    function sendOrderToVendor(vendor, order) {
+        let storageKey = vendor === "Rands Smart Counter" ? "rands_smart_counter_orders" : "the_butcher_shop_orders";
+        let existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        existing.push(order);
+        localStorage.setItem(storageKey, JSON.stringify(existing));
+    }
+    
+    function checkoutCart() {
+        if (currentCart.length === 0) { showToast("Your cart is empty", 'error'); return; }
+        let total = currentCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+        let availableBalance = getWalletBalance();
+        if (availableBalance < total) { 
+            showToast(`Insufficient balance! Need R${total}, have R${availableBalance}`, 'error'); 
+            return; 
+        }
+        checkoutTotal = total;
+        pendingPinAccount = currentCustomer.id;
+        document.getElementById("pinAccountDisplay").innerHTML = `Account: <span style="color:#b30000;">${currentCustomer.id}</span><br><span style="font-size:12px;">Amount: R${total}</span>`;
+        document.getElementById("pinModal").classList.add("active");
+        clearAllPin();
+    }
+    
+    // PIN functions
+    function addPinDigit(d) { if (currentPin.length < 4) { currentPin += d; updatePinDisplay(); } }
+    function clearPin() { currentPin = currentPin.slice(0, -1); updatePinDisplay(); }
+    function clearAllPin() { currentPin = ""; updatePinDisplay(); }
+    function updatePinDisplay() {
+        let display = document.getElementById("pinDigits"), submitBtn = document.getElementById("submitPinBtn");
+        if (currentPin.length === 0) { display.className = "pin-digits-placeholder"; display.innerHTML = "⚫⚫⚫⚫"; }
+        else { display.className = "pin-digits"; let txt = ""; for (let i = 0; i < 4; i++) txt += i < currentPin.length ? "●" : "⚫"; display.innerHTML = txt; }
+        submitBtn.disabled = currentPin.length !== 4;
+    }
+    
+    function submitPin() {
+        if (currentPin.length !== 4 || !pendingPinAccount) return;
+        if (currentCustomer.pin === currentPin) {
+            processPayment();
+            closePinModal();
+        } else {
+            document.getElementById("pinError").classList.add("show");
+            document.getElementById("pinError").innerHTML = "Incorrect PIN";
+            clearAllPin();
+        }
+    }
+    
+    function processPayment() {
+        let total = checkoutTotal;
+        const newBalance = currentCustomer.balance - total;
+        updateWalletBalance(newBalance);
+        addTransaction(`💳 POS Purchase (${new Date().toLocaleTimeString()})`, -total);
+        
+        // Send orders to vendors
+        let ordersByVendor = {};
+        currentCart.forEach(item => { 
+            if (!ordersByVendor[item.vendor]) ordersByVendor[item.vendor] = []; 
+            ordersByVendor[item.vendor].push({ name: item.name, price: item.price, quantity: item.quantity }); 
+        });
+        for (let vendor in ordersByVendor) {
+            let orderTotal = ordersByVendor[vendor].reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            let order = { orderId: nextOrderId++, bandId: currentCustomer.id, items: ordersByVendor[vendor], total: orderTotal, timestamp: new Date().toLocaleTimeString(), status: "pending" };
+            sendOrderToVendor(vendor, order);
+        }
+        
+        showToast(`✅ Payment successful! R${total} paid. New balance: R${newBalance.toFixed(2)}`, 'success');
+        clearCart();
+    }
+    
+    function closePinModal() {
+        document.getElementById("pinModal").classList.remove("active");
+        pendingPinAccount = null;
+        clearAllPin();
+        document.getElementById("pinError").classList.remove("show");
+    }
+    
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.bottom = '30px';
+        toast.style.left = '20px';
+        toast.style.right = '20px';
+        toast.style.background = type === 'success' ? '#b30000' : type === 'error' ? '#b30000' : '#b30000';
+        toast.style.color = 'white';
+        toast.style.padding = '15px';
+        toast.style.borderRadius = '60px';
+        toast.style.textAlign = 'center';
+        toast.style.fontWeight = 'bold';
+        toast.style.zIndex = '1000';
+        toast.style.maxWidth = '350px';
+        toast.style.margin = '0 auto';
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // Initialize
+    loadAccounts();
+    setupTabs();
+    updateVendorMenu("all");
+    updateCartTitle("all");
+    updateWalletUI();
+    updateCartDisplay();
+</script>
+</body>
+</html>
