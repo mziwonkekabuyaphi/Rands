@@ -17,8 +17,18 @@
         .stunning-header::after { content: ''; position: absolute; bottom: -20px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
         .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; position: relative; z-index: 2; }
         .logo-badge { display: flex; align-items: center; gap: 12px; }
-        .logo-circle { width: 48px; height: 48px; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); overflow: hidden; }
-        .logo-circle img { width: 100%; height: 100%; object-fit: cover; }
+        /* Logo container - no circle, just direct image */
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        .logo-image {
+            height: 55px;
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
+            display: block;
+        }
         .logo-text h2 { font-size: 1.1rem; font-weight: 700; color: white; letter-spacing: -0.3px; }
         .logo-text p { font-size: 0.55rem; color: rgba(255,255,255,0.8); }
         .header-icons { display: flex; align-items: center; gap: 12px; }
@@ -214,7 +224,59 @@
         .vvip-band-info strong { color: #1a1a2e; font-weight: 700; }
         .feature-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(227,6,19,0.08); padding: 6px 14px; border-radius: 40px; font-size: 0.7rem; color: #E30613; margin: 4px; font-weight: 600; border: 0.5px solid rgba(227,6,19,0.3); }
         .instruction-text { font-size: 0.65rem; color: #888; margin-top: 18px; text-align: center; letter-spacing: 0.5px; }
-        @media (max-width: 480px) { .wallet-container { border-radius: 32px; } .balance-amount { font-size: 1.8rem; } .stunning-header { padding: 20px 20px 32px 20px; } .counter-option, .refund-modal, .payment-modal, .booze-option { padding: 20px; } .counter-icon, .booze-icon { width: 50px; height: 50px; } .counter-icon i, .booze-icon i { font-size: 1.5rem; } .refund-modal, .payment-modal { max-height: 80vh; } .main-title { font-size: 1.5rem; } .shisha-grid-4 { grid-template-columns: repeat(2, 1fr); } }
+        
+        /* Auth options styles */
+        .auth-options-row {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0 16px;
+            justify-content: center;
+        }
+        .auth-option {
+            flex: 1;
+            background: #f8fafd;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .auth-option:active { transform: scale(0.96); background: #fff0f0; border-color: #E30613; }
+        .auth-option i { font-size: 1.5rem; color: #E30613; margin-bottom: 6px; display: block; }
+        .auth-option span { font-size: 0.7rem; font-weight: 600; color: #1e293b; display: block; }
+        .auth-option small { font-size: 0.6rem; color: #94a3b8; display: block; margin-top: 4px; }
+        .divider-text {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin: 12px 0;
+            position: relative;
+        }
+        .divider-text::before,
+        .divider-text::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .divider-text::before { left: 0; }
+        .divider-text::after { right: 0; }
+        
+        @media (max-width: 480px) { 
+            .wallet-container { border-radius: 32px; } 
+            .balance-amount { font-size: 1.8rem; } 
+            .stunning-header { padding: 20px 20px 32px 20px; } 
+            .counter-option, .refund-modal, .payment-modal, .booze-option { padding: 20px; } 
+            .counter-icon, .booze-icon { width: 50px; height: 50px; } 
+            .counter-icon i, .booze-icon i { font-size: 1.5rem; } 
+            .refund-modal, .payment-modal { max-height: 80vh; } 
+            .main-title { font-size: 1.5rem; } 
+            .shisha-grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .logo-image { height: 45px; }
+        }
     </style>
 </head>
 <body>
@@ -223,12 +285,15 @@
         <div class="stunning-header">
             <div class="header-top-row">
                 <div class="logo-badge">
-                    <div class="logo-circle"><img src="images/rands-logo.png" alt="Rands Vibe Passport" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'"></div>
+                    <!-- Logo changed to direct image - no circle, larger display -->
+                    <div class="logo-container">
+                        <img src="images/rands-logo3.png" alt="Rands Vibe Passport" class="logo-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 60\'%3E%3Crect width=\'200\' height=\'60\' fill=\'%23E30613\'/%3E%3Ctext x=\'15\' y=\'38\' font-size=\'24\' text-anchor=\'start\' fill=\'white\' font-weight=\'bold\'%3ERands%3C/text%3E%3Ctext x=\'95\' y=\'38\' font-size=\'20\' text-anchor=\'start\' fill=\'%23FFD700\'%3EVibe%3C/text%3E%3C/svg%3E'">
+                    </div>
                     <div class="logo-text"><h2>Rands Vibe Passport</h2><p>Your Digital Lifestyle Wallet</p></div>
                 </div>
                 <div class="header-icons">
                     <div class="icon-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
-                    <div class="icon-btn" @click="showAlert('🔔 No new notifications')"><i class="far fa-bell"></i><span class="notification-dot"></span></div>
+                    <div class="icon-btn" @click="openBackOfficeModal"><i class="fas fa-building"></i><span class="notification-dot"></span></div>
                 </div>
             </div>
             <div class="welcome-section"><div class="greeting">Wamkelekile,</div><div class="user-name">Mziwonke 👋</div></div>
@@ -240,7 +305,6 @@
                 <div class="action-card-primary" @click="openWithdrawModal()"><div class="action-icon-bg"><i class="fas fa-arrow-up"></i></div><div class="action-text"><h4>Withdraw</h4><p>To bank or wallet</p></div></div>
             </div>
             <div class="action-row-secondary">
-                <!-- "Pay Counter" button changed to "Order Now" that redirects to order.html -->
                 <div class="action-pill" onclick="window.location.href='order.html'"><i class="fas fa-shopping-cart"></i><span>Order Now</span></div>
                 <div class="action-pill" @click="openRefundModal()"><i class="fas fa-undo-alt"></i><span>Request Refund</span></div>
             </div>
@@ -277,11 +341,52 @@
         </div>
     </div>
 
+    <!-- Back Office Staff Modal (with Face & Fingerprint auth options) -->
+    <div id="backOfficeModalOverlay" class="modal-overlay" :class="{ active: backOfficeModalVisible }" @click.self="closeBackOfficeModal">
+        <div class="payment-modal" style="max-width: 380px;">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-building"></i></div>
+                <h3>Rands Back Office</h3>
+                <p style="font-size:0.75rem; color:#64748b;">Staff Access Portal</p>
+            </div>
+            <div class="refund-note" style="background: #fff8e7; border-color: #E30613;">
+                <i class="fas fa-shield-alt" style="color: #E30613;"></i>
+                <span><strong>⚠️ STAFF ONLY ⚠️</strong><br>This area is restricted to authorized personnel only.</span>
+            </div>
+            
+            <!-- Biometric Auth Options (Visual only - shows security features) -->
+            <div class="auth-options-row">
+                <div class="auth-option" @click="showBiometricMessage('Face Recognition')">
+                    <i class="fas fa-face-smile"></i>
+                    <span>Face ID</span>
+                    <small>Secure biometric</small>
+                </div>
+                <div class="auth-option" @click="showBiometricMessage('Fingerprint')">
+                    <i class="fas fa-fingerprint"></i>
+                    <span>Fingerprint</span>
+                    <small>Touch to verify</small>
+                </div>
+            </div>
+            <div class="divider-text">OR</div>
+            
+            <!-- PIN/Password Input (now accepts text, not just numbers) -->
+            <div class="pin-prompt" style="background: #fef2f2; margin-bottom: 24px;">
+                <i class="fas fa-key" style="color: #E30613;"></i>
+                <input type="text" class="pin-input" v-model="staffPin" placeholder="Enter staff password" ref="staffPinInput" @keyup.enter="confirmBackOfficeAccess" style="letter-spacing: normal; font-family: 'Inter', monospace; max-width: 200px;">
+                <i class="fas fa-lock" style="color: #64748b;"></i>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-decline" @click="closeBackOfficeModal">Cancel</button>
+                <button class="modal-btn btn-primary" @click="confirmBackOfficeAccess">Access</button>
+            </div>
+            <p style="font-size:0.6rem; text-align:center; margin-top:16px; color:#94a3b8;">🔐 Multi-layer security | Authorized personnel only</p>
+        </div>
+    </div>
+
     <div id="alertModalOverlay" class="alert-modal-overlay"><div class="alert-modal"><div class="alert-modal-header"><i class="fas fa-info-circle"></i><h3>Notice</h3></div><div class="alert-modal-body" id="alertModalMessage">Message here</div><div class="alert-modal-footer"><button class="alert-modal-btn" onclick="document.getElementById('alertModalOverlay').classList.remove('active')">Got It</button></div></div></div>
     <div class="modal-overlay" :class="{ active: depositModalVisible }" @click.self="closeDepositModal"><div class="transaction-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-arrow-down"></i></div><h3>Deposit Funds</h3><p style="font-size:0.75rem; color:#64748b;">Add money to your wallet</p></div><input type="number" class="transaction-amount-input" v-model="depositAmount" placeholder="Enter amount (R)" min="10" step="0.01"><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeDepositModal">Cancel</button><button class="modal-btn btn-primary" @click="processDeposit">Deposit</button></div></div></div>
     <div class="modal-overlay" :class="{ active: withdrawModalVisible }" @click.self="closeWithdrawModal"><div class="transaction-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-arrow-up"></i></div><h3>Withdraw Funds</h3><p style="font-size:0.75rem; color:#64748b;">Withdraw to your bank account</p></div><input type="number" class="transaction-amount-input" v-model="withdrawAmount" placeholder="Enter amount (R)" min="10" step="0.01"><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeWithdrawModal">Cancel</button><button class="modal-btn btn-primary" @click="processWithdraw">Withdraw</button></div></div></div>
     <div class="modal-overlay" :class="{ active: boozeModalVisible }" @click.self="closeBoozeModal"><div class="booze-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-lock"></i></div><h3>Booze Lockers</h3><p style="font-size:0.75rem; color:#64748b;">Manage your premium beverage storage</p></div><div class="booze-options"><div class="booze-option" @click="selectBoozeOption('keep')"><div class="booze-icon"><i class="fas fa-wine-bottle"></i></div><div class="booze-info"><h4>Keep Booze</h4><p>Store your bottles in our premium lockers</p></div></div><div class="booze-option" @click="selectBoozeOption('collect')"><div class="booze-icon"><i class="fas fa-hand-holding-heart"></i></div><div class="booze-info"><h4>Collect Booze</h4><p>Retrieve your stored bottles from lockers</p></div></div><div class="booze-option" @click="selectBoozeOption('vault')"><div class="booze-icon"><i class="fas fa-database"></i></div><div class="booze-info"><h4>My Booze Vault</h4><p>View all your stored beverages</p></div></div></div><div class="modal-buttons" style="margin-top: 8px;"><button class="modal-btn btn-decline" @click="closeBoozeModal">Cancel</button></div></div></div>
-    <!-- Removed counter modal since we replaced Pay Counter button with Order Now, but keep for safety (not used) -->
     <div class="modal-overlay" :class="{ active: counterModalVisible }" @click.self="closeCounterModal"><div class="counter-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-cash-register"></i></div><h3>Select Counter</h3><p style="font-size:0.75rem; color:#64748b;">Choose where you want to pay</p></div><div class="counter-options"><div class="counter-option" @click="selectCounter('rands')"><div class="counter-icon"><i class="fas fa-brain"></i></div><div class="counter-info"><h4>Rands Smart Counter</h4><p>Smart checkout • Fast service • Digital receipts</p></div></div><div class="counter-option" @click="selectCounter('butcher')"><div class="counter-icon"><i class="fas fa-drumstick-bite"></i></div><div class="counter-info"><h4>The Butcher Counter</h4><p>Premium meats • Butcher specials • Quick pickups</p></div></div></div><div class="modal-buttons" style="margin-top: 8px;"><button class="modal-btn btn-decline" @click="closeCounterModal">Cancel</button></div></div></div>
     <div class="modal-overlay" :class="{ active: refundModalVisible }" @click.self="closeRefundModal"><div class="refund-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-undo-alt"></i></div><h3>Request Refund</h3><p style="font-size:0.75rem; color:#64748b;">Submit a refund request for admin approval</p></div><div class="refund-note"><i class="fas fa-info-circle"></i><span>Refunds are processed within 3-5 business days after admin approval.</span></div><div class="form-group"><label>Refund Amount (R)</label><input type="number" v-model="refundRequest.amount" placeholder="Enter amount" min="10" step="0.01"></div><div class="form-group"><label>Payment Reference / Transaction ID</label><input type="text" v-model="refundRequest.transactionId" placeholder="e.g., TXN-12345678"></div><div class="form-group"><label>Reason for Refund</label><select v-model="refundRequest.reason"><option value="">Select a reason</option><option value="Duplicate payment">Duplicate payment</option><option value="Wrong amount charged">Wrong amount charged</option><option value="Product/service not received">Product/service not received</option><option value="Product defective/damaged">Product defective/damaged</option><option value="Cancelled order">Cancelled order</option><option value="Other">Other</option></select></div><div class="form-group"><label>Additional Details (Optional)</label><textarea v-model="refundRequest.details" placeholder="Please provide any additional information about your refund request..."></textarea></div><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeRefundModal">Cancel</button><button class="modal-btn btn-refund" @click="submitRefundRequest">Submit Request</button></div></div></div>
     <div class="modal-overlay" :class="{ active: paymentModalVisible }" @click.self="closeModal"><div class="payment-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-receipt"></i></div><h3>Payment Request</h3><p style="font-size:0.75rem; color:#64748b;">Vibe Passport payment requires approval</p></div><div class="payment-details"><div class="detail-row"><span class="detail-label">From</span><span class="detail-value">{{ pendingPayment.from }}</span></div><div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" style="color:#E30613; font-size:1.2rem;">R {{ formatPrice(pendingPayment.amount) }}</span></div><div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value">{{ pendingPayment.reference }}</span></div></div><div class="pin-prompt"><i class="fas fa-fingerprint"></i><input type="password" class="pin-input" v-model="securityPin" placeholder="Enter 4-digit PIN" maxlength="4" ref="pinInput" @keyup.enter="approvePayment"><i class="fas fa-shield-alt" style="color:#10b981;"></i></div><div class="modal-buttons"><button class="modal-btn btn-decline" @click="declinePayment"><i class="fas fa-times"></i> Decline</button><button class="modal-btn btn-approve" @click="approvePayment"><i class="fas fa-check"></i> Approve</button></div></div></div>
@@ -373,12 +478,14 @@
             depositModalVisible: false,
             withdrawModalVisible: false,
             boozeModalVisible: false,
+            backOfficeModalVisible: false,
             depositAmount: '',
             withdrawAmount: '',
             selectedCounter: null,
             refundRequest: { amount: '', transactionId: '', reason: '', details: '' },
             pendingPayment: { from: "Club A Kiosk #3", amount: 187.50, type: "Food & Drinks Order", kiosk: "Main Lobby", reference: "KIO-23841" },
             securityPin: "",
+            staffPin: "",
             toastVisible: false,
             toastMessage: "",
             toastTimer: null
@@ -397,6 +504,32 @@
                 this.toastTimer = setTimeout(() => { this.toastVisible = false; }, duration);
             },
             showAlert(message, title = 'Notice') { showScrollableAlert(message, title); },
+            showBiometricMessage(method) {
+                this.showAlert(`🔐 ${method} Authentication\n\nThis feature is coming soon. For now, please use your staff password to access the Back Office.\n\nYour security is our priority.`, "Security Feature");
+            },
+            openBackOfficeModal() {
+                this.staffPin = "";
+                this.backOfficeModalVisible = true;
+                setTimeout(() => { if (this.$refs.staffPinInput) this.$refs.staffPinInput.focus(); }, 300);
+            },
+            closeBackOfficeModal() {
+                this.backOfficeModalVisible = false;
+                this.staffPin = "";
+            },
+            confirmBackOfficeAccess() {
+                // Staff PIN check - using "randscapetown" (now accepts text, not just numbers)
+                if (this.staffPin === "randscapetown") {
+                    this.showToast("✅ Access granted. Redirecting to Event Manager...");
+                    this.closeBackOfficeModal();
+                    setTimeout(() => {
+                        window.location.href = "event-manager.html";
+                    }, 600);
+                } else {
+                    this.showAlert("⛔ ACCESS DENIED\n\nThis area is for authorized staff only.\nInvalid staff password. Unauthorized access attempt has been logged.", "Restricted Access");
+                    this.staffPin = "";
+                    if (this.$refs.staffPinInput) this.$refs.staffPinInput.focus();
+                }
+            },
             openDepositModal() { this.depositAmount = ''; this.depositModalVisible = true; },
             closeDepositModal() { this.depositModalVisible = false; this.depositAmount = ''; },
             processDeposit() {

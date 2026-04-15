@@ -195,15 +195,6 @@
             box-shadow: 0 4px 15px rgba(220,38,38,0.25);
         }
         
-        .tab-btn.staff-tab {
-            background: #1e293b;
-            color: white;
-        }
-        
-        .tab-btn.staff-tab:hover {
-            background: #dc2626;
-        }
-        
         .tickets-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -923,15 +914,14 @@
 
 <div class="tabs-container">
     <button class="tab-btn" id="tabStoreBtn"><i class="fas fa-store"></i> Ticket Store</button>
-    <button class="tab-btn active" id="tabWalletBtn"><i class="fas fa-wallet"></i> My Tickets</button>
-    <button class="tab-btn staff-tab" id="tabStaffBtn"><i class="fas fa-user-shield"></i> Staff Only</button>
+    <button class="tab-btn" id="tabWalletBtn"><i class="fas fa-wallet"></i> My Tickets</button>
 </div>
 
-<div id="walletPanel" style="width:100%; display:block;">
+<div id="walletPanel" style="width:100%; display:none;">
     <div id="walletTicketsGrid" class="tickets-grid"></div>
 </div>
 
-<div id="storePanel" style="width:100%; display:none;">
+<div id="storePanel" style="width:100%; display:block;">
     <div class="store-header-wrapper">
         <div class="event-selector">
             <label><i class="fas fa-calendar-alt"></i> Select Event:</label>
@@ -1391,10 +1381,6 @@
         checkoutBtn.onclick = performCheckout;
     }
     
-    function goToStaffPage() {
-        window.location.href = 'ticket-office.html';
-    }
-    
     function escapeHtml(str) { if(!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
     
     function switchTab(walletActive) {
@@ -1419,9 +1405,9 @@
         updateWalletUI();
         document.getElementById('tabWalletBtn').onclick = () => switchTab(true);
         document.getElementById('tabStoreBtn').onclick = () => switchTab(false);
-        document.getElementById('tabStaffBtn').onclick = goToStaffPage;
         document.getElementById('deletePastBtn').addEventListener('click', deletePastEventTickets);
-        switchTab(true);
+        // Default to Ticket Store (storePanel visible, walletPanel hidden)
+        switchTab(false);
         window.addEventListener('storage', (e) => { if(e.key === EVENTS_KEY){ loadEvents(); if(document.getElementById('storePanel').style.display !== 'none') populateEventSelectorStore(); updateWalletUI(); } if(e.key === TICKETS_KEY) updateWalletUI(); });
         
         if (typeof loadBottomNav === 'function') {
