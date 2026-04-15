@@ -11,32 +11,131 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
 /* Rands Color Theme: Red (#b30000 / #cc0000) and White (#fff / #f5f5f5) */
 .pos-container { min-height: 100vh; padding: 16px; background: #fff; display: block; }
 
-/* Mobile-first quick status - red & white theme */
+/* Mobile-first quick status - ENHANCED WOW HEADER */
 .quick-status { 
-    background: #b30000; 
-    padding: 12px 18px; 
-    border-radius: 40px; 
+    background: linear-gradient(135deg, #b30000 0%, #cc0000 100%);
+    padding: 16px 20px; 
+    border-radius: 30px; 
     border: none; 
     display: flex; 
-    align-items: center; 
+    align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 20px; 
+    margin-bottom: 24px; 
     width: 100%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 20px rgba(179,0,0,0.25);
+    position: relative;
+    overflow: hidden;
 }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; animation: pulse 1.5s infinite; flex-shrink: 0; }
-@keyframes pulse { 0% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0.7); } 70% { opacity: 0.7; box-shadow: 0 0 0 10px rgba(255,255,255,0); } 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
-.status-text { color: #fff; font-weight: bold; font-size: 14px; }
-.status-stats { display: flex; gap: 15px; color: #ffe0e0; font-size: 13px; }
+.quick-status::before {
+    content: "⚡";
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    font-size: 100px;
+    opacity: 0.08;
+    pointer-events: none;
+    transform: rotate(15deg);
+}
+.quick-status::after {
+    content: "₿";
+    position: absolute;
+    left: -15px;
+    bottom: -25px;
+    font-size: 90px;
+    opacity: 0.06;
+    pointer-events: none;
+    transform: rotate(-10deg);
+}
+.status-left-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.status-dot { 
+    width: 12px; 
+    height: 12px; 
+    border-radius: 50%; 
+    background: #fff; 
+    animation: pulse 1.5s infinite; 
+    flex-shrink: 0; 
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
+@keyframes pulse { 
+    0% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0.7); } 
+    70% { opacity: 0.7; box-shadow: 0 0 0 10px rgba(255,255,255,0); } 
+    100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0); } 
+}
+.status-text { 
+    color: #fff; 
+    font-weight: 800; 
+    font-size: 18px; 
+    letter-spacing: 1px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    background: rgba(255,255,255,0.15);
+    padding: 4px 12px;
+    border-radius: 40px;
+    backdrop-filter: blur(2px);
+}
+.status-stats { 
+    display: flex; 
+    gap: 20px; 
+    color: #ffe0e0; 
+    font-size: 13px; 
+    font-weight: 500;
+    background: rgba(0,0,0,0.15);
+    padding: 6px 14px;
+    border-radius: 40px;
+}
 .status-stats span { color: #fff; font-weight: bold; }
-.back-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 30px; cursor: pointer; font-size: 13px; white-space: nowrap; text-decoration: none; display: inline-block; }
-.back-btn:hover { background: rgba(255,255,255,0.3); }
+.back-btn { 
+    background: rgba(255,255,255,0.2); 
+    color: white; 
+    border: 1px solid rgba(255,255,255,0.5); 
+    padding: 8px 18px; 
+    border-radius: 40px; 
+    cursor: pointer; 
+    font-size: 14px; 
+    font-weight: 600;
+    white-space: nowrap; 
+    text-decoration: none; 
+    display: inline-block;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(2px);
+}
+.back-btn:hover { background: rgba(255,255,255,0.35); transform: scale(1.02); }
+
+/* Brand header area */
+.brand-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.brand-logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+.brand-mini .brand-name {
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #fff 0%, #ffe0e0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.brand-mini .brand-tag {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
 .vendor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
 .current-vendor { background: #b30000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; color: #fff; }
 
-/* Tab Navigation Styles */
+/* Tab Navigation Styles - only two tabs */
 .tab-nav {
     display: flex;
     gap: 8px;
@@ -67,11 +166,52 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
     color: #b30000;
 }
 
-/* Customer active bar - red theme */
-.customer-active-bar { background: #b30000; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: #fff; }
-.customer-active-bar span:first-child { font-weight: bold; }
-.reset-order-btn { background: #fff; color: #b30000; border: none; padding: 6px 14px; border-radius: 30px; cursor: pointer; font-size: 12px; font-weight: bold; }
-.reset-order-btn:hover { background: #ffe0e0; }
+/* Category Cards Styles */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.category-card {
+    background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+    border: 2px solid #b30000;
+    border-radius: 16px;
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(179,0,0,0.2);
+    background: #fff;
+}
+.category-card .category-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+.category-card .category-name {
+    font-weight: bold;
+    color: #b30000;
+    font-size: 14px;
+}
+.back-to-categories {
+    background: #f0f0f0;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 30px;
+    color: #b30000;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.back-to-categories:hover {
+    background: #e0e0e0;
+}
 
 /* Mobile friendly grid: menu and cart stacked */
 .pos-main-grid {
@@ -176,9 +316,10 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
 /* Enhanced mobile responsiveness */
 @media (max-width: 640px) {
     .pos-container { padding: 12px; }
-    .quick-status { flex-direction: column; align-items: stretch; gap: 8px; }
-    .status-stats { justify-content: space-between; }
-    .back-btn { align-self: flex-start; width: fit-content; }
+    .quick-status { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px; }
+    .status-left-group { justify-content: space-between; }
+    .status-stats { justify-content: center; }
+    .back-btn { align-self: center; width: fit-content; }
     .vendor-header { flex-direction: row; justify-content: space-between; }
     .tab-nav { margin-bottom: 16px; }
     .tab-btn { padding: 10px 12px; font-size: 14px; }
@@ -192,6 +333,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
     .pin-modal-content { padding: 20px; max-height: 90vh; }
     .pin-keypad { gap: 8px; }
     .pin-key { padding: 14px; font-size: 22px; }
+    .category-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    .category-card { padding: 15px 8px; }
+    .category-card .category-icon { font-size: 32px; }
 }
 
 /* make menu grid responsive on mobile */
@@ -206,41 +350,40 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
 
 <div class="pos-container" id="posContainer">
     <div class="quick-status">
+        <div class="status-left-group">
+            <div class="status-dot"></div>
+            <div class="brand-mini">
+                <img src="images/rands-logo2.png" alt="Rands" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'">
+                <span class="brand-name" style="display:none;">RANDS</span>
+                <span class="brand-tag">CASHLESS</span>
+            </div>
+        </div>
+        <div class="status-stats"><div>🎯 READY</div></div>
         <a href="home.html" class="back-btn">← BACK</a>
-        <div class="status-dot"></div>
-        <div class="status-text">ORDER READY</div>
-        <div class="status-stats"><div></div></div>
     </div>
     <div class="vendor-header">
         <h3>Select Your Counter</h3>
-        <span class="current-vendor" id="currentVendorDisplay">All Rands Counters</span>
+        <span class="current-vendor" id="currentVendorDisplay">Smart Counter</span>
     </div>
     
-    <!-- Tab Navigation instead of dropdown -->
+    <!-- Tab Navigation - only two counters -->
     <div class="tab-nav">
-        <button class="tab-btn active" data-vendor="all">🏪 All Counters</button>
-        <button class="tab-btn" data-vendor="Rands Smart Counter">🍺 Smart Counter</button>
+        <button class="tab-btn active" data-vendor="Rands Smart Counter">🍺 Smart Counter</button>
         <button class="tab-btn" data-vendor="The Butcher Shop">🥩 Butcher Shop</button>
-    </div>
-
-    <!-- Active customer session (auto-logged in) -->
-    <div class="customer-active-bar" id="customerActiveBar">
-        <span>✅ You are logged in as <strong id="activeCustomerName">Customer</strong></span>
-        <button class="reset-order-btn" onclick="resetOrder()">🔄 New Order</button>
     </div>
 
     <div class="pos-main-grid">
         <div class="menu-section"><h4 style="margin-top:0; margin-bottom:12px; color:#b30000;">🍽️ MENU ITEMS</h4><div id="vendorMenu"></div></div>
         <div class="cart-section">
             <div class="cart-container">
-                <div class="cart-header"><span id="cartTitle">Your Rands Order</span><span id="cartItemCount">0</span></div>
+                <div class="cart-header"><span id="cartTitle">Your Booze Bucket</span><span id="cartItemCount">0</span></div>
                 <div id="cartItems" class="cart-items"></div>
                 <div class="cart-summary"><div class="cart-summary-row"><span>Total:</span><span class="cart-summary-total" id="cartSubtotal">R0</span></div><div style="display:flex; justify-content:space-between; color:#888;"><span>Items:</span><span id="cartTotalItems">0</span></div></div>
                 <div class="cart-actions"><button class="cart-btn" onclick="checkoutCart()" id="checkoutBtn" style="grid-column:span 2;" disabled>💳 CHECKOUT (R<span id="checkoutAmount">0</span>)</button><button class="cart-btn secondary" onclick="clearCart()">🗑️ CLEAR</button><button class="cart-btn secondary" onclick="showQuickCart()">📋 QUICK VIEW</button></div>
             </div>
         </div>
     </div>
-    <div id="quickCartModal"><div><h3 style="color:#b30000; display:flex; justify-content:space-between;"><span id="quickCartModalTitle">Your Rands Order</span><button onclick="closeQuickCart()" style="background:none; border:none; color:#b30000; font-size:20px;">✕</button></h3><div id="quickCartItems" style="max-height:400px; overflow-y:auto; margin-bottom:15px;"></div><div style="background:#f5f5f5; padding:15px; border-radius:8px;"><div style="display:flex; justify-content:space-between;"><span>Total:</span><span style="color:#b30000; font-weight:bold;" id="quickCartTotal">R0</span></div></div><button onclick="closeQuickCart()" style="width:100%; background:#b30000; color:white; border:none; padding:12px; border-radius:8px; margin-top:15px;">CLOSE</button></div></div>
+    <div id="quickCartModal"><div><h3 style="color:#b30000; display:flex; justify-content:space-between;"><span id="quickCartModalTitle">Your Booze Bucket</span><button onclick="closeQuickCart()" style="background:none; border:none; color:#b30000; font-size:20px;">✕</button></h3><div id="quickCartItems" style="max-height:400px; overflow-y:auto; margin-bottom:15px;"></div><div style="background:#f5f5f5; padding:15px; border-radius:8px;"><div style="display:flex; justify-content:space-between;"><span>Total:</span><span style="color:#b30000; font-weight:bold;" id="quickCartTotal">R0</span></div></div><button onclick="closeQuickCart()" style="width:100%; background:#b30000; color:white; border:none; padding:12px; border-radius:8px; margin-top:15px;">CLOSE</button></div></div>
     <div class="footer">Created by <span class="creator">Mziwonke KaBuyaphi</span></div>
 </div>
 
@@ -264,14 +407,12 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         const saved = localStorage.getItem('rands_accounts_v2');
         if (saved) {
             accounts = JSON.parse(saved);
-            // find and set current customer from saved or keep default
             const found = accounts.find(acc => acc.id === currentCustomer.id);
             if (found) currentCustomer = found;
             else accounts.push(currentCustomer);
         } else {
             saveAccounts();
         }
-        updateWalletUI();
     }
     
     function saveAccounts() { 
@@ -285,8 +426,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         const accIndex = accounts.findIndex(a => a.id === currentCustomer.id);
         if (accIndex !== -1) accounts[accIndex].balance = newBalance;
         saveAccounts();
-        updateWalletUI();
-        // Also update legacy storage
         localStorage.setItem(`wallet_${currentCustomer.id}`, newBalance);
     }
     
@@ -296,10 +435,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         txHistory[currentCustomer.id].unshift({ desc, amount, date: new Date().toISOString().slice(0,10) });
         localStorage.setItem('rands_transactions', JSON.stringify(txHistory));
     }
-    
-    function updateWalletUI() {
-        document.getElementById("activeCustomerName").innerText = currentCustomer.name.split(" ")[0];
-    }
 
     // ========== ORDER SYSTEM ==========
     let currentCart = [];
@@ -307,23 +442,48 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
     let pendingPinAccount = null;
     let currentPin = "";
     let checkoutTotal = 0;
+    let currentCategory = null; // Track selected category for Smart Counter
 
-    const vendorMenus = {
-        "Rands Smart Counter": [
+    // Smart Counter Categories and Items
+    const smartCounterCategories = {
+        "Beers": [
             { name: "Castle Lager", price: 45, desc: "Classic South African lager" },
             { name: "Windhoek Lager", price: 55, desc: "Premium Namibian beer" },
             { name: "Heineken", price: 60, desc: "Dutch premium lager" },
+            { name: "Amstel", price: 50, desc: "Smooth malt lager" },
+            { name: "Corona", price: 65, desc: "Mexican beer with lime" }
+        ],
+        "Premium Spirits": [
             { name: "Jameson & Coke", price: 75, desc: "Irish whiskey with coke" },
             { name: "Jack Daniel's & Coke", price: 85, desc: "Tennessee whiskey" },
-            { name: "Smirnoff Vodka", price: 60, desc: "Single shot with mixer" }
+            { name: "Smirnoff Vodka", price: 60, desc: "Single shot with mixer" },
+            { name: "Johnnie Walker Black", price: 95, desc: "Premium scotch whiskey" },
+            { name: "Bacardi Rum", price: 70, desc: "White rum with mixer" }
         ],
-        "The Butcher Shop": [
-            { name: "Boerewors Roll", price: 85, desc: "Traditional sausage with chakalaka" },
-            { name: "Steak & Chips", price: 150, desc: "Grilled rump steak with slap chips" },
-            { name: "Pap & Sous", price: 60, desc: "Maize meal with tomato relish" },
-            { name: "Bunny Chow", price: 120, desc: "Durban curry in bread" }
+        "Sparkling Wine": [
+            { name: "JC Le Roux", price: 180, desc: "South African sparkling wine" },
+            { name: "Veuve du Vernay", price: 220, desc: "French sparkling" },
+            { name: "Nederburg Brut", price: 160, desc: "Classic bubbly" }
+        ],
+        "Champagne": [
+            { name: "Moët & Chandon", price: 850, desc: "Premium French champagne" },
+            { name: "Veuve Clicquot", price: 950, desc: "Yellow Label" },
+            { name: "Taittinger", price: 780, desc: "Elegant champagne" }
+        ],
+        "Soft Drinks": [
+            { name: "Coke", price: 25, desc: "Chilled Coca-Cola" },
+            { name: "Sprite", price: 25, desc: "Lemon-lime refreshment" },
+            { name: "Fanta Orange", price: 25, desc: "Orange soda" },
+            { name: "Water", price: 15, desc: "Still or sparkling" }
         ]
     };
+
+    const butcherShopItems = [
+        { name: "Boerewors Roll", price: 85, desc: "Traditional sausage with chakalaka" },
+        { name: "Steak & Chips", price: 150, desc: "Grilled rump steak with slap chips" },
+        { name: "Pap & Sous", price: 60, desc: "Maize meal with tomato relish" },
+        { name: "Bunny Chow", price: 120, desc: "Durban curry in bread" }
+    ];
 
     // Function to update cart title based on selected vendor
     function updateCartTitle(vendorValue) {
@@ -335,10 +495,84 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         } else if (vendorValue === 'The Butcher Shop') {
             cartTitleElement.innerText = '🥩 Your Platter';
             if (quickCartModalTitle) quickCartModalTitle.innerText = '🥩 Your Platter';
-        } else {
-            cartTitleElement.innerText = '📦 Your Rands Order';
-            if (quickCartModalTitle) quickCartModalTitle.innerText = '📦 Your Rands Order';
         }
+    }
+
+    // Function to show category cards for Smart Counter
+    function showCategoryCards() {
+        const menuContainer = document.getElementById("vendorMenu");
+        menuContainer.innerHTML = '';
+        
+        // Add back button if in category view
+        if (currentCategory) {
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-categories';
+            backBtn.innerHTML = '← Back to Categories';
+            backBtn.onclick = () => {
+                currentCategory = null;
+                showCategoryCards();
+            };
+            menuContainer.appendChild(backBtn);
+            
+            // Show items from selected category
+            const items = smartCounterCategories[currentCategory];
+            if (items) {
+                items.forEach(item => {
+                    let card = document.createElement("div"); 
+                    card.className = "menu-item";
+                    card.innerHTML = `<div style="display:flex; justify-content:space-between;"><span style="font-size:20px;">🍺</span><span style="background:#b30000; padding:3px 8px; border-radius:4px; color:white;">R${item.price}</span></div><div style="font-size:18px; font-weight:bold; margin:8px 0; color:#222;">${item.name}</div><div style="font-size:12px; color:#888;">${item.desc}</div><button class="add-to-cart-btn">ADD TO CART</button>`;
+                    let btn = card.querySelector('.add-to-cart-btn');
+                    btn.onclick = () => addToCart(item.name, item.price, "Rands Smart Counter");
+                    menuContainer.appendChild(card);
+                });
+            }
+            return;
+        }
+        
+        // Show category cards
+        const categoryGrid = document.createElement('div');
+        categoryGrid.className = 'category-grid';
+        
+        const categories = ["Beers", "Premium Spirits", "Sparkling Wine", "Champagne", "Soft Drinks"];
+        const categoryIcons = {
+            "Beers": "🍺",
+            "Premium Spirits": "🥃",
+            "Sparkling Wine": "🥂",
+            "Champagne": "🍾",
+            "Soft Drinks": "🥤"
+        };
+        
+        categories.forEach(category => {
+            const card = document.createElement('div');
+            card.className = 'category-card';
+            card.innerHTML = `
+                <div class="category-icon">${categoryIcons[category] || '📦'}</div>
+                <div class="category-name">${category}</div>
+            `;
+            card.onclick = () => {
+                currentCategory = category;
+                showCategoryCards();
+            };
+            categoryGrid.appendChild(card);
+        });
+        
+        menuContainer.appendChild(categoryGrid);
+    }
+
+    // Function to show Butcher Shop items
+    function showButcherShopItems() {
+        const menuContainer = document.getElementById("vendorMenu");
+        menuContainer.innerHTML = '';
+        
+        butcherShopItems.forEach(item => {
+            let card = document.createElement("div"); 
+            card.className = "menu-item";
+            card.innerHTML = `<div style="display:flex; justify-content:space-between;"><span style="font-size:20px;">🥩</span><span style="background:#b30000; padding:3px 8px; border-radius:4px; color:white;">R${item.price}</span></div><div style="font-size:18px; font-weight:bold; margin:8px 0; color:#222;">${item.name}</div><div style="font-size:12px; color:#888;">${item.desc}</div><button class="add-to-cart-btn">ADD TO CART</button>`;
+            let btn = card.querySelector('.add-to-cart-btn');
+            btn.onclick = () => addToCart(item.name, item.price, "The Butcher Shop");
+            card.ondblclick = () => addToCart(item.name, item.price, "The Butcher Shop");
+            menuContainer.appendChild(card);
+        });
     }
 
     // Tab navigation setup
@@ -346,52 +580,23 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         const tabButtons = document.querySelectorAll('.tab-btn');
         tabButtons.forEach(btn => {
             btn.addEventListener('click', function() {
-                // Remove active class from all tabs
                 tabButtons.forEach(b => b.classList.remove('active'));
-                // Add active class to clicked tab
                 this.classList.add('active');
-                // Get vendor value
                 const vendorValue = this.getAttribute('data-vendor');
-                // Update cart title based on selected vendor
                 updateCartTitle(vendorValue);
-                // Update the menu
-                updateVendorMenu(vendorValue);
-                // Update current vendor display
-                const vendorDisplay = document.getElementById('currentVendorDisplay');
-                if (vendorValue === 'all') {
-                    vendorDisplay.innerText = 'All Rands Counters';
-                } else if (vendorValue === 'Rands Smart Counter') {
-                    vendorDisplay.innerText = 'Smart Counter';
-                } else {
-                    vendorDisplay.innerText = 'Butcher Shop';
+                
+                // Reset category selection
+                currentCategory = null;
+                
+                if (vendorValue === 'Rands Smart Counter') {
+                    showCategoryCards();
+                    document.getElementById('currentVendorDisplay').innerText = 'Smart Counter';
+                } else if (vendorValue === 'The Butcher Shop') {
+                    showButcherShopItems();
+                    document.getElementById('currentVendorDisplay').innerText = 'Butcher Shop';
                 }
             });
         });
-    }
-    
-    function updateVendorMenu(filter = "all") {
-        let menuContainer = document.getElementById("vendorMenu");
-        menuContainer.innerHTML = "";
-        let vendorsToShow = filter === "all" ? ["Rands Smart Counter", "The Butcher Shop"] : [filter];
-        for (let vendor of vendorsToShow) {
-            let vendorHeader = document.createElement("div");
-            vendorHeader.style.gridColumn = "1 / -1";
-            vendorHeader.style.marginBottom = "10px";
-            vendorHeader.style.paddingBottom = "5px";
-            vendorHeader.style.borderBottom = "2px solid #b30000";
-            let icon = vendor === "Rands Smart Counter" ? "🍺" : "🥩";
-            vendorHeader.innerHTML = `<h5 style="color:#b30000;">${icon} ${vendor}</h5>`;
-            menuContainer.appendChild(vendorHeader);
-            vendorMenus[vendor].forEach(item => {
-                let card = document.createElement("div"); 
-                card.className = "menu-item";
-                card.innerHTML = `<div style="display:flex; justify-content:space-between;"><span style="font-size:20px;">${icon}</span><span style="background:#b30000; padding:3px 8px; border-radius:4px; color:white;">R${item.price}</span></div><div style="font-size:18px; font-weight:bold; margin:8px 0; color:#222;">${item.name}</div><div style="font-size:12px; color:#888;">${item.desc}</div><button class="add-to-cart-btn">ADD TO CART</button>`;
-                let btn = card.querySelector('.add-to-cart-btn');
-                btn.onclick = () => addToCart(item.name, item.price, vendor);
-                card.ondblclick = () => addToCart(item.name, item.price, vendor);
-                menuContainer.appendChild(card);
-            });
-        }
     }
     
     function addToCart(itemName, itemPrice, vendor) {
@@ -476,7 +681,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         clearAllPin();
     }
     
-    // PIN functions
     function addPinDigit(d) { if (currentPin.length < 4) { currentPin += d; updatePinDisplay(); } }
     function clearPin() { currentPin = currentPin.slice(0, -1); updatePinDisplay(); }
     function clearAllPin() { currentPin = ""; updatePinDisplay(); }
@@ -505,7 +709,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         updateWalletBalance(newBalance);
         addTransaction(`💳 POS Purchase (${new Date().toLocaleTimeString()})`, -total);
         
-        // Send orders to vendors
         let ordersByVendor = {};
         currentCart.forEach(item => { 
             if (!ordersByVendor[item.vendor]) ordersByVendor[item.vendor] = []; 
@@ -534,7 +737,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         toast.style.bottom = '30px';
         toast.style.left = '20px';
         toast.style.right = '20px';
-        toast.style.background = type === 'success' ? '#b30000' : type === 'error' ? '#b30000' : '#b30000';
+        toast.style.background = '#b30000';
         toast.style.color = 'white';
         toast.style.padding = '15px';
         toast.style.borderRadius = '60px';
@@ -548,12 +751,23 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         setTimeout(() => toast.remove(), 3000);
     }
     
+    // Fix logo onerror
+    document.addEventListener('DOMContentLoaded', function() {
+        const logo = document.querySelector('.brand-logo');
+        if (logo) {
+            logo.onerror = function() {
+                this.style.display = 'none';
+                const brandName = this.nextElementSibling;
+                if (brandName) brandName.style.display = 'inline-block';
+            };
+        }
+    });
+    
     // Initialize
     loadAccounts();
     setupTabs();
-    updateVendorMenu("all");
-    updateCartTitle("all");
-    updateWalletUI();
+    showCategoryCards(); // Start with Smart Counter categories
+    updateCartTitle("Rands Smart Counter");
     updateCartDisplay();
 </script>
 </body>
