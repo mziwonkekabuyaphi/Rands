@@ -4,14 +4,97 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Rands POS | Customer Order</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222; min-height: 100vh; overflow-x: hidden; }
+body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-height: 100vh; overflow-x: hidden; }
 
 /* Rands Color Theme: Red (#b30000 / #cc0000) and White (#fff / #f5f5f5) */
 .pos-container { min-height: 100vh; padding: 16px; background: #fff; display: block; }
 
-.vendor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+/* Header Styles - Integrated from header.html */
+.movable-header-group {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    transition: transform 0.3s ease;
+    will-change: transform;
+    margin: -16px -16px 0 -16px;
+    padding: 0 16px;
+}
+.header-hidden {
+    transform: translateY(-100%);
+}
+.app-header {
+    padding: 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border-bottom: 1px solid #eff3f8;
+}
+.logo {
+    height: 45px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+.header-icons {
+    display: flex;
+    gap: 8px;
+}
+.header-icon {
+    width: 40px;
+    height: 40px;
+    background: #f7f9fd;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #E30613;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.header-icon:active {
+    transform: scale(0.94);
+}
+.welcome-greeting {
+    padding: 12px 0 8px 0;
+    background: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #f0f4fa;
+    flex-wrap: wrap;
+}
+.welcome-greeting i {
+    color: #E30613;
+    font-size: 1rem;
+}
+.welcome-greeting span {
+    background: linear-gradient(135deg, #E30613 0%, #b0020e 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 800;
+}
+#pendingRequestIndicator {
+    display: none;
+    background: #fef2f2;
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    color: #E30613;
+}
+
+.vendor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; margin-top: 16px; flex-wrap: wrap; gap: 10px; }
 .current-vendor { background: #b30000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; color: #fff; }
 
 /* Tab Navigation Styles - only two tabs */
@@ -34,6 +117,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
     cursor: pointer;
     transition: all 0.2s ease;
     color: #666;
+    font-family: 'Inter', sans-serif;
 }
 .tab-btn.active {
     background: #b30000;
@@ -118,11 +202,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
 .cart-summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
 .cart-summary-total { color: #b30000; font-weight: bold; font-size: 20px; }
 .cart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.cart-btn { background: #b30000; border: none; padding: 12px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+.cart-btn { background: #b30000; border: none; padding: 12px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; font-family: 'Inter', sans-serif; }
 .cart-btn.secondary { background: #f0f0f0; color: #b30000; border: 1px solid #b30000; }
 .menu-item { background: #fff; border-radius: 14px; padding: 14px; border: 1px solid #eee; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .menu-item:hover { border-color: #b30000; transform: scale(1.02); box-shadow: 0 4px 12px rgba(179,0,0,0.15); }
-.add-to-cart-btn { background: #b30000; border: none; padding: 10px; border-radius: 40px; color: white; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 14px; }
+.add-to-cart-btn { background: #b30000; border: none; padding: 10px; border-radius: 40px; color: white; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 14px; font-family: 'Inter', sans-serif; }
 .vendor-group { margin-bottom: 20px; background: #fafafa; border-radius: 12px; padding: 10px; }
 .vendor-group h5 { color: #b30000; margin: 0 0 10px 0; border-bottom: 2px solid #b30000; padding-bottom: 5px; font-size: 16px; }
 .footer { margin-top: 30px; padding: 20px 0; text-align: center; color: #888; border-top: 1px solid #eee; font-size: 12px; }
@@ -195,7 +279,8 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
 /* Enhanced mobile responsiveness */
 @media (max-width: 640px) {
     .pos-container { padding: 12px; }
-    .vendor-header { flex-direction: row; justify-content: space-between; }
+    .movable-header-group { margin: -12px -12px 0 -12px; padding: 0 12px; }
+    .vendor-header { flex-direction: row; justify-content: space-between; margin-top: 12px; }
     .tab-nav { margin-bottom: 16px; }
     .tab-btn { padding: 10px 12px; font-size: 14px; }
     .cart-item { flex-direction: column; align-items: stretch; }
@@ -211,6 +296,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
     .category-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
     .category-card { padding: 15px 8px; }
     .category-card .category-icon { font-size: 32px; }
+    .header-icon { width: 36px; height: 36px; font-size: 1rem; }
+    .logo { height: 38px; }
+    .welcome-greeting { font-size: 0.85rem; }
 }
 
 /* make menu grid responsive on mobile */
@@ -224,6 +312,22 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
 <body style="background: #fff;">
 
 <div class="pos-container" id="posContainer">
+    <!-- Integrated Header from header.html -->
+    <div class="movable-header-group" id="movableHeaderGroup">
+        <div class="app-header">
+            <img src="images/rands-logo1.png" alt="Rands Wallet" class="logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'">
+            <div class="header-icons">
+                <span class="header-icon" id="logoutHeaderBtn"><i class="fas fa-sign-out-alt"></i></span>
+                <span class="header-icon" id="posModeBtn"><i class="fas fa-cash-register"></i></span>
+                <span class="header-icon" id="profileBtn"><i class="fas fa-user-circle"></i></span>
+            </div>
+        </div>
+        <div class="welcome-greeting" id="welcomeGreeting">
+            <i class="fas fa-hand-peace"></i> <span id="greetingName">Molo, User</span>
+            <span id="pendingRequestIndicator" style="display: none;">⏳ Unlock Pending</span>
+        </div>
+    </div>
+
     <div class="vendor-header">
         <h3>Select Your Counter</h3>
         <span class="current-vendor" id="currentVendorDisplay">Smart Counter</span>
@@ -275,6 +379,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
             else accounts.push(currentCustomer);
         } else {
             saveAccounts();
+        }
+        // Update greeting with customer name
+        const greetingSpan = document.getElementById('greetingName');
+        if (greetingSpan) {
+            greetingSpan.innerText = `Molo, ${currentCustomer.name.split(' ')[0]}`;
         }
     }
     
@@ -613,6 +722,35 @@ body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #222;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
+    
+    // Header scroll behavior
+    const header = document.getElementById('movableHeaderGroup');
+    let lastScroll = 0;
+    
+    if (header) {
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll > lastScroll && currentScroll > 50) {
+                header.classList.add('header-hidden');
+            } else if (currentScroll < lastScroll) {
+                header.classList.remove('header-hidden');
+            }
+            lastScroll = currentScroll;
+        }, { passive: true });
+    }
+    
+    // Header button handlers
+    document.getElementById('logoutHeaderBtn')?.addEventListener('click', () => {
+        window.location.href = 'home.html';
+    });
+    document.getElementById('posModeBtn')?.addEventListener('click', () => {
+        showToast('POS Mode', 'info');
+        // Add POS mode logic here
+    });
+    document.getElementById('profileBtn')?.addEventListener('click', () => {
+        showToast('Profile', 'info');
+        // Add profile navigation here
+    });
     
     // Initialize
     loadAccounts();
