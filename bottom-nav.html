@@ -76,17 +76,19 @@
       letter-spacing: 0.3px;
     }
     
+    /* ===== ACTIVE TAB - RED ICON & TEXT ===== */
     .nav-item.active .nav-icon {
-      color: #dc2626;
+      color: #dc2626 !important;
       text-shadow: 0 0 6px rgba(220, 38, 38, 0.3);
     }
     
     .nav-item.active .nav-label {
-      color: #dc2626;
+      color: #dc2626 !important;
       font-weight: 600;
       transform: translateY(1px);
     }
     
+    /* Dark mode support - red stays visible */
     @media (prefers-color-scheme: dark) {
       .bottom-nav {
         background: rgba(18, 18, 24, 0.94);
@@ -101,10 +103,10 @@
         color: #9ca3af;
       }
       .nav-item.active .nav-icon {
-        color: #f87171;
+        color: #f87171 !important;
       }
       .nav-item.active .nav-label {
-        color: #f87171;
+        color: #f87171 !important;
       }
     }
     
