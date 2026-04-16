@@ -324,6 +324,7 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         </div>
         <div class="welcome-greeting" id="welcomeGreeting">
             <i class="fas fa-hand-peace"></i> <span id="greetingName">Molo, User</span>
+            <span id="balanceDisplay" style="background:#E30613; color:white; padding:4px 12px; border-radius:60px; font-size:0.75rem;">R0.00</span>
             <span id="pendingRequestIndicator" style="display: none;">⏳ Unlock Pending</span>
         </div>
     </div>
@@ -358,64 +359,81 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
 <div id="pinModal" class="pin-modal"><div class="pin-modal-content"><div class="pin-header"><h3>🔐 Enter PIN to Pay</h3><p id="pinAccountDisplay"></p></div><div class="pin-display"><div id="pinDigits" class="pin-digits-placeholder">⚫⚫⚫⚫</div></div><div class="pin-keypad"><button class="pin-key" onclick="addPinDigit('1')">1</button><button class="pin-key" onclick="addPinDigit('2')">2</button><button class="pin-key" onclick="addPinDigit('3')">3</button><button class="pin-key" onclick="addPinDigit('4')">4</button><button class="pin-key" onclick="addPinDigit('5')">5</button><button class="pin-key" onclick="addPinDigit('6')">6</button><button class="pin-key" onclick="addPinDigit('7')">7</button><button class="pin-key" onclick="addPinDigit('8')">8</button><button class="pin-key" onclick="addPinDigit('9')">9</button><button class="pin-key clear" onclick="clearPin()">⌫</button><button class="pin-key zero" onclick="addPinDigit('0')">0</button><button class="pin-key clear" onclick="clearAllPin()">C</button></div><div class="pin-actions"><button class="pin-action-btn cancel" onclick="closePinModal()">CANCEL</button><button class="pin-action-btn submit" id="submitPinBtn" onclick="submitPin()" disabled>VERIFY</button></div><div id="pinError" class="pin-error"></div></div></div>
 
 <script>
-    // ========== WALLET SYSTEM - Load real account from home.html ==========
+    // ========== WALLET SYSTEM - Get ACTUAL logged-in account (same as home.html) ==========
+    const ACCOUNTS_KEY = 'rands_accounts_v2';
     let currentCustomer = null;
     let accounts = [];
 
+    // Helper to get currently logged-in account (matches home.html logic)
+    function getCurrentAccount() {
+        const currentId = localStorage.getItem('rands_current_account');
+        if (!currentId) return null;
+        const accountsList = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]');
+        return accountsList.find(acc => acc.id === currentId) || null;
+    }
+
     function loadAccounts() {
-        const saved = localStorage.getItem('rands_accounts_v2');
-        if (saved) {
-            try {
+        // Get the currently logged-in account using the same method as home.html
+        currentCustomer = getCurrentAccount();
+        
+        if (!currentCustomer) {
+            // Fallback: try to find any account
+            const saved = localStorage.getItem(ACCOUNTS_KEY);
+            if (saved) {
                 accounts = JSON.parse(saved);
-                // Find the primary account (first active or the one with name "Mziwonke")
-                currentCustomer = accounts.find(acc => acc.name && acc.name.toLowerCase().includes('mziwonke')) || accounts[0];
-                if (!currentCustomer && accounts.length) currentCustomer = accounts[0];
-            } catch(e) {
-                console.error("Error parsing accounts:", e);
-                createDefaultAccount();
+                if (accounts.length > 0) {
+                    currentCustomer = accounts[0];
+                }
             }
-        } else {
-            createDefaultAccount();
         }
         
-        if (!currentCustomer) createDefaultAccount();
+        // If still no account, create a default one
+        if (!currentCustomer) {
+            const defaultAccount = {
+                id: "0635713652",
+                name: "Mziwonke KaBuyaphi",
+                phone: "0635713652",
+                balance: 12580.50,
+                status: "Active",
+                verified: true,
+                tier: "Sovereign",
+                pin: "1989"
+            };
+            accounts = [defaultAccount];
+            localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+            localStorage.setItem('rands_current_account', defaultAccount.id);
+            currentCustomer = defaultAccount;
+        }
         
-        // Ensure the customer has a PIN (use 1989 if missing)
+        // Refresh accounts list
+        accounts = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]');
+        const refreshedAccount = accounts.find(acc => acc.id === currentCustomer.id);
+        if (refreshedAccount) {
+            currentCustomer = refreshedAccount;
+        }
+        
+        // Ensure PIN exists
         if (!currentCustomer.pin) currentCustomer.pin = "1989";
         
-        // Update greeting with customer name
+        // Update UI with customer name and balance
         const greetingSpan = document.getElementById('greetingName');
+        const balanceSpan = document.getElementById('balanceDisplay');
+        
         if (greetingSpan && currentCustomer) {
             let displayName = currentCustomer.name || "User";
             const firstName = displayName.split(' ')[0];
             greetingSpan.innerText = `Molo, ${firstName}`;
         }
         
-        // Update pending request indicator (optional)
-        const pendingIndicator = document.getElementById('pendingRequestIndicator');
-        if (pendingIndicator && currentCustomer) {
-            // Could show if there are pending payments, but not needed now
+        if (balanceSpan && currentCustomer) {
+            balanceSpan.innerText = `R${currentCustomer.balance.toFixed(2)}`;
         }
-    }
-    
-    function createDefaultAccount() {
-        const defaultAccount = {
-            id: "0635713652",
-            name: "Mziwonke KaBuyaphi",
-            phone: "0635713652",
-            balance: 12580.50,
-            status: "Active",
-            verified: true,
-            tier: "Sovereign",
-            pin: "1989"
-        };
-        accounts = [defaultAccount];
-        localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts));
-        currentCustomer = defaultAccount;
+        
+        console.log("✅ Loaded customer:", currentCustomer.name, "Balance:", currentCustomer.balance);
     }
     
     function saveAccounts() { 
-        localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts)); 
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); 
     }
     
     function getWalletBalance() { 
@@ -425,12 +443,24 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     function updateWalletBalance(newBalance) {
         if (!currentCustomer) return;
         currentCustomer.balance = newBalance;
+        
+        // Update in accounts array
         const accIndex = accounts.findIndex(a => a.id === currentCustomer.id);
         if (accIndex !== -1) accounts[accIndex].balance = newBalance;
+        else accounts.push(currentCustomer);
+        
         saveAccounts();
-        // Also trigger storage event for other tabs (like home.html)
+        
+        // Update balance display
+        const balanceSpan = document.getElementById('balanceDisplay');
+        if (balanceSpan) balanceSpan.innerText = `R${newBalance.toFixed(2)}`;
+        
+        // Also update the stored current account reference
+        localStorage.setItem('rands_current_account', currentCustomer.id);
+        
+        // Trigger storage event for other tabs (like home.html)
         window.dispatchEvent(new StorageEvent('storage', {
-            key: 'rands_accounts_v2',
+            key: ACCOUNTS_KEY,
             newValue: JSON.stringify(accounts)
         }));
     }
@@ -439,17 +469,17 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         let txHistory = JSON.parse(localStorage.getItem('rands_transactions') || '{}');
         const userId = currentCustomer.id;
         if (!txHistory[userId]) txHistory[userId] = [];
-        txHistory[userId].unshift({ desc, amount, date: new Date().toISOString().slice(0,10) });
+        txHistory[userId].unshift({ desc, amount, date: new Date().toISOString().slice(0,10), time: new Date().toLocaleTimeString() });
         localStorage.setItem('rands_transactions', JSON.stringify(txHistory));
     }
 
     // ========== ORDER SYSTEM ==========
     let currentCart = [];
-    let nextOrderId = Math.floor(Date.now() / 1000) % 10000; // more unique
+    let nextOrderId = Math.floor(Date.now() / 1000) % 10000;
     let pendingPinAccount = null;
     let currentPin = "";
     let checkoutTotal = 0;
-    let currentCategory = null; // Track selected category for Smart Counter
+    let currentCategory = null;
 
     // Smart Counter Categories and Items
     const smartCounterCategories = {
@@ -596,6 +626,7 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     }
     
     function addToCart(itemName, itemPrice, vendor) {
+        if (!currentCustomer) { showToast("Please log in first", 'error'); return; }
         let existing = currentCart.find(i => i.name === itemName && i.vendor === vendor);
         if (existing) existing.quantity++;
         else currentCart.push({ name: itemName, price: itemPrice, vendor: vendor, quantity: 1 });
@@ -641,7 +672,7 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     function clearCart() { currentCart = []; updateCartDisplay(); showToast("Cart cleared", 'info'); }
     
     function showQuickCart() {
-        if (currentCart.length === 0) { alert("Your order is empty"); return; }
+        if (currentCart.length === 0) { showToast("Your order is empty", 'info'); return; }
         let subtotal = 0, html = "", grouped = {};
         currentCart.forEach(item => { if (!grouped[item.vendor]) grouped[item.vendor] = []; grouped[item.vendor].push(item); });
         for (let vendor in grouped) {
@@ -659,19 +690,23 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         let existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
         existing.push(order);
         localStorage.setItem(storageKey, JSON.stringify(existing));
-        // Also trigger a storage event for vendor screens to refresh
         window.dispatchEvent(new StorageEvent('storage', { key: storageKey, newValue: JSON.stringify(existing) }));
     }
     
     function checkoutCart() {
         if (!currentCustomer) { showToast("Please log in first", 'error'); return; }
         if (currentCart.length === 0) { showToast("Your cart is empty", 'error'); return; }
+        
         let total = currentCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
         let availableBalance = getWalletBalance();
+        
+        console.log("💰 Checkout - Balance:", availableBalance, "Total:", total);
+        
         if (availableBalance < total) { 
-            showToast(`Insufficient balance! Need R${total}, have R${availableBalance}`, 'error'); 
+            showToast(`❌ Insufficient balance! Need R${total}, have R${availableBalance.toFixed(2)}`, 'error'); 
             return; 
         }
+        
         checkoutTotal = total;
         pendingPinAccount = currentCustomer.id;
         document.getElementById("pinAccountDisplay").innerHTML = `Account: <span style="color:#b30000;">${currentCustomer.id}</span><br><span style="font-size:12px;">Amount: R${total}</span>`;
@@ -691,13 +726,14 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     
     function submitPin() {
         if (currentPin.length !== 4 || !pendingPinAccount) return;
-        // Use the customer's actual PIN from account (should be "1989")
+        
+        // Use the customer's actual PIN from account
         if (currentCustomer.pin === currentPin) {
             processPayment();
             closePinModal();
         } else {
             document.getElementById("pinError").classList.add("show");
-            document.getElementById("pinError").innerHTML = "Incorrect PIN";
+            document.getElementById("pinError").innerHTML = "Incorrect PIN. Please try again.";
             clearAllPin();
         }
     }
@@ -713,14 +749,28 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
             if (!ordersByVendor[item.vendor]) ordersByVendor[item.vendor] = []; 
             ordersByVendor[item.vendor].push({ name: item.name, price: item.price, quantity: item.quantity }); 
         });
+        
         for (let vendor in ordersByVendor) {
             let orderTotal = ordersByVendor[vendor].reduce((sum, i) => sum + (i.price * i.quantity), 0);
-            let order = { orderId: nextOrderId++, bandId: currentCustomer.id, items: ordersByVendor[vendor], total: orderTotal, timestamp: new Date().toLocaleTimeString(), status: "pending" };
+            let order = { 
+                orderId: nextOrderId++, 
+                bandId: currentCustomer.id, 
+                bandName: currentCustomer.name,
+                items: ordersByVendor[vendor], 
+                total: orderTotal, 
+                timestamp: new Date().toLocaleTimeString(),
+                date: new Date().toISOString(),
+                status: "pending" 
+            };
             sendOrderToVendor(vendor, order);
         }
         
-        showToast(`✅ Payment successful! R${total} paid. New balance: R${newBalance.toFixed(2)}`, 'success');
+        showToast(`✅ Payment successful! R${total.toFixed(2)} paid. New balance: R${newBalance.toFixed(2)}`, 'success');
         clearCart();
+        
+        // Refresh balance display
+        const balanceSpan = document.getElementById('balanceDisplay');
+        if (balanceSpan) balanceSpan.innerText = `R${newBalance.toFixed(2)}`;
     }
     
     function closePinModal() {
@@ -736,7 +786,7 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         toast.style.bottom = '30px';
         toast.style.left = '20px';
         toast.style.right = '20px';
-        toast.style.background = '#b30000';
+        toast.style.background = type === 'error' ? '#b30000' : '#10b981';
         toast.style.color = 'white';
         toast.style.padding = '15px';
         toast.style.borderRadius = '60px';
@@ -771,16 +821,16 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         window.location.href = 'home.html';
     });
     document.getElementById('posModeBtn')?.addEventListener('click', () => {
-        showToast('POS Mode', 'info');
+        showToast('Order Mode', 'info');
     });
     document.getElementById('profileBtn')?.addEventListener('click', () => {
-        showToast('Profile', 'info');
+        window.location.href = 'profile.html';
     });
     
     // Initialize
     loadAccounts();
     setupTabs();
-    showCategoryCards(); // Start with Smart Counter categories
+    showCategoryCards();
     updateCartTitle("Rands Smart Counter");
     updateCartDisplay();
 </script>
