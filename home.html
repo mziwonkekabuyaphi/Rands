@@ -258,10 +258,9 @@
                 </div>
                 <div class="header-icons">
                     <div class="icon-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
-                    <!-- Office icon removed from header to save space (moved to quick actions) -->
                 </div>
             </div>
-            <div class="welcome-section"><div class="greeting">Wamkelekile,</div><div class="user-name">Mziwonke 👋</div></div>
+            <div class="welcome-section"><div class="greeting">Wamkelekile,</div><div class="user-name">{{ userName }} 👋</div></div>
             <div class="header-balance-card"><div class="balance-label">Total Balance</div><div class="balance-amount">R {{ formatPrice(balance) }}</div><div class="balance-sub">Available for cashless spending and Tickets</div></div>
         </div>
         <div class="quick-actions">
@@ -274,7 +273,6 @@
                 <div class="action-pill" @click="openRefundModal()"><i class="fas fa-undo-alt"></i><span>Request Refund</span></div>
                 <div class="action-pill" @click="openBackOfficeModal()"><i class="fas fa-building"></i><span>Staff Office</span></div>
             </div>
-            <!-- Manual check button -->
             <div class="action-row-secondary" style="margin-top: 10px;">
                 <div class="action-pill" @click="manualCheckForPayments">
                     <i class="fas fa-search"></i><span>Check for Payments</span>
@@ -379,8 +377,26 @@
 </div>
 <div id="bottomNav"></div>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
-<script src="app.js"></script>
 <script>
+    // ======================== Helper functions ========================
+    const ACCOUNTS_KEY = 'rands_accounts_v2';
+
+    function getCurrentAccount() {
+        const currentId = localStorage.getItem('rands_current_account');
+        if (!currentId) return null;
+        const accounts = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]');
+        return accounts.find(acc => acc.id === currentId) || null;
+    }
+
+    function updateAccountBalance(accountId, newBalance) {
+        let accounts = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]');
+        const index = accounts.findIndex(acc => acc.id === accountId);
+        if (index !== -1) {
+            accounts[index].balance = newBalance;
+            localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+        }
+    }
+
     function showScrollableAlert(message, title = 'Notice') {
         const overlay = document.getElementById('alertModalOverlay');
         const messageEl = document.getElementById('alertModalMessage');
@@ -414,6 +430,7 @@
                 const flavour = document.getElementById('shishaOrderFlavour')?.value || 'Mint+Grape';
                 if (vm.balance >= 260) {
                     vm.balance -= 260;
+                    vm.syncBalanceToAccount();  // persist
                     const shishaWalletSpan2 = document.getElementById('shishaWalletBalance');
                     if (shishaWalletSpan2) shishaWalletSpan2.innerText = `R${vm.balance.toFixed(2)}`;
                     showScrollableAlert(`✅ Session ordered successfully! Staff will prepare your hookah.\n\nAmount: R260\nLocation: ${location}\nFlavour: ${flavour}\n\nNew balance: R${vm.balance.toFixed(2)}`, "Order Confirmed", "success");
@@ -441,10 +458,13 @@
         });
     }
 
+    // ======================== Vue App ========================
     new Vue({
         el: '#walletApp',
         data: {
-            balance: 12580.50,
+            balance: 0,
+            userName: "",
+            accountId: null,
             activeTab: 'home',
             checkins: 187,
             paymentModalVisible: false,
@@ -466,12 +486,23 @@
             toastTimer: null,
             currentKioskRequest: null,
             pollingInterval: null,
-            // IMPORTANT: This is the wallet's own account ID – only requests matching this will be shown
-            walletAccountId: "0635713652"
+            walletAccountId: ""  // will be set from account
         },
         computed: { vibeProgress() { return Math.min(100, (this.checkins / 500) * 100); } },
         mounted() {
-            console.log("Wallet mounted – listening for kiosk payments (only for account", this.walletAccountId, ")");
+            // Load logged-in account
+            const account = getCurrentAccount();
+            if (!account) {
+                // No active session → redirect to login
+                window.location.href = "login.html";
+                return;
+            }
+            this.userName = account.name.split(' ')[0];  // first name only
+            this.balance = account.balance || 0;
+            this.accountId = account.id;
+            this.walletAccountId = account.id;
+
+            console.log("Wallet loaded for", this.userName, "balance:", this.balance);
             this.listenForKioskPayments();
             this.startPolling();
             if (typeof loadBottomNav === 'function') loadBottomNav();
@@ -492,17 +523,20 @@
             showBiometricMessage(method) {
                 this.showAlert(`🔐 ${method} Authentication\n\nThis feature is coming soon. For now, please use your staff password to access the Back Office.\n\nYour security is our priority.`, "Security Feature");
             },
+            syncBalanceToAccount() {
+                if (this.accountId) {
+                    updateAccountBalance(this.accountId, this.balance);
+                }
+            },
             startPolling() {
                 this.pollingInterval = setInterval(() => {
                     const pendingRequest = localStorage.getItem('rands_payment_request');
                     if (pendingRequest) {
                         const request = JSON.parse(pendingRequest);
-                        // Only accept if accountId matches wallet's account
                         if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending' && !this.paymentModalVisible) {
                             console.log("Polling found valid request for this wallet");
                             this.showKioskPaymentModal(request);
                         } else if (request.accountId !== this.walletAccountId) {
-                            // Not for this wallet – silently ignore and remove from storage to avoid clutter
                             localStorage.removeItem('rands_payment_request');
                         } else if (Date.now() - request.timestamp >= 120000) {
                             localStorage.removeItem('rands_payment_request');
@@ -537,7 +571,6 @@
                         if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending') {
                             this.showKioskPaymentModal(request);
                         } else if (request.accountId !== this.walletAccountId) {
-                            // Not for us – remove it
                             localStorage.removeItem('rands_payment_request');
                         } else {
                             localStorage.removeItem('rands_payment_request');
@@ -550,7 +583,6 @@
                         if (request.accountId === this.walletAccountId && request.status === 'pending') {
                             this.showKioskPaymentModal(request);
                         } else if (request.accountId !== this.walletAccountId) {
-                            // Ignore and remove
                             localStorage.removeItem('rands_payment_request');
                         }
                     }
@@ -559,7 +591,6 @@
                 checkExistingRequest();
             },
             showKioskPaymentModal(request) {
-                // Double-check account ID before showing modal
                 if (request.accountId !== this.walletAccountId) {
                     console.warn("Ignoring payment request for wrong account:", request.accountId);
                     localStorage.removeItem('rands_payment_request');
@@ -584,10 +615,12 @@
                     this.showAlert("❌ Please enter your 4-digit PIN to approve");
                     return;
                 }
-                if (this.securityPin === "1989" || this.securityPin.length === 4) {
+                // For demo, accept any 4-digit PIN (you can enhance with actual account PIN validation)
+                if (this.securityPin.length === 4) {
                     if (this.currentKioskRequest && this.pendingPayment.requestId) {
                         if (this.balance >= this.pendingPayment.amount) {
                             this.balance -= this.pendingPayment.amount;
+                            this.syncBalanceToAccount();
                             const approval = {
                                 requestId: this.pendingPayment.requestId,
                                 approved: true,
@@ -619,9 +652,9 @@
                             this.currentKioskRequest = null;
                         }
                     } else {
-                        // Fallback for any old simulation
                         if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
                         this.balance -= this.pendingPayment.amount;
+                        this.syncBalanceToAccount();
                         this.showAlert(`✅ Payment of R${this.formatPrice(this.pendingPayment.amount)} approved!`);
                         this.paymentModalVisible = false;
                         this.securityPin = "";
@@ -651,7 +684,6 @@
                 this.securityPin = "";
                 this.currentKioskRequest = null;
             },
-            // All original methods (unchanged)
             openBackOfficeModal() {
                 this.staffPin = "";
                 this.backOfficeModalVisible = true;
@@ -678,6 +710,7 @@
                 let amount = parseFloat(this.depositAmount);
                 if (isNaN(amount) || amount <= 0) { this.showAlert('❌ Please enter a valid deposit amount (minimum R10)'); return; }
                 this.balance += amount;
+                this.syncBalanceToAccount();
                 this.showAlert(`✅ Successfully deposited R${amount.toFixed(2)}! New balance: R${this.balance.toFixed(2)}`);
                 this.closeDepositModal();
                 const shishaWalletSpan = document.getElementById('shishaWalletBalance');
@@ -690,6 +723,7 @@
                 if (isNaN(amount) || amount <= 0) { this.showAlert('❌ Please enter a valid withdrawal amount (minimum R10)'); return; }
                 if (amount > this.balance) { this.showAlert('❌ Insufficient balance for this withdrawal'); return; }
                 this.balance -= amount;
+                this.syncBalanceToAccount();
                 this.showAlert(`✅ Successfully withdrew R${amount.toFixed(2)}! New balance: R${this.balance.toFixed(2)}`);
                 this.closeWithdrawModal();
                 const shishaWalletSpan = document.getElementById('shishaWalletBalance');
@@ -709,14 +743,14 @@
             },
             openVVIPModal() { this.initVVIPBand(); document.getElementById('vvipModalOverlay').classList.add('active'); },
             initVVIPBand() {
-                const ACCOUNTS_KEY = 'rands_accounts_v2', VVIP_BANDS_KEY = 'vvip_bands';
+                const ACCOUNTS_KEY_LOCAL = 'rands_accounts_v2', VVIP_BANDS_KEY = 'vvip_bands';
                 let accounts = [], vvipBands = {};
-                function loadAccounts() { const stored = localStorage.getItem(ACCOUNTS_KEY); if (stored) accounts = JSON.parse(stored); else accounts = [{ id: "0635713652", name: "Mziwonke KaBuyaphi", phone: "0635713652", balance: 28500, status: "Active", verified: true, tier: "Sovereign" }]; localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); }
+                function loadAccounts() { const stored = localStorage.getItem(ACCOUNTS_KEY_LOCAL); if (stored) accounts = JSON.parse(stored); else accounts = []; }
                 function loadVVIPBands() { const stored = localStorage.getItem(VVIP_BANDS_KEY); vvipBands = stored ? JSON.parse(stored) : {}; }
                 function saveVVIPBands() { localStorage.setItem(VVIP_BANDS_KEY, JSON.stringify(vvipBands)); }
                 function generateMajesticBandId(accountId, name) { const prefix = "SVRGN", code = accountId.replace(/[^0-9]/g, '').slice(-5), initials = name.split(' ').map(n => n[0]).join('').toUpperCase(), royalSuffix = Math.floor(Math.random() * 9000 + 1000); return `${prefix}-${code}${initials}-${royalSuffix}`; }
                 function ensureVVIPBand() {
-                    const acc = accounts[0];
+                    const acc = accounts.find(a => a.id === this.accountId);
                     if (!acc) return;
                     if (vvipBands[acc.id]) {
                         document.getElementById('vvipBandNumber').textContent = vvipBands[acc.id].bandId;
@@ -736,9 +770,9 @@
                         if (qrContainer && typeof QRCode !== 'undefined') { qrContainer.innerHTML = ""; new QRCode(qrContainer, { text: `SOVEREIGN:${newBand.bandId}|${acc.id}|${acc.name}|CASHless|THRONE`, width: 130, height: 130, colorDark: "#E30613", correctLevel: QRCode.CorrectLevel.H }); }
                     }
                 }
-                async function printVVIPBandFn() { const acc = accounts[0]; if (!acc) return; const band = vvipBands[acc.id]; if (band) { const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>RANDS SOVEREIGN'S CIRCLE - ${band.bandId}</title><style>body{font-family:'Playfair Display','Inter',serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;margin:0;padding:20px}.band-card{background:linear-gradient(145deg,#fff,#f8f9fa);border:3px solid #E30613;border-radius:48px;padding:32px;text-align:center;max-width:420px;width:100%;box-shadow:0 25px 40px rgba(227,6,19,0.15)}.crown-icon{font-size:64px;color:#FFD700;margin-bottom:8px}h1{color:#1a1a2e;font-size:24px;margin:5px 0;letter-spacing:2px}.sub{color:#B8860B;font-size:11px;text-transform:uppercase}.band-id{font-family:monospace;font-size:18px;font-weight:bold;color:#E30613;background:#f0f0f0;padding:8px 16px;border-radius:40px;display:inline-block;margin:15px 0;border:1px solid #E30613}.qr-container{background:#fff;padding:15px;border-radius:32px;display:inline-block;margin:15px 0}.info{text-align:left;background:rgba(0,0,0,0.04);border-radius:28px;padding:16px;margin:15px 0;color:#444;border:1px solid rgba(227,6,19,0.15)}.info div{margin:8px 0;display:flex;gap:12px}.info i{color:#E30613;width:24px}.footer{font-size:9px;color:#888;margin-top:20px}button{background:#E30613;color:#fff;border:none;padding:12px 20px;border-radius:60px;font-weight:bold;margin-top:15px;cursor:pointer;width:100%}</style></head><body><div class="band-card"><div class="crown-icon"><i class="fas fa-crown"></i></div><h1>RANDS SOVEREIGN'S CIRCLE</h1><div class="sub">✦ Imperial Access & Cashless Rule ✦</div><div class="band-id">${band.bandId}</div><div class="qr-container" id="printQR"></div><div class="info"><div><i class="fas fa-tag"></i> <strong>Sovereign ID:</strong> ${band.bandId}</div><div><i class="fas fa-user"></i> <strong>Chosen:</strong> ${acc.name}</div><div><i class="fas fa-door-open"></i> <strong>Access:</strong> All VVIP Realms + Sanctum</div><div><i class="fas fa-credit-card"></i> <strong>Cashless:</strong> Infinite Command at POS</div></div><div class="footer">Present this QR at any Sovereign Gate or Imperial Kiosk</div><button onclick="window.print();">⚡ Forge Physical Wristband ⚡</button></div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script><script>new QRCode(document.getElementById("printQR"),{text:"SOVEREIGN:${band.bandId}|${acc.id}|${acc.name}|CASHless|THRONE",width:150,height:150,colorDark:"#E30613"});<\/script></body></html>`); printWindow.document.close(); this.showToast(`👑 Imperial Wristband "${band.bandId}" forged!`); } }
+                async function printVVIPBandFn() { const acc = accounts.find(a => a.id === this.accountId); if (!acc) return; const band = vvipBands[acc.id]; if (band) { const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>RANDS SOVEREIGN'S CIRCLE - ${band.bandId}</title><style>body{font-family:'Playfair Display','Inter',serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;margin:0;padding:20px}.band-card{background:linear-gradient(145deg,#fff,#f8f9fa);border:3px solid #E30613;border-radius:48px;padding:32px;text-align:center;max-width:420px;width:100%;box-shadow:0 25px 40px rgba(227,6,19,0.15)}.crown-icon{font-size:64px;color:#FFD700;margin-bottom:8px}h1{color:#1a1a2e;font-size:24px;margin:5px 0;letter-spacing:2px}.sub{color:#B8860B;font-size:11px;text-transform:uppercase}.band-id{font-family:monospace;font-size:18px;font-weight:bold;color:#E30613;background:#f0f0f0;padding:8px 16px;border-radius:40px;display:inline-block;margin:15px 0;border:1px solid #E30613}.qr-container{background:#fff;padding:15px;border-radius:32px;display:inline-block;margin:15px 0}.info{text-align:left;background:rgba(0,0,0,0.04);border-radius:28px;padding:16px;margin:15px 0;color:#444;border:1px solid rgba(227,6,19,0.15)}.info div{margin:8px 0;display:flex;gap:12px}.info i{color:#E30613;width:24px}.footer{font-size:9px;color:#888;margin-top:20px}button{background:#E30613;color:#fff;border:none;padding:12px 20px;border-radius:60px;font-weight:bold;margin-top:15px;cursor:pointer;width:100%}</style></head><body><div class="band-card"><div class="crown-icon"><i class="fas fa-crown"></i></div><h1>RANDS SOVEREIGN'S CIRCLE</h1><div class="sub">✦ Imperial Access & Cashless Rule ✦</div><div class="band-id">${band.bandId}</div><div class="qr-container" id="printQR"></div><div class="info"><div><i class="fas fa-tag"></i> <strong>Sovereign ID:</strong> ${band.bandId}</div><div><i class="fas fa-user"></i> <strong>Chosen:</strong> ${acc.name}</div><div><i class="fas fa-door-open"></i> <strong>Access:</strong> All VVIP Realms + Sanctum</div><div><i class="fas fa-credit-card"></i> <strong>Cashless:</strong> Infinite Command at POS</div></div><div class="footer">Present this QR at any Sovereign Gate or Imperial Kiosk</div><button onclick="window.print();">⚡ Forge Physical Wristband ⚡</button></div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script><script>new QRCode(document.getElementById("printQR"),{text:"SOVEREIGN:${band.bandId}|${acc.id}|${acc.name}|CASHless|THRONE",width:150,height:150,colorDark:"#E30613"});<\/script></body></html>`); printWindow.document.close(); this.showToast(`👑 Imperial Wristband "${band.bandId}" forged!`); } }
                 function showPaymentInstructionsFn() { showScrollableAlert("⚜️ THE SOVEREIGN'S CASHLESS DECREE ⚜️\n\nAt any VVIP POS or Kiosk:\n\n1️⃣ Present your QR wristband (Imperial Seal).\n2️⃣ The system will recognize your Sovereign tier.\n3️⃣ Amount is deducted instantly from your Rands Wallet.\n4️⃣ Receive real-time throne notification.\n\n✨ Benefits: No queues, exclusive limits, VIP treatment.\n👑 Access includes: Royal Bars, Designer Shops, VIP Lounges, Fast Lane.", "Cashless Decree"); }
-                loadAccounts(); loadVVIPBands(); ensureVVIPBand();
+                loadAccounts(); loadVVIPBands(); ensureVVIPBand.bind(this)();
                 document.getElementById('printVVIPBandBtn')?.addEventListener('click', printVVIPBandFn.bind(this));
                 document.getElementById('howToPayBtn')?.addEventListener('click', showPaymentInstructionsFn);
             },
@@ -758,7 +792,7 @@
                 if (parseFloat(this.refundRequest.amount) > this.balance) { this.showAlert('❌ Refund amount cannot exceed your available balance'); return; }
                 if (!this.refundRequest.transactionId) { this.showAlert('❌ Please enter the transaction ID / reference'); return; }
                 if (!this.refundRequest.reason) { this.showAlert('❌ Please select a reason for refund'); return; }
-                const refundRequestData = { id: Date.now(), userId: 'Mziwonke', userPhone: '0635713652', amount: parseFloat(this.refundRequest.amount), transactionId: this.refundRequest.transactionId, reason: this.refundRequest.reason, details: this.refundRequest.details, status: 'pending', dateSubmitted: new Date().toISOString() };
+                const refundRequestData = { id: Date.now(), userId: this.accountId, userPhone: this.accountId, amount: parseFloat(this.refundRequest.amount), transactionId: this.refundRequest.transactionId, reason: this.refundRequest.reason, details: this.refundRequest.details, status: 'pending', dateSubmitted: new Date().toISOString() };
                 let pendingRefunds = JSON.parse(localStorage.getItem('rands_refund_requests') || '[]');
                 pendingRefunds.push(refundRequestData);
                 localStorage.setItem('rands_refund_requests', JSON.stringify(pendingRefunds));
