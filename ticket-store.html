@@ -53,7 +53,7 @@
             border-radius: inherit;
         }
         
-        /* ===== HEADER STYLES - FIXED WIDTH ===== */
+        /* ===== HEADER STYLES ===== */
         .movable-header-group {
             position: sticky;
             top: 0;
@@ -713,6 +713,38 @@
             border-top: 1px solid rgba(0,0,0,0.05);
         }
         
+        .delete-ticket-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .delete-ticket-btn:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.02);
+        }
+        
+        /* Remove disabled style - tickets can be deleted anytime now */
+        .delete-ticket-btn.disabled-delete {
+            opacity: 0.7;
+        }
+        
+        .delete-ticket-btn.disabled-delete:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.02);
+        }
+        
         .empty-wallet {
             text-align: center;
             padding: 80px 20px;
@@ -880,41 +912,6 @@
         .quantity-btn:hover { background: #dc2626; color: white; }
         .buy-btn { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 12px; border-radius: 50px; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
         .buy-btn:hover:not(:disabled) { background: linear-gradient(135deg, #b91c1c, #991b1b); transform: scale(1.02); }
-        
-        .delete-ticket-btn {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .delete-ticket-btn:hover {
-            background: #ef4444;
-            color: white;
-            transform: scale(1.02);
-        }
-        
-        .delete-ticket-btn.disabled-delete {
-            background: rgba(100, 100, 100, 0.1);
-            border: 1px solid #cbd5e1;
-            color: #94a3b8;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        
-        .delete-ticket-btn.disabled-delete:hover {
-            background: rgba(100, 100, 100, 0.1);
-            color: #94a3b8;
-            transform: none;
-        }
         
         @keyframes cartShake {
             0% { transform: translateX(0) rotate(0deg); }
@@ -1300,10 +1297,10 @@
     </div>
 </div>
 
-<!-- INTEGRATED HEADER - FIXED WIDTH -->
+<!-- INTEGRATED HEADER -->
 <div class="movable-header-group" id="movableHeaderGroup">
     <div class="app-header">
-        <img src="images/rands-logo.png" alt="Rands Wallet" class="logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'">
+        <img src="images/rands-logo3.png" alt="Rands Wallet" class="logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'">
         <div class="header-icons">
             <button class="my-tickets-btn" id="myTicketsHeaderBtn">
                 <i class="fas fa-ticket-alt"></i> My Tickets
@@ -1312,7 +1309,7 @@
         </div>
     </div>
     <div class="welcome-greeting" id="welcomeGreeting">
-        <i class="fas fa-hand-peace"></i> <span id="greetingName">Ready to Vibe, Thabo</span>
+        <i class="fas fa-hand-peace"></i> <span id="greetingName">Ready to Vibe, </span>
         <span id="pendingRequestIndicator" style="display: none;">⏳ Unlock Pending</span>
     </div>
 </div>
@@ -1396,8 +1393,13 @@
     let selectedEventId = null;
     let cart = [];
     
-    let currentUser = localStorage.getItem('rands_current_user') || 'Thabo';
-    document.getElementById('greetingName').innerHTML = `Ready to Vibe, ${currentUser}`;
+    // Get current user name from localStorage - use name, not number
+    let currentUserName = localStorage.getItem('rands_current_user_name') || localStorage.getItem('rands_current_user') || 'Thabo';
+    // Also store the name if not exists
+    if (!localStorage.getItem('rands_current_user_name') && localStorage.getItem('rands_current_user')) {
+        currentUserName = localStorage.getItem('rands_current_user');
+    }
+    document.getElementById('greetingName').innerHTML = `Ready to Vibe, ${currentUserName}`;
     
     const TICKET_TYPES = [
         { key: 'earlyBird', label: 'Early Bird', emoji: '🐦', desc: 'Limited early bird discount – act fast!', classSlug: 'early-bird', features: ['Full event access', 'Book Shisha at Shisha Lounge', 'Full Dance floor'] },
@@ -1461,11 +1463,9 @@
                 else if (ticket.ticketType?.toLowerCase().includes('vip')) typeClass = 'ticket-type-vip';
                 else typeClass = 'ticket-type-general';
                 const qrId = `modal_qr_${ticket.ticketId.replace(/[^a-zA-Z0-9]/g, '_')}_${idx}`;
-                const isPast = isTicketPastEvent(ticket);
-                const deleteDisabled = !isPast;
                 const formattedDate = ticket.eventDate ? new Date(ticket.eventDate).toLocaleDateString('en-ZA', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Date TBA';
                 const displayTicketId = ticket.ticketId || 'N/A';
-                return `<div class="ticket-card ${typeClass}" data-ticket-id="${ticket.ticketId}"><div class="ticket-header-wallet"><div class="event-name-tag"><i class="fas fa-calendar-alt"></i> ${escapeHtml(ticket.eventName)}</div><div class="ticket-title">${escapeHtml(ticket.ticketType)}</div><div class="ticket-meta"><span class="price-badge"><i class="fas fa-tag"></i> R${ticket.price?.toLocaleString() || '0'}</span><span><i class="fas fa-calendar-day"></i> ${formattedDate}</span></div></div><div class="qr-section"><div class="qr-container" id="${qrId}"></div><div class="manual-checkin-row"><i class="fas fa-qrcode"></i> Ticket ID: <strong>${escapeHtml(displayTicketId)}</strong></div><button class="download-btn modal-download-btn" data-id="${ticket.ticketId}"><i class="fas fa-download"></i> Download Ticket</button></div><div class="ticket-footer-wallet"><span><i class="far fa-clock"></i> ${isPast ? 'Past Event' : 'Upcoming Event'}</span><button class="delete-ticket-btn ${deleteDisabled ? 'disabled-delete' : ''}" data-delete-id="${ticket.ticketId}" ${deleteDisabled ? 'disabled' : ''}><i class="fas fa-trash-alt"></i> Delete</button></div></div>`;
+                return `<div class="ticket-card ${typeClass}" data-ticket-id="${ticket.ticketId}"><div class="ticket-header-wallet"><div class="event-name-tag"><i class="fas fa-calendar-alt"></i> ${escapeHtml(ticket.eventName)}</div><div class="ticket-title">${escapeHtml(ticket.ticketType)}</div><div class="ticket-meta"><span class="price-badge"><i class="fas fa-tag"></i> R${ticket.price?.toLocaleString() || '0'}</span><span><i class="fas fa-calendar-day"></i> ${formattedDate}</span></div></div><div class="qr-section"><div class="qr-container" id="${qrId}"></div><div class="manual-checkin-row"><i class="fas fa-qrcode"></i> Ticket ID: <strong>${escapeHtml(displayTicketId)}</strong></div><button class="download-btn modal-download-btn" data-id="${ticket.ticketId}"><i class="fas fa-download"></i> Download Ticket</button></div><div class="ticket-footer-wallet"><span><i class="far fa-clock"></i> Ticket</span><button class="delete-ticket-btn" data-delete-id="${ticket.ticketId}"><i class="fas fa-trash-alt"></i> Delete Ticket</button></div></div>`;
             }).join('');
             
             allTickets.forEach((ticket, idx) => {
@@ -1483,7 +1483,7 @@
                 btn.addEventListener('click', async (e) => { const ticketId = btn.getAttribute('data-id'); const card = btn.closest('.ticket-card'); if (card) await downloadTicket(ticketId, card); });
             });
             document.querySelectorAll('#myticketsModalBody .delete-ticket-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => { e.stopPropagation(); if (btn.disabled) return; const ticketId = btn.getAttribute('data-delete-id'); deleteTicket(ticketId); showMyTicketsModal(); updateWalletStats(); });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); const ticketId = btn.getAttribute('data-delete-id'); deleteTicket(ticketId); });
             });
         }
         modal.classList.add('show');
@@ -1543,25 +1543,21 @@
         } catch (err) { showToast('Download failed', true); } finally { document.body.removeChild(cloneCard); }
     }
     
-    function isTicketPastEvent(ticket) {
-        const event = events.find(e => e.name === ticket.eventName);
-        if (!event || !event.date) return false;
-        const eventDate = new Date(event.date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        eventDate.setHours(0, 0, 0, 0);
-        return eventDate < today;
-    }
-    
+    // Delete any ticket - no restrictions (can delete upcoming events too)
     function deleteTicket(ticketId) {
         let allTickets = loadTickets();
         const ticketToDelete = allTickets.find(t => t.ticketId === ticketId);
         if (!ticketToDelete) return;
-        if (!isTicketPastEvent(ticketToDelete)) { showToast(`❌ Cannot delete future event tickets. Only past events can be deleted.`, true); return; }
-        if (confirm(`Delete ${ticketToDelete.ticketType} ticket for "${ticketToDelete.eventName}"? (Past event)`)) {
-            saveTickets(allTickets.filter(t => t.ticketId !== ticketId));
+        
+        if (confirm(`Delete ${ticketToDelete.ticketType} ticket for "${ticketToDelete.eventName}"? This action cannot be undone.`)) {
+            const newTickets = allTickets.filter(t => t.ticketId !== ticketId);
+            saveTickets(newTickets);
             updateWalletStats();
-            showToast(`🗑️ Ticket deleted`);
+            // Refresh modal if open
+            if (document.getElementById('myticketsModalOverlay').classList.contains('show')) {
+                showMyTicketsModal();
+            }
+            showToast(`🗑️ Ticket deleted successfully`);
         }
     }
     
@@ -1572,11 +1568,24 @@
         const pastTickets = [], futureTickets = [];
         for (const ticket of allTickets) {
             const event = events.find(e => e.name === ticket.eventName);
-            if (event && event.date) { const eventDate = new Date(event.date); eventDate.setHours(0, 0, 0, 0); if (eventDate < today) pastTickets.push(ticket); else futureTickets.push(ticket); }
-            else { futureTickets.push(ticket); }
+            if (event && event.date) { 
+                const eventDate = new Date(event.date); 
+                eventDate.setHours(0, 0, 0, 0); 
+                if (eventDate < today) pastTickets.push(ticket); 
+                else futureTickets.push(ticket); 
+            } else { 
+                futureTickets.push(ticket); 
+            }
         }
         if (pastTickets.length === 0) { showToast('No past event tickets to delete', true); return; }
-        if (confirm(`Delete ${pastTickets.length} past event ticket(s)? This action cannot be undone.`)) { saveTickets(futureTickets); updateWalletStats(); showToast(`✅ Deleted ${pastTickets.length} past event ticket(s)`); }
+        if (confirm(`Delete ${pastTickets.length} past event ticket(s)? This action cannot be undone.`)) { 
+            saveTickets(futureTickets); 
+            updateWalletStats(); 
+            if (document.getElementById('myticketsModalOverlay').classList.contains('show')) {
+                showMyTicketsModal();
+            }
+            showToast(`✅ Deleted ${pastTickets.length} past event ticket(s)`); 
+        }
     }
     
     function updateCartUI() {
@@ -1620,7 +1629,7 @@
             ticketType.sold = newSold;
             for (let i = 0; i < item.quantity; i++) {
                 const ticketId = `${item.eventId}_${item.ticketTypeKey}_${now + i}_${Math.random().toString(36).substr(2, 6)}`;
-                allTickets.push({ ticketId: ticketId.toUpperCase(), attendeeName: `Guest`, eventName: event.name, eventDate: event.date, ticketType: item.name, price: item.price, purchasedAt: now + i });
+                allTickets.push({ ticketId: ticketId.toUpperCase(), attendeeName: currentUserName, eventName: event.name, eventDate: event.date, ticketType: item.name, price: item.price, purchasedAt: now + i });
             }
         }
         saveEvents();
@@ -1705,7 +1714,8 @@
         window.addEventListener('scroll', () => { const currentScroll = window.scrollY; if (currentScroll > lastScroll && currentScroll > 50) { header.classList.add('header-hidden'); } else if (currentScroll < lastScroll) { header.classList.remove('header-hidden'); } lastScroll = currentScroll; }, { passive: true });
     }
     
-    document.getElementById('logoutHeaderBtn')?.addEventListener('click', () => showToast('Logged out (demo)'));
+    // Logout redirects to home.html
+    document.getElementById('logoutHeaderBtn')?.addEventListener('click', () => { window.location.href = 'home.html'; });
     document.getElementById('myTicketsHeaderBtn')?.addEventListener('click', () => showMyTicketsModal());
     document.getElementById('closeMyticketsModalBtn')?.addEventListener('click', () => hideMyTicketsModal());
     document.getElementById('shopRedirectBtn')?.addEventListener('click', () => { hideMyTicketsModal(); showStore(); });
