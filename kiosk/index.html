@@ -740,6 +740,7 @@
   function showSuccessModal(msg) { return showAlertModal('Success!', msg, '✅'); }
   function showErrorModal(msg) { return showAlertModal('Error', msg, '❌'); }
 
+  // Optional wristband preview modal (legacy but kept for other flows, not used for redirect check-in)
   async function showCheckinWithWristband(guestName, ticketId) {
     return new Promise((resolve) => {
       const modal = document.getElementById('beautifulModal');
@@ -857,19 +858,34 @@
     showAlertModal("🎁 Surprise Vibe!", surprise, "🎁");
   });
   
-  // ==================== CORE HANDLERS ====================
-  function startOrderHandler() { window.location.href = 'kiosk-menu.html'; }
-  async function selfCheckinHandler() {
-    const guestName = await showPromptModal('Self Check-in', 'Enter your full name', 'e.g., Alex Rivera', '✋🏽');
-    if (!guestName?.trim()) { if (guestName !== null) await showErrorModal('Name required'); return; }
-    const ticketId = await showPromptModal('Ticket Verification', 'Enter ticket ID', 'RNDS-1234', '🎫');
-    if (!ticketId?.trim()) { if (ticketId !== null) await showErrorModal('Ticket ID required'); return; }
-    await showAlertModal('Verifying', `Checking ticket ${ticketId} for ${guestName}...`, '⏳');
-    await new Promise(r => setTimeout(r, 700));
-    await showCheckinWithWristband(guestName.trim(), ticketId.trim());
+  // ==================== CORE HANDLERS (UPDATED REDIRECTS) ====================
+  // ORDER: redirect to kiosk-menu.html
+  function startOrderHandler() { 
+    window.location.href = 'kiosk-menu.html'; 
   }
-  function eventTicketsHandler() { window.location.href = 'kiosk-tickets.html'; }
   
+  // SELF CHECK-IN: redirect to self-check-in.html (corrected as requested)
+  async function selfCheckinHandler() {
+    // Optional brief confirmation for better UX before redirect
+    const proceed = await showModal({
+      title: 'Self Check-in',
+      message: 'You will be redirected to our secure self-service check-in portal where you can verify your ticket and print your wristband.',
+      icon: '✋🏽✅',
+      buttons: 'confirm-cancel',
+      confirmText: 'Continue'
+    });
+    if (proceed) {
+      // Redirect to self-check-in.html (located in same directory or appropriate path)
+      window.location.href = 'self-check-in.html';
+    }
+  }
+  
+  // EVENT TICKETS: redirect to kiosk-tickets.html
+  function eventTicketsHandler() { 
+    window.location.href = 'kiosk-tickets.html'; 
+  }
+  
+  // Attach event listeners
   document.getElementById('startOrderBtn').addEventListener('click', startOrderHandler);
   document.getElementById('selfCheckinBtn').addEventListener('click', selfCheckinHandler);
   document.getElementById('eventTicketsBtn').addEventListener('click', eventTicketsHandler);
@@ -884,7 +900,7 @@
   style.textContent = `@keyframes cardFadeIn { to { opacity: 1; transform: translateY(0); } } .action-card { transform: translateY(30px); }`;
   document.head.appendChild(style);
   
-  console.log('%c✨ RANDS KIOSK — Live Vibe Lounge Activated | Self Check-in + Wristband', 'color:#E31B23; font-size:13px;');
+  console.log('%c✨ RANDS KIOSK — Self Check-in redirects to self-check-in.html | Live Vibe Lounge Active', 'color:#E31B23; font-size:13px;');
 </script>
 </body>
 </html>
