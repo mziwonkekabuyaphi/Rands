@@ -562,7 +562,7 @@
   <div class="kiosk-header">
     <div class="logo-area">
       <div class="logo-circle">
-        <img src="images/rands-logo2.png" alt="Rands Logo" onerror="this.onerror=null; this.parentElement.innerHTML='<span>R</span>';">
+        <img src="../images/rands-logo1.png" alt="Rands Logo" onerror="this.onerror=null; this.parentElement.innerHTML='<span>R</span>';">
       </div>
       <h1>Rands Kiosk</h1>
     </div>
@@ -740,7 +740,6 @@
   function showSuccessModal(msg) { return showAlertModal('Success!', msg, '✅'); }
   function showErrorModal(msg) { return showAlertModal('Error', msg, '❌'); }
 
-  // Optional wristband preview modal (legacy but kept for other flows, not used for redirect check-in)
   async function showCheckinWithWristband(guestName, ticketId) {
     return new Promise((resolve) => {
       const modal = document.getElementById('beautifulModal');
@@ -858,15 +857,10 @@
     showAlertModal("🎁 Surprise Vibe!", surprise, "🎁");
   });
   
-  // ==================== CORE HANDLERS (UPDATED REDIRECTS) ====================
-  // ORDER: redirect to kiosk-menu.html
-  function startOrderHandler() { 
-    window.location.href = 'kiosk-menu.html'; 
-  }
+  // ==================== CORE HANDLERS ====================
+  function startOrderHandler() { window.location.href = 'kiosk-menu.html'; }
   
-  // SELF CHECK-IN: redirect to self-check-in.html (corrected as requested)
   async function selfCheckinHandler() {
-    // Optional brief confirmation for better UX before redirect
     const proceed = await showModal({
       title: 'Self Check-in',
       message: 'You will be redirected to our secure self-service check-in portal where you can verify your ticket and print your wristband.',
@@ -875,17 +869,12 @@
       confirmText: 'Continue'
     });
     if (proceed) {
-      // Redirect to self-check-in.html (located in same directory or appropriate path)
-      window.location.href = 'self-check-in.html';
+      window.location.href = 'scanners/self-check-in.html';
     }
   }
   
-  // EVENT TICKETS: redirect to kiosk-tickets.html
-  function eventTicketsHandler() { 
-    window.location.href = 'kiosk-tickets.html'; 
-  }
+  function eventTicketsHandler() { window.location.href = 'kiosk-tickets.html'; }
   
-  // Attach event listeners
   document.getElementById('startOrderBtn').addEventListener('click', startOrderHandler);
   document.getElementById('selfCheckinBtn').addEventListener('click', selfCheckinHandler);
   document.getElementById('eventTicketsBtn').addEventListener('click', eventTicketsHandler);
@@ -900,7 +889,7 @@
   style.textContent = `@keyframes cardFadeIn { to { opacity: 1; transform: translateY(0); } } .action-card { transform: translateY(30px); }`;
   document.head.appendChild(style);
   
-  console.log('%c✨ RANDS KIOSK — Self Check-in redirects to self-check-in.html | Live Vibe Lounge Active', 'color:#E31B23; font-size:13px;');
+  console.log('%c✨ RANDS KIOSK — Self Check-in redirects to scanners/self-check-in.html | Logo path: ../images/rands-logo1.png', 'color:#E31B23; font-size:13px;');
 </script>
 </body>
 </html>
