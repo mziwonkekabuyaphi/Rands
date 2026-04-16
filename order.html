@@ -373,17 +373,34 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     function loadAccounts() {
         const saved = localStorage.getItem('rands_accounts_v2');
         if (saved) {
-            accounts = JSON.parse(saved);
-            const found = accounts.find(acc => acc.id === currentCustomer.id);
-            if (found) currentCustomer = found;
-            else accounts.push(currentCustomer);
+            try {
+                accounts = JSON.parse(saved);
+                // Try to find the current customer by ID
+                const found = accounts.find(acc => acc.id === currentCustomer.id);
+                if (found) {
+                    currentCustomer = found;
+                } else {
+                    // If not found, add the default customer to accounts
+                    accounts.push(currentCustomer);
+                    saveAccounts();
+                }
+            } catch (e) {
+                console.error("Error parsing accounts:", e);
+                accounts = [currentCustomer];
+                saveAccounts();
+            }
         } else {
             saveAccounts();
         }
-        // Update greeting with customer name
+        
+        // Update greeting with customer name - FIXED to show correct name
         const greetingSpan = document.getElementById('greetingName');
         if (greetingSpan) {
-            greetingSpan.innerText = `Molo, ${currentCustomer.name.split(' ')[0]}`;
+            // Get the customer name, fallback to "User" if empty
+            let displayName = currentCustomer.name || "User";
+            // Extract first name only (split by space and take first part)
+            const firstName = displayName.split(' ')[0];
+            greetingSpan.innerText = `Molo, ${firstName}`;
         }
     }
     
@@ -745,11 +762,9 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     });
     document.getElementById('posModeBtn')?.addEventListener('click', () => {
         showToast('POS Mode', 'info');
-        // Add POS mode logic here
     });
     document.getElementById('profileBtn')?.addEventListener('click', () => {
         showToast('Profile', 'info');
-        // Add profile navigation here
     });
     
     // Initialize
