@@ -42,39 +42,23 @@
     z-index: 1000;
   }
 
-  .kiosk-header {
-    width: 100%;
-    max-width: 800px;
-    margin-bottom: 20px;
-    padding: 16px 20px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.1);
-    border: 1px solid #ffcccc;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+  .smartq-title {
+    text-align: center;
+    margin: 16px 0 12px 0;
   }
-
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+  .smartq-title h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF0000, #b30000);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.5px;
   }
-
-  .header-logo {
-    height: 65px;
-    width: auto;
-    border-radius: 16px;
-  }
-
-  .kiosk-header h1 {
-    color: #FF0000;
-    font-size: 1.6rem;
-    font-weight: 700;
+  .smartq-title p {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 4px;
   }
 
   .kiosk-container {
@@ -132,16 +116,6 @@
   .form-group input.invalid {
     border-color: #ff9800;
     background: #fff8f0;
-  }
-
-  .counter-tag {
-    background: #FF0000;
-    color: white;
-    padding: 14px 16px;
-    border-radius: 30px;
-    font-size: 15px;
-    font-weight: 600;
-    text-align: center;
   }
 
   .join-btn {
@@ -747,11 +721,8 @@
       grid-template-columns: 1fr; 
       gap: 16px;
     }
-    .kiosk-header h1 { 
-      font-size: 1.3rem; 
-    }
-    .header-logo { 
-      height: 55px; 
+    .smartq-title h2 {
+      font-size: 1.5rem;
     }
     .serving-number { 
       font-size: 40px; 
@@ -787,18 +758,8 @@
     body {
       padding: 12px;
     }
-    .kiosk-header {
-      padding: 12px 16px;
-    }
-    .kiosk-header h1 {
-      font-size: 1.1rem;
-    }
-    .header-logo {
-      height: 50px;
-    }
-    .counter-tag {
-      font-size: 13px;
-      padding: 12px;
+    .smartq-title h2 {
+      font-size: 1.3rem;
     }
     .serving-number {
       font-size: 34px;
@@ -824,13 +785,184 @@
 </head>
 <body>
 
-<!-- Header container removed as requested -->
+<!-- ========== GLOBAL HEADER COMPONENT (modified: POS icon -> Info icon, Molo -> Fola) ========== -->
+<style>
+    /* Header Styles - Full Width, Sticky, Hide on Scroll */
+    .movable-header-group {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #fff;
+        transition: transform 0.3s ease;
+        will-change: transform;
+        width: 100%;
+        left: 0;
+        right: 0;
+    }
+    .header-hidden {
+        transform: translateY(-100%);
+    }
+    .app-header {
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-bottom: 1px solid #eff3f8;
+        width: 100%;
+    }
+    .logo {
+        height: 45px;
+        width: auto;
+        max-width: 180px;
+        object-fit: contain;
+        border-radius: 12px;
+    }
+    .header-icons {
+        display: flex;
+        gap: 8px;
+    }
+    .header-icon {
+        width: 40px;
+        height: 40px;
+        background: #f7f9fd;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #E30613;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .header-icon:active {
+        transform: scale(0.94);
+    }
+    .welcome-greeting {
+        padding: 12px 24px;
+        background: white;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid #f0f4fa;
+        flex-wrap: wrap;
+    }
+    .welcome-greeting i {
+        color: #E30613;
+        font-size: 1rem;
+    }
+    .welcome-greeting span {
+        background: linear-gradient(135deg, #E30613 0%, #b0020e 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        font-weight: 800;
+    }
+    #pendingRequestIndicator {
+        background: #fef2f2;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        color: #E30613;
+        font-weight: 600;
+    }
+    @media (max-width: 700px) {
+        .app-header { padding: 12px 20px; }
+        .welcome-greeting { padding: 10px 20px; }
+        .header-icon { width: 36px; height: 36px; font-size: 1rem; }
+        .logo { height: 38px; }
+    }
+</style>
 
-<div class="kiosk-header">
-  <div class="header-title">
-    <img class="header-logo" src="images/rands-logo.png" alt="Butcher Logo" onerror="this.style.display='none'">
-    <h1>Butcher Smart Queue</h1>
-  </div>
+<div class="movable-header-group" id="movableHeaderGroup">
+    <div class="app-header">
+        <img src="images/rands-logo1.png" alt="Rands Wallet" class="logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'">
+        <div class="header-icons">
+            <span class="header-icon" id="logoutHeaderBtn"><i class="fas fa-sign-out-alt"></i></span>
+            <!-- Changed from cash-register to info-circle -->
+            <span class="header-icon" id="infoHeaderBtn"><i class="fas fa-info-circle"></i></span>
+            <span class="header-icon" id="profileBtn"><i class="fas fa-user-circle"></i></span>
+        </div>
+    </div>
+    <div class="welcome-greeting" id="welcomeGreeting">
+        <i class="fas fa-hand-peace"></i> <span id="greetingName">Fola, User</span>
+        <span id="pendingRequestIndicator" style="display: none;">⏳ Unlock Pending</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Load user account from localStorage (same as home.html)
+        function loadUserAndUpdateGreeting() {
+            const saved = localStorage.getItem('rands_accounts_v2');
+            let userName = "User";
+            if (saved) {
+                try {
+                    const accounts = JSON.parse(saved);
+                    const userAccount = accounts.find(acc => acc.name && acc.name.toLowerCase().includes('mziwonke')) || accounts[0];
+                    if (userAccount && userAccount.name) {
+                        userName = userAccount.name.split(' ')[0];
+                    }
+                } catch(e) { console.error(e); }
+            }
+            const greetingSpan = document.getElementById('greetingName');
+            if (greetingSpan) greetingSpan.innerText = `Fola, ${userName}`;
+        }
+
+        // Header scroll hide/show
+        const header = document.getElementById('movableHeaderGroup');
+        let lastScroll = 0;
+        if (header) {
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.scrollY;
+                if (currentScroll > lastScroll && currentScroll > 50) {
+                    header.classList.add('header-hidden');
+                } else if (currentScroll < lastScroll) {
+                    header.classList.remove('header-hidden');
+                }
+                lastScroll = currentScroll;
+            }, { passive: true });
+        }
+
+        // Button handlers
+        document.getElementById('logoutHeaderBtn')?.addEventListener('click', () => {
+            window.location.href = 'home.html';
+        });
+        
+        // Info button: show popup explaining how the queue works
+        document.getElementById('infoHeaderBtn')?.addEventListener('click', () => {
+            showAlert(
+                "📋 How It Works:\n\n" +
+                "1️⃣ Enter your WhatsApp number\n" +
+                "2️⃣ Browse the menu and add items to your order\n" +
+                "3️⃣ Confirm your order – you'll receive a ticket number\n" +
+                "4️⃣ Scan the QR code to track your order status\n" +
+                "5️⃣ Wait for your number to be called on the 'Now Serving' board\n\n" +
+                "✅ Your food will be prepared fresh and ready when you arrive!",
+                "Smart Queue Guide",
+                "info"
+            );
+        });
+        
+        document.getElementById('profileBtn')?.addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
+
+        loadUserAndUpdateGreeting();
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'rands_accounts_v2') loadUserAndUpdateGreeting();
+        });
+    })();
+</script>
+<!-- ========== END GLOBAL HEADER ========== -->
+
+<!-- Title "Butcher SmartQ" above WhatsApp number -->
+<div class="smartq-title">
+    <h2>🥩 Butcher SmartQ</h2>
+    <p>Pre‑order & join the queue instantly</p>
 </div>
 
 <div class="kiosk-container">
@@ -841,10 +973,7 @@
       <div class="phone-hint" id="phoneHint"><i class="fas fa-info-circle"></i> Enter 10-digit number (e.g., 0635713652)</div>
     </div>
     
-    <div class="form-group">
-      <label>Select Counter</label>
-      <div class="counter-tag">🥩 The Butcher Counter</div>
-    </div>
+    <!-- Removed "Select Counter" section – only one counter -->
     
     <button class="join-btn" id="joinBtn" disabled>🍽️ Pre-order & Queue</button>
   </div>
@@ -1211,7 +1340,6 @@
           const name = item.dataset.name;
           const price = parseFloat(item.dataset.price);
           
-          // Animate the item being thrown to cart
           animateThrowToCart(item, () => {
             const existing = cart.find(i => i.id === id);
             let newItemIndex = -1;
@@ -1331,6 +1459,35 @@
     document.body.appendChild(modal);
   }
 
+  // Auto-fill WhatsApp number from logged-in wallet account
+  function autoFillWalletPhone() {
+    const saved = localStorage.getItem('rands_accounts_v2');
+    if (saved) {
+      try {
+        const accounts = JSON.parse(saved);
+        // Find the primary account (same logic as header)
+        const userAccount = accounts.find(acc => acc.name && acc.name.toLowerCase().includes('mziwonke')) || accounts[0];
+        if (userAccount) {
+          // Prefer phone field, fallback to id
+          let phone = userAccount.phone || userAccount.id;
+          if (phone) {
+            // Extract digits only (remove any non-digit characters)
+            let digits = phone.replace(/\D/g, '');
+            if (digits.length >= 10) {
+              digits = digits.slice(-10); // take last 10 digits
+              const phoneInput = document.getElementById('whatsappNumber');
+              if (phoneInput) {
+                phoneInput.value = digits;
+                // Trigger validation to enable button
+                updateJoinButtonState();
+              }
+            }
+          }
+        }
+      } catch(e) { console.error(e); }
+    }
+  }
+
   // Phone input validation listener
   const phoneInput = document.getElementById('whatsappNumber');
   phoneInput.addEventListener('input', function(e) {
@@ -1358,12 +1515,10 @@
   updateNowServing();
   setInterval(updateNowServing, 5000);
   updateJoinButtonState();
+  autoFillWalletPhone(); // Auto-fill the WhatsApp field on page load
 
-  // Load header and bottom navigation after page loads
+  // Load bottom navigation after page loads
   document.addEventListener('DOMContentLoaded', function() {
-    if (typeof loadHeader === 'function') {
-      loadHeader();
-    }
     if (typeof loadBottomNav === 'function') {
       loadBottomNav();
     }

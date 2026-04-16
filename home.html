@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        /* ========== YOUR EXISTING STYLES (unchanged) ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; padding-bottom: 80px; }
         .wallet-container { max-width: 480px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 48px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); overflow: hidden; position: relative; min-height: 700px; display: flex; flex-direction: column; }
@@ -257,7 +258,7 @@
                 </div>
                 <div class="header-icons">
                     <div class="icon-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
-                    <div class="icon-btn" @click="openBackOfficeModal"><i class="fas fa-building"></i><span class="notification-dot"></span></div>
+                    <!-- Office icon removed from header to save space (moved to quick actions) -->
                 </div>
             </div>
             <div class="welcome-section"><div class="greeting">Wamkelekile,</div><div class="user-name">Mziwonke 👋</div></div>
@@ -271,7 +272,9 @@
             <div class="action-row-secondary">
                 <div class="action-pill" onclick="window.location.href='order.html'"><i class="fas fa-shopping-cart"></i><span>Order Now</span></div>
                 <div class="action-pill" @click="openRefundModal()"><i class="fas fa-undo-alt"></i><span>Request Refund</span></div>
+                <div class="action-pill" @click="openBackOfficeModal()"><i class="fas fa-building"></i><span>Staff Office</span></div>
             </div>
+            <!-- Manual check button -->
             <div class="action-row-secondary" style="margin-top: 10px;">
                 <div class="action-pill" @click="manualCheckForPayments">
                     <i class="fas fa-search"></i><span>Check for Payments</span>
@@ -350,7 +353,7 @@
     <div class="modal-overlay" :class="{ active: counterModalVisible }" @click.self="closeCounterModal"><div class="counter-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-cash-register"></i></div><h3>Select Counter</h3><p style="font-size:0.75rem; color:#64748b;">Choose where you want to pay</p></div><div class="counter-options"><div class="counter-option" @click="selectCounter('rands')"><div class="counter-icon"><i class="fas fa-brain"></i></div><div class="counter-info"><h4>Rands Smart Counter</h4><p>Smart checkout • Fast service • Digital receipts</p></div></div><div class="counter-option" @click="selectCounter('butcher')"><div class="counter-icon"><i class="fas fa-drumstick-bite"></i></div><div class="counter-info"><h4>The Butcher Counter</h4><p>Premium meats • Butcher specials • Quick pickups</p></div></div></div><div class="modal-buttons" style="margin-top: 8px;"><button class="modal-btn btn-decline" @click="closeCounterModal">Cancel</button></div></div></div>
     <div class="modal-overlay" :class="{ active: refundModalVisible }" @click.self="closeRefundModal"><div class="refund-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-undo-alt"></i></div><h3>Request Refund</h3><p style="font-size:0.75rem; color:#64748b;">Submit a refund request for admin approval</p></div><div class="refund-note"><i class="fas fa-info-circle"></i><span>Refunds are processed within 3-5 business days after admin approval.</span></div><div class="form-group"><label>Refund Amount (R)</label><input type="number" v-model="refundRequest.amount" placeholder="Enter amount" min="10" step="0.01"></div><div class="form-group"><label>Payment Reference / Transaction ID</label><input type="text" v-model="refundRequest.transactionId" placeholder="e.g., TXN-12345678"></div><div class="form-group"><label>Reason for Refund</label><select v-model="refundRequest.reason"><option value="">Select a reason</option><option value="Duplicate payment">Duplicate payment</option><option value="Wrong amount charged">Wrong amount charged</option><option value="Product/service not received">Product/service not received</option><option value="Product defective/damaged">Product defective/damaged</option><option value="Cancelled order">Cancelled order</option><option value="Other">Other</option></select></div><div class="form-group"><label>Additional Details (Optional)</label><textarea v-model="refundRequest.details" placeholder="Please provide any additional information about your refund request..."></textarea></div><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeRefundModal">Cancel</button><button class="modal-btn btn-refund" @click="submitRefundRequest">Submit Request</button></div></div></div>
 
-    <!-- Payment Modal (updated to show kiosk items) -->
+    <!-- Payment Modal -->
     <div class="modal-overlay" :class="{ active: paymentModalVisible }" @click.self="closeModal">
         <div class="payment-modal">
             <div class="modal-header">
@@ -369,14 +372,13 @@
         </div>
     </div>
 
-    <!-- VVIP Modal -->
+    <!-- VVIP Modal (unchanged) -->
     <div id="vvipModalOverlay" class="vvip-modal-overlay"><div class="vvip-modal-content"><div class="close-vvip-modal" onclick="document.getElementById('vvipModalOverlay').classList.remove('active')"><i class="fas fa-times"></i></div><div class="sovereign-title"><div class="crown-icon"><i class="fas fa-crown"></i></div><div class="main-title">RANDS SOVEREIGN'S CIRCLE</div><div class="subhead">✦ Beyond Prestige — Beyond Limits ✦</div><div class="gold-divider"></div></div><div class="cashless-note"><i class="fas fa-gem"></i><span><strong>THE ULTIMATE ACCESS</strong> · Tap & Command · VVIP Only</span><i class="fas fa-bolt"></i></div><div class="vvip-band-card" id="vvipBandCard"><div class="band-icon"><i class="fas fa-hand-peace"></i></div><h3>Imperial Wristband</h3><div class="tagline">∞ Cashless Throne | Gate of Legends ∞</div><div id="vvipBandNumber" class="vvip-band-number">— LOADING ELITE STATUS —</div><div class="vvip-band-qr" id="vvipBandQR"></div><div class="vvip-band-info"><div><i class="fas fa-tag"></i> Sovereign ID: <strong id="bandIdDisplay">—</strong></div><div><i class="fas fa-user-astronaut"></i> Chosen One: <strong id="bandWalletName">—</strong></div><div><i class="fas fa-door-closed"></i> Access: <strong style="color: #E30613;">All Sanctuaries + VVIP Sanctum</strong></div><div><i class="fas fa-coins"></i> Cashless Power: <strong style="color: #E30613;">Infinite Velocity</strong></div><div><i class="fas fa-shield-alt"></i> Status: <strong style="color: #10b981;">Immortal Active</strong></div></div><button class="print-band-btn" id="printVVIPBandBtn"><i class="fas fa-print"></i> Forge Physical Band</button><button class="print-band-btn secondary" id="howToPayBtn"><i class="fas fa-crown"></i> Decree of Cashless Rule</button><div class="instruction-text"><i class="fas fa-qrcode"></i> Present this edict (QR) at any Sovereign Gate or Imperial POS</div></div><div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0 0;"><span class="feature-badge"><i class="fas fa-champagne-glasses"></i> Private Lounge</span><span class="feature-badge"><i class="fas fa-wine-bottle"></i> Unlimited Prestige</span><span class="feature-badge"><i class="fas fa-store"></i> Sovereign Boutique</span><span class="feature-badge"><i class="fas fa-ticket"></i> Instant Throne Entry</span><span class="feature-badge"><i class="fas fa-headset"></i> 24k Concierge</span></div></div></div>
 
     <div class="toast-message" :class="{ show: toastVisible }">{{ toastMessage }}</div>
 </div>
 <div id="bottomNav"></div>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
-<!-- Load app.js to provide loadBottomNav and other global functions -->
 <script src="app.js"></script>
 <script>
     function showScrollableAlert(message, title = 'Notice') {
@@ -463,11 +465,13 @@
             toastMessage: "",
             toastTimer: null,
             currentKioskRequest: null,
-            pollingInterval: null
+            pollingInterval: null,
+            // IMPORTANT: This is the wallet's own account ID – only requests matching this will be shown
+            walletAccountId: "0635713652"
         },
         computed: { vibeProgress() { return Math.min(100, (this.checkins / 500) * 100); } },
         mounted() {
-            console.log("Wallet mounted – listening for kiosk payments");
+            console.log("Wallet mounted – listening for kiosk payments (only for account", this.walletAccountId, ")");
             this.listenForKioskPayments();
             this.startPolling();
             if (typeof loadBottomNav === 'function') loadBottomNav();
@@ -492,10 +496,14 @@
                 this.pollingInterval = setInterval(() => {
                     const pendingRequest = localStorage.getItem('rands_payment_request');
                     if (pendingRequest) {
-                        console.log("Polling found pending request");
                         const request = JSON.parse(pendingRequest);
-                        if (Date.now() - request.timestamp < 120000 && request.status === 'pending' && !this.paymentModalVisible) {
+                        // Only accept if accountId matches wallet's account
+                        if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending' && !this.paymentModalVisible) {
+                            console.log("Polling found valid request for this wallet");
                             this.showKioskPaymentModal(request);
+                        } else if (request.accountId !== this.walletAccountId) {
+                            // Not for this wallet – silently ignore and remove from storage to avoid clutter
+                            localStorage.removeItem('rands_payment_request');
                         } else if (Date.now() - request.timestamp >= 120000) {
                             localStorage.removeItem('rands_payment_request');
                         }
@@ -507,9 +515,12 @@
                 const pendingRequest = localStorage.getItem('rands_payment_request');
                 if (pendingRequest) {
                     const request = JSON.parse(pendingRequest);
-                    if (Date.now() - request.timestamp < 120000 && request.status === 'pending') {
+                    if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending') {
                         this.showKioskPaymentModal(request);
                         this.showToast("✅ Found pending payment request!", 2000);
+                    } else if (request.accountId !== this.walletAccountId) {
+                        this.showToast("⚠️ Payment request is for a different wallet account", 2000);
+                        localStorage.removeItem('rands_payment_request');
                     } else {
                         this.showToast("No valid pending payment found", 2000);
                         localStorage.removeItem('rands_payment_request');
@@ -523,8 +534,11 @@
                     const pendingRequest = localStorage.getItem('rands_payment_request');
                     if (pendingRequest) {
                         const request = JSON.parse(pendingRequest);
-                        if (Date.now() - request.timestamp < 120000 && request.status === 'pending') {
+                        if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending') {
                             this.showKioskPaymentModal(request);
+                        } else if (request.accountId !== this.walletAccountId) {
+                            // Not for us – remove it
+                            localStorage.removeItem('rands_payment_request');
                         } else {
                             localStorage.removeItem('rands_payment_request');
                         }
@@ -533,13 +547,24 @@
                 this.handleStorageChange = (e) => {
                     if (e.key === 'rands_payment_request' && e.newValue) {
                         const request = JSON.parse(e.newValue);
-                        if (request.status === 'pending') this.showKioskPaymentModal(request);
+                        if (request.accountId === this.walletAccountId && request.status === 'pending') {
+                            this.showKioskPaymentModal(request);
+                        } else if (request.accountId !== this.walletAccountId) {
+                            // Ignore and remove
+                            localStorage.removeItem('rands_payment_request');
+                        }
                     }
                 };
                 window.addEventListener('storage', this.handleStorageChange);
                 checkExistingRequest();
             },
             showKioskPaymentModal(request) {
+                // Double-check account ID before showing modal
+                if (request.accountId !== this.walletAccountId) {
+                    console.warn("Ignoring payment request for wrong account:", request.accountId);
+                    localStorage.removeItem('rands_payment_request');
+                    return;
+                }
                 this.currentKioskRequest = request;
                 this.pendingPayment = {
                     from: request.from,
@@ -568,7 +593,7 @@
                                 approved: true,
                                 amount: this.pendingPayment.amount,
                                 timestamp: Date.now(),
-                                accountId: "0635713652"
+                                accountId: this.walletAccountId
                             };
                             localStorage.setItem('rands_payment_approved', JSON.stringify(approval));
                             localStorage.removeItem('rands_payment_request');
@@ -594,7 +619,7 @@
                             this.currentKioskRequest = null;
                         }
                     } else {
-                        // Fallback for old simulation (rare)
+                        // Fallback for any old simulation
                         if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
                         this.balance -= this.pendingPayment.amount;
                         this.showAlert(`✅ Payment of R${this.formatPrice(this.pendingPayment.amount)} approved!`);
@@ -683,7 +708,6 @@
                 else if (option === 'vault') { this.showAlert('🏦 Opening My Booze Vault'); setTimeout(() => { window.open('my-booze-vault.html', '_blank'); }, 500); }
             },
             openVVIPModal() { this.initVVIPBand(); document.getElementById('vvipModalOverlay').classList.add('active'); },
-            // Fixed VVIP band method
             initVVIPBand() {
                 const ACCOUNTS_KEY = 'rands_accounts_v2', VVIP_BANDS_KEY = 'vvip_bands';
                 let accounts = [], vvipBands = {};
