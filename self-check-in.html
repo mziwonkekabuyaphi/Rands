@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>Rands Venue OS | Self Check-in Kiosk + Wristband Printing</title>
+  <meta name="description" content="Self-service ticket validation with automatic wristband printing">
+  <meta name="theme-color" content="#E30613">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Font Awesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: linear-gradient(145deg, #0a0c12 0%, #12161f 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* Kiosk Container - large, clean, self-checkin style */
+    .kiosk-container {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      background: rgba(18, 22, 32, 0.75);
+      backdrop-filter: blur(18px);
+      border-radius: 64px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    /* Header with brand */
+    .kiosk-header {
+      padding: 28px 32px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      background: white;
+      border-radius: 14px;
+      padding: 6px;
+    }
+
+    .brand-text {
+      font-weight: 700;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #fff, #bfc6e0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .badge-kiosk {
+      background: rgba(227,6,19,0.2);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #ff7b7b;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(227,6,19,0.3);
+    }
+
+    /* Main content */
+    .kiosk-content {
+      padding: 32px 32px 48px;
+    }
+
+    .instruction {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .instruction-icon {
+      font-size: 48px;
+      color: #E30613;
+      margin-bottom: 12px;
+    }
+
+    .instruction h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .instruction p {
+      color: #9ba3bf;
+      font-size: 0.9rem;
+    }
+
+    /* Scanner simulation area (QR focused) */
+    .scanner-area {
+      background: rgba(0,0,0,0.4);
+      border-radius: 40px;
+      padding: 28px 20px;
+      margin-bottom: 32px;
+      border: 1px dashed rgba(227,6,19,0.4);
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .qr-simulation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .qr-placeholder {
+      width: 180px;
+      height: 180px;
+      background: #0f1119;
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      border: 2px solid rgba(227,6,19,0.5);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .qr-placeholder i {
+      font-size: 70px;
+      color: #E30613;
+      opacity: 0.8;
+    }
+
+    .qr-placeholder span {
+      font-size: 0.75rem;
+      color: #8f9bb5;
+    }
+
+    .simulate-btn {
+      background: rgba(227,6,19,0.85);
+      border: none;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-weight: 600;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .simulate-btn:hover {
+      background: #E30613;
+      transform: scale(1.02);
+    }
+
+    /* Input fallback (manual code) */
+    .manual-code {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .manual-code input {
+      background: #1e2432;
+      border: 1px solid #2f3748;
+      padding: 12px 18px;
+      border-radius: 60px;
+      color: white;
+      font-size: 0.9rem;
+      width: 240px;
+      text-align: center;
+      outline: none;
+      transition: 0.2s;
+      font-family: monospace;
+    }
+
+    .manual-code input:focus {
+      border-color: #E30613;
+    }
+
+    .manual-code button {
+      background: #2a3245;
+      border: none;
+      padding: 0 22px;
+      border-radius: 60px;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .manual-code button:hover {
+      background: #E30613;
+    }
+
+    /* Ticket info card */
+    .ticket-preview {
+      background: rgba(0,0,0,0.35);
+      border-radius: 32px;
+      padding: 20px;
+      margin: 24px 0;
+      border-left: 4px solid #E30613;
+      transition: 0.2s;
+    }
+
+    .ticket-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .guest-details h4 {
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .guest-details p {
+      color: #b9c3df;
+      font-size: 0.8rem;
+      margin-top: 6px;
+    }
+
+    .ticket-status {
+      background: #1fdf6422;
+      padding: 6px 14px;
+      border-radius: 60px;
+      color: #2fea7a;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    /* Print wristband zone */
+    .print-section {
+      background: linear-gradient(105deg, rgba(227,6,19,0.12) 0%, rgba(0,0,0,0.3) 100%);
+      border-radius: 48px;
+      padding: 24px;
+      margin-top: 16px;
+      text-align: center;
+      border: 1px solid rgba(227,6,19,0.25);
+    }
+
+    .print-btn {
+      background: #1a7f3a;
+      border: none;
+      padding: 16px 24px;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      justify-content: center;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+    }
+
+    .print-btn i {
+      font-size: 1.2rem;
+    }
+
+    .print-btn:hover:not(:disabled) {
+      background: #229a48;
+      transform: translateY(-2px);
+      box-shadow: 0 14px 22px rgba(0,0,0,0.3);
+    }
+
+    .print-btn:disabled {
+      background: #3e4a5c;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .wristband-preview {
+      margin-top: 20px;
+      background: #0f111b;
+      border-radius: 28px;
+      padding: 14px;
+      font-size: 0.8rem;
+      color: #bdc6e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toast-message {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293bdd;
+      backdrop-filter: blur(12px);
+      padding: 12px 24px;
+      border-radius: 60px;
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      transition: 0.2s;
+      font-size: 0.85rem;
+      border-left: 3px solid #E30613;
+      pointer-events: none;
+    }
+
+    /* Back link */
+    .back-link {
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .back-link a {
+      color: #9aa5c2;
+      text-decoration: none;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+
+    .back-link a:hover {
+      color: #E30613;
+    }
+
+    /* Responsive */
+    @media (max-width: 550px) {
+      .kiosk-container {
+        border-radius: 40px;
+      }
+      .kiosk-content {
+        padding: 24px 20px 36px;
+      }
+      .instruction h2 {
+        font-size: 1.4rem;
+      }
+      .qr-placeholder {
+        width: 140px;
+        height: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="kiosk-container">
+  <div class="kiosk-header">
+    <div class="logo-area">
+      <!-- Logo path: images/logo.png with SVG fallback -->
+      <img class="logo-img" src="images/logo.png" alt="Rands" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'67\' font-size=\'45\' text-anchor=\'middle\' fill=\'white\' font-weight=\'bold\'%3ER%3C/text%3E%3C/svg%3E';">
+      <span class="brand-text">Rands Venue OS</span>
+    </div>
+    <div class="badge-kiosk"><i class="fas fa-print"></i> Self Check-in + Wristband</div>
+  </div>
+  
+  <div class="kiosk-content">
+    <div class="instruction">
+      <div class="instruction-icon"><i class="fas fa-qrcode"></i></div>
+      <h2>Self Check-in Kiosk</h2>
+      <p>Scan your ticket or enter code • Wristband will be printed automatically</p>
+    </div>
+
+    <!-- Scanner simulation area -->
+    <div class="scanner-area">
+      <div class="qr-simulation">
+        <div class="qr-placeholder" id="qrVisual">
+          <i class="fas fa-camera"></i>
+          <span>Ready to scan</span>
+        </div>
+        <button class="simulate-btn" id="simulateScanBtn">
+          <i class="fas fa-qrcode"></i> Simulate Ticket Scan
+        </button>
+        <div class="manual-code">
+          <input type="text" id="manualTicketCode" placeholder="Enter ticket ID (e.g., tkt_1734567890_abc123)" autocomplete="off">
+          <button id="manualSubmitBtn">Validate</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic ticket info panel (hidden until validation) -->
+    <div id="ticketInfoPanel" class="ticket-preview" style="display: none;">
+      <div class="ticket-info">
+        <div class="guest-details">
+          <h4 id="guestName">—</h4>
+          <p id="ticketType">Ticket type: <span>—</span></p>
+        </div>
+        <div class="ticket-status" id="validationBadge">✓ Validated</div>
+      </div>
+      <div style="margin-top: 12px; font-size:0.75rem; color:#9aa5c2;" id="ticketExtraInfo"></div>
+    </div>
+
+    <!-- Wristband printing section -->
+    <div class="print-section">
+      <button id="printWristbandBtn" class="print-btn" disabled>
+        <i class="fas fa-ticket-alt"></i> Print Wristband
+      </button>
+      <div id="wristbandPreview" class="wristband-preview" style="display: none;">
+        <i class="fas fa-check-circle" style="color:#2fea7a;"></i> Wristband ready — collect from dispenser
+      </div>
+    </div>
+    
+    <div class="back-link">
+      <a href="scanner-hub.html" id="backToHubLink"><i class="fas fa-arrow-left"></i> Back to Scanner Hub</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==============================================================
+  // UNIFIED TICKET STORAGE - Same as customer page & gate scanner
+  // Storage key: 'user_tickets_v2' (matches customer purchase page)
+  // ==============================================================
+  const TICKETS_STORAGE_KEY = 'user_tickets_v2';
+  let allTickets = [];
+  let currentTicket = null;
+  let isCheckedIn = false;
+  let wristbandPrinted = false;
+  
+  // DOM elements
+  const ticketInfoPanel = document.getElementById('ticketInfoPanel');
+  const guestNameEl = document.getElementById('guestName');
+  const ticketTypeSpan = document.querySelector('#ticketType span');
+  const ticketExtraInfo = document.getElementById('ticketExtraInfo');
+  const printBtn = document.getElementById('printWristbandBtn');
+  const wristbandPreviewDiv = document.getElementById('wristbandPreview');
+  const validationBadge = document.getElementById('validationBadge');
+  const manualInput = document.getElementById('manualTicketCode');
+  const manualSubmitBtn = document.getElementById('manualSubmitBtn');
+  const simulateScanBtn = document.getElementById('simulateScanBtn');
+  
+  // Helper: Show toast message
+  function showToast(message, isError = false) {
+    let toast = document.querySelector('.toast-message');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'toast-message';
+      document.body.appendChild(toast);
+    }
+    toast.style.backgroundColor = isError ? '#aa2e2edd' : '#1e293bdd';
+    toast.style.borderLeftColor = isError ? '#ff5555' : '#E30613';
+    toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${message}`;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 500);
+    }, 2800);
+  }
+  
+  // Load tickets from localStorage (same as customer page)
+  function loadTickets() {
+    const stored = localStorage.getItem(TICKETS_STORAGE_KEY);
+    if (stored && stored.length > 2) {
+      allTickets = JSON.parse(stored);
+      console.log(`✅ Loaded ${allTickets.length} tickets from ${TICKETS_STORAGE_KEY}`);
+    } else {
+      allTickets = [];
+      console.log("📭 No tickets found. Purchase tickets from customer page first.");
+    }
+  }
+  
+  // Save tickets back to localStorage (after check-in)
+  function saveTickets() {
+    localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(allTickets));
+    // Dispatch storage event for other tabs (gate scanner, etc.)
+    window.dispatchEvent(new StorageEvent('storage', { key: TICKETS_STORAGE_KEY, newValue: JSON.stringify(allTickets) }));
+  }
+  
+  // Find ticket by ID (full ID from customer purchase)
+  function findTicket(ticketId) {
+    return allTickets.find(t => t.id === ticketId);
+  }
+  
+  // Check-in ticket (mark as checkedIn)
+  function checkInTicket(ticketId) {
+    const ticket = findTicket(ticketId);
+    if (ticket && !ticket.checkedIn) {
+      ticket.checkedIn = true;
+      ticket.checkinTime = new Date().toISOString();
+      ticket.checkinGate = "SELF CHECK-IN KIOSK";
+      saveTickets();
+      return true;
+    }
+    return false;
+  }
+  
+  // Reset UI for new ticket
+  function resetForNewTicket() {
+    wristbandPrinted = false;
+    printBtn.disabled = true;
+    wristbandPreviewDiv.style.display = 'none';
+    if (currentTicket && isCheckedIn && !wristbandPrinted) {
+      printBtn.disabled = false;
+    } else {
+      printBtn.disabled = true;
+    }
+  }
+  
+  // Validate ticket from storage (real tickets purchased from customer page)
+  function validateTicket(ticketIdRaw) {
+    const ticketId = ticketIdRaw.trim();
+    if (!ticketId) {
+      showToast("Please enter a valid ticket code", true);
+      return false;
+    }
+    
+    // Find ticket in the unified storage
+    const foundTicket = findTicket(ticketId);
+    
+    if (!foundTicket) {
+      showToast(`Ticket "${ticketId.slice(0, 20)}..." not found. Please check your ticket.`, true);
+      // Reset UI if showing invalid state
+      if (currentTicket && !isCheckedIn) {
+        ticketInfoPanel.style.display = 'none';
+        currentTicket = null;
+        isCheckedIn = false;
+        printBtn.disabled = true;
+        wristbandPreviewDiv.style.display = 'none';
+      }
+      return false;
+    }
+    
+    // Check if already checked-in
+    if (foundTicket.checkedIn) {
+      const checkinTime = foundTicket.checkinTime ? new Date(foundTicket.checkinTime).toLocaleTimeString() : 'earlier';
+      showToast(`Ticket already checked-in at ${foundTicket.checkinGate || 'gate'} on ${checkinTime}`, true);
+      // Still show ticket info but disable printing
+      currentTicket = foundTicket;
+      isCheckedIn = true;
+      wristbandPrinted = true; // Already checked in, consider wristband already issued
+      
+      // Update UI to show already checked-in status
+      guestNameEl.textContent = foundTicket.attendeeName || foundTicket.eventName?.split(' ')[0] || 'Guest';
+      ticketTypeSpan.textContent = foundTicket.ticketType || 'Standard';
+      ticketExtraInfo.innerHTML = `<i class="fas fa-clock"></i> Already checked-in at ${foundTicket.checkinGate || 'gate'} on ${new Date(foundTicket.checkinTime).toLocaleString()}`;
+      validationBadge.innerHTML = '<i class="fas fa-check-double"></i> Already Checked In';
+      validationBadge.style.background = '#ff980022';
+      validationBadge.style.color = '#ffb347';
+      ticketInfoPanel.style.display = 'block';
+      printBtn.disabled = true;
+      printBtn.innerHTML = '<i class="fas fa-check-circle"></i> Already Checked In';
+      return false;
+    }
+    
+    // Valid ticket - not checked in yet
+    currentTicket = foundTicket;
+    isCheckedIn = true;
+    
+    // Perform check-in (marks as checkedIn in localStorage)
+    const checkinSuccess = checkInTicket(currentTicket.id);
+    if (!checkinSuccess) {
+      showToast("Error during check-in. Please try again.", true);
+      return false;
+    }
+    
+    // Update UI with ticket details
+    const displayName = currentTicket.attendeeName || currentTicket.eventName || 'Valued Guest';
+    guestNameEl.textContent = displayName;
+    ticketTypeSpan.textContent = currentTicket.ticketType || 'General Admission';
+    const qtyText = currentTicket.quantity > 1 ? ` ×${currentTicket.quantity}` : '';
+    ticketExtraInfo.innerHTML = `<i class="fas fa-ticket-alt"></i> ${currentTicket.ticketType || 'Ticket'}${qtyText} • Event: ${currentTicket.eventName || 'Rands Event'}<br><i class="fas fa-map-marker-alt"></i> ${currentTicket.eventLocation || 'Rands Cape Town'}`;
+    validationBadge.innerHTML = '<i class="fas fa-check-circle"></i> Validated • Ready for Wristband';
+    validationBadge.style.background = '#1fdf6422';
+    validationBadge.style.color = '#9effb0';
+    ticketInfoPanel.style.display = 'block';
+    
+    // Reset print state
+    wristbandPrinted = false;
+    wristbandPreviewDiv.style.display = 'none';
+    printBtn.disabled = false;
+    printBtn.innerHTML = '<i class="fas fa-ticket-alt"></i> Print Wristband';
+    
+    showToast(`✅ Welcome ${displayName}! Ticket validated. Please print your wristband.`);
+    
+    return true;
+  }
+  
+  // Print wristband function (simulates real printer output)
+  function printWristband() {
+    if (!currentTicket || !isCheckedIn) {
+      showToast("No validated ticket found. Please scan or enter a ticket first.", true);
+      return;
+    }
+    
+    if (wristbandPrinted) {
+      showToast("Wristband already printed for this ticket. Please collect from dispenser.", true);
+      return;
+    }
+    
+    // Simulate printing process
+    printBtn.disabled = true;
+    printBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Printing wristband...';
+    
+    setTimeout(() => {
+      // Create wristband data
+      const wristbandData = {
+        guest: currentTicket.attendeeName || currentTicket.eventName?.split(' ')[0] || 'Guest',
+        ticketId: currentTicket.id,
+        ticketType: currentTicket.ticketType || 'Standard',
+        eventName: currentTicket.eventName || 'Rands Event',
+        timestamp: new Date().toLocaleString(),
+        seatCode: currentTicket.seatCode || 'N/A'
+      };
+      
+      console.log("🖨️ [PRINTER] Wristband printed:", wristbandData);
+      console.log(`🎫 Wristband: ${wristbandData.guest} | ${wristbandData.ticketType} | ${wristbandData.eventName}`);
+      
+      // Display success message
+      wristbandPreviewDiv.style.display = 'flex';
+      wristbandPreviewDiv.innerHTML = `<i class="fas fa-print" style="color:#E30613;"></i> Wristband printed for ${wristbandData.guest} (${wristbandData.ticketType}). <i class="fas fa-check-circle" style="color:#2fea7a;"></i> Collect at slot.`;
+      
+      showToast(`🖨️ Wristband printed! Welcome to the event, ${wristbandData.guest}.`);
+      wristbandPrinted = true;
+      printBtn.disabled = true;
+      printBtn.innerHTML = '<i class="fas fa-ticket-alt"></i> Wristband Printed ✓';
+      
+      // Update status badge
+      validationBadge.innerHTML = '<i class="fas fa-wristwatch"></i> Check-in Complete + Wristband Issued';
+      validationBadge.style.background = '#2a5f3e44';
+      validationBadge.style.color = '#b0f7c0';
+      
+      // Animate print section
+      const printSection = document.querySelector('.print-section');
+      printSection.style.transform = 'scale(1.01)';
+      setTimeout(() => { printSection.style.transform = ''; }, 300);
+      
+      // Also update the ticket in storage with wristband printed flag (optional)
+      if (currentTicket) {
+        currentTicket.wristbandPrinted = true;
+        currentTicket.wristbandPrintTime = new Date().toISOString();
+        saveTickets();
+      }
+      
+    }, 800);
+  }
+  
+  // Handle manual ticket submission
+  function handleManualSubmit() {
+    const code = manualInput.value.trim();
+    if (!code) {
+      showToast("Please enter ticket ID", true);
+      return;
+    }
+    const success = validateTicket(code);
+    if (success) {
+      manualInput.value = '';
+    }
+  }
+  
+  // Simulate random ticket scan (picks a random unscanned ticket from storage)
+  function simulateRandomScan() {
+    // Reload tickets to get latest state
+    loadTickets();
+    
+    const unscannedTickets = allTickets.filter(t => !t.checkedIn);
+    
+    if (unscannedTickets.length === 0) {
+      showToast("No unscanned tickets available. All guests have checked in!", "warning");
+      return;
+    }
+    
+    const randomTicket = unscannedTickets[Math.floor(Math.random() * unscannedTickets.length)];
+    if (randomTicket) {
+      // Simulate scanning by auto-filling the input and validating
+      manualInput.value = randomTicket.id;
+      validateTicket(randomTicket.id);
+      manualInput.value = '';
+    } else {
+      showToast("No tickets available to simulate", true);
+    }
+  }
+  
+  // Listen for storage changes from other tabs (customer page or gate scanner)
+  window.addEventListener('storage', (e) => {
+    if (e.key === TICKETS_STORAGE_KEY) {
+      loadTickets();
+      // If current ticket exists, refresh its status
+      if (currentTicket) {
+        const updatedTicket = findTicket(currentTicket.id);
+        if (updatedTicket && updatedTicket.checkedIn && !currentTicket.checkedIn) {
+          // Ticket was checked in elsewhere (maybe gate scanner)
+          showToast("Ticket status updated from another device", "warning");
+          currentTicket = updatedTicket;
+          isCheckedIn = true;
+          wristbandPrinted = true;
+          printBtn.disabled = true;
+          validationBadge.innerHTML = '<i class="fas fa-check-double"></i> Already Checked In';
+          validationBadge.style.background = '#ff980022';
+          validationBadge.style.color = '#ffb347';
+        }
+      }
+      showToast("Ticket database refreshed", false);
+    }
+  });
+  
+  // Auto-refresh tickets every 5 seconds
+  setInterval(() => {
+    loadTickets();
+    if (currentTicket) {
+      const refreshedTicket = findTicket(currentTicket.id);
+      if (refreshedTicket && refreshedTicket.checkedIn !== currentTicket.checkedIn) {
+        currentTicket = refreshedTicket;
+        isCheckedIn = currentTicket.checkedIn;
+        if (isCheckedIn && !wristbandPrinted) {
+          wristbandPrinted = true;
+          printBtn.disabled = true;
+          validationBadge.innerHTML = '<i class="fas fa-check-double"></i> Already Checked In';
+          validationBadge.style.background = '#ff980022';
+        }
+      }
+    }
+  }, 5000);
+  
+  // Event listeners
+  manualSubmitBtn.addEventListener('click', handleManualSubmit);
+  manualInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleManualSubmit();
+  });
+  simulateScanBtn.addEventListener('click', simulateRandomScan);
+  printBtn.addEventListener('click', printWristband);
+  
+  // Back link
+  const backLink = document.getElementById('backToHubLink');
+  if (backLink) {
+    backLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'scanner-hub.html';
+    });
+  }
+  
+  // Initialize: load tickets from storage
+  loadTickets();
+  
+  // Check URL param for auto-validation
+  const urlParams = new URLSearchParams(window.location.search);
+  const ticketParam = urlParams.get('ticket');
+  if (ticketParam) {
+    setTimeout(() => {
+      validateTicket(ticketParam);
+    }, 300);
+  }
+  
+  console.log("Self Check-in Kiosk ready — unified ticket storage active.");
+  showToast("Kiosk ready • Scan your ticket", false);
+</script>
+</body>
+</html>
