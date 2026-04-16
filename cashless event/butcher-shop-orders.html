@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Butcher Shop · Food Screen</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+body { background: #0f0f0f; color: #ffffff; padding: 20px; }
+.header { background: #1a1a1a; border-radius: 30px; padding: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; border: 2px solid #b30000; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+.logo { display: flex; gap: 15px; align-items: center; }
+.logo span { font-size: 48px; }
+.logo h1 { font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #ff4d4d, #b30000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.badge { background: #b30000; padding: 12px 30px; border-radius: 40px; font-weight: 700; color: white; box-shadow: 0 4px 0 #6d0000; }
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-bottom: 25px; }
+.stat-card { background: #1a1a1a; border-radius: 24px; padding: 20px; border-left: 6px solid #b30000; box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+.stat-value { font-size: 42px; font-weight: 800; color: #ff4d4d; }
+.stat-label { color: #aaa; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+.queue-container { background: #1a1a1a; border-radius: 30px; padding: 25px; border: 2px solid #b30000; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+.queue-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #b30000; padding-bottom: 15px; }
+.queue-icon { font-size: 48px; background: #b30000; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 #6d0000; }
+.queue-title h2 { font-size: 36px; color: #ff4d4d; }
+.orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px,1fr)); gap: 20px; max-height: 600px; overflow-y: auto; }
+.order-card { background: #222; border-radius: 24px; padding: 20px; border: 2px solid #b30000; transition: all 0.2s; }
+.order-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(179,0,0,0.2); }
+.order-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.order-id { background: #b30000; padding: 5px 15px; border-radius: 30px; font-weight: 700; }
+.order-customer { background: #1a1a1a; padding: 12px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #b30000; }
+.customer-band { color: #00ff9c; font-weight: bold; }
+.order-items { background: #1a1a1a; border-radius: 20px; padding: 15px; margin: 15px 0; }
+.item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; }
+.order-total { background: #1a1a1a; border-radius: 20px; padding: 15px; margin: 15px 0; text-align: right; font-size: 24px; font-weight: bold; color: #00ff9c; }
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 30px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+.status-pending { background: #ffaa00; color: #1a1a1a; }
+.status-preparing { background: #00a86b; color: white; }
+.status-ready { background: #b30000; color: white; animation: pulse 1s infinite; }
+.order-actions { display: flex; gap: 10px; margin-top: 15px; }
+.btn { flex:1; padding: 12px; border: none; border-radius: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.btn-prepare { background: #ffaa00; color: #1a1a1a; }
+.btn-ready { background: #b30000; color: white; }
+.btn:disabled { background: #333; cursor: not-allowed; opacity: 0.6; }
+.btn:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.05); }
+.empty-state { grid-column: 1/-1; text-align: center; padding: 60px; background: #222; border-radius: 30px; border: 2px dashed #b30000; }
+.connection-status { position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; padding: 12px 25px; border-radius: 50px; border: 2px solid #00ff9c; display: flex; gap: 10px; align-items: center; backdrop-filter: blur(4px); }
+.status-dot { width: 12px; height: 12px; border-radius: 50%; background: #00ff9c; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity:1; } 70% { opacity:0.5; } 100% { opacity:1; } }
+</style>
+</head>
+<body>
+<div class="header"><div class="logo"><span>🥩</span><h1>The Butcher Shop</h1></div><div class="badge">FOOD · GRILL</div></div>
+<div class="stats-row">
+    <div class="stat-card"><div class="stat-value" id="pendingCount">0</div><div class="stat-label">Pending Orders</div></div>
+    <div class="stat-card"><div class="stat-value" id="preparingCount">0</div><div class="stat-label">Preparing</div></div>
+    <div class="stat-card"><div class="stat-value" id="todayRevenue">R0</div><div class="stat-label">Today's Revenue</div></div>
+    <div class="stat-card"><div class="stat-value" id="avgTime">0m</div><div class="stat-label">Avg Prep Time</div></div>
+</div>
+<div class="queue-container">
+    <div class="queue-header"><div class="queue-icon">🥩</div><div class="queue-title"><h2>Food Orders Queue</h2></div></div>
+    <div class="orders-grid" id="ordersGrid"></div>
+</div>
+<div class="connection-status"><div class="status-dot"></div><div>Connected to POS · Live</div></div>
+<script>
+const VENDOR_NAME = "The Butcher Shop";
+const STORAGE_KEY = "the_butcher_shop_orders";   // key used by POS
+let orders = [];
+
+function loadOrders() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        orders = JSON.parse(saved).filter(o => o.status !== "collected");
+    } else {
+        orders = [];
+    }
+    updateStats();
+    renderOrders();
+}
+function updateStats() {
+    const pending = orders.filter(o => o.status === "pending").length;
+    const preparing = orders.filter(o => o.status === "preparing").length;
+    document.getElementById("pendingCount").innerText = pending;
+    document.getElementById("preparingCount").innerText = preparing;
+    const revenueSaved = localStorage.getItem("revenue");
+    if (revenueSaved) document.getElementById("todayRevenue").innerText = "R" + revenueSaved;
+}
+function renderOrders() {
+    const grid = document.getElementById("ordersGrid");
+    if (orders.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><span>🥩</span><h3>No Pending Orders</h3><p>Orders will appear here when taken.</p></div>`;
+        return;
+    }
+    grid.innerHTML = orders.map(order => {
+        let statusClass = "", statusText = "";
+        switch (order.status) {
+            case "pending": statusClass = "status-pending"; statusText = "PENDING"; break;
+            case "preparing": statusClass = "status-preparing"; statusText = "PREPARING"; break;
+            case "ready": statusClass = "status-ready"; statusText = "READY"; break;
+        }
+        return `
+            <div class="order-card">
+                <div class="order-header">
+                    <span class="order-id">#${order.orderId}</span>
+                    <span class="order-time" style="color:#aaa;">${order.timestamp}</span>
+                </div>
+                <div class="order-customer"><span style="color:#aaa;">Band: </span><span class="customer-band">${order.bandId}</span></div>
+                <div class="status-badge ${statusClass}">${statusText}</div>
+                <div class="order-items">
+                    ${order.items.map(item => `
+                        <div class="item-row"><span>${item.quantity}x ${item.name}</span><span>R${item.price * item.quantity}</span></div>
+                    `).join('')}
+                </div>
+                <div class="order-total">Total: R${order.total}</div>
+                <div class="order-actions">
+                    <button class="btn btn-prepare" onclick="updateOrderStatus(${order.orderId}, 'preparing')" ${order.status !== "pending" ? "disabled" : ""}>🍳 START PREPARING</button>
+                    <button class="btn btn-ready" onclick="updateOrderStatus(${order.orderId}, 'ready')" ${order.status !== "preparing" ? "disabled" : ""}>✅ MARK READY</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+function updateOrderStatus(orderId, newStatus) {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        let allOrders = JSON.parse(saved);
+        const idx = allOrders.findIndex(o => o.orderId === orderId);
+        if (idx !== -1) {
+            allOrders[idx].status = newStatus;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(allOrders));
+            loadOrders();
+            playNotificationSound();
+        }
+    }
+}
+function playNotificationSound() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.2);
+    } catch(e) {}
+}
+function checkForUpdates() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        const newOrders = JSON.parse(saved).filter(o => o.status !== "collected");
+        if (JSON.stringify(newOrders) !== JSON.stringify(orders)) {
+            orders = newOrders;
+            updateStats();
+            renderOrders();
+        }
+    }
+}
+setInterval(checkForUpdates, 2000);
+loadOrders();
+</script>
+</body>
+</html>
