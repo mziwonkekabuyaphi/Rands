@@ -976,13 +976,10 @@
             }
         },
         mounted() {
-            // Clean up any stale payment requests on page load
             const staleRequest = localStorage.getItem('rands_payment_request');
             if (staleRequest) {
                 localStorage.removeItem('rands_payment_request');
             }
-            
-            // Listen for approval from wallet
             window.addEventListener('storage', this.handleStorageChange);
         },
         beforeDestroy() {
@@ -1062,6 +1059,52 @@
                 this.selectedMethod = 'wallet';
                 this.paymentModalVisible = true;
             },
+            // ========== INTEGRATION WITH POS SYSTEM ==========
+            // This function sends the order to the Staff Management & Collection screens
+            syncOrderToPOSSystem(orderId, customerId, items, total) {
+                try {
+                    // Determine vendor based on cart items (butcher items go to kitchen, drinks go to bar)
+                    const hasButcherItems = this.cart.some(item => {
+                        const product = this.products.find(p => p.id === item.id);
+                        return product && product.category === 'butcher';
+                    });
+                    
+                    const vendor = hasButcherItems ? "The Butcher Shop" : "Rands Smart Counter";
+                    
+                    const newOrder = {
+                        orderId: orderId,
+                        bandId: customerId || "Kiosk Customer",
+                        bandName: "Kiosk Customer",
+                        items: items.map(item => ({
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity
+                        })),
+                        total: total,
+                        timestamp: new Date().toLocaleTimeString(),
+                        date: new Date().toISOString().slice(0,10),
+                        status: "pending",
+                        vendor: vendor,
+                        source: "kiosk"
+                    };
+                    
+                    let allOrders = JSON.parse(localStorage.getItem("globalOrders") || "[]");
+                    allOrders.push(newOrder);
+                    localStorage.setItem("globalOrders", JSON.stringify(allOrders));
+                    
+                    // Trigger real-time update for other tabs (Staff Screen, TV Displays)
+                    window.dispatchEvent(new StorageEvent('storage', {
+                        key: 'globalOrders',
+                        newValue: JSON.stringify(allOrders)
+                    }));
+                    
+                    console.log("✅ Order synced to POS system:", orderId, "Vendor:", vendor);
+                    return true;
+                } catch(e) {
+                    console.log("Sync error:", e);
+                    return false;
+                }
+            },
             sendPaymentRequest() {
                 if (!this.accountId || this.accountId.trim().length < 10) {
                     this.showAutoDismissToast('Please enter a valid wallet ID');
@@ -1132,6 +1175,17 @@
                                 this.waitingModalVisible = false;
                                 
                                 this.orderNumber = 'ORD-' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
+                                
+                                // ========== SYNC ORDER TO POS SYSTEM ==========
+                                // This sends the order to the Staff Management & Collection screens
+                                this.syncOrderToPOSSystem(
+                                    parseInt(this.orderNumber.replace('ORD-', '')),
+                                    this.accountId,
+                                    this.cart,
+                                    this.cartTotal
+                                );
+                                // ===========================================
+                                
                                 this.cart = [];
                                 this.successModalVisible = true;
                                 
@@ -1215,6 +1269,17 @@
                                         this.waitingForApproval = false;
                                         this.waitingModalVisible = false;
                                         this.orderNumber = 'ORD-' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
+                                        
+                                        // ========== SYNC ORDER TO POS SYSTEM ==========
+                                        this.syncOrderToPOSSystem(
+                                            parseInt(this.orderNumber.replace('ORD-', '')),
+                                            'fingerprint_user',
+                                            this.cart,
+                                            this.cartTotal
+                                        );
+                                        // ===========================================
+                                        
+                                        this.cart = [];
                                         this.successModalVisible = true;
                                         this.redirectTimer = setTimeout(() => {
                                             window.location.href = 'index.html';
