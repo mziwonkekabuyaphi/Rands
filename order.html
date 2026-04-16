@@ -358,76 +358,94 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
 <div id="pinModal" class="pin-modal"><div class="pin-modal-content"><div class="pin-header"><h3>🔐 Enter PIN to Pay</h3><p id="pinAccountDisplay"></p></div><div class="pin-display"><div id="pinDigits" class="pin-digits-placeholder">⚫⚫⚫⚫</div></div><div class="pin-keypad"><button class="pin-key" onclick="addPinDigit('1')">1</button><button class="pin-key" onclick="addPinDigit('2')">2</button><button class="pin-key" onclick="addPinDigit('3')">3</button><button class="pin-key" onclick="addPinDigit('4')">4</button><button class="pin-key" onclick="addPinDigit('5')">5</button><button class="pin-key" onclick="addPinDigit('6')">6</button><button class="pin-key" onclick="addPinDigit('7')">7</button><button class="pin-key" onclick="addPinDigit('8')">8</button><button class="pin-key" onclick="addPinDigit('9')">9</button><button class="pin-key clear" onclick="clearPin()">⌫</button><button class="pin-key zero" onclick="addPinDigit('0')">0</button><button class="pin-key clear" onclick="clearAllPin()">C</button></div><div class="pin-actions"><button class="pin-action-btn cancel" onclick="closePinModal()">CANCEL</button><button class="pin-action-btn submit" id="submitPinBtn" onclick="submitPin()" disabled>VERIFY</button></div><div id="pinError" class="pin-error"></div></div></div>
 
 <script>
-    // ========== SIMPLIFIED WALLET SYSTEM - Customer auto-login ==========
-    // Default customer account (would come from wallet login in real app)
-    let currentCustomer = {
-        id: "+27812345678",
-        name: "Mziwonke KaBuyaphi",
-        phone: "+27 81 234 5678",
-        balance: 2450,
-        pin: "1994"
-    };
-    
-    let accounts = [currentCustomer];
-    
+    // ========== WALLET SYSTEM - Load real account from home.html ==========
+    let currentCustomer = null;
+    let accounts = [];
+
     function loadAccounts() {
         const saved = localStorage.getItem('rands_accounts_v2');
         if (saved) {
             try {
                 accounts = JSON.parse(saved);
-                // Try to find the current customer by ID
-                const found = accounts.find(acc => acc.id === currentCustomer.id);
-                if (found) {
-                    currentCustomer = found;
-                } else {
-                    // If not found, add the default customer to accounts
-                    accounts.push(currentCustomer);
-                    saveAccounts();
-                }
-            } catch (e) {
+                // Find the primary account (first active or the one with name "Mziwonke")
+                currentCustomer = accounts.find(acc => acc.name && acc.name.toLowerCase().includes('mziwonke')) || accounts[0];
+                if (!currentCustomer && accounts.length) currentCustomer = accounts[0];
+            } catch(e) {
                 console.error("Error parsing accounts:", e);
-                accounts = [currentCustomer];
-                saveAccounts();
+                createDefaultAccount();
             }
         } else {
-            saveAccounts();
+            createDefaultAccount();
         }
         
-        // Update greeting with customer name - FIXED to show correct name
+        if (!currentCustomer) createDefaultAccount();
+        
+        // Ensure the customer has a PIN (use 1989 if missing)
+        if (!currentCustomer.pin) currentCustomer.pin = "1989";
+        
+        // Update greeting with customer name
         const greetingSpan = document.getElementById('greetingName');
-        if (greetingSpan) {
-            // Get the customer name, fallback to "User" if empty
+        if (greetingSpan && currentCustomer) {
             let displayName = currentCustomer.name || "User";
-            // Extract first name only (split by space and take first part)
             const firstName = displayName.split(' ')[0];
             greetingSpan.innerText = `Molo, ${firstName}`;
         }
+        
+        // Update pending request indicator (optional)
+        const pendingIndicator = document.getElementById('pendingRequestIndicator');
+        if (pendingIndicator && currentCustomer) {
+            // Could show if there are pending payments, but not needed now
+        }
+    }
+    
+    function createDefaultAccount() {
+        const defaultAccount = {
+            id: "0635713652",
+            name: "Mziwonke KaBuyaphi",
+            phone: "0635713652",
+            balance: 12580.50,
+            status: "Active",
+            verified: true,
+            tier: "Sovereign",
+            pin: "1989"
+        };
+        accounts = [defaultAccount];
+        localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts));
+        currentCustomer = defaultAccount;
     }
     
     function saveAccounts() { 
         localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts)); 
     }
     
-    function getWalletBalance() { return currentCustomer.balance; }
+    function getWalletBalance() { 
+        return currentCustomer ? currentCustomer.balance : 0; 
+    }
     
     function updateWalletBalance(newBalance) {
+        if (!currentCustomer) return;
         currentCustomer.balance = newBalance;
         const accIndex = accounts.findIndex(a => a.id === currentCustomer.id);
         if (accIndex !== -1) accounts[accIndex].balance = newBalance;
         saveAccounts();
-        localStorage.setItem(`wallet_${currentCustomer.id}`, newBalance);
+        // Also trigger storage event for other tabs (like home.html)
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'rands_accounts_v2',
+            newValue: JSON.stringify(accounts)
+        }));
     }
     
     function addTransaction(desc, amount) {
         let txHistory = JSON.parse(localStorage.getItem('rands_transactions') || '{}');
-        if (!txHistory[currentCustomer.id]) txHistory[currentCustomer.id] = [];
-        txHistory[currentCustomer.id].unshift({ desc, amount, date: new Date().toISOString().slice(0,10) });
+        const userId = currentCustomer.id;
+        if (!txHistory[userId]) txHistory[userId] = [];
+        txHistory[userId].unshift({ desc, amount, date: new Date().toISOString().slice(0,10) });
         localStorage.setItem('rands_transactions', JSON.stringify(txHistory));
     }
 
     // ========== ORDER SYSTEM ==========
     let currentCart = [];
-    let nextOrderId = 1000;
+    let nextOrderId = Math.floor(Date.now() / 1000) % 10000; // more unique
     let pendingPinAccount = null;
     let currentPin = "";
     let checkoutTotal = 0;
@@ -474,7 +492,6 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         { name: "Bunny Chow", price: 120, desc: "Durban curry in bread" }
     ];
 
-    // Function to update cart title based on selected vendor
     function updateCartTitle(vendorValue) {
         const cartTitleElement = document.getElementById('cartTitle');
         const quickCartModalTitle = document.getElementById('quickCartModalTitle');
@@ -487,12 +504,10 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         }
     }
 
-    // Function to show category cards for Smart Counter
     function showCategoryCards() {
         const menuContainer = document.getElementById("vendorMenu");
         menuContainer.innerHTML = '';
         
-        // Add back button if in category view
         if (currentCategory) {
             const backBtn = document.createElement('button');
             backBtn.className = 'back-to-categories';
@@ -503,7 +518,6 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
             };
             menuContainer.appendChild(backBtn);
             
-            // Show items from selected category
             const items = smartCounterCategories[currentCategory];
             if (items) {
                 items.forEach(item => {
@@ -518,7 +532,6 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
             return;
         }
         
-        // Show category cards
         const categoryGrid = document.createElement('div');
         categoryGrid.className = 'category-grid';
         
@@ -548,7 +561,6 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         menuContainer.appendChild(categoryGrid);
     }
 
-    // Function to show Butcher Shop items
     function showButcherShopItems() {
         const menuContainer = document.getElementById("vendorMenu");
         menuContainer.innerHTML = '';
@@ -559,12 +571,10 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
             card.innerHTML = `<div style="display:flex; justify-content:space-between;"><span style="font-size:20px;">🥩</span><span style="background:#b30000; padding:3px 8px; border-radius:4px; color:white;">R${item.price}</span></div><div style="font-size:18px; font-weight:bold; margin:8px 0; color:#222;">${item.name}</div><div style="font-size:12px; color:#888;">${item.desc}</div><button class="add-to-cart-btn">ADD TO CART</button>`;
             let btn = card.querySelector('.add-to-cart-btn');
             btn.onclick = () => addToCart(item.name, item.price, "The Butcher Shop");
-            card.ondblclick = () => addToCart(item.name, item.price, "The Butcher Shop");
             menuContainer.appendChild(card);
         });
     }
 
-    // Tab navigation setup
     function setupTabs() {
         const tabButtons = document.querySelectorAll('.tab-btn');
         tabButtons.forEach(btn => {
@@ -573,10 +583,7 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
                 this.classList.add('active');
                 const vendorValue = this.getAttribute('data-vendor');
                 updateCartTitle(vendorValue);
-                
-                // Reset category selection
                 currentCategory = null;
-                
                 if (vendorValue === 'Rands Smart Counter') {
                     showCategoryCards();
                     document.getElementById('currentVendorDisplay').innerText = 'Smart Counter';
@@ -632,7 +639,6 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     
     function removeFromCart(index) { currentCart.splice(index, 1); updateCartDisplay(); }
     function clearCart() { currentCart = []; updateCartDisplay(); showToast("Cart cleared", 'info'); }
-    function resetOrder() { clearCart(); showToast("New order started", 'success'); }
     
     function showQuickCart() {
         if (currentCart.length === 0) { alert("Your order is empty"); return; }
@@ -653,9 +659,12 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
         let existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
         existing.push(order);
         localStorage.setItem(storageKey, JSON.stringify(existing));
+        // Also trigger a storage event for vendor screens to refresh
+        window.dispatchEvent(new StorageEvent('storage', { key: storageKey, newValue: JSON.stringify(existing) }));
     }
     
     function checkoutCart() {
+        if (!currentCustomer) { showToast("Please log in first", 'error'); return; }
         if (currentCart.length === 0) { showToast("Your cart is empty", 'error'); return; }
         let total = currentCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
         let availableBalance = getWalletBalance();
@@ -682,6 +691,7 @@ body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-heig
     
     function submitPin() {
         if (currentPin.length !== 4 || !pendingPinAccount) return;
+        // Use the customer's actual PIN from account (should be "1989")
         if (currentCustomer.pin === currentPin) {
             processPayment();
             closePinModal();
