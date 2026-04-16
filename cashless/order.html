@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>Rands POS | Customer Order</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #fff; color: #222; min-height: 100vh; overflow-x: hidden; }
+
+/* Rands Color Theme: Red (#b30000 / #cc0000) and White (#fff / #f5f5f5) */
+.pos-container { min-height: 100vh; padding: 16px; background: #fff; display: block; }
+
+/* Header Styles */
+.movable-header-group {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    transition: transform 0.3s ease;
+    will-change: transform;
+    margin: -16px -16px 0 -16px;
+    padding: 0 16px;
+}
+.header-hidden { transform: translateY(-100%); }
+.app-header {
+    padding: 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border-bottom: 1px solid #eff3f8;
+}
+.logo {
+    height: 45px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+.header-icons { display: flex; gap: 8px; align-items: center; }
+.header-icon {
+    width: 40px; height: 40px; background: #f7f9fd; border-radius: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #E30613; font-size: 1.2rem; cursor: pointer; transition: 0.2s;
+}
+.header-icon:active { transform: scale(0.94); }
+.header-track-btn {
+    background: #b30000; border: none; padding: 8px 20px; border-radius: 30px;
+    font-weight: bold; font-size: 13px; color: white; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; margin-right: 8px;
+}
+.header-track-btn:hover { background: #8b0000; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(179,0,0,0.3); }
+.welcome-greeting {
+    padding: 12px 0 8px 0; background: white; font-size: 0.95rem; font-weight: 600;
+    color: #1e293b; display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid #f0f4fa; flex-wrap: wrap;
+}
+.welcome-greeting i { color: #E30613; }
+.welcome-greeting span {
+    background: linear-gradient(135deg, #E30613 0%, #b0020e 100%);
+    background-clip: text; -webkit-background-clip: text; color: transparent; font-weight: 800;
+}
+.vendor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; margin-top: 16px; flex-wrap: wrap; gap: 10px; }
+
+/* Tab Navigation */
+.tab-nav {
+    display: flex; gap: 8px; margin-bottom: 20px; background: #f5f5f5;
+    padding: 6px; border-radius: 60px;
+}
+.tab-btn {
+    flex: 1; background: transparent; border: none; padding: 12px 16px;
+    border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer;
+    transition: all 0.2s ease; color: #666; font-family: 'Inter', sans-serif;
+}
+.tab-btn.active { background: #b30000; color: white; box-shadow: 0 2px 8px rgba(179,0,0,0.3); }
+.tab-btn:not(.active):hover { background: #e0e0e0; color: #b30000; }
+
+/* Category Cards */
+.category-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px; margin-bottom: 20px;
+}
+.category-card {
+    background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+    border: 2px solid #b30000; border-radius: 16px; padding: 20px 12px;
+    text-align: center; cursor: pointer; transition: all 0.2s ease;
+}
+.category-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(179,0,0,0.2); }
+.category-card .category-icon { font-size: 40px; margin-bottom: 10px; }
+.category-card .category-name { font-weight: bold; color: #b30000; font-size: 14px; }
+.back-to-categories {
+    background: #f0f0f0; border: none; padding: 10px 16px; border-radius: 30px;
+    color: #b30000; font-weight: bold; cursor: pointer; margin-bottom: 15px;
+    display: inline-flex; align-items: center; gap: 8px;
+}
+.pos-main-grid { display: flex; flex-direction: column; gap: 20px; }
+.menu-section { background: #fff; border-radius: 20px; padding: 16px; border: 1px solid #eee; }
+.cart-section { order: 2; }
+.cart-container { background: #fff; border: 2px solid #b30000; border-radius: 20px; padding: 16px; }
+.cart-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 20px; font-weight: bold; color: #b30000; }
+.cart-header span:last-child { background: #b30000; padding: 5px 15px; border-radius: 30px; font-size: 14px; color: white; margin-left: auto; }
+.cart-items { max-height: 350px; overflow-y: auto; margin-bottom: 15px; min-height: 100px; }
+.cart-item { background: #f9f9f9; border-radius: 14px; padding: 12px; margin-bottom: 8px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.cart-item-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+.cart-item-details { flex: 1; }
+.cart-item-name { font-weight: bold; color: #b30000; }
+.cart-item-price { font-size: 12px; color: #888; }
+.cart-item-quantity { display: flex; align-items: center; gap: 10px; }
+.cart-qty-btn { width: 32px; height: 32px; border-radius: 50%; background: #b30000; border: none; color: white; cursor: pointer; font-weight: bold; }
+.cart-item-total { color: #b30000; font-weight: bold; min-width: 70px; text-align: right; }
+.cart-remove { background: none; border: none; color: #b30000; cursor: pointer; font-size: 20px; }
+.cart-summary { background: #f5f5f5; border-radius: 12px; padding: 15px; margin: 15px 0; }
+.cart-summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.cart-summary-total { color: #b30000; font-weight: bold; font-size: 20px; }
+.cart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cart-btn { background: #b30000; border: none; padding: 12px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+.cart-btn.secondary { background: #f0f0f0; color: #b30000; border: 1px solid #b30000; }
+.menu-item { background: #fff; border-radius: 14px; padding: 14px; border: 1px solid #eee; cursor: pointer; transition: all 0.2s; }
+.menu-item:hover { border-color: #b30000; transform: scale(1.02); box-shadow: 0 4px 12px rgba(179,0,0,0.15); }
+.add-to-cart-btn { background: #b30000; border: none; padding: 10px; border-radius: 40px; color: white; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+.vendor-group { margin-bottom: 20px; background: #fafafa; border-radius: 12px; padding: 10px; }
+.vendor-group h5 { color: #b30000; margin: 0 0 10px 0; border-bottom: 2px solid #b30000; padding-bottom: 5px; }
+.footer { margin-top: 30px; padding: 20px 0; text-align: center; color: #888; border-top: 1px solid #eee; font-size: 12px; }
+.footer .creator { color: #b30000; font-weight: bold; }
+
+/* Track Order Modal - TV Style */
+.track-modal {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85);
+    z-index: 5000; display: none; align-items: center; justify-content: center; padding: 12px; overflow-y: auto;
+}
+.track-modal.active { display: flex; }
+.track-modal-content {
+    background: #8B0000; border-radius: 32px; max-width: 1400px; width: 100%;
+    margin: auto; border: 2px solid #ff4d4d; max-height: 90vh; overflow-y: auto;
+}
+.track-modal-header { background: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #b30000; flex-wrap: wrap; border-radius: 32px 32px 0 0; }
+.track-modal-header h3 { color: #b30000; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.close-track-modal { background: #b30000; border: none; padding: 8px 18px; border-radius: 40px; color: white; cursor: pointer; font-weight: bold; }
+.tv-journey-container { padding: 20px; background: #fff; }
+.tv-section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border-bottom: 3px solid #b30000; padding-bottom: 10px; }
+.tv-section-title i { font-size: 24px; color: #b30000; background: #ffe5e5; padding: 8px; border-radius: 50%; }
+.tv-section-title h2 { font-size: 18px; font-weight: 800; color: #8b0000; }
+.tv-info-strip { background: #fff5f5; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid #ffcccc; }
+.tv-now-serving { background: #b30000; padding: 6px 16px; border-radius: 60px; color: white; font-weight: 700; font-size: 13px; }
+.tv-stats-mini { display: flex; gap: 12px; flex-wrap: wrap; }
+.tv-stat-chip { background: white; padding: 5px 14px; border-radius: 40px; border-left: 4px solid #b30000; font-weight: 600; color: #333; font-size: 12px; }
+.tv-stat-chip span { color: #b30000; font-weight: 800; font-size: 18px; margin-right: 4px; }
+.orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 15px; }
+.customer-order-card { background: white; border-radius: 24px; border: 2px solid #b30000; overflow: hidden; }
+.customer-order-card.ready-glow { border: 3px solid #00cc66; background: #fafff7; animation: readyPulse 1.2s infinite; }
+@keyframes readyPulse { 0% { box-shadow: 0 0 0 0 #00cc6640; } 50% { box-shadow: 0 0 0 8px #00cc6622; } 100% { box-shadow: 0 0 0 0 #00cc6640; } }
+.card-header { background: #fff0f0; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #ffc6c6; }
+.order-number { background: #b30000; padding: 4px 14px; border-radius: 50px; color: white; font-weight: 800; font-size: 14px; }
+.vendor-badge { background: #f2e6e6; padding: 4px 12px; border-radius: 30px; font-size: 11px; font-weight: 700; color: #b30000; }
+.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 60px; font-weight: 800; font-size: 11px; }
+.pill-pending { background: #fff3e0; color: #e67e22; border: 1px solid #e67e22; }
+.pill-preparing { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
+.pill-ready { background: #00cc66; color: #1a3a2a; border: none; animation: softPulse 1s infinite; }
+@keyframes softPulse { 0% { opacity: 0.9; transform: scale(1);} 50% { opacity: 1; transform: scale(1.02); background: #00e07a;} 100% { opacity: 0.9; transform: scale(1);} }
+.journey-timeline { padding: 14px 16px 8px 16px; background: #fefefe; }
+.steps-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; position: relative; }
+.step-node { text-align: center; flex: 1; position: relative; z-index: 2; }
+.step-icon { width: 40px; height: 40px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px auto; font-size: 18px; border: 2px solid #ddd; }
+.step-label { font-size: 9px; font-weight: 600; color: #777; }
+.step-node.active .step-icon { background: #b30000; border-color: #b30000; color: white; box-shadow: 0 0 0 3px #ffcccc; }
+.step-node.active .step-label { color: #b30000; font-weight: 800; }
+.step-node.completed .step-icon { background: #2c7a4a; border-color: #2c7a4a; color: white; }
+.progress-line { position: absolute; top: 20px; left: 15%; width: 70%; height: 3px; background: #e0e0e0; z-index: 1; }
+.progress-fill { height: 3px; background: #b30000; width: 0%; transition: width 0.4s ease; }
+.customer-details { padding: 8px 16px; border-top: 1px solid #ffeeee; background: #fffbfb; font-size: 11px; display: flex; justify-content: space-between; flex-wrap: wrap; }
+.customer-name { font-weight: 700; color: #b30000; }
+.order-items { padding: 10px 16px; font-size: 12px; color: #444; border-top: 1px dashed #ffc6c6; }
+.item-line { display: flex; justify-content: space-between; padding: 4px 0; }
+.order-total { text-align: right; font-weight: 800; font-size: 16px; color: #b30000; padding: 10px 16px 16px; border-top: 1px solid #ffdddd; }
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: #fef6f6; border-radius: 32px; border: 2px dashed #b30000; color: #b30000; }
+.tv-footer { background: #1a0c0c; color: #ffb3b3; text-align: center; padding: 12px; font-size: 11px; border-radius: 0 0 32px 32px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+/* Booked Orders Section */
+.booked-section { margin-top: 30px; border-top: 2px dashed #b30000; padding-top: 20px; }
+
+/* COLLECT OR BOOK MODAL */
+.collect-book-modal {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.92);
+    z-index: 11000; display: none; align-items: center; justify-content: center; padding: 16px;
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+}
+.collect-book-modal.active { display: flex; }
+.collect-book-content {
+    background: linear-gradient(145deg, #ffffff 0%, #fff7f7 100%);
+    border-radius: 48px; max-width: 500px; width: 100%; 
+    text-align: center; padding: 28px 24px; 
+    border: 2px solid #b30000; box-shadow: 0 30px 50px rgba(0,0,0,0.4);
+    animation: slideUp 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    max-height: 90vh; overflow-y: auto; margin: auto;
+}
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.collect-book-icon { background: #b30000; width: 100px; height: 100px; border-radius: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.collect-book-icon i { color: white; font-size: 48px; }
+.collect-book-content h2 { color: #b30000; font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+.collect-book-content .order-summary { background: #f5f5f5; border-radius: 24px; padding: 14px; margin: 16px 0; text-align: left; }
+.collect-now-wrapper { display: flex; justify-content: center; width: 100%; margin: 8px 0; }
+.collect-now-btn { 
+    background: #00cc66; border: none; padding: 14px 24px; border-radius: 60px; 
+    color: #1a3a2a; font-weight: 800; font-size: 17px; cursor: pointer; 
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
+    min-width: 200px;
+}
+.or-divider { margin: 16px 0; color: #b30000; font-size: 13px; font-weight: 600; }
+.time-slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; max-height: 180px; overflow-y: auto; padding: 6px; background: #fefaf5; border-radius: 24px; }
+.time-slot-card { background: white; border: 1px solid #ffcccc; border-radius: 40px; padding: 10px 6px; text-align: center; font-weight: 600; color: #b30000; cursor: pointer; font-size: 13px; }
+.time-slot-card.active { background: #b30000; color: white; border-color: #b30000; }
+.schedule-confirm-btn { width: 100%; background: #b30000; color: white; border: none; padding: 14px; border-radius: 60px; font-weight: bold; margin-top: 8px; cursor: pointer; }
+
+/* ========== PIN MODAL STYLES ========== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+.modal.active {
+    display: flex;
+}
+.modal-card {
+    background: white;
+    width: 90%;
+    max-width: 380px;
+    border-radius: 32px;
+    padding: 28px 24px;
+    animation: modalSlideUp 0.3s ease;
+    box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+}
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.modal-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.modal-card h3 i {
+    color: #E30613;
+}
+.modal-card p {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 16px;
+}
+.pin-input-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0;
+}
+.pin-digit {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    background: #f8fafd;
+    font-family: 'Inter', monospace;
+    transition: 0.2s;
+}
+.pin-digit:focus {
+    border-color: #E30613;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+}
+.modal-btns {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+.modal-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s, background 0.2s;
+}
+.modal-btn:active {
+    transform: scale(0.97);
+}
+.modal-btn.btn-cancel {
+    background: #f1f5f9;
+    color: #475569;
+}
+.modal-btn.btn-cancel:hover {
+    background: #e2e8f0;
+}
+.modal-btn.btn-confirm {
+    background: #E30613;
+    color: white;
+}
+.modal-btn.btn-confirm:hover {
+    background: #b80510;
+}
+
+/* Toast notification */
+.toast-msg {
+    position: fixed;
+    bottom: 30px;
+    left: 20px;
+    right: 20px;
+    background: #1e293b;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 60px;
+    text-align: center;
+    z-index: 3000;
+    display: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.toast-msg.show {
+    display: block;
+    animation: fadeInUp 0.3s ease;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 640px) { 
+    .collect-book-content { padding: 20px 18px; }
+    .time-slots-grid { grid-template-columns: repeat(2, 1fr); }
+    .orders-grid { grid-template-columns: 1fr; }
+    .pin-digit { width: 45px; height: 45px; font-size: 1.3rem; }
+    .modal-card { padding: 22px 18px; }
+    .collect-now-btn { min-width: 160px; padding: 12px 20px; font-size: 15px; }
+}
+#vendorMenu { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+</style>
+</head>
+<body>
+<div class="pos-container" id="posContainer">
+    <div class="movable-header-group" id="movableHeaderGroup">
+        <div class="app-header">
+            <img src="images/rands-logo1.png" alt="Rands Wallet" class="logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\'%3ER%3C/text%3E%3C/svg%3E'">
+            <div class="header-icons"><button class="header-track-btn" onclick="openTrackOrderModal()"><i class="fas fa-truck"></i> Track Order</button><span class="header-icon" id="logoutHeaderBtn"><i class="fas fa-sign-out-alt"></i></span></div>
+        </div>
+        <div class="welcome-greeting"><i class="fas fa-hand-peace"></i> <span id="greetingName">Molo, User</span></div>
+    </div>
+    <div class="vendor-header"><h3>Select Your Counter</h3></div>
+    <div class="tab-nav"><button class="tab-btn active" data-vendor="Rands Smart Counter">🍺 Smart Counter</button><button class="tab-btn" data-vendor="The Butcher Shop">🥩 Butcher Shop</button></div>
+    <div class="pos-main-grid"><div class="menu-section"><h4 style="color:#b30000;">🍽️ MENU ITEMS</h4><div id="vendorMenu"></div></div>
+    <div class="cart-section"><div class="cart-container"><div class="cart-header"><span id="cartTitle">Your Booze Bucket</span><span id="cartItemCount">0</span></div><div id="cartItems" class="cart-items"></div><div class="cart-summary"><div class="cart-summary-row"><span>Total:</span><span class="cart-summary-total" id="cartSubtotal">R0</span></div></div><div class="cart-actions"><button class="cart-btn" onclick="checkoutCart()" id="checkoutBtn" disabled>💳 CHECKOUT (R<span id="checkoutAmount">0</span>)</button><button class="cart-btn secondary" onclick="clearCart()">🗑️ CLEAR</button></div></div></div></div>
+    <div class="footer">Created by <span class="creator">Mziwonke KaBuyaphi</span></div>
+</div>
+
+<!-- Track Modal -->
+<div id="trackOrderModal" class="track-modal">
+    <div class="track-modal-content">
+        <div class="track-modal-header"><h3><i class="fas fa-tachometer-alt"></i> LIVE ORDER TRACKER</h3><button class="close-track-modal" onclick="closeTrackOrderModal()">✕ Close</button></div>
+        <div class="tv-info-strip"><div class="tv-now-serving"><i class="fas fa-concierge-bell"></i> Now preparing: <span id="tvServingNowIndicator">—</span></div><div class="tv-stats-mini"><div class="tv-stat-chip"><span id="tvActiveOrdersCount">0</span> orders cooking</div><div class="tv-stat-chip"><span id="tvReadyOrdersCount">0</span> ready for pickup</div></div></div>
+        <div class="tv-journey-container">
+            <div class="tv-section-title"><i class="fas fa-road"></i><h2>📱 Your Order Journey</h2></div>
+            <div class="orders-grid" id="tvCustomerOrdersGrid"></div>
+            <div class="booked-section" id="bookedSection" style="display:none;">
+                <div class="tv-section-title"><i class="fas fa-calendar-alt"></i><h2>📅 Booked (Scheduled)</h2><span style="margin-left:auto; font-size:12px; color:#ff9900;"><i class="fas fa-clock"></i> Will send to kitchen at chosen time</span></div>
+                <div class="orders-grid" id="tvBookedOrdersGrid"></div>
+            </div>
+        </div>
+        <div class="tv-footer"><span><i class="fas fa-check-circle"></i> PENDING → PREPARING → READY FOR COLLECTION</span><span><i class="fas fa-bell"></i> Green border = Ready to collect!</span></div>
+    </div>
+</div>
+
+<!-- COLLECT OR BOOK MODAL -->
+<div id="collectBookModal" class="collect-book-modal">
+    <div class="collect-book-content">
+        <div class="collect-book-icon"><i class="fas fa-receipt"></i></div>
+        <h2>✅ Payment Successful!</h2>
+        <div class="order-summary">
+            <p><strong>Order Total:</strong> <span id="paidAmountSpan">R0</span></p>
+            <p><strong>New Balance:</strong> <span id="newBalanceSpan">R0</span></p>
+        </div>
+        <div class="collect-now-wrapper">
+            <button class="collect-now-btn" id="collectNowMainBtn"><i class="fas fa-hand-peace"></i> Collect Now</button>
+        </div>
+        <div class="or-divider">───── OR ─────</div>
+        <div>
+            <label style="font-weight:600;">📅 Pick a later time (12:00 - 22:00)</label>
+            <div id="timeSlotsContainer" class="time-slots-grid"></div>
+            <button class="schedule-confirm-btn" id="confirmScheduleBtn">Schedule collection</button>
+        </div>
+    </div>
+</div>
+
+<!-- PIN MODAL -->
+<div id="pinModal" class="modal">
+    <div class="modal-card">
+        <h3><i class="fas fa-lock"></i> Enter PIN</h3>
+        <p>Confirm transaction with your 4-digit PIN</p>
+        <div class="pin-input-group">
+            <input type="password" maxlength="1" class="pin-digit" id="pin1" autofocus>
+            <input type="password" maxlength="1" class="pin-digit" id="pin2">
+            <input type="password" maxlength="1" class="pin-digit" id="pin3">
+            <input type="password" maxlength="1" class="pin-digit" id="pin4">
+        </div>
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" id="cancelPinBtn">Cancel</button>
+            <button class="modal-btn btn-confirm" id="confirmPinBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast message -->
+<div id="globalToast" class="toast-msg"></div>
+
+<script>
+// ========== CORE SYSTEMS ==========
+let currentCustomer = null, accounts = [], currentCart = [], nextOrderId = Math.floor(Date.now() / 1000) % 10000;
+let currentPinCallback = null;
+let checkoutTotal = 0, currentCategory = null;
+let lastReadyOrderIds = new Set();
+let pendingOrdersToSubmit = null;
+let bookedOrders = JSON.parse(localStorage.getItem("bookedOrders") || "[]");
+
+const smartCounterCategories = { "Beers": [{ name: "Castle Lager", price: 45 },{ name: "Windhoek Lager", price: 55 }], "Premium Spirits": [{ name: "Jameson & Coke", price: 75 }], "Soft Drinks": [{ name: "Coke", price: 25 }] };
+const butcherShopItems = [{ name: "Boerewors Roll", price: 85 },{ name: "Steak & Chips", price: 150 }];
+
+function loadAccounts() { let saved = localStorage.getItem('rands_accounts_v2'); if(saved){ accounts = JSON.parse(saved); currentCustomer = accounts.find(a => a.name?.includes('Mziwonke')) || accounts[0]; } if(!currentCustomer) accounts = [{ id:"0635713652", name:"Mziwonke KaBuyaphi", balance:12580.50, pin:"1989" }], currentCustomer = accounts[0]; localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts)); document.getElementById('greetingName').innerText = `Molo, ${currentCustomer.name.split(' ')[0]}`; }
+function getWalletBalance() { return currentCustomer?.balance || 0; }
+function updateWalletBalance(newBalance) { currentCustomer.balance = newBalance; let idx = accounts.findIndex(a=>a.id===currentCustomer.id); if(idx!==-1) accounts[idx].balance=newBalance; localStorage.setItem('rands_accounts_v2',JSON.stringify(accounts)); }
+function addTransaction(desc, amount) { let tx = JSON.parse(localStorage.getItem('rands_transactions')||'{}'); let userId=currentCustomer.id; if(!tx[userId]) tx[userId]=[]; tx[userId].unshift({desc,amount,date:new Date().toISOString().slice(0,10)}); localStorage.setItem('rands_transactions',JSON.stringify(tx)); }
+function sendOrderToVendor(vendor, order) { let globalOrders = JSON.parse(localStorage.getItem("globalOrders") || "[]"); globalOrders.push(order); localStorage.setItem("globalOrders", JSON.stringify(globalOrders)); let key = vendor === "Rands Smart Counter" ? "rands_smart_counter_orders" : "the_butcher_shop_orders"; let existing = JSON.parse(localStorage.getItem(key) || "[]"); existing.push(order); localStorage.setItem(key, JSON.stringify(existing)); window.dispatchEvent(new StorageEvent('storage', { key: 'globalOrders' })); }
+function buildPendingOrders() { let ordersByVendor = {}; currentCart.forEach(item => { if(!ordersByVendor[item.vendor]) ordersByVendor[item.vendor]=[]; ordersByVendor[item.vendor].push({name:item.name,price:item.price,quantity:item.quantity}); }); let ordersArray = []; for(let vendor in ordersByVendor){ let orderTotal = ordersByVendor[vendor].reduce((s,i)=>s+(i.price*i.quantity),0); let order = { orderId: nextOrderId++, bandId: currentCustomer.id, bandName: currentCustomer.name, items: ordersByVendor[vendor], total: orderTotal, timestamp: new Date().toLocaleTimeString(), date: new Date().toISOString().slice(0,10), status: "pending", vendor: vendor }; ordersArray.push(order); } return ordersArray; }
+function submitOrders(ordersArray) { ordersArray.forEach(order => sendOrderToVendor(order.vendor, order)); }
+function saveBookedOrder(order, scheduledTime) { let booked = { ...order, scheduledTime, status: "booked", bookedAt: new Date().toISOString() }; bookedOrders.push(booked); localStorage.setItem("bookedOrders", JSON.stringify(bookedOrders)); }
+
+function processPaymentAndShowCollectModal() { 
+    let total = checkoutTotal; 
+    const newBalance = currentCustomer.balance - total; 
+    updateWalletBalance(newBalance); 
+    addTransaction(`💳 POS Purchase`, -total); 
+    document.getElementById("paidAmountSpan").innerText = `R${total.toFixed(2)}`; 
+    document.getElementById("newBalanceSpan").innerText = `R${newBalance.toFixed(2)}`; 
+    pendingOrdersToSubmit = buildPendingOrders(); 
+    openCollectBookModal(); 
+    clearCart(); 
+    if(document.getElementById("trackOrderModal").classList.contains("active")) renderTVOrders(); 
+    showToastMessage(`✅ R${total} paid!`, 'success'); 
+}
+
+// ========== PIN MODAL LOGIC ==========
+function showToastMessage(msg, type) {
+    const toast = document.getElementById('globalToast');
+    if (!toast) return;
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function clearPinInputs() {
+    const pinIds = ['pin1', 'pin2', 'pin3', 'pin4'];
+    pinIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = '';
+    });
+    const firstPin = document.getElementById('pin1');
+    if (firstPin) firstPin.focus();
+}
+
+function getPinFromInputs() {
+    return (document.getElementById('pin1')?.value || '') +
+           (document.getElementById('pin2')?.value || '') +
+           (document.getElementById('pin3')?.value || '') +
+           (document.getElementById('pin4')?.value || '');
+}
+
+function setupPinAutoMove() {
+    const inputs = ['pin1', 'pin2', 'pin3', 'pin4'];
+    inputs.forEach((id, index) => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length === 1 && index < 3) {
+                const nextInput = document.getElementById(inputs[index + 1]);
+                if (nextInput) nextInput.focus();
+            }
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
+                const prevInput = document.getElementById(inputs[index - 1]);
+                if (prevInput) prevInput.focus();
+            }
+        });
+    });
+}
+
+function showPinModal() {
+    const modal = document.getElementById('pinModal');
+    if (modal) {
+        modal.classList.add('active');
+        clearPinInputs();
+    }
+}
+
+function hidePinModal() {
+    const modal = document.getElementById('pinModal');
+    if (modal) {
+        modal.classList.remove('active');
+        clearPinInputs();
+    }
+}
+
+function initPinModal() {
+    setupPinAutoMove();
+    const confirmBtn = document.getElementById('confirmPinBtn');
+    const cancelBtn = document.getElementById('cancelPinBtn');
+    const modal = document.getElementById('pinModal');
+    
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => {
+            const enteredPin = getPinFromInputs();
+            if (enteredPin.length !== 4) {
+                showToastMessage("Please enter a 4-digit PIN");
+                return;
+            }
+            if (currentPinCallback) {
+                currentPinCallback(enteredPin);
+                currentPinCallback = null;
+            }
+            hidePinModal();
+        });
+    }
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            if (currentPinCallback) {
+                currentPinCallback(null);
+                currentPinCallback = null;
+            }
+            hidePinModal();
+        });
+    }
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                if (currentPinCallback) {
+                    currentPinCallback(null);
+                    currentPinCallback = null;
+                }
+                hidePinModal();
+            }
+        });
+    }
+}
+
+// ========== EXISTING UI FUNCTIONS ==========
+let selectedTimeSlot = null;
+function generateTimeSlots() { 
+    const times = ["12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00"]; 
+    const container = document.getElementById("timeSlotsContainer"); 
+    container.innerHTML = ""; 
+    times.forEach(time => { 
+        const slot = document.createElement("div"); 
+        slot.className = "time-slot-card"; 
+        slot.textContent = time; 
+        slot.onclick = () => { 
+            document.querySelectorAll(".time-slot-card").forEach(el => el.classList.remove("active")); 
+            slot.classList.add("active"); 
+            selectedTimeSlot = time; 
+        }; 
+        container.appendChild(slot); 
+    }); 
+}
+function openCollectBookModal() { generateTimeSlots(); selectedTimeSlot = null; document.getElementById("collectBookModal").classList.add("active"); }
+function closeCollectBookModal() { document.getElementById("collectBookModal").classList.remove("active"); }
+
+function handleCollectNow() { 
+    if(pendingOrdersToSubmit && pendingOrdersToSubmit.length) { 
+        submitOrders(pendingOrdersToSubmit); 
+        showToastMessage("🍻 Order sent to counter!", "success"); 
+        pendingOrdersToSubmit = null; 
+    } 
+    closeCollectBookModal(); 
+    openTrackOrderModal(); 
+}
+
+function handleScheduleLater() { 
+    if(!selectedTimeSlot) { 
+        showToastMessage("Please select a time slot", "error"); 
+        return; 
+    } 
+    if(pendingOrdersToSubmit && pendingOrdersToSubmit.length) { 
+        pendingOrdersToSubmit.forEach(order => saveBookedOrder(order, selectedTimeSlot)); 
+        showToastMessage(`📅 Order scheduled for ${selectedTimeSlot}. Will be sent to kitchen at that time.`, "info"); 
+        pendingOrdersToSubmit = null; 
+    } 
+    closeCollectBookModal(); 
+    openTrackOrderModal(); 
+    renderTVOrders(); 
+}
+
+function checkAndActivateBookedOrders() {
+    if (!currentCustomer) return;
+    const now = new Date();
+    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+    let activatedCount = 0;
+    const remainingBooked = [];
+    for (let booked of bookedOrders) {
+        if (booked.bandId === currentCustomer.id) {
+            const [scheduledHour, scheduledMinute] = booked.scheduledTime.split(':').map(Number);
+            const scheduledTimeMinutes = scheduledHour * 60 + scheduledMinute;
+            const timeDifference = scheduledTimeMinutes - currentTimeMinutes;
+            const isTimeArrived = timeDifference <= 0 && timeDifference > -10;
+            if (isTimeArrived) {
+                const orderToSend = {
+                    orderId: booked.orderId,
+                    bandId: booked.bandId,
+                    bandName: booked.bandName,
+                    items: booked.items,
+                    total: booked.total,
+                    timestamp: new Date().toLocaleTimeString(),
+                    date: new Date().toISOString().slice(0,10),
+                    status: "pending",
+                    vendor: booked.vendor
+                };
+                sendOrderToVendor(booked.vendor, orderToSend);
+                activatedCount++;
+                showToastMessage(`⏰ Your order scheduled for ${booked.scheduledTime} has been sent to the kitchen!`, "success");
+            } else {
+                remainingBooked.push(booked);
+            }
+        } else {
+            remainingBooked.push(booked);
+        }
+    }
+    if (activatedCount > 0) {
+        bookedOrders = remainingBooked;
+        localStorage.setItem("bookedOrders", JSON.stringify(bookedOrders));
+        if (document.getElementById("trackOrderModal").classList.contains("active")) renderTVOrders();
+    }
+}
+
+setInterval(() => { checkAndActivateBookedOrders(); }, 30000);
+
+function getProgressPercent(status) { if (status === 'pending') return 15; if (status === 'preparing') return 55; if (status === 'ready') return 100; return 0; }
+function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+
+// UPDATED: Different journey steps based on vendor (Bar vs Kitchen)
+function renderTVOrders() {
+    let allOrders = JSON.parse(localStorage.getItem("globalOrders") || "[]");
+    let myOrders = allOrders.filter(o => o.bandId === currentCustomer?.id && o.status !== 'collected');
+    myOrders.sort((a,b) => { const rank = { ready: 1, preparing: 2, pending: 3 }; return (rank[a.status] || 4) - (rank[b.status] || 4); });
+    document.getElementById('tvActiveOrdersCount').innerText = myOrders.length;
+    document.getElementById('tvReadyOrdersCount').innerText = myOrders.filter(o => o.status === 'ready').length;
+    let preparing = myOrders.find(o => o.status === 'preparing'); document.getElementById('tvServingNowIndicator').innerHTML = preparing ? `#${preparing.orderId}` : '—';
+    const grid = document.getElementById('tvCustomerOrdersGrid');
+    if (myOrders.length === 0) grid.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><h3>No active orders yet</h3><p>Your orders will appear here.</p></div>`;
+    else grid.innerHTML = myOrders.map(order => { 
+        const percent = getProgressPercent(order.status); 
+        const isReady = order.status === 'ready'; 
+        let stepIdx = order.status === 'pending' ? 0 : (order.status === 'preparing' ? 1 : 2);
+        
+        // Different journey steps based on vendor
+        let steps;
+        if (order.vendor === "Rands Smart Counter") {
+            // BAR / SMART COUNTER JOURNEY: Order Placed → Adding to Ice Bucket → Ready to Collect
+            steps = [
+                { key: 'pending', label: 'Order Placed', icon: 'fas fa-clipboard-list' },
+                { key: 'preparing', label: 'Adding to Ice Bucket 🧊', icon: 'fas fa-ice-cream' },
+                { key: 'ready', label: 'Ready to Collect', icon: 'fas fa-hand-peace' }
+            ];
+        } else {
+            // BUTCHER SHOP / KITCHEN JOURNEY: Order Placed → Preparing → Ready to Collect
+            steps = [
+                { key: 'pending', label: 'Order Placed', icon: 'fas fa-clipboard-list' },
+                { key: 'preparing', label: 'Preparing', icon: 'fas fa-fire' },
+                { key: 'ready', label: 'Ready to Collect', icon: 'fas fa-hand-peace' }
+            ];
+        }
+        
+        return `<div class="customer-order-card ${isReady ? 'ready-glow' : ''}"><div class="card-header"><span class="order-number"><i class="fas fa-hashtag"></i> ${order.orderId}</span><span class="vendor-badge">${order.vendor === 'Rands Smart Counter' ? '🍺 Bar' : '🥩 Kitchen'}</span><span class="status-pill ${order.status === 'pending' ? 'pill-pending' : (order.status === 'preparing' ? 'pill-preparing' : 'pill-ready')}">${order.status.toUpperCase()}</span></div><div class="journey-timeline"><div class="steps-row"><div class="progress-line"><div class="progress-fill" style="width: ${percent}%;"></div></div>${steps.map((step, idx) => { let stepStatus = ''; if (idx < stepIdx) stepStatus = 'completed'; else if (idx === stepIdx) stepStatus = 'active'; return `<div class="step-node ${stepStatus}"><div class="step-icon"><i class="${step.icon}"></i></div><div class="step-label">${step.label}</div></div>`; }).join('')}</div></div><div class="customer-details"><span><i class="fas fa-user-friends"></i> <span class="customer-name">${escapeHtml(order.bandName)}</span></span><span><i class="far fa-clock"></i> ${order.timestamp}</span></div><div class="order-items">${order.items.slice(0, 2).map(item => `<div class="item-line"><span>${item.quantity} × ${escapeHtml(item.name)}</span><span>R${(item.price * item.quantity).toFixed(2)}</span></div>`).join('')}${order.items.length > 2 ? `<div class="item-line" style="color:#888;">+ ${order.items.length - 2} more</div>` : ''}</div><div class="order-total">TOTAL: R${order.total.toFixed(2)} ${isReady ? '<span style="font-size:12px; background:#00cc66; padding:2px 12px; border-radius:30px; margin-left:12px;"><i class="fas fa-bell"></i> Ready</span>' : ''}</div></div>`; 
+    }).join('');
+    
+    const bookedForUser = bookedOrders.filter(b => b.bandId === currentCustomer?.id);
+    const bookedGrid = document.getElementById('tvBookedOrdersGrid');
+    const bookedSection = document.getElementById('bookedSection');
+    if (bookedForUser.length > 0) { 
+        bookedSection.style.display = 'block'; 
+        bookedGrid.innerHTML = bookedForUser.map(b => `<div class="customer-order-card" style="border-color:#ff9900;"><div class="card-header" style="background:#fff0e0;"><span class="order-number" style="background:#ff9900;">#${b.orderId}</span><span class="vendor-badge">📅 ${b.scheduledTime}</span><span class="status-pill" style="background:#ffecb3; color:#cc7700;">SCHEDULED</span></div><div class="order-items">${b.items.map(i => `<div class="item-line"><span>${i.quantity}x ${i.name}</span><span>R${(i.price * i.quantity).toFixed(2)}</span></div>`).join('')}</div><div class="order-total">R${b.total.toFixed(2)}</div><div style="padding:8px 16px 16px; font-size:11px; color:#ff9900;"><i class="fas fa-clock"></i> Will be sent to kitchen at ${b.scheduledTime}</div></div>`).join(''); 
+    } else { 
+        bookedSection.style.display = 'none'; 
+    }
+    checkForNewReadyOrders();
+}
+
+function checkForNewReadyOrders(){ if(!currentCustomer) return; let orders=JSON.parse(localStorage.getItem("globalOrders")||"[]"); let ready=orders.filter(o=>o.bandId===currentCustomer.id && o.status==='ready'); ready.forEach(o=>{ let key=`${o.orderId}_${o.vendor}`; if(!lastReadyOrderIds.has(key)){ lastReadyOrderIds.add(key); showToastMessage(`🔔 Order #${o.orderId} is READY!`, 'ready'); } }); }
+function openTrackOrderModal(){ checkAndActivateBookedOrders(); renderTVOrders(); document.getElementById("trackOrderModal").classList.add("active"); if(window.tvInterval) clearInterval(window.tvInterval); window.tvInterval=setInterval(()=>{ if(document.getElementById("trackOrderModal").classList.contains("active")) renderTVOrders(); else clearInterval(window.tvInterval); },3000); }
+function closeTrackOrderModal(){ document.getElementById("trackOrderModal").classList.remove("active"); if(window.tvInterval) clearInterval(window.tvInterval); }
+
+function showCategoryCards() { let container=document.getElementById("vendorMenu"); container.innerHTML=''; if(currentCategory){ let back=document.createElement('button'); back.className='back-to-categories'; back.innerHTML='← Back'; back.onclick=()=>{currentCategory=null; showCategoryCards();}; container.appendChild(back); let items=smartCounterCategories[currentCategory]; items.forEach(item=>{ let card=document.createElement("div"); card.className="menu-item"; card.innerHTML=`<div><strong>${item.name}</strong> R${item.price}</div><button class="add-to-cart-btn">ADD</button>`; card.querySelector('.add-to-cart-btn').onclick=()=>addToCart(item.name,item.price,"Rands Smart Counter"); container.appendChild(card); }); return; } let grid=document.createElement('div'); grid.className='category-grid'; let cats=["Beers","Premium Spirits","Soft Drinks"]; cats.forEach(c=>{ let div=document.createElement('div'); div.className='category-card'; div.innerHTML=`<div class="category-icon">🍺</div><div>${c}</div>`; div.onclick=()=>{currentCategory=c; showCategoryCards();}; grid.appendChild(div); }); container.appendChild(grid); }
+function showButcherShopItems(){ let container=document.getElementById("vendorMenu"); container.innerHTML=''; butcherShopItems.forEach(item=>{ let card=document.createElement("div"); card.className="menu-item"; card.innerHTML=`<div><strong>${item.name}</strong> R${item.price}</div><button class="add-to-cart-btn">ADD</button>`; card.querySelector('.add-to-cart-btn').onclick=()=>addToCart(item.name,item.price,"The Butcher Shop"); container.appendChild(card); }); }
+function setupTabs(){ document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',function(){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); currentCategory=null; if(this.getAttribute('data-vendor')==='Rands Smart Counter') showCategoryCards(); else showButcherShopItems(); updateCartTitle(this.getAttribute('data-vendor')); }); }); }
+function addToCart(name,price,vendor){ let existing=currentCart.find(i=>i.name===name && i.vendor===vendor); if(existing) existing.quantity++; else currentCart.push({name,price,vendor,quantity:1}); updateCartDisplay(); showToastMessage(`➕ ${name} added`, 'success'); }
+function updateCartDisplay(){ let subtotal=0,totalItems=0,html="",grouped={}; currentCart.forEach(i=>{ if(!grouped[i.vendor]) grouped[i.vendor]=[]; grouped[i.vendor].push(i); }); for(let vendor in grouped){ html+=`<div class="vendor-group"><h5>${vendor==='Rands Smart Counter'?'🍺':'🥩'} ${vendor}</h5>`; grouped[vendor].forEach((item,idx)=>{ let globalIdx=currentCart.findIndex(i=>i.name===item.name && i.vendor===item.vendor); let itemTotal=item.price*item.quantity; subtotal+=itemTotal; totalItems+=item.quantity; html+=`<div class="cart-item"><div>${item.name} x${item.quantity}</div><div>R${itemTotal}</div><div><button onclick="updateQuantity(${globalIdx},-1)" class="cart-qty-btn">-</button> <span>${item.quantity}</span> <button onclick="updateQuantity(${globalIdx},1)" class="cart-qty-btn">+</button> <button onclick="removeFromCart(${globalIdx})" class="cart-remove">✕</button></div></div>`; }); html+=`</div>`; } document.getElementById("cartItems").innerHTML=html||'<div>Empty cart</div>'; document.getElementById("cartItemCount").innerText=totalItems; document.getElementById("cartSubtotal").innerText="R"+subtotal; document.getElementById("checkoutBtn").disabled=currentCart.length===0; document.getElementById("checkoutAmount").innerText=subtotal; }
+function updateQuantity(idx,delta){ if(currentCart[idx]){ currentCart[idx].quantity+=delta; if(currentCart[idx].quantity<=0) currentCart.splice(idx,1); updateCartDisplay(); } }
+function removeFromCart(idx){ currentCart.splice(idx,1); updateCartDisplay(); }
+function clearCart(){ currentCart=[]; updateCartDisplay(); showToastMessage("Cart cleared", 'info'); }
+function checkoutCart(){ if(!currentCustomer){ showToastMessage("Login required", 'error'); return; } if(currentCart.length===0){ showToastMessage("Cart empty", 'error'); return; } let total=currentCart.reduce((s,i)=>s+(i.price*i.quantity),0); if(getWalletBalance()<total){ showToastMessage(`Insufficient funds!`, 'error'); return; } checkoutTotal=total; currentPinCallback = (pin) => { if (pin && pin === currentCustomer.pin) { processPaymentAndShowCollectModal(); } else if (pin) { showToastMessage("Incorrect PIN", "error"); } }; showPinModal(); }
+function updateCartTitle(vendor){ let title=vendor==='Rands Smart Counter'?'🍺 Your Booze Bucket':'🥩 Your Platter'; document.getElementById('cartTitle').innerText=title; }
+window.addEventListener('storage',(e)=>{ if(e.key==='globalOrders' && document.getElementById("trackOrderModal").classList.contains("active")) renderTVOrders(); });
+let header=document.getElementById('movableHeaderGroup'), lastScroll=0; window.addEventListener('scroll',()=>{ let cur=window.scrollY; if(cur>lastScroll && cur>50) header.classList.add('header-hidden'); else if(cur<lastScroll) header.classList.remove('header-hidden'); lastScroll=cur; });
+document.getElementById('logoutHeaderBtn')?.addEventListener('click',()=>window.location.href='home.html');
+document.getElementById("collectNowMainBtn")?.addEventListener("click", handleCollectNow);
+document.getElementById("confirmScheduleBtn")?.addEventListener("click", handleScheduleLater);
+loadAccounts(); setupTabs(); showCategoryCards(); updateCartTitle("Rands Smart Counter"); updateCartDisplay();
+initPinModal();
+checkAndActivateBookedOrders();
+</script>
+</body>
+</html>

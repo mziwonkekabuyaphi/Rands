@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>Rands POS | Collection Screen</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #0a0a0a;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .staff-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .staff-header {
+        background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+        border-radius: 24px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        border: 1px solid #b30000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .logo-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo-icon {
+        width: 50px;
+        height: 50px;
+        background: #b30000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .title h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ff4d4d;
+    }
+
+    .title p {
+        font-size: 0.75rem;
+        color: #ffd966;
+    }
+
+    .stats-badge {
+        background: #1a1a1a;
+        padding: 8px 20px;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #b30000;
+    }
+
+    .stats-badge .count {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ff4d4d;
+    }
+
+    /* Tab Navigation */
+    .vendor-tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .vendor-tab {
+        background: #1a1a1a;
+        border: 1px solid #b30000;
+        padding: 12px 24px;
+        border-radius: 40px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .vendor-tab.active {
+        background: #b30000;
+        color: white;
+        box-shadow: 0 4px 12px rgba(179,0,0,0.4);
+    }
+
+    .vendor-tab:hover:not(.active) {
+        background: #2a2a2a;
+    }
+
+    /* Orders Grid */
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .order-card {
+        background: #1a1a1a;
+        border-radius: 20px;
+        padding: 18px;
+        border: 2px solid #b30000;
+        transition: all 0.2s;
+    }
+
+    .order-card.ready {
+        border-color: #00ff9c;
+        box-shadow: 0 0 20px rgba(0,255,156,0.2);
+        animation: pulseGlow 1.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 0px rgba(0,255,156,0.2); }
+        50% { box-shadow: 0 0 20px rgba(0,255,156,0.5); }
+        100% { box-shadow: 0 0 0px rgba(0,255,156,0.2); }
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .order-id {
+        background: #b30000;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .order-vendor {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .vendor-smart {
+        background: #ffaa00;
+        color: #1a1a1a;
+    }
+
+    .vendor-butcher {
+        background: #e85d04;
+        color: white;
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .status-pending {
+        background: #ffaa00;
+        color: #1a1a1a;
+    }
+
+    .status-preparing {
+        background: #00a86b;
+        color: white;
+    }
+
+    .status-ready {
+        background: #b30000;
+        color: white;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .customer-info {
+        background: #0f0f0f;
+        border-radius: 12px;
+        padding: 10px;
+        margin: 12px 0;
+    }
+
+    .customer-name {
+        font-weight: bold;
+        color: #ffd966;
+    }
+
+    .customer-phone {
+        font-size: 11px;
+        color: #888;
+        font-family: monospace;
+    }
+
+    .items-list {
+        background: #0f0f0f;
+        border-radius: 12px;
+        padding: 10px;
+        margin: 12px 0;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #333;
+        font-size: 13px;
+    }
+
+    .item-row:last-child {
+        border-bottom: none;
+    }
+
+    .item-name {
+        color: #ddd;
+    }
+
+    .item-price {
+        color: #00ff9c;
+        font-weight: bold;
+    }
+
+    .order-total {
+        text-align: right;
+        font-size: 18px;
+        font-weight: bold;
+        color: #00ff9c;
+        margin: 12px 0;
+        padding-top: 8px;
+        border-top: 1px solid #b30000;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 13px;
+    }
+
+    .btn-prepare {
+        background: #00a86b;
+        color: white;
+    }
+
+    .btn-ready {
+        background: #b30000;
+        color: white;
+    }
+
+    .btn-collect {
+        background: #00ff9c;
+        color: #1a1a1a;
+    }
+
+    .btn-warning {
+        background: #ffaa00;
+        color: #1a1a1a;
+    }
+
+    .btn:active {
+        transform: scale(0.96);
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: #666;
+        background: #111;
+        border-radius: 24px;
+        grid-column: 1 / -1;
+    }
+
+    /* Notification */
+    .notification {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #1e293b;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 60px;
+        font-size: 0.85rem;
+        z-index: 1000;
+        display: none;
+        animation: slideInRight 0.3s ease;
+    }
+
+    .notification.show {
+        display: block;
+    }
+
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Sound toggle */
+    .sound-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #1a1a1a;
+        padding: 6px 12px;
+        border-radius: 40px;
+        cursor: pointer;
+    }
+
+    .sound-toggle i {
+        font-size: 18px;
+        color: #ff4d4d;
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding: 12px;
+        }
+        .orders-grid {
+            grid-template-columns: 1fr;
+        }
+        .staff-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        .vendor-tabs {
+            justify-content: center;
+        }
+        .vendor-tab {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="staff-container">
+    <div class="staff-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-hand-peace"></i></div>
+            <div class="title">
+                <h1>Customer Collection Counter</h1>
+                <p>Orders ready for pickup appear here</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="sound-toggle" id="soundToggle">
+                <i class="fas fa-volume-up"></i>
+                <span style="font-size: 12px;">Sound On</span>
+            </div>
+            <div class="stats-badge">
+                <i class="fas fa-clock"></i>
+                <span class="count" id="readyOrdersCount">0</span>
+                <span>Ready for Collection</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="vendor-tabs">
+        <button class="vendor-tab active" data-vendor="all">
+            <i class="fas fa-store"></i> All Ready Orders
+        </button>
+        <button class="vendor-tab" data-vendor="Rands Smart Counter">
+            <i class="fas fa-beer"></i> Smart Counter
+        </button>
+        <button class="vendor-tab" data-vendor="The Butcher Shop">
+            <i class="fas fa-drumstick-bite"></i> Butcher Shop
+        </button>
+    </div>
+
+    <div id="ordersGrid" class="orders-grid">
+        <div class="empty-state">
+            <i class="fas fa-spinner fa-pulse"></i> Loading ready orders...
+        </div>
+    </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+    // ========== STORAGE KEYS ==========
+    const GLOBAL_ORDERS_KEY = 'globalOrders';
+    let soundEnabled = true;
+    let currentVendorFilter = 'all';
+    let lastReadyCount = 0;
+
+    // ========== AUDIO FUNCTIONS ==========
+    function playNotificationSound() {
+        if (!soundEnabled) return;
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+            setTimeout(() => audioCtx.close(), 400);
+        } catch(e) {
+            console.log('Sound not supported');
+        }
+    }
+
+    function showNotification(message, isNewOrder = false) {
+        const notif = document.getElementById('notification');
+        notif.innerText = message;
+        notif.classList.add('show');
+        
+        if (isNewOrder) {
+            playNotificationSound();
+        }
+        
+        setTimeout(() => {
+            notif.classList.remove('show');
+        }, 3000);
+    }
+
+    // ========== ORDER MANAGEMENT FUNCTIONS ==========
+    function getGlobalOrders() {
+        return JSON.parse(localStorage.getItem(GLOBAL_ORDERS_KEY) || '[]');
+    }
+
+    function saveGlobalOrders(orders) {
+        localStorage.setItem(GLOBAL_ORDERS_KEY, JSON.stringify(orders));
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: GLOBAL_ORDERS_KEY,
+            newValue: JSON.stringify(orders)
+        }));
+    }
+
+    // Mark order as collected (collection staff action)
+    function staffMarkCollected(orderId) {
+        let orders = getGlobalOrders();
+        const orderIndex = orders.findIndex(o => o.orderId === orderId);
+        
+        if (orderIndex !== -1 && orders[orderIndex].status === 'ready') {
+            orders[orderIndex].status = 'collected';
+            orders[orderIndex].collectedAt = new Date().toISOString();
+            saveGlobalOrders(orders);
+            showNotification(`✅ Order #${orderId} collected by customer!`);
+            renderOrders();
+            
+            // Also update vendor-specific storage for backward compatibility
+            const order = orders[orderIndex];
+            const vendorKey = order.vendor === "Rands Smart Counter" ? "rands_smart_counter_orders" : "the_butcher_shop_orders";
+            let vendorOrders = JSON.parse(localStorage.getItem(vendorKey) || "[]");
+            const vendorIndex = vendorOrders.findIndex(o => o.orderId === orderId);
+            if (vendorIndex !== -1) {
+                vendorOrders[vendorIndex].status = 'collected';
+                localStorage.setItem(vendorKey, JSON.stringify(vendorOrders));
+            }
+        } else {
+            const order = orders[orderIndex];
+            showNotification(`⚠️ Order #${orderId} cannot be collected (status: ${order?.status || 'unknown'})`);
+        }
+    }
+
+    // ========== RENDER ORDERS ==========
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function renderOrders() {
+        let orders = getGlobalOrders();
+        
+        // Only show READY orders (not pending, not preparing, not collected)
+        let readyOrders = orders.filter(o => o.status === 'ready');
+        
+        // Apply vendor filter
+        if (currentVendorFilter !== 'all') {
+            readyOrders = readyOrders.filter(o => o.vendor === currentVendorFilter);
+        }
+        
+        // Sort by timestamp (oldest first - first ready, first served)
+        readyOrders.sort((a, b) => {
+            const timeA = a.readyAt || a.timestamp;
+            const timeB = b.readyAt || b.timestamp;
+            return (timeA || '').localeCompare(timeB || '');
+        });
+        
+        // Update ready orders count
+        const readyCount = readyOrders.length;
+        document.getElementById('readyOrdersCount').innerText = readyCount;
+        
+        // Check for new ready orders (sound alert)
+        if (readyCount > lastReadyCount && lastReadyCount !== 0) {
+            const newReadyCount = readyCount - lastReadyCount;
+            showNotification(`🔔 ${newReadyCount} new order(s) ready for collection!`, true);
+        }
+        lastReadyCount = readyCount;
+        
+        const container = document.getElementById('ordersGrid');
+        
+        if (readyOrders.length === 0) {
+            container.innerHTML = `<div class="empty-state">
+                <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                <h3>No Orders Ready for Collection</h3>
+                <p>When kitchen/bar marks orders as ready, they will appear here.</p>
+            </div>`;
+            return;
+        }
+        
+        container.innerHTML = readyOrders.map(order => {
+            const vendorIcon = order.vendor === "Rands Smart Counter" ? "🍺" : "🥩";
+            const vendorClass = order.vendor === "Rands Smart Counter" ? "vendor-smart" : "vendor-butcher";
+            
+            // Calculate how long ago it became ready
+            let readyTimeText = '';
+            if (order.readyAt) {
+                const readyDate = new Date(order.readyAt);
+                const now = new Date();
+                const diffMinutes = Math.floor((now - readyDate) / 60000);
+                if (diffMinutes < 1) {
+                    readyTimeText = 'just now';
+                } else if (diffMinutes === 1) {
+                    readyTimeText = '1 minute ago';
+                } else {
+                    readyTimeText = `${diffMinutes} minutes ago`;
+                }
+            } else {
+                readyTimeText = order.timestamp || 'recently';
+            }
+            
+            return `
+                <div class="order-card ready">
+                    <div class="order-header">
+                        <span class="order-id">#${order.orderId}</span>
+                        <span class="order-vendor ${vendorClass}">${vendorIcon} ${order.vendor}</span>
+                        <span class="status-badge status-ready">✅ READY</span>
+                    </div>
+                    
+                    <div class="customer-info">
+                        <div class="customer-name">
+                            <i class="fas fa-user-circle"></i> ${escapeHtml(order.bandName || order.bandId)}
+                        </div>
+                        <div class="customer-phone">
+                            <i class="fas fa-phone"></i> ${escapeHtml(order.bandId)}
+                        </div>
+                        <div style="font-size: 11px; color: #888; margin-top: 4px;">
+                            <i class="far fa-clock"></i> Ready ${readyTimeText}
+                        </div>
+                    </div>
+                    
+                    <div class="items-list">
+                        ${order.items.map(item => `
+                            <div class="item-row">
+                                <span class="item-name">${item.quantity}x ${escapeHtml(item.name)}</span>
+                                <span class="item-price">R${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="order-total">
+                        Total: R${order.total.toFixed(2)}
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-collect" onclick="staffMarkCollected(${order.orderId})">
+                            <i class="fas fa-hand-peace"></i> Confirm Collection
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ========== SETUP EVENT LISTENERS ==========
+    function setupEventListeners() {
+        // Vendor filter tabs
+        document.querySelectorAll('.vendor-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.vendor-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentVendorFilter = tab.getAttribute('data-vendor');
+                renderOrders();
+            });
+        });
+        
+        // Sound toggle
+        const soundToggle = document.getElementById('soundToggle');
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            const icon = soundToggle.querySelector('i');
+            const text = soundToggle.querySelector('span');
+            if (soundEnabled) {
+                icon.className = 'fas fa-volume-up';
+                text.innerText = 'Sound On';
+            } else {
+                icon.className = 'fas fa-volume-mute';
+                text.innerText = 'Sound Off';
+            }
+        });
+    }
+
+    // ========== LISTEN FOR STORAGE CHANGES ==========
+    function listenForStorageChanges() {
+        window.addEventListener('storage', (e) => {
+            if (e.key === GLOBAL_ORDERS_KEY) {
+                renderOrders();
+                // Play sound for new ready orders
+                try {
+                    const newOrders = JSON.parse(e.newValue || '[]');
+                    const oldOrders = JSON.parse(e.oldValue || '[]');
+                    const newReady = newOrders.filter(o => o.status === 'ready').length;
+                    const oldReady = oldOrders.filter(o => o.status === 'ready').length;
+                    if (newReady > oldReady && soundEnabled) {
+                        playNotificationSound();
+                    }
+                } catch(err) {}
+            }
+        });
+    }
+
+    // ========== AUTO REFRESH ==========
+    let refreshInterval = setInterval(() => {
+        renderOrders();
+    }, 3000);
+
+    // ========== EXPOSE GLOBAL FUNCTIONS FOR ONCLICK ==========
+    window.staffMarkCollected = staffMarkCollected;
+
+    // ========== INITIALIZE ==========
+    function init() {
+        setupEventListeners();
+        listenForStorageChanges();
+        renderOrders();
+    }
+
+    init();
+</script>
+</body>
+</html>
