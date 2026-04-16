@@ -1412,6 +1412,22 @@
     function loadTickets() { const stored = localStorage.getItem(TICKETS_KEY); return stored ? JSON.parse(stored) : []; }
     function saveTickets(tickets) { localStorage.setItem(TICKETS_KEY, JSON.stringify(tickets)); }
     
+    // Helper: generate a compact 15-character ticket ID (alphanumeric, uppercase)
+    function generateShortTicketId(eventId, typeKey, timestamp, randomSuffix) {
+        // Create a base string and then hash/truncate to 15 chars alphanumeric
+        const base = `${eventId}_${typeKey}_${timestamp}_${randomSuffix}`;
+        let hash = 0;
+        for (let i = 0; i < base.length; i++) {
+            hash = ((hash << 5) - hash) + base.charCodeAt(i);
+            hash |= 0;
+        }
+        const positiveHash = Math.abs(hash);
+        const hexPart = positiveHash.toString(36).toUpperCase();
+        let shortId = hexPart.slice(0, 15);
+        while (shortId.length < 15) shortId += Math.floor(Math.random() * 36).toString(36).toUpperCase();
+        return shortId;
+    }
+    
     function isShopAccessible() {
         const activeEvents = events.filter(e => e.status === 'active' || e.status === 'upcoming');
         if (activeEvents.length === 0) return false;
@@ -1553,7 +1569,6 @@
             const newTickets = allTickets.filter(t => t.ticketId !== ticketId);
             saveTickets(newTickets);
             updateWalletStats();
-            // Refresh modal if open
             if (document.getElementById('myticketsModalOverlay').classList.contains('show')) {
                 showMyTicketsModal();
             }
@@ -1628,8 +1643,10 @@
             if (newSold > ticketType.capacity) { showToast(`Not enough ${item.name} tickets.`, true); return; }
             ticketType.sold = newSold;
             for (let i = 0; i < item.quantity; i++) {
-                const ticketId = `${item.eventId}_${item.ticketTypeKey}_${now + i}_${Math.random().toString(36).substr(2, 6)}`;
-                allTickets.push({ ticketId: ticketId.toUpperCase(), attendeeName: currentUserName, eventName: event.name, eventDate: event.date, ticketType: item.name, price: item.price, purchasedAt: now + i });
+                const randomSuffix = Math.random().toString(36).substring(2, 8);
+                const shortId = generateShortTicketId(item.eventId, item.ticketTypeKey, now + i, randomSuffix);
+                const ticketId = shortId.toUpperCase();
+                allTickets.push({ ticketId, attendeeName: currentUserName, eventName: event.name, eventDate: event.date, ticketType: item.name, price: item.price, purchasedAt: now + i });
             }
         }
         saveEvents();
