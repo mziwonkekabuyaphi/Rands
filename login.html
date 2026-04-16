@@ -125,14 +125,14 @@
 <div id="globalToast" class="toast-msg"></div>
 
 <script>
-    // Storage keys
+    // Storage keys - MUST match home.html expectations
     const ACCOUNTS_KEY = 'rands_accounts_v2';
+    const CURRENT_USER_KEY = 'rands_current_user';   // <-- changed to match home.html
     let accounts = [];
     let currentAccountId = null;
     let stream = null;
     let capturedSelfie = null;
 
-    // Helper functions
     function showToastMsg(msg) { 
         let t = document.getElementById('globalToast'); 
         t.innerText = msg; 
@@ -251,7 +251,8 @@
             return false; 
         }
         currentAccountId = account.id;
-        localStorage.setItem('rands_current_account', currentAccountId);
+        // Store using the key that home.html expects
+        localStorage.setItem(CURRENT_USER_KEY, currentAccountId);
         showToastMsg(`Welcome back, ${account.name.split(' ')[0]}!`);
         return true;
     }
@@ -290,7 +291,7 @@
             id: cleanNumber, 
             name: name.trim(), 
             phone: cleanNumber, 
-            balance: 100,
+            balance: 100,     // initial balance
             cardNumber: "4532 " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000),
             cvv: Math.floor(100 + Math.random() * 900).toString(), 
             expiry: "12/28", 
@@ -305,7 +306,8 @@
         accounts.push(newAccount);
         saveAccounts();
         currentAccountId = newAccount.id;
-        localStorage.setItem('rands_current_account', currentAccountId);
+        // Store using the key that home.html expects
+        localStorage.setItem(CURRENT_USER_KEY, currentAccountId);
         
         stopCamera();
         
@@ -314,7 +316,6 @@
     }
     
     function redirectToWallet() {
-        // Redirect to home.html
         window.location.href = 'home.html';
     }
 
@@ -322,11 +323,10 @@
     function init() {
         loadAccounts();
         
-        // Check if already logged in
-        let saved = localStorage.getItem('rands_current_account');
+        // Check if already logged in using the correct key
+        let saved = localStorage.getItem(CURRENT_USER_KEY);
         if (saved && accounts.find(a => a.id === saved)) {
             currentAccountId = saved;
-            // Redirect immediately to home if already logged in
             redirectToWallet();
             return;
         }
