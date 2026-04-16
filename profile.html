@@ -456,8 +456,8 @@
                     <div class="avatar-hint" id="uploadAvatarHint"><i class="fas fa-camera"></i></div>
                 </div>
             </div>
-            <div class="profile-name" id="profileName">Mziwonke KaBuyaphi</div>
-            <div class="profile-phone" id="profilePhone"><i class="fas fa-phone-alt"></i> 0635713652</div>
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-phone" id="profilePhone"><i class="fas fa-phone-alt"></i> Loading...</div>
             <div class="verified-badge"><i class="fas fa-check-circle"></i> Identity Verified</div>
         </div>
 
@@ -695,12 +695,13 @@
 
 <script>
     // ========== CONSTANTS & STORAGE KEYS ==========
+    // CRITICAL FIX: Use the same key as home.html and login.html
     const STORAGE = {
         ACCOUNTS: 'rands_accounts_v2',
         LINKED: 'rands_linked_accounts',
         SESSIONS: 'rands_sessions',
         TWOFA: 'rands_2fa',
-        CURRENT: 'rands_current_account',
+        CURRENT_USER: 'rands_current_user',  // FIXED: changed from 'rands_current_account'
         TOUCH_ID: 'rands_touch_id'
     };
 
@@ -759,8 +760,8 @@
                 verified: true,
                 selfie: null
             }];
+            saveAccounts();
         }
-        saveAccounts();
     }
 
     function loadLinkedAccounts() {
@@ -796,7 +797,8 @@
             twoFAEnabled = false;
             twoFAPhone = '';
         }
-        document.getElementById('twoFactorToggle').checked = twoFAEnabled;
+        const toggle = document.getElementById('twoFactorToggle');
+        if (toggle) toggle.checked = twoFAEnabled;
     }
 
     function loadTouchId() {
@@ -809,28 +811,37 @@
             touchIdEnabled = false;
             touchIdRegistered = false;
         }
-        document.getElementById('touchIdToggle').checked = touchIdEnabled;
+        const toggle = document.getElementById('touchIdToggle');
+        if (toggle) toggle.checked = touchIdEnabled;
     }
 
     // ========== UI UPDATE FUNCTIONS ==========
     function updateLinkedAccountsCount() {
-        document.getElementById('linkedAccountsCount').innerText = linkedAccounts.length;
+        const countEl = document.getElementById('linkedAccountsCount');
+        if (countEl) countEl.innerText = linkedAccounts.length;
     }
 
     function updateSessionCount() {
-        document.getElementById('sessionCount').innerText = activeSessions.length;
+        const countEl = document.getElementById('sessionCount');
+        if (countEl) countEl.innerText = activeSessions.length;
     }
 
     function updateProfileUI() {
         const acc = getCurrentAccount();
         if (!acc) return;
-        document.getElementById('profileName').innerText = acc.name;
-        document.getElementById('profilePhone').innerHTML = `<i class="fas fa-phone-alt"></i> ${acc.phone}`;
+        const nameEl = document.getElementById('profileName');
+        const phoneEl = document.getElementById('profilePhone');
         const avatarDiv = document.getElementById('profileAvatar');
-        if (acc.selfie) {
-            avatarDiv.innerHTML = `<img src="${acc.selfie}" alt="Profile">`;
-        } else {
-            avatarDiv.innerHTML = `<span style="font-size: 2rem;">${acc.name.charAt(0).toUpperCase()}</span>`;
+        
+        if (nameEl) nameEl.innerText = acc.name;
+        if (phoneEl) phoneEl.innerHTML = `<i class="fas fa-phone-alt"></i> ${acc.phone}`;
+        
+        if (avatarDiv) {
+            if (acc.selfie) {
+                avatarDiv.innerHTML = `<img src="${acc.selfie}" alt="Profile">`;
+            } else {
+                avatarDiv.innerHTML = `<span style="font-size: 2rem;">${acc.name.charAt(0).toUpperCase()}</span>`;
+            }
         }
     }
 
@@ -941,7 +952,8 @@
         twoFAEnabled = true;
         twoFAPhone = phone;
         saveTwoFA();
-        document.getElementById('twoFactorToggle').checked = true;
+        const toggle = document.getElementById('twoFactorToggle');
+        if (toggle) toggle.checked = true;
         showToast("✅ Two-Factor Authentication enabled!");
         return true;
     }
@@ -950,7 +962,8 @@
         twoFAEnabled = false;
         twoFAPhone = '';
         saveTwoFA();
-        document.getElementById('twoFactorToggle').checked = false;
+        const toggle = document.getElementById('twoFactorToggle');
+        if (toggle) toggle.checked = false;
         showToast("2FA disabled");
     }
 
@@ -966,7 +979,8 @@
             touchIdEnabled = true;
             touchIdRegistered = true;
             saveTouchId();
-            document.getElementById('touchIdToggle').checked = true;
+            const toggle = document.getElementById('touchIdToggle');
+            if (toggle) toggle.checked = true;
             showToast("✅ Fingerprint registered successfully! You can now pay with Touch ID.");
         }, 2000);
     }
@@ -975,7 +989,8 @@
         touchIdEnabled = false;
         touchIdRegistered = false;
         saveTouchId();
-        document.getElementById('touchIdToggle').checked = false;
+        const toggle = document.getElementById('touchIdToggle');
+        if (toggle) toggle.checked = false;
         showToast("Touch ID / Fingerprint disabled");
     }
 
@@ -1002,7 +1017,7 @@
         if (acc.pin !== pin) { showToast("Incorrect PIN"); return false; }
         accounts = accounts.filter(a => a.id !== currentAccountId);
         saveAccounts();
-        localStorage.removeItem(STORAGE.CURRENT);
+        localStorage.removeItem(STORAGE.CURRENT_USER);
         localStorage.removeItem(STORAGE.LINKED);
         localStorage.removeItem(STORAGE.SESSIONS);
         localStorage.removeItem(STORAGE.TWOFA);
@@ -1021,7 +1036,7 @@
     }
 
     function logoutUser() {
-        localStorage.removeItem(STORAGE.CURRENT);
+        localStorage.removeItem(STORAGE.CURRENT_USER);
         showToast("🔐 Logged out successfully");
         setTimeout(() => {
             window.location.href = 'login.html';
@@ -1048,134 +1063,222 @@
             logoutConfirm: document.getElementById('logoutConfirmModal')
         };
 
-        document.getElementById('backHomeBtn').onclick = goBackToHome;
+        const backBtn = document.getElementById('backHomeBtn');
+        if (backBtn) backBtn.onclick = goBackToHome;
 
-        document.getElementById('logoutBtnBottom').onclick = () => modals.logoutConfirm.classList.add('active');
-        document.getElementById('cancelLogoutBtn').onclick = () => modals.logoutConfirm.classList.remove('active');
-        document.getElementById('confirmLogoutBtn').onclick = () => {
+        const logoutBottomBtn = document.getElementById('logoutBtnBottom');
+        if (logoutBottomBtn) logoutBottomBtn.onclick = () => modals.logoutConfirm.classList.add('active');
+        
+        const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+        if (cancelLogoutBtn) cancelLogoutBtn.onclick = () => modals.logoutConfirm.classList.remove('active');
+        
+        const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+        if (confirmLogoutBtn) confirmLogoutBtn.onclick = () => {
             modals.logoutConfirm.classList.remove('active');
             logoutUser();
         };
 
-        document.getElementById('editProfileBtn').onclick = () => {
-            const acc = getCurrentAccount();
-            if (acc) {
-                document.getElementById('editName').value = acc.name;
-                document.getElementById('editPhone').value = acc.phone;
-                document.getElementById('editEmail').value = acc.email || '';
-            }
-            modals.editProfile.classList.add('active');
-        };
-        document.getElementById('closeEditModalBtn').onclick = () => modals.editProfile.classList.remove('active');
-        document.getElementById('saveProfileBtn').onclick = () => {
-            const name = document.getElementById('editName').value;
-            const phone = document.getElementById('editPhone').value;
-            const email = document.getElementById('editEmail').value;
-            if (editProfile(name, phone, email)) {
-                modals.editProfile.classList.remove('active');
-            }
-        };
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        if (editProfileBtn) {
+            editProfileBtn.onclick = () => {
+                const acc = getCurrentAccount();
+                if (acc) {
+                    const editName = document.getElementById('editName');
+                    const editPhone = document.getElementById('editPhone');
+                    const editEmail = document.getElementById('editEmail');
+                    if (editName) editName.value = acc.name;
+                    if (editPhone) editPhone.value = acc.phone;
+                    if (editEmail) editEmail.value = acc.email || '';
+                }
+                modals.editProfile.classList.add('active');
+            };
+        }
+        
+        const closeEditModal = document.getElementById('closeEditModalBtn');
+        if (closeEditModal) closeEditModal.onclick = () => modals.editProfile.classList.remove('active');
+        
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        if (saveProfileBtn) {
+            saveProfileBtn.onclick = () => {
+                const name = document.getElementById('editName')?.value || '';
+                const phone = document.getElementById('editPhone')?.value || '';
+                const email = document.getElementById('editEmail')?.value || '';
+                if (editProfile(name, phone, email)) {
+                    modals.editProfile.classList.remove('active');
+                }
+            };
+        }
 
-        document.getElementById('uploadAvatarHint').onclick = () => document.getElementById('avatarUpload').click();
-        document.getElementById('avatarUpload').onchange = (e) => {
+        const avatarHint = document.getElementById('uploadAvatarHint');
+        const avatarUpload = document.getElementById('avatarUpload');
+        if (avatarHint) avatarHint.onclick = () => avatarUpload.click();
+        if (avatarUpload) avatarUpload.onchange = (e) => {
             if (e.target.files && e.target.files[0]) uploadAvatar(e.target.files[0]);
         };
 
-        document.getElementById('changePinBtn').onclick = () => modals.pin.classList.add('active');
-        document.getElementById('closePinModal').onclick = () => modals.pin.classList.remove('active');
-        document.getElementById('savePinBtn').onclick = () => {
-            const current = document.getElementById('currentPin').value;
-            const newPin = document.getElementById('newPin').value;
-            const confirm = document.getElementById('confirmPin').value;
-            if (changePin(current, newPin, confirm)) {
-                modals.pin.classList.remove('active');
-                document.getElementById('currentPin').value = '';
-                document.getElementById('newPin').value = '';
-                document.getElementById('confirmPin').value = '';
-            }
-        };
+        const changePinBtn = document.getElementById('changePinBtn');
+        if (changePinBtn) changePinBtn.onclick = () => modals.pin.classList.add('active');
+        
+        const closePinModal = document.getElementById('closePinModal');
+        if (closePinModal) closePinModal.onclick = () => modals.pin.classList.remove('active');
+        
+        const savePinBtn = document.getElementById('savePinBtn');
+        if (savePinBtn) {
+            savePinBtn.onclick = () => {
+                const current = document.getElementById('currentPin')?.value || '';
+                const newPin = document.getElementById('newPin')?.value || '';
+                const confirm = document.getElementById('confirmPin')?.value || '';
+                if (changePin(current, newPin, confirm)) {
+                    modals.pin.classList.remove('active');
+                    const currentPinInput = document.getElementById('currentPin');
+                    const newPinInput = document.getElementById('newPin');
+                    const confirmPinInput = document.getElementById('confirmPin');
+                    if (currentPinInput) currentPinInput.value = '';
+                    if (newPinInput) newPinInput.value = '';
+                    if (confirmPinInput) confirmPinInput.value = '';
+                }
+            };
+        }
 
-        document.getElementById('twoFactorBtn').onclick = () => {
-            if (!twoFAEnabled) {
-                modals.twoFactor.classList.add('active');
-            } else {
-                if (confirm("Disable Two-Factor Authentication?")) disableTwoFA();
-            }
-        };
-        document.getElementById('closeTwoFactorModal').onclick = () => modals.twoFactor.classList.remove('active');
-        document.getElementById('enableTwoFactorBtn').onclick = () => {
-            const phone = document.getElementById('twoFactorPhone').value;
-            if (setupTwoFA(phone)) modals.twoFactor.classList.remove('active');
-        };
-        document.getElementById('twoFactorToggle').onchange = (e) => {
-            if (!e.target.checked && twoFAEnabled) {
-                if (confirm("Disable Two-Factor Authentication?")) disableTwoFA();
-                else e.target.checked = true;
-            } else if (e.target.checked && !twoFAEnabled) {
-                modals.twoFactor.classList.add('active');
-                e.target.checked = false;
-            }
-        };
+        const twoFactorBtn = document.getElementById('twoFactorBtn');
+        if (twoFactorBtn) {
+            twoFactorBtn.onclick = () => {
+                if (!twoFAEnabled) {
+                    modals.twoFactor.classList.add('active');
+                } else {
+                    if (confirm("Disable Two-Factor Authentication?")) disableTwoFA();
+                }
+            };
+        }
+        
+        const closeTwoFactorModal = document.getElementById('closeTwoFactorModal');
+        if (closeTwoFactorModal) closeTwoFactorModal.onclick = () => modals.twoFactor.classList.remove('active');
+        
+        const enableTwoFactorBtn = document.getElementById('enableTwoFactorBtn');
+        if (enableTwoFactorBtn) {
+            enableTwoFactorBtn.onclick = () => {
+                const phone = document.getElementById('twoFactorPhone')?.value || '';
+                if (setupTwoFA(phone)) modals.twoFactor.classList.remove('active');
+            };
+        }
+        
+        const twoFactorToggle = document.getElementById('twoFactorToggle');
+        if (twoFactorToggle) {
+            twoFactorToggle.onchange = (e) => {
+                if (!e.target.checked && twoFAEnabled) {
+                    if (confirm("Disable Two-Factor Authentication?")) disableTwoFA();
+                    else e.target.checked = true;
+                } else if (e.target.checked && !twoFAEnabled) {
+                    modals.twoFactor.classList.add('active');
+                    e.target.checked = false;
+                }
+            };
+        }
 
-        document.getElementById('touchIdBtn').onclick = () => {
-            if (!touchIdEnabled) {
-                modals.touchId.classList.add('active');
-            } else {
-                if (confirm("Disable Touch ID / Fingerprint payments?")) disableTouchId();
-            }
-        };
-        document.getElementById('closeTouchIdModal').onclick = () => modals.touchId.classList.remove('active');
-        document.getElementById('registerFingerprintBtn').onclick = () => {
-            setupTouchId();
-        };
-        document.getElementById('closeVerifyModal').onclick = () => modals.fingerprintVerify.classList.remove('active');
-        document.getElementById('touchIdToggle').onchange = (e) => {
-            if (!e.target.checked && touchIdEnabled) {
-                if (confirm("Disable Touch ID / Fingerprint payments?")) disableTouchId();
-                else e.target.checked = true;
-            } else if (e.target.checked && !touchIdEnabled) {
-                modals.touchId.classList.add('active');
-                e.target.checked = false;
-            }
-        };
+        const touchIdBtn = document.getElementById('touchIdBtn');
+        if (touchIdBtn) {
+            touchIdBtn.onclick = () => {
+                if (!touchIdEnabled) {
+                    modals.touchId.classList.add('active');
+                } else {
+                    if (confirm("Disable Touch ID / Fingerprint payments?")) disableTouchId();
+                }
+            };
+        }
+        
+        const closeTouchIdModal = document.getElementById('closeTouchIdModal');
+        if (closeTouchIdModal) closeTouchIdModal.onclick = () => modals.touchId.classList.remove('active');
+        
+        const registerFingerprintBtn = document.getElementById('registerFingerprintBtn');
+        if (registerFingerprintBtn) registerFingerprintBtn.onclick = setupTouchId;
+        
+        const closeVerifyModal = document.getElementById('closeVerifyModal');
+        if (closeVerifyModal) closeVerifyModal.onclick = () => modals.fingerprintVerify.classList.remove('active');
+        
+        const touchIdToggle = document.getElementById('touchIdToggle');
+        if (touchIdToggle) {
+            touchIdToggle.onchange = (e) => {
+                if (!e.target.checked && touchIdEnabled) {
+                    if (confirm("Disable Touch ID / Fingerprint payments?")) disableTouchId();
+                    else e.target.checked = true;
+                } else if (e.target.checked && !touchIdEnabled) {
+                    modals.touchId.classList.add('active');
+                    e.target.checked = false;
+                }
+            };
+        }
 
-        document.getElementById('linkedAccountsBtn').onclick = () => {
-            renderLinkedAccountsList();
-            modals.linked.classList.add('active');
-        };
-        document.getElementById('closeLinkedAccountsModal').onclick = () => modals.linked.classList.remove('active');
-        document.getElementById('addBankAccountBtn').onclick = () => {
-            modals.linked.classList.remove('active');
-            modals.addBank.classList.add('active');
-        };
-        document.getElementById('closeAddBankModal').onclick = () => modals.addBank.classList.remove('active');
-        document.getElementById('confirmAddBankBtn').onclick = () => {
-            const bank = document.getElementById('bankName').value;
-            const accNum = document.getElementById('accountNumber').value;
-            const holder = document.getElementById('accountHolder').value;
-            if (addLinkedAccount(bank, accNum, holder)) {
-                modals.addBank.classList.remove('active');
-                document.getElementById('accountNumber').value = '';
-                document.getElementById('accountHolder').value = '';
-            }
-        };
+        const linkedAccountsBtn = document.getElementById('linkedAccountsBtn');
+        if (linkedAccountsBtn) {
+            linkedAccountsBtn.onclick = () => {
+                renderLinkedAccountsList();
+                modals.linked.classList.add('active');
+            };
+        }
+        
+        const closeLinkedAccountsModal = document.getElementById('closeLinkedAccountsModal');
+        if (closeLinkedAccountsModal) closeLinkedAccountsModal.onclick = () => modals.linked.classList.remove('active');
+        
+        const addBankAccountBtn = document.getElementById('addBankAccountBtn');
+        if (addBankAccountBtn) {
+            addBankAccountBtn.onclick = () => {
+                modals.linked.classList.remove('active');
+                modals.addBank.classList.add('active');
+            };
+        }
+        
+        const closeAddBankModal = document.getElementById('closeAddBankModal');
+        if (closeAddBankModal) closeAddBankModal.onclick = () => modals.addBank.classList.remove('active');
+        
+        const confirmAddBankBtn = document.getElementById('confirmAddBankBtn');
+        if (confirmAddBankBtn) {
+            confirmAddBankBtn.onclick = () => {
+                const bank = document.getElementById('bankName')?.value || '';
+                const accNum = document.getElementById('accountNumber')?.value || '';
+                const holder = document.getElementById('accountHolder')?.value || '';
+                if (addLinkedAccount(bank, accNum, holder)) {
+                    modals.addBank.classList.remove('active');
+                    const accountNumberInput = document.getElementById('accountNumber');
+                    const accountHolderInput = document.getElementById('accountHolder');
+                    if (accountNumberInput) accountNumberInput.value = '';
+                    if (accountHolderInput) accountHolderInput.value = '';
+                }
+            };
+        }
 
-        document.getElementById('sessionManagementBtn').onclick = () => {
-            renderSessionsList();
-            modals.session.classList.add('active');
-        };
-        document.getElementById('closeSessionModal').onclick = () => modals.session.classList.remove('active');
-        document.getElementById('logoutAllSessionsBtn').onclick = () => {
-            if (confirm("Logout from all other devices?")) logoutAllOtherSessions();
-        };
+        const sessionManagementBtn = document.getElementById('sessionManagementBtn');
+        if (sessionManagementBtn) {
+            sessionManagementBtn.onclick = () => {
+                renderSessionsList();
+                modals.session.classList.add('active');
+            };
+        }
+        
+        const closeSessionModal = document.getElementById('closeSessionModal');
+        if (closeSessionModal) closeSessionModal.onclick = () => modals.session.classList.remove('active');
+        
+        const logoutAllSessionsBtn = document.getElementById('logoutAllSessionsBtn');
+        if (logoutAllSessionsBtn) {
+            logoutAllSessionsBtn.onclick = () => {
+                if (confirm("Logout from all other devices?")) logoutAllOtherSessions();
+            };
+        }
 
-        document.getElementById('accountDeletionBtn').onclick = () => modals.delete.classList.add('active');
-        document.getElementById('closeDeleteModal').onclick = () => modals.delete.classList.remove('active');
-        document.getElementById('confirmDeleteAccountBtn').onclick = () => {
-            const pin = document.getElementById('deleteConfirmPin').value;
-            if (deleteAccount(pin)) modals.delete.classList.remove('active');
-        };
+        const accountDeletionBtn = document.getElementById('accountDeletionBtn');
+        if (accountDeletionBtn) accountDeletionBtn.onclick = () => modals.delete.classList.add('active');
+        
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        if (closeDeleteModal) closeDeleteModal.onclick = () => modals.delete.classList.remove('active');
+        
+        const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccountBtn');
+        if (confirmDeleteAccountBtn) {
+            confirmDeleteAccountBtn.onclick = () => {
+                const pin = document.getElementById('deleteConfirmPin')?.value || '';
+                if (deleteAccount(pin)) modals.delete.classList.remove('active');
+            };
+        }
 
+        // Close modals when clicking outside
         Object.values(modals).forEach(modal => {
             if (modal) {
                 modal.addEventListener('click', (e) => {
@@ -1189,12 +1292,14 @@
     function init() {
         loadAccounts();
         
-        const savedCurrent = localStorage.getItem(STORAGE.CURRENT);
+        // FIXED: Use the same key as home.html and login.html
+        const savedCurrent = localStorage.getItem(STORAGE.CURRENT_USER);
+        
         if (savedCurrent && accounts.find(a => a.id === savedCurrent)) {
             currentAccountId = savedCurrent;
         } else if (accounts.length > 0) {
             currentAccountId = accounts[0].id;
-            localStorage.setItem(STORAGE.CURRENT, currentAccountId);
+            localStorage.setItem(STORAGE.CURRENT_USER, currentAccountId);
         } else {
             showToast("No account found");
             return;
