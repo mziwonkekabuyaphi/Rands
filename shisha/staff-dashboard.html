@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Shisha Premium Lounge | Staff Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        body {
+            background: #f5f5f5;
+            padding: 16px;
+            min-height: 100vh;
+        }
+        .app-header {
+            background: #d32f2f;
+            color: white;
+            border-radius: 28px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .app-header h1 {
+            font-size: 28px;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .app-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eee;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .badge {
+            background: #fef2f2;
+            color: #b91c1c;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .request-item {
+            border-bottom: 1px solid #ffe0e0;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .request-item:last-child {
+            border-bottom: none;
+        }
+        .request-buttons button {
+            margin-left: 6px;
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .approve { background: #2e7d32; color: white; }
+        .reject { background: #b71c1c; color: white; }
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .stat {
+            text-align: center;
+            background: #f9f9f9;
+            padding: 8px 12px;
+            border-radius: 40px;
+            flex: 1;
+            min-width: 80px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+        }
+        .pipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
+            margin-top: 16px;
+        }
+        .pipe-card {
+            background: white;
+            border-radius: 20px;
+            padding: 14px;
+            border-left: 5px solid #2e7d32;
+            transition: 0.2s;
+            position: relative;
+        }
+        .pipe-card.expired {
+            border-left-color: #b71c1c;
+            background: #fff5f5;
+            animation: shake 0.5s infinite;
+        }
+        .pipe-card.refill {
+            border-left-color: #ff9800;
+            background: #fff8e7;
+        }
+        .pipe-card.paused {
+            border-left-color: #ffa500;
+            background: #fff4e0;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        .pipe-card h4 {
+            display: flex;
+            justify-content: space-between;
+            color: #d32f2f;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .pipe-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .pipe-status.available { background: #e8f5e9; color: #2e7d32; }
+        .pipe-status.inuse { background: #e3f2fd; color: #1565c0; }
+        .pipe-status.expired { background: #ffebee; color: #b71c1c; }
+        .pipe-status.refill { background: #fff3e0; color: #ef6c00; }
+        .pipe-status.paused { background: #fff8e1; color: #ff8f00; }
+        .pipe-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .pipe-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 70px;
+            transition: 0.2s;
+        }
+        .pipe-actions button:active { transform: scale(0.97); }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .generic-modal {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .generic-modal h3 {
+            color: #d32f2f;
+            margin-bottom: 16px;
+            font-size: 22px;
+        }
+        .generic-modal p {
+            margin: 16px 0;
+            font-size: 16px;
+            color: #333;
+            word-wrap: break-word;
+        }
+        .generic-modal .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .generic-modal button {
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .generic-modal .ok-btn {
+            background: #2e7d32;
+            color: white;
+        }
+        .generic-modal .cancel-btn {
+            background: #d32f2f;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content select,
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .confirm-btn {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .cancel-modal {
+            background: #d32f2f;
+            color: white;
+            margin-top: 8px;
+        }
+        .timer {
+            font-size: 22px;
+            font-family: monospace;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .empty-requests {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+        .price-badge {
+            background: #fef2e8;
+            color: #d32f2f;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        /* iPad/Tablet Styles */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            body {
+                padding: 20px;
+            }
+            .app-header h1 {
+                font-size: 26px;
+            }
+            .stats-row {
+                gap: 12px;
+            }
+            .stat {
+                min-width: 100px;
+                padding: 10px 16px;
+            }
+            .stat-number {
+                font-size: 22px;
+            }
+            .pipes-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+        }
+
+        /* Desktop */
+        @media (min-width: 1025px) {
+            .pipes-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+            body {
+                padding: 12px;
+            }
+            .app-header {
+                padding: 16px 20px;
+            }
+            .app-header h1 {
+                font-size: 20px;
+            }
+            .app-header p {
+                font-size: 11px;
+            }
+            .card {
+                padding: 14px;
+            }
+            .stats-row {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .stat {
+                min-width: calc(33% - 8px);
+                flex: 0 0 auto;
+                padding: 8px 6px;
+            }
+            .stat-number {
+                font-size: 18px;
+            }
+            .pipes-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .pipe-card {
+                padding: 12px;
+            }
+            .pipe-card h4 {
+                font-size: 16px;
+            }
+            .timer {
+                font-size: 20px;
+            }
+            .pipe-actions button {
+                padding: 8px 6px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+            .request-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            .request-buttons button {
+                margin: 4px;
+                padding: 6px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-header">
+    <h1>👨‍💼 SHISHA PREMIUM LOUNGE</h1>
+    <p>✦ Staff Dashboard ✦ R250 per session ✦</p>
+</div>
+
+<div class="card">
+    <div class="flex-between">
+        <h3>🛎️ Customer Service Requests <i class="fa fa-bell"></i></h3>
+        <span id="requestBadge" class="badge">0</span>
+    </div>
+    <div id="requestsList" style="max-height: 300px; overflow-y: auto;">Loading...</div>
+</div>
+
+<div class="card">
+    <div class="stats-row" id="statsContainer">
+        <div class="stat"><div class="stat-number" id="statExpired">0</div><div class="stat-label">Expired</div></div>
+        <div class="stat"><div class="stat-number" id="statRefill">0</div><div class="stat-label">Refill Soon</div></div>
+        <div class="stat"><div class="stat-number" id="statInuse">0</div><div class="stat-label">In Use</div></div>
+        <div class="stat"><div class="stat-number" id="statAvailable">0</div><div class="stat-label">Available</div></div>
+        <div class="stat"><div class="stat-number" id="statPaused">0</div><div class="stat-label">Paused</div></div>
+    </div>
+</div>
+
+<h3>💨 Hookah Stations <span class="price-badge">💰 R250 per session (includes 1 hour + coal)</span></h3>
+<div id="pipesGrid" class="pipes-grid"></div>
+
+<!-- Generic Alert Modal -->
+<div id="genericModal" class="modal-overlay">
+    <div class="generic-modal">
+        <h3 id="modalTitle">Notification</h3>
+        <p id="modalMessage">Message</p>
+        <div class="modal-buttons">
+            <button id="modalOkBtn" class="ok-btn">OK</button>
+            <button id="modalCancelBtn" class="cancel-btn" style="display: none;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Session Modal -->
+<div id="assignModal" class="modal">
+    <div class="modal-content">
+        <h3>📝 Assign New Session <span style="font-size:14px; color:#d32f2f;">(R250)</span></h3>
+        <select id="assignLocation">
+            <option value="Genera Hub">Genera Hub</option>
+            <option value="General Vibe Stage">General Vibe Stage</option>
+            <option value="VIP South">VIP South</option>
+            <option value="VIP North">VIP North</option>
+            <option value="Main VIP">Main VIP</option>
+            <option value="Shisha Lounge">Shisha Lounge</option>
+        </select>
+        <select id="assignFlavour">
+            <option value="Mint+Grape">Mint+Grape</option>
+            <option value="Apple">Apple</option>
+            <option value="Berry with Mint">Berry with Mint</option>
+            <option value="Bombay Pan Masala">Bombay Pan Masala</option>
+        </select>
+        <select id="assignPayment">
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="wallet">Rands Wallet</option>
+        </select>
+        <div id="assignAccountField" style="display:none;">
+            <input type="text" id="assignAccountId" placeholder="Phone number">
+        </div>
+        <div class="flex-between" style="margin: 12px 0;"><span>Price: R250</span></div>
+        <button class="confirm-btn" id="confirmAssignBtn">Confirm & Start</button>
+        <button class="confirm-btn cancel-modal" style="background:#aaa;">Cancel</button>
+    </div>
+</div>
+
+<!-- Refill Modal -->
+<div id="refillModal" class="modal">
+    <div class="modal-content">
+        <h3>🔄 Refill Session <span style="font-size:14px; color:#d32f2f;">(R250)</span></h3>
+        <p id="refillInfo"></p>
+        <button class="confirm-btn" id="confirmRefillBtn">Refill R250</button>
+        <button class="confirm-btn cancel-modal" style="background:#aaa;">Cancel</button>
+    </div>
+</div>
+
+<!-- Pause Modal -->
+<div id="pauseModal" class="modal">
+    <div class="modal-content">
+        <h3>⏸️ Pause Session</h3>
+        <input type="text" id="pauseReason" placeholder="Reason (e.g., customer break, coal issue)">
+        <button class="confirm-btn" id="confirmPauseBtn">Pause</button>
+        <button class="confirm-btn cancel-modal" style="background:#aaa;">Cancel</button>
+    </div>
+</div>
+
+<script>
+    // ============ CONFIGURATION ============
+    const SESSIONS_KEY = 'shishaSessions';
+    const WALLET_ACCOUNTS_KEY = 'rands_accounts_v2';
+    const WALLET_TX_KEY = 'rands_transactions';
+    const REQUESTS_KEY = 'customerRequests';
+    const SESSION_PRICE = 250;
+    const REFILL_PRICE = 250;
+    const COAL_DURATION = 60; // 60 minutes
+    const REFILL_THRESHOLD = 15; // minutes
+
+    let activeSessions = [];
+    let selectedPipeForAction = null;
+
+    // ============ WALLET FUNCTIONS ============
+    function getWalletAccounts() { return JSON.parse(localStorage.getItem(WALLET_ACCOUNTS_KEY) || '[]'); }
+    function saveWalletAccounts(acc) { localStorage.setItem(WALLET_ACCOUNTS_KEY, JSON.stringify(acc)); triggerStorage(); }
+    function addTransaction(accountId, desc, amount) {
+        let all = JSON.parse(localStorage.getItem(WALLET_TX_KEY) || '{}');
+        if (!all[accountId]) all[accountId] = [];
+        all[accountId].unshift({ desc, amount, date: new Date().toISOString() });
+        localStorage.setItem(WALLET_TX_KEY, JSON.stringify(all));
+    }
+    function deductFromWallet(accountId, amount, reason) {
+        let accounts = getWalletAccounts();
+        let idx = accounts.findIndex(a => a.id === accountId);
+        if (idx === -1) return { success: false, error: "Account not found" };
+        if (accounts[idx].balance < amount) return { success: false, error: "Insufficient balance" };
+        accounts[idx].balance -= amount;
+        saveWalletAccounts(accounts);
+        addTransaction(accountId, reason, -amount);
+        return { success: true, newBalance: accounts[idx].balance, name: accounts[idx].name };
+    }
+    function triggerStorage() { window.dispatchEvent(new Event('storage')); }
+
+    // ============ SESSION MANAGEMENT ============
+    function loadSessions() {
+        let saved = localStorage.getItem(SESSIONS_KEY);
+        if (saved) activeSessions = JSON.parse(saved).map(s => ({ ...s, startTime: new Date(s.startTime), lastRefillTime: new Date(s.lastRefillTime) }));
+        else activeSessions = [];
+        renderPipes();
+        updateStats();
+    }
+    function saveSessions() {
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(activeSessions));
+        triggerStorage();
+        renderPipes();
+        updateStats();
+    }
+
+    function formatTime(seconds) {
+        const isNegative = seconds < 0;
+        const absSeconds = Math.abs(seconds);
+        const mins = Math.floor(absSeconds / 60);
+        const secs = Math.floor(absSeconds % 60);
+        return `${isNegative ? '-' : ''}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function getShishaNumber(shishaId) { return parseInt(shishaId.replace('SH-', '')); }
+
+    // ============ SERVICE REQUESTS ============
+    function loadRequests() {
+        let requests = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '[]');
+        let pending = requests.filter(r => r.status === 'pending');
+        document.getElementById('requestBadge').innerText = pending.length;
+        let container = document.getElementById('requestsList');
+        if (pending.length === 0) { container.innerHTML = '<div class="empty-requests">✅ No pending service requests</div>'; return; }
+        container.innerHTML = pending.map(r => `
+            <div class="request-item">
+                <div>
+                    <strong>${r.type.replace(/_/g, ' ').toUpperCase()}</strong><br>
+                    <small>📍 ${r.location || 'Shisha Lounge'} | 🍃 ${r.flavour || '-'}</small><br>
+                    <small>👤 ${r.guestName || 'Guest'} | ${r.shishaId ? r.shishaId : 'New Order'}</small>
+                    ${r.amount ? `<br><strong style="color:#d32f2f;">R${Math.abs(r.amount).toFixed(2)}</strong>` : ''}
+                </div>
+                <div class="request-buttons">
+                    <button class="approve" onclick="approveRequest(${r.id})">Approve ✓</button>
+                    <button class="reject" onclick="rejectRequest(${r.id})">Reject ✗</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.approveRequest = function(id) {
+        let requests = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '[]');
+        let req = requests.find(r => r.id === id);
+        if (!req || req.status !== 'pending') return;
+        
+        let session = activeSessions.find(s => s.shishaId === req.shishaId);
+        
+        switch(req.type) {
+            case 'coal_refill':
+                if (!session) { showAlertModal("Session not found"); return; }
+                if (session.paused) { showAlertModal("Session paused. Resume first."); return; }
+                if (session.paymentMethod && session.paymentMethod.includes('Wallet') && session.accountId) {
+                    let res = deductFromWallet(session.accountId, REFILL_PRICE, `Coal refill for ${session.shishaId}`);
+                    if (!res.success) { showAlertModal(`Wallet error: ${res.error}`); return; }
+                }
+                session.remainingTime = COAL_DURATION;
+                session.lastRefillTime = new Date();
+                session.status = 'active';
+                session.amount = (session.amount || SESSION_PRICE) + REFILL_PRICE;
+                session.refillCount = (session.refillCount || 0) + 1;
+                saveSessions();
+                showAlertModal(`✅ Coal refill approved for ${session.shishaId} (R250)`);
+                break;
+            case 'flavor_change':
+                if (!session) { showAlertModal("Session not found"); return; }
+                if (req.newFlavour) {
+                    session.flavour = req.newFlavour;
+                    session.amount = (session.amount || SESSION_PRICE) + 50;
+                    saveSessions();
+                    showAlertModal(`🍃 Flavor changed to ${req.newFlavour}`);
+                } else {
+                    showAlertModal("No flavor specified");
+                    return;
+                }
+                break;
+            case 'extend_time':
+                if (session) {
+                    session.remainingTime += 1800;
+                    session.amount = (session.amount || SESSION_PRICE) + 120;
+                    saveSessions();
+                    showAlertModal(`⏰ Session extended by 30 minutes`);
+                } else {
+                    showAlertModal("Session not found");
+                    return;
+                }
+                break;
+            case 'end_session':
+                if (session) {
+                    activeSessions = activeSessions.filter(s => s.id !== session.id);
+                    saveSessions();
+                    showAlertModal(`❌ Session ${session.shishaId} ended`);
+                } else {
+                    showAlertModal("Session not found");
+                    return;
+                }
+                break;
+            case 'pause_session':
+                if (session && !session.paused) {
+                    session.paused = true;
+                    saveSessions();
+                    showAlertModal(`⏸️ Session ${session.shishaId} paused`);
+                } else {
+                    showAlertModal("Session not found or already paused");
+                    return;
+                }
+                break;
+            case 'resume_session':
+                if (session && session.paused) {
+                    session.paused = false;
+                    if (session.remainingTime <= 0) session.status = 'expired';
+                    else if (session.remainingTime <= REFILL_THRESHOLD) session.status = 'refill';
+                    else session.status = 'active';
+                    saveSessions();
+                    showAlertModal(`▶️ Session ${session.shishaId} resumed`);
+                } else {
+                    showAlertModal("Session not found or not paused");
+                    return;
+                }
+                break;
+            case 'iyatsarha':
+                showAlertModal(`📢 Iyatsarha report received for ${req.shishaId || 'session'}\n\nStaff will assist customer shortly.`);
+                break;
+            case 'new_order':
+                if (req.location && req.flavour) {
+                    let availableShisha = null;
+                    for(let i = 1; i <= 30; i++) {
+                        let shId = `SH-${String(i).padStart(3,'0')}`;
+                        if (!activeSessions.find(s => s.shishaId === shId)) {
+                            availableShisha = shId;
+                            break;
+                        }
+                    }
+                    if (!availableShisha) {
+                        showAlertModal("No available hookah stations. Please wait.");
+                        return;
+                    }
+                    if (req.paymentMethod === 'wallet' && req.accountId) {
+                        let res = deductFromWallet(req.accountId, SESSION_PRICE, `New session ${availableShisha}`);
+                        if (!res.success) { showAlertModal(`Wallet error: ${res.error}`); return; }
+                    }
+                    let newSession = {
+                        id: Date.now(),
+                        shishaId: availableShisha,
+                        location: req.location,
+                        flavour: req.flavour,
+                        startTime: new Date(),
+                        lastRefillTime: new Date(),
+                        remainingTime: COAL_DURATION,
+                        paymentMethod: req.paymentMethod === 'wallet' ? `Rands Wallet (${req.accountId})` : req.paymentMethod.toUpperCase(),
+                        amount: SESSION_PRICE,
+                        status: 'active',
+                        refillCount: 0,
+                        accountId: req.paymentMethod === 'wallet' ? req.accountId : null,
+                        paused: false
+                    };
+                    activeSessions.push(newSession);
+                    saveSessions();
+                    showAlertModal(`✅ New session started at ${req.location} on ${availableShisha} (R250)`);
+                } else {
+                    showAlertModal("Missing order details");
+                    return;
+                }
+                break;
+            default:
+                showAlertModal(`Request type "${req.type}" processed`);
+        }
+        
+        req.status = 'approved';
+        localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
+        loadRequests();
+        saveSessions();
+    };
+
+    window.rejectRequest = function(id) {
+        let requests = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '[]');
+        let idx = requests.findIndex(r => r.id === id);
+        if (idx !== -1) {
+            requests[idx].status = 'rejected';
+            localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
+            loadRequests();
+            showAlertModal("Request rejected");
+        }
+    };
+
+    // ============ RENDER HOOKAH STATIONS (NO EVEN NUMBER PRIORITY) ============
+    function renderPipes() {
+        let pipes = [];
+        for (let i = 1; i <= 30; i++) {
+            let shId = `SH-${String(i).padStart(3,'0')}`;
+            let session = activeSessions.find(s => s.shishaId === shId);
+            pipes.push({ shishaId: shId, session });
+        }
+        // Simple sort by number only - NO priority for even numbers
+        pipes.sort((a, b) => {
+            const numA = getShishaNumber(a.shishaId);
+            const numB = getShishaNumber(b.shishaId);
+            return numA - numB;
+        });
+        
+        let container = document.getElementById('pipesGrid');
+        container.innerHTML = pipes.map(({ shishaId, session }) => {
+            let statusClass = "available";
+            let statusText = "Free";
+            let timerDisplay = "01:00";
+            let flavour = "-", location = "-";
+            
+            if (session) {
+                flavour = session.flavour;
+                location = session.location;
+                timerDisplay = formatTime(session.remainingTime);
+                if (session.paused) { statusClass = "paused"; statusText = "Paused"; }
+                else if (session.status === 'expired') { statusClass = "expired"; statusText = "Expired"; }
+                else if (session.status === 'refill') { statusClass = "refill"; statusText = "Refill Soon"; }
+                else { statusClass = "inuse"; statusText = "In Use"; }
+            }
+            
+            return `<div class="pipe-card ${statusClass}" data-shisha="${shishaId}">
+                <h4>${shishaId} <span class="pipe-status ${statusClass}">${statusText}</span></h4>
+                <div>📍 ${location} | 🍃 ${flavour}</div>
+                <div class="timer">⏱️ ${timerDisplay}</div>
+                <div class="pipe-actions">
+                    ${!session ? `<button class="assign-act" data-shisha="${shishaId}">📝 Assign (R250)</button>` : 
+                    `<button class="refill-act" data-shisha="${shishaId}">🔄 Refill (R250)</button>
+                     <button class="pause-act" data-shisha="${shishaId}">⏸️ Pause</button>
+                     <button class="resume-act" data-shisha="${shishaId}" ${!session.paused ? 'style="display:none"' : ''}>▶️ Resume</button>
+                     <button class="end-act" data-shisha="${shishaId}">❌ End</button>`}
+                </div>
+            </div>`;
+        }).join('');
+        
+        document.querySelectorAll('.assign-act').forEach(btn => btn.addEventListener('click', e => openAssignModal(btn.dataset.shisha)));
+        document.querySelectorAll('.refill-act').forEach(btn => btn.addEventListener('click', e => openRefillModal(btn.dataset.shisha)));
+        document.querySelectorAll('.pause-act').forEach(btn => btn.addEventListener('click', e => openPauseModal(btn.dataset.shisha)));
+        document.querySelectorAll('.resume-act').forEach(btn => btn.addEventListener('click', e => resumeSession(btn.dataset.shisha)));
+        document.querySelectorAll('.end-act').forEach(btn => btn.addEventListener('click', e => endSession(btn.dataset.shisha)));
+    }
+
+    function updateStats() {
+        let expired=0, refill=0, inuse=0, available=0, paused=0;
+        for(let i=1;i<=30;i++) {
+            let s = activeSessions.find(s => s.shishaId === `SH-${String(i).padStart(3,'0')}`);
+            if(!s) available++;
+            else if(s.paused) paused++;
+            else if(s.status === 'expired') expired++;
+            else if(s.status === 'refill') refill++;
+            else inuse++;
+        }
+        document.getElementById('statExpired').innerText = expired;
+        document.getElementById('statRefill').innerText = refill;
+        document.getElementById('statInuse').innerText = inuse;
+        document.getElementById('statAvailable').innerText = available;
+        document.getElementById('statPaused').innerText = paused;
+    }
+
+    function showAlertModal(message, title = "Notification") {
+        const modal = document.getElementById('genericModal');
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalMessage').innerText = message;
+        document.getElementById('modalCancelBtn').style.display = 'none';
+        modal.style.display = 'flex';
+        document.getElementById('modalOkBtn').onclick = () => modal.style.display = 'none';
+    }
+
+    function openAssignModal(shishaId) {
+        if (activeSessions.find(s => s.shishaId === shishaId)) { showAlertModal("Already in use"); return; }
+        selectedPipeForAction = shishaId;
+        document.getElementById('assignModal').style.display = 'flex';
+        document.getElementById('assignAccountField').style.display = 'none';
+    }
+
+    document.getElementById('assignPayment').addEventListener('change', function() {
+        document.getElementById('assignAccountField').style.display = this.value === 'wallet' ? 'block' : 'none';
+    });
+
+    document.getElementById('confirmAssignBtn').onclick = () => {
+        let location = document.getElementById('assignLocation').value;
+        let flavour = document.getElementById('assignFlavour').value;
+        let payment = document.getElementById('assignPayment').value;
+        let accountId = document.getElementById('assignAccountId').value.trim();
+        if (!location || !flavour) { showAlertModal("Fill all fields"); return; }
+        if (payment === 'wallet' && !accountId) { showAlertModal("Account ID needed"); return; }
+        if (payment === 'wallet') {
+            let res = deductFromWallet(accountId, SESSION_PRICE, `New session ${selectedPipeForAction}`);
+            if (!res.success) { showAlertModal(res.error); return; }
+        }
+        let newSession = {
+            id: Date.now(), shishaId: selectedPipeForAction, location, flavour,
+            startTime: new Date(), lastRefillTime: new Date(), remainingTime: COAL_DURATION,
+            paymentMethod: payment === 'wallet' ? `Rands Wallet (${accountId})` : payment.toUpperCase(),
+            amount: SESSION_PRICE, status: 'active', refillCount: 0,
+            accountId: payment === 'wallet' ? accountId : null, paused: false
+        };
+        activeSessions.push(newSession);
+        saveSessions();
+        closeModals();
+        showAlertModal(`✅ Session started at ${location} on ${selectedPipeForAction} (R250)`);
+    };
+
+    function openRefillModal(shishaId) {
+        let sess = activeSessions.find(s => s.shishaId === shishaId);
+        if (!sess) return;
+        selectedPipeForAction = sess;
+        document.getElementById('refillInfo').innerHTML = `${sess.shishaId} | ${sess.flavour} | Total: R${sess.amount}`;
+        document.getElementById('refillModal').style.display = 'flex';
+    }
+
+    document.getElementById('confirmRefillBtn').onclick = () => {
+        let sess = selectedPipeForAction;
+        if (!sess) return;
+        if (sess.paymentMethod && sess.paymentMethod.includes('Wallet') && sess.accountId) {
+            let res = deductFromWallet(sess.accountId, REFILL_PRICE, `Refill ${sess.shishaId}`);
+            if (!res.success) { showAlertModal(res.error); return; }
+        }
+        sess.remainingTime = COAL_DURATION;
+        sess.lastRefillTime = new Date();
+        sess.status = 'active';
+        sess.amount = (sess.amount || SESSION_PRICE) + REFILL_PRICE;
+        sess.refillCount = (sess.refillCount || 0) + 1;
+        saveSessions();
+        closeModals();
+        showAlertModal(`✅ Refilled ${sess.shishaId} (R250)`);
+    };
+
+    function openPauseModal(shishaId) {
+        let sess = activeSessions.find(s => s.shishaId === shishaId);
+        if (!sess || sess.paused) { showAlertModal("Already paused or not active"); return; }
+        selectedPipeForAction = sess;
+        document.getElementById('pauseModal').style.display = 'flex';
+    }
+
+    document.getElementById('confirmPauseBtn').onclick = () => {
+        let sess = selectedPipeForAction;
+        if (sess) {
+            sess.paused = true;
+            saveSessions();
+            closeModals();
+            showAlertModal(`⏸️ Session ${sess.shishaId} paused`);
+        }
+    };
+
+    function resumeSession(shishaId) {
+        let sess = activeSessions.find(s => s.shishaId === shishaId);
+        if (sess && sess.paused) {
+            sess.paused = false;
+            if (sess.remainingTime <= 0) sess.status = 'expired';
+            else if (sess.remainingTime <= REFILL_THRESHOLD) sess.status = 'refill';
+            else sess.status = 'active';
+            saveSessions();
+            showAlertModal(`▶️ Session ${sess.shishaId} resumed`);
+        }
+    }
+
+    function endSession(shishaId) {
+        let idx = activeSessions.findIndex(s => s.shishaId === shishaId);
+        if (idx !== -1) {
+            if (confirm(`End session for ${activeSessions[idx].shishaId}? Total: R${activeSessions[idx].amount}`)) {
+                activeSessions.splice(idx,1);
+                saveSessions();
+                showAlertModal(`❌ Session ${shishaId} ended`);
+            }
+        }
+    }
+
+    function closeModals() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        document.getElementById('genericModal').style.display = 'none';
+        selectedPipeForAction = null;
+    }
+
+    document.querySelectorAll('.cancel-modal').forEach(btn => btn.addEventListener('click', closeModals));
+
+    // ============ TIMER UPDATES ============
+    loadSessions();
+    loadRequests();
+    
+    setInterval(() => {
+        let changed = false;
+        let now = new Date();
+        activeSessions.forEach(s => {
+            if (!s.paused) {
+                let elapsed = (now - s.lastRefillTime) / 1000;
+                let remain = COAL_DURATION - elapsed;
+                if (Math.floor(s.remainingTime) !== Math.floor(remain)) {
+                    s.remainingTime = remain;
+                    if (s.remainingTime <= 0) s.status = 'expired';
+                    else if (s.remainingTime <= REFILL_THRESHOLD) s.status = 'refill';
+                    else s.status = 'active';
+                    changed = true;
+                }
+            }
+        });
+        if (changed) saveSessions();
+    }, 1000);
+    
+    setInterval(() => { loadSessions(); loadRequests(); }, 2000);
+    window.addEventListener('storage', () => { loadSessions(); loadRequests(); });
+</script>
+</body>
+</html>

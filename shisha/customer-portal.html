@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Shisha | Customer Modal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Customer Modal Container */
+        .customer-modal {
+            max-width: 480px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 48px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            padding: 20px 24px;
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-header p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        .wallet-card {
+            background: #f8fafd;
+            margin: 16px 20px;
+            padding: 16px 20px;
+            border-radius: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eef2f8;
+        }
+
+        .wallet-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .wallet-balance {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #d32f2f;
+        }
+
+        .session-card {
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+            margin: 16px 20px;
+            padding: 20px;
+            border-radius: 32px;
+            border: 1px solid rgba(227, 6, 19, 0.3);
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .session-title {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .session-status {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: #10b981;
+        }
+
+        .session-status.paused { color: #ffa500; }
+        .session-status.expired { color: #ef4444; }
+
+        .session-info {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin: 8px 0;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-family: monospace;
+            font-weight: 800;
+            color: #10b981;
+            text-align: center;
+            margin: 12px 0;
+            letter-spacing: 4px;
+        }
+
+        .timer-display.warning { color: #f59e0b; }
+        .timer-display.critical { color: #ef4444; animation: pulse 0.8s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .coal-container {
+            background: #2c2c2c;
+            border-radius: 40px;
+            padding: 10px 14px;
+            margin: 12px 0;
+        }
+
+        .coal-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #ffaa66;
+            margin-bottom: 6px;
+        }
+
+        .coal-bar-bg {
+            background: #3a3a3a;
+            border-radius: 30px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .coal-bar-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #ff4500);
+            border-radius: 30px;
+            transition: width 0.3s ease;
+        }
+
+        .request-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 16px 20px;
+        }
+
+        .service-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 12px 8px;
+            border-radius: 28px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+        }
+
+        .service-btn i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+            color: #d32f2f;
+        }
+
+        .service-btn:active {
+            transform: scale(0.96);
+            background: #fee2e2;
+        }
+
+        .order-card {
+            margin: 16px 20px 20px;
+            padding: 16px;
+            background: #f8fafd;
+            border-radius: 28px;
+            border: 1px solid #eef2f8;
+        }
+
+        .order-card select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .order-btn {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            text-align: center;
+            padding: 14px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+
+        .order-btn:active {
+            transform: scale(0.97);
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 60px;
+            text-align: center;
+            font-size: 0.8rem;
+            z-index: 1000;
+            animation: slideUpToast 0.3s ease;
+        }
+
+        @keyframes slideUpToast {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .no-session {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+<div class="customer-modal" id="customerModal">
+    <div class="modal-header">
+        <h2><i class="fas fa-smoking"></i> My Hookah Session</h2>
+        <p>Request services - Staff will approve</p>
+    </div>
+
+    <div class="wallet-card">
+        <span class="wallet-label"><i class="fas fa-wallet"></i> My Balance</span>
+        <span class="wallet-balance" id="walletBalance">R0.00</span>
+    </div>
+
+    <div id="activeSessionCard" class="session-card">
+        <div class="session-header">
+            <span class="session-title"><i class="fas fa-fire"></i> Active Session</span>
+            <span class="session-status" id="sessionStatus">Active</span>
+        </div>
+        <div class="session-info" id="sessionInfo">📍 Shisha Lounge | 🍃 Mint+Grape</div>
+        <div class="timer-display" id="timerDisplay">01:00</div>
+        <div id="coalIndicator">
+            <div class="coal-container">
+                <div class="coal-label"><span><i class="fas fa-fire"></i> Coal Health</span><span id="coalPercent">100%</span></div>
+                <div class="coal-bar-bg"><div class="coal-bar-fill" id="coalFill" style="width: 100%;"></div></div>
+            </div>
+        </div>
+        <div id="pausedMsg" style="text-align:center; font-size:0.7rem; color:#ffa500; margin-top:8px;"></div>
+    </div>
+
+    <div id="noSessionCard" class="session-card" style="display: none;">
+        <div class="no-session">
+            <i class="fas fa-smoking" style="font-size: 2rem; color: #64748b;"></i>
+            <p style="margin-top: 10px;">No active session</p>
+            <p style="font-size: 0.7rem;">Order below to start</p>
+        </div>
+    </div>
+
+    <div class="request-buttons" id="serviceButtons">
+        <button class="service-btn" id="coalRefillBtn"><i class="fas fa-fire"></i> Coal Refill</button>
+        <button class="service-btn" id="extendTimeBtn"><i class="fas fa-clock"></i> Extend 30min</button>
+        <button class="service-btn" id="pauseBtn"><i class="fas fa-pause-circle"></i> Pause</button>
+        <button class="service-btn" id="resumeBtn" style="display:none;"><i class="fas fa-play-circle"></i> Resume</button>
+        <button class="service-btn" id="endSessionBtn"><i class="fas fa-stop"></i> End Session</button>
+        <button class="service-btn" id="reportIssueBtn"><i class="fas fa-frown"></i> Iyatsarha</button>
+    </div>
+
+    <div class="order-card">
+        <h4 style="margin-bottom: 10px;">📝 Order New Session</h4>
+        <select id="orderLocation">
+            <option value="Shisha Lounge">Shisha Lounge</option>
+            <option value="VIP South">VIP South</option>
+            <option value="Main VIP">Main VIP</option>
+            <option value="General Vibe Stage">General Vibe Stage</option>
+        </select>
+        <select id="orderFlavour">
+            <option value="Mint+Grape">Mint+Grape</option>
+            <option value="Apple">Apple</option>
+            <option value="Berry with Mint">Berry with Mint</option>
+            <option value="Watermelon">Watermelon</option>
+        </select>
+        <div class="order-btn" id="orderNowBtn">💨 Smoke Now - R250</div>
+        <p style="font-size: 0.6rem; text-align: center; margin-top: 8px; color: #666;">Payment via wallet • Staff approval required</p>
+    </div>
+</div>
+
+<div id="toastMessage" style="display: none;" class="toast-message"></div>
+
+<script>
+    // Configuration
+    const SESSIONS_KEY = 'shishaSessions';
+    const WALLET_ACCOUNTS_KEY = 'rands_accounts_v2';
+    const REQUESTS_KEY = 'customerRequests';
+    const SESSION_PRICE = 250;
+    const COAL_DURATION = 60;
+    const REFILL_THRESHOLD = 15;
+
+    let currentBalance = 1250.50;
+    let activeSession = null;
+    let timerInterval = null;
+    let coalInterval = null;
+
+    // Helper: Show toast message (no approval popup!)
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toastMessage');
+        toast.innerText = message;
+        toast.style.background = isError ? '#b71c1c' : '#1e293b';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Send request to staff dashboard (NO popup, just sends to localStorage)
+    function sendRequestToStaff(requestData) {
+        let requests = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '[]');
+        const newRequest = {
+            id: Date.now(),
+            ...requestData,
+            status: 'pending',
+            timestamp: new Date().toISOString(),
+            guestName: 'Customer'
+        };
+        requests.push(newRequest);
+        localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
+        console.log('Request sent to staff:', newRequest);
+        return newRequest;
+    }
+
+    // Update wallet display
+    function updateWalletDisplay() {
+        document.getElementById('walletBalance').innerText = `R${currentBalance.toFixed(2)}`;
+    }
+
+    // Format time
+    function formatTime(seconds) {
+        const mins = Math.floor(Math.abs(seconds) / 60);
+        const secs = Math.floor(Math.abs(seconds) % 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Update timer display
+    function updateTimerDisplay() {
+        if (!activeSession) return;
+        const timerEl = document.getElementById('timerDisplay');
+        timerEl.innerText = formatTime(activeSession.remainingTime);
+        
+        if (activeSession.remainingTime <= 300) {
+            timerEl.className = 'timer-display critical';
+        } else if (activeSession.remainingTime <= 900) {
+            timerEl.className = 'timer-display warning';
+        } else {
+            timerEl.className = 'timer-display';
+        }
+        
+        if (activeSession.remainingTime <= 0 && activeSession.status !== 'expired') {
+            activeSession.status = 'expired';
+            updateSessionUI();
+        }
+    }
+
+    // Update coal display
+    function updateCoalDisplay() {
+        if (!activeSession) return;
+        const coalPercent = Math.max(0, (activeSession.remainingTime / COAL_DURATION) * 100);
+        document.getElementById('coalPercent').innerText = `${Math.floor(coalPercent)}%`;
+        document.getElementById('coalFill').style.width = `${coalPercent}%`;
+    }
+
+    // Update UI based on session state
+    function updateSessionUI() {
+        const hasSession = activeSession && activeSession.status !== 'expired' && activeSession.remainingTime > 0;
+        
+        if (hasSession) {
+            document.getElementById('activeSessionCard').style.display = 'block';
+            document.getElementById('noSessionCard').style.display = 'none';
+            
+            const statusEl = document.getElementById('sessionStatus');
+            const sessionInfoEl = document.getElementById('sessionInfo');
+            
+            if (activeSession.paused) {
+                statusEl.innerText = 'Paused';
+                statusEl.className = 'session-status paused';
+                document.getElementById('pausedMsg').innerHTML = '<i class="fas fa-pause-circle"></i> Session paused - staff will resume';
+                document.getElementById('pauseBtn').style.display = 'none';
+                document.getElementById('resumeBtn').style.display = 'block';
+            } else {
+                statusEl.innerText = activeSession.status === 'refill' ? 'Refill Soon' : 'Active';
+                statusEl.className = 'session-status';
+                document.getElementById('pausedMsg').innerHTML = '';
+                document.getElementById('pauseBtn').style.display = 'block';
+                document.getElementById('resumeBtn').style.display = 'none';
+            }
+            
+            sessionInfoEl.innerHTML = `📍 ${activeSession.location} | 🍃 ${activeSession.flavour}`;
+            updateTimerDisplay();
+            updateCoalDisplay();
+        } else {
+            document.getElementById('activeSessionCard').style.display = 'none';
+            document.getElementById('noSessionCard').style.display = 'block';
+        }
+    }
+
+    // Load session from localStorage
+    function loadSession() {
+        const saved = localStorage.getItem(SESSIONS_KEY);
+        if (saved) {
+            const sessions = JSON.parse(saved);
+            // Find session for this customer (using accountId or just first active for demo)
+            if (sessions.length > 0) {
+                activeSession = sessions[0];
+                activeSession.lastRefillTime = new Date(activeSession.lastRefillTime);
+                activeSession.startTime = new Date(activeSession.startTime);
+                
+                // Calculate remaining time
+                if (!activeSession.paused) {
+                    const elapsed = (new Date() - activeSession.lastRefillTime) / 1000;
+                    activeSession.remainingTime = Math.max(0, COAL_DURATION - elapsed);
+                    if (activeSession.remainingTime <= 0) activeSession.status = 'expired';
+                    else if (activeSession.remainingTime <= REFILL_THRESHOLD) activeSession.status = 'refill';
+                    else activeSession.status = 'active';
+                }
+                updateSessionUI();
+                return;
+            }
+        }
+        activeSession = null;
+        updateSessionUI();
+    }
+
+    // ============ SERVICE BUTTONS - Send requests to staff (NO POPUP!) ============
+    
+    function requestCoalRefill() {
+        if (!activeSession || activeSession.paused) {
+            showToast("No active session or session paused", true);
+            return;
+        }
+        sendRequestToStaff({
+            type: 'coal_refill',
+            shishaId: activeSession.shishaId,
+            location: activeSession.location,
+            flavour: activeSession.flavour,
+            amount: 250
+        });
+        showToast("🔥 Coal refill request sent to staff!");
+    }
+
+    function requestExtendTime() {
+        if (!activeSession || activeSession.paused) {
+            showToast("No active session or session paused", true);
+            return;
+        }
+        sendRequestToStaff({
+            type: 'extend_time',
+            shishaId: activeSession.shishaId,
+            location: activeSession.location,
+            flavour: activeSession.flavour,
+            amount: 120
+        });
+        showToast("⏰ Time extension request sent to staff!");
+    }
+
+    function requestPause() {
+        if (!activeSession || activeSession.paused) {
+            showToast("No active session or already paused", true);
+            return;
+        }
+        sendRequestToStaff({
+            type: 'pause_session',
+            shishaId: activeSession.shishaId,
+            location: activeSession.location,
+            flavour: activeSession.flavour
+        });
+        showToast("⏸️ Pause request sent to staff!");
+    }
+
+    function requestResume() {
+        if (!activeSession || !activeSession.paused) {
+            showToast("No paused session found", true);
+            return;
+        }
+        sendRequestToStaff({
+            type: 'resume_session',
+            shishaId: activeSession.shishaId,
+            location: activeSession.location,
+            flavour: activeSession.flavour
+        });
+        showToast("▶️ Resume request sent to staff!");
+    }
+
+    function requestEndSession() {
+        if (!activeSession) {
+            showToast("No active session", true);
+            return;
+        }
+        sendRequestToStaff({
+            type: 'end_session',
+            shishaId: activeSession.shishaId,
+            location: activeSession.location,
+            flavour: activeSession.flavour,
+            amount: activeSession.amount
+        });
+        showToast("❌ End session request sent to staff!");
+    }
+
+    function requestReportIssue() {
+        if (!activeSession) {
+            showToast("No active session", true);
+            return;
+        }
+        sendRequestToStaff({
+            type: 'iyatsarha',
+            shishaId: activeSession.shishaId,
+            location: activeSession.location,
+            flavour: activeSession.flavour
+        });
+        showToast("📢 Issue reported to staff! They will assist you shortly.");
+    }
+
+    function requestNewOrder() {
+        const location = document.getElementById('orderLocation').value;
+        const flavour = document.getElementById('orderFlavour').value;
+        
+        if (currentBalance < SESSION_PRICE) {
+            showToast(`❌ Insufficient balance. Need R${SESSION_PRICE}, you have R${currentBalance.toFixed(2)}`, true);
+            return;
+        }
+        
+        sendRequestToStaff({
+            type: 'new_order',
+            location: location,
+            flavour: flavour,
+            amount: SESSION_PRICE,
+            paymentMethod: 'wallet',
+            accountId: '0635713652'
+        });
+        showToast(`✅ Order request sent to staff! Waiting for approval.`);
+    }
+
+    // Listen for storage changes (when staff approves)
+    function listenForUpdates() {
+        window.addEventListener('storage', (e) => {
+            if (e.key === SESSIONS_KEY) {
+                loadSession();
+            }
+        });
+    }
+
+    // Poll for session updates
+    setInterval(() => {
+        loadSession();
+    }, 3000);
+
+    // Timer updates
+    setInterval(() => {
+        if (activeSession && !activeSession.paused && activeSession.remainingTime > 0) {
+            activeSession.remainingTime--;
+            if (activeSession.remainingTime <= 0) {
+                activeSession.status = 'expired';
+            } else if (activeSession.remainingTime <= REFILL_THRESHOLD) {
+                activeSession.status = 'refill';
+            }
+            updateTimerDisplay();
+            updateCoalDisplay();
+            updateSessionUI();
+        }
+    }, 1000);
+
+    // Attach event listeners
+    document.getElementById('coalRefillBtn').onclick = requestCoalRefill;
+    document.getElementById('extendTimeBtn').onclick = requestExtendTime;
+    document.getElementById('pauseBtn').onclick = requestPause;
+    document.getElementById('resumeBtn').onclick = requestResume;
+    document.getElementById('endSessionBtn').onclick = requestEndSession;
+    document.getElementById('reportIssueBtn').onclick = requestReportIssue;
+    document.getElementById('orderNowBtn').onclick = requestNewOrder;
+
+    // Initialize
+    updateWalletDisplay();
+    loadSession();
+    listenForUpdates();
+</script>
+</body>
+</html>
