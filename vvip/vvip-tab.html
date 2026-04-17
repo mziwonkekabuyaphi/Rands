@@ -972,7 +972,7 @@ async function scanQRCode() {
     requestAnimationFrame(scanQRCode);
 }
 
-// ==================== WALLET (UNIFIED) ====================
+// ==================== WALLET (UNIFIED - SYNCED WITH MAIN WALLET) ====================
 let walletAccounts = {};
 let tables = {};
 let revenue = 0;
@@ -1011,7 +1011,6 @@ const vendorMenus = {
 // ==================== HELPER: Check if customer is VVIP ====================
 function isVVIPCustomer(account) {
     if (!account) return false;
-    // Check if name contains VVIP, VIP, Platinum, Gold, or if ID starts with VVIP
     const nameCheck = account.name && (account.name.toLowerCase().includes("vvip") || 
                                         account.name.toLowerCase().includes("vip") ||
                                         account.name.toLowerCase().includes("platinum") ||
@@ -1049,22 +1048,69 @@ function updateCartTitle() {
     }
 }
 
-// ==================== WALLET FUNCTIONS ====================
+// ==================== WALLET FUNCTIONS (UPDATED TO SYNC WITH MAIN WALLET) ====================
 function getWalletAccounts() {
-    return JSON.parse(localStorage.getItem('rands_wallet_accounts') || '[]');
+    // First, get accounts from the main wallet system (home.html)
+    const mainWalletAccounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
+    
+    // Then get VVIP-specific accounts
+    const vvipAccounts = JSON.parse(localStorage.getItem('rands_wallet_accounts') || '[]');
+    
+    // Merge: add any accounts from main wallet that aren't in VVIP list
+    const allAccounts = [...vvipAccounts];
+    
+    mainWalletAccounts.forEach(mainAcc => {
+        const exists = allAccounts.some(acc => acc.id === mainAcc.id);
+        if (!exists) {
+            // Convert main wallet format to VVIP tab format
+            allAccounts.push({
+                id: mainAcc.id,
+                name: mainAcc.name || mainAcc.id,
+                balance: mainAcc.balance || 0,
+                pin: "1234",
+                tableTab: 0,
+                tableName: null,
+                isVVIP: mainAcc.isVVIP || false
+            });
+        } else {
+            // Update balance of existing account from main wallet
+            const idx = allAccounts.findIndex(acc => acc.id === mainAcc.id);
+            if (idx !== -1) {
+                allAccounts[idx].balance = mainAcc.balance;
+            }
+        }
+    });
+    
+    return allAccounts;
 }
+
 function saveWalletAccounts(accounts) {
     localStorage.setItem('rands_wallet_accounts', JSON.stringify(accounts));
+    
+    // Also sync balances back to main wallet system (home.html)
+    const mainAccounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
+    accounts.forEach(acc => {
+        const mainIdx = mainAccounts.findIndex(m => m.id === acc.id);
+        if (mainIdx !== -1) {
+            mainAccounts[mainIdx].balance = acc.balance;
+        } else {
+            mainAccounts.push({
+                id: acc.id,
+                name: acc.name || acc.id,
+                balance: acc.balance,
+                status: "Active"
+            });
+        }
+    });
+    localStorage.setItem('rands_accounts_v2', JSON.stringify(mainAccounts));
 }
+
 function loadWalletAccountsMap() {
     const accounts = getWalletAccounts();
     walletAccounts = {};
     accounts.forEach(acc => { walletAccounts[acc.id] = acc; });
 }
-function saveWalletAccountsFromMap() {
-    const accounts = Object.values(walletAccounts);
-    saveWalletAccounts(accounts);
-}
+
 function initTestAccounts() {
     let accounts = getWalletAccounts();
     if (accounts.length === 0) {
@@ -1094,6 +1140,7 @@ function saveAll() {
     localStorage.setItem("bandEntries", JSON.stringify(bandEntries));
     localStorage.setItem("bandCapacities", JSON.stringify(bandCapacities));
 }
+
 function loadAll() {
     loadWalletAccountsMap();
     tables = JSON.parse(localStorage.getItem("tables") || "{}");
@@ -1109,6 +1156,11 @@ function loadAll() {
     bandCapacities = JSON.parse(localStorage.getItem("bandCapacities") || "{}");
 }
 loadAll();
+
+function saveWalletAccountsFromMap() {
+    const accounts = Object.values(walletAccounts);
+    saveWalletAccounts(accounts);
+}
 
 // ==================== BANDS MODAL ====================
 function openBandsModal() {
@@ -1353,7 +1405,7 @@ function checkoutCart() {
             total: ordersByVendor[vendor].reduce((s,i)=> s + i.price*i.quantity, 0),
             timestamp: new Date().toLocaleTimeString(),
             status: "pending",
-            isVVIP: isVVIP,  // <-- VVIP FLAG ADDED HERE
+            isVVIP: isVVIP,
             vvipBadge: isVVIP ? "👑 VVIP PRIORITY" : null
         };
         globalOrders.push(order);
@@ -1387,7 +1439,6 @@ function playVVIPNotificationSound() {
         const gainNode = audioCtx.createGain();
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-        // Fancy VVIP sound - rising tone
         oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
         gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
@@ -1457,7 +1508,6 @@ function renderActiveOrders() {
     if (saved) globalOrders = JSON.parse(saved);
     const activeOrders = globalOrders.filter(o => o.status !== "collected");
     
-    // Sort orders: VVIP first, then by timestamp
     activeOrders.sort((a, b) => {
         if (a.isVVIP && !b.isVVIP) return -1;
         if (!a.isVVIP && b.isVVIP) return 1;
@@ -1483,7 +1533,6 @@ function renderActiveOrders() {
         }
         let vendorIcon = order.vendor === "Rands Smart Counter" ? "🍺" : order.vendor === "Shisha Lounge" ? "💨" : "🥩";
         
-        // VVIP badge HTML
         const vvipBadgeHtml = order.isVVIP ? '<span class="order-vvip-badge">👑 VVIP PRIORITY ORDER - FAST TRACK 👑</span>' : '';
         
         html += `<div class="active-order-card ${readyClass} ${vvipClass}">

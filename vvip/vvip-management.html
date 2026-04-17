@@ -644,7 +644,6 @@
         const tablesGrid = document.getElementById('tablesList');
         if (!tablesGrid) return false;
         const activeElement = document.activeElement;
-        // Check if active element is inside tablesGrid and is an input or textarea
         if (activeElement && tablesGrid.contains(activeElement)) {
             const tagName = activeElement.tagName.toLowerCase();
             if (tagName === 'input' || tagName === 'textarea') {
@@ -654,13 +653,46 @@
         return false;
     }
     
+    // ========== UPDATED loadAll() - SYNC WITH MAIN WALLET (home.html) ==========
     function loadAll() {
-        const walletsRaw = localStorage.getItem('rands_wallet_accounts');
-        if (walletsRaw) {
-            const accounts = JSON.parse(walletsRaw);
-            walletAccounts = {};
-            accounts.forEach(acc => { walletAccounts[acc.id] = acc; });
-        }
+        // FIRST: Load from main wallet system (home.html uses 'rands_accounts_v2')
+        const mainWalletAccounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
+        
+        // SECOND: Load existing VVIP wallet accounts
+        const vvipRaw = localStorage.getItem('rands_wallet_accounts');
+        let vvipAccounts = vvipRaw ? JSON.parse(vvipRaw) : [];
+        
+        // MERGE: Main wallet accounts take priority for balance
+        const mergedAccounts = [...vvipAccounts];
+        
+        mainWalletAccounts.forEach(mainAcc => {
+            const existingIdx = mergedAccounts.findIndex(acc => acc.id === mainAcc.id);
+            if (existingIdx !== -1) {
+                // Update balance from main wallet
+                mergedAccounts[existingIdx].balance = mainAcc.balance;
+                mergedAccounts[existingIdx].name = mainAcc.name || mergedAccounts[existingIdx].name;
+            } else {
+                // Add new account from main wallet
+                mergedAccounts.push({
+                    id: mainAcc.id,
+                    name: mainAcc.name || mainAcc.id,
+                    balance: mainAcc.balance || 0,
+                    pin: "1234",
+                    tableTab: 0,
+                    tableName: null,
+                    isVVIP: mainAcc.isVVIP || false
+                });
+            }
+        });
+        
+        // Save merged accounts back to VVIP storage
+        localStorage.setItem('rands_wallet_accounts', JSON.stringify(mergedAccounts));
+        
+        // Build walletAccounts map
+        walletAccounts = {};
+        mergedAccounts.forEach(acc => { walletAccounts[acc.id] = acc; });
+        
+        // Load other data
         tables = JSON.parse(localStorage.getItem('tables') || '{}');
         revenue = parseFloat(localStorage.getItem('revenue') || '0');
         guests = parseInt(localStorage.getItem('guests') || '0');
@@ -678,6 +710,23 @@
         localStorage.setItem('vendorSales', JSON.stringify(vendorSales));
         localStorage.setItem('rands_wallet_accounts', JSON.stringify(Object.values(walletAccounts)));
         
+        // Also sync balances back to main wallet system
+        const mainAccounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
+        Object.values(walletAccounts).forEach(acc => {
+            const mainIdx = mainAccounts.findIndex(m => m.id === acc.id);
+            if (mainIdx !== -1) {
+                mainAccounts[mainIdx].balance = acc.balance;
+            } else {
+                mainAccounts.push({
+                    id: acc.id,
+                    name: acc.name || acc.id,
+                    balance: acc.balance,
+                    status: "Active"
+                });
+            }
+        });
+        localStorage.setItem('rands_accounts_v2', JSON.stringify(mainAccounts));
+        
         if (window.BroadcastChannel) {
             const channel = new BroadcastChannel('vvip_sync');
             channel.postMessage({ type: 'DATA_UPDATED', timestamp: Date.now() });
@@ -694,6 +743,7 @@
     function closeModal() { document.getElementById("vvipModal").classList.remove("active"); }
     
     function escapeHtml(str) { 
+        if (!str) return '';
         return str.replace(/[&<>]/g, function(m) { 
             if (m === '&') return '&amp;'; 
             if (m === '<') return '&lt;'; 
@@ -734,7 +784,7 @@
                     </div>
                     <div>
                         <span style="color:#cc0000; font-size:12px;">Assigned:</span>
-                        <div style="margin-top:6px;">${t.guests.map(g => `<span class="guest-badge">${escapeHtml(g)}</span>`).join('') || '<span style="color:#ff9999; font-size:11px;">No guests assigned</span>'}</div>
+                        <div style="margin-top:6px;">${(t.guests || []).map(g => `<span class="guest-badge">${escapeHtml(g)}</span>`).join('') || '<span style="color:#ff9999; font-size:11px;">No guests assigned</span>'}</div>
                     </div>
                 </div>
             `;
@@ -787,8 +837,9 @@
         }
         const table = tables[tableName];
         if (!table) { showModal("Error", "Table not found", "⚠️"); return; }
-        if (table.guests.includes(walletId)) { showModal("Already Assigned", `${walletId} already at this table`, "⚠️"); return; }
-        if (table.guests.length >= table.capacity) { showModal("Table Full", `${tableName} at capacity (${table.capacity})`, "🚫"); return; }
+        if (table.guests && table.guests.includes(walletId)) { showModal("Already Assigned", `${walletId} already at this table`, "⚠️"); return; }
+        if ((table.guests?.length || 0) >= table.capacity) { showModal("Table Full", `${tableName} at capacity (${table.capacity})`, "🚫"); return; }
+        if (!table.guests) table.guests = [];
         table.guests.push(walletId);
         table.entriesUsed = table.guests.length;
         if (walletAccounts[walletId]) walletAccounts[walletId].tableName = tableName;
@@ -803,7 +854,7 @@
         if (!walletId) return;
         const table = tables[tableName];
         if (!table) { showModal("Error", "Table not found", "⚠️"); return; }
-        const idx = table.guests.indexOf(walletId);
+        const idx = (table.guests || []).indexOf(walletId);
         if (idx !== -1) {
             table.guests.splice(idx, 1);
             table.entriesUsed = table.guests.length;
@@ -833,7 +884,7 @@
                             <tr>
                                 <td style="font-family:monospace;">${escapeHtml(id)}</td>
                                 <td>${escapeHtml(acc.name || '-')}</td>
-                                <td style="color:#cc0000;">R${acc.balance || 0}</td>
+                                <td style="color:#cc0000;">R${(acc.balance || 0).toLocaleString()}</td>
                                 <td>${acc.tableName ? escapeHtml(acc.tableName) : '<span style="color:#ff9999;">—</span>'}</td>
                                 <td><button onclick="printBand('${id.replace(/'/g, "\\'")}')" class="btn-small">🖨️</button></td>
                             </tr>
@@ -842,7 +893,7 @@
                 </table>
             </div>
             <div style="margin-top:16px; padding:12px; background:#f5f5f5; border-radius:20px; text-align:center; color:#cc0000; font-size:12px;">
-                💡 Total: ${Object.keys(walletAccounts).length} bands | Balance: R${Object.values(walletAccounts).reduce((s, a) => s + (a.balance || 0), 0)}
+                💡 Total: ${Object.keys(walletAccounts).length} bands | Balance: R${Object.values(walletAccounts).reduce((s, a) => s + (a.balance || 0), 0).toLocaleString()}
             </div>
         `;
     }
@@ -870,7 +921,7 @@
         if (!container) return;
         const totalTables = Object.keys(tables).length;
         const occupiedTables = Object.values(tables).filter(t => t.entriesUsed > 0).length;
-        const totalGuests = Object.values(tables).reduce((sum, t) => sum + t.entriesUsed, 0);
+        const totalGuests = Object.values(tables).reduce((sum, t) => sum + (t.entriesUsed || 0), 0);
         const totalTabRemaining = Object.values(tables).reduce((sum, t) => sum + (t.tabBalance || 0), 0);
         const totalTabSpent = Object.values(tables).reduce((sum, t) => sum + ((t.originalTab || t.tabBalance) - (t.tabBalance || 0)), 0);
         container.innerHTML = `
@@ -878,9 +929,9 @@
                 <div class="stat-card"><div class="value">${totalTables}</div><div>Tables</div></div>
                 <div class="stat-card"><div class="value">${occupiedTables}</div><div>Occupied</div></div>
                 <div class="stat-card"><div class="value">${totalGuests}</div><div>Guests</div></div>
-                <div class="stat-card"><div class="value">R${totalTabSpent}</div><div>Spent</div></div>
-                <div class="stat-card"><div class="value">R${totalTabRemaining}</div><div>Remaining</div></div>
-                <div class="stat-card"><div class="value">R${revenue}</div><div>Revenue</div></div>
+                <div class="stat-card"><div class="value">R${totalTabSpent.toLocaleString()}</div><div>Spent</div></div>
+                <div class="stat-card"><div class="value">R${totalTabRemaining.toLocaleString()}</div><div>Remaining</div></div>
+                <div class="stat-card"><div class="value">R${revenue.toLocaleString()}</div><div>Revenue</div></div>
             </div>
             <h3 style="margin:20px 0 12px; color:#cc0000; font-size:16px;">📊 Table Breakdown</h3>
             <div style="overflow-x: auto;">
@@ -889,16 +940,16 @@
                     const original = t.originalTab || t.tabBalance;
                     const spent = original - t.tabBalance;
                     const percent = original > 0 ? (spent / original) * 100 : 0;
-                    return `<tr><td><strong>${escapeHtml(name)}</strong></td><td>${t.capacity}</td><td>${t.entriesUsed}/${t.capacity}</td><td style="color:#cc0000;">R${t.tabBalance}</td><td>R${spent}</td><td><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${percent}%;"></div></div></td></tr>`;
+                    return `<tr><td style="font-weight:bold;">${escapeHtml(name)}</td><td>${t.capacity}</td><td>${t.entriesUsed || 0}/${t.capacity}</td><td style="color:#cc0000;">R${t.tabBalance}</td><td>R${spent}</td><td><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${percent}%;"></div></div></td></tr>`;
                 }).join('')}</tbody>
                 </table>
             </div>
             <div style="margin-top:20px; background:#f5f5f5; padding:16px; border-radius:20px;">
                 <h4 style="color:#cc0000; font-size:14px;">💰 Vendor Sales</h4>
                 <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
-                    <div style="font-size:12px;">🍺 Rands: <strong style="color:#cc0000;">R${vendorSales["Rands Smart Counter"] || 0}</strong></div>
-                    <div style="font-size:12px;">💨 Shisha: <strong style="color:#cc0000;">R${vendorSales["Shisha Lounge"] || 0}</strong></div>
-                    <div style="font-size:12px;">🥩 Butcher: <strong style="color:#cc0000;">R${vendorSales["The Butcher Shop"] || 0}</strong></div>
+                    <div style="font-size:12px;">🍺 Rands: <strong style="color:#cc0000;">R${(vendorSales["Rands Smart Counter"] || 0).toLocaleString()}</strong></div>
+                    <div style="font-size:12px;">💨 Shisha: <strong style="color:#cc0000;">R${(vendorSales["Shisha Lounge"] || 0).toLocaleString()}</strong></div>
+                    <div style="font-size:12px;">🥩 Butcher: <strong style="color:#cc0000;">R${(vendorSales["The Butcher Shop"] || 0).toLocaleString()}</strong></div>
                 </div>
             </div>
         `;
@@ -989,7 +1040,7 @@
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(`${tab}Tab`).classList.add('active');
-        event.target.classList.add('active');
+        if (event && event.target) event.target.classList.add('active');
         if (tab === 'tables') renderTables();
         if (tab === 'bands') renderBands();
         if (tab === 'dashboard') renderDashboard();
@@ -999,7 +1050,6 @@
     
     // ========== SYNC WITH FOCUS PROTECTION ==========
     function safeRenderCurrentTab() {
-        // Do NOT re-render if the user is typing in a tables grid input
         if (isTablesGridInputFocused()) {
             return;
         }
