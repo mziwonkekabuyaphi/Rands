@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>VVIP Access | Rands Vibe Pass</title>
+  <meta name="description" content="Exclusive VVIP login portal with multi‑access modes for premium members">
+  <meta name="theme-color" content="#E31B23">
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 20% 30%, #0a0508, #1a0a0f, #2d0f12);
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    /* Animated particles background */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      background: rgba(227, 27, 35, 0.4);
+      border-radius: 50%;
+      filter: blur(2px);
+      animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.8; }
+      90% { opacity: 0.5; }
+      100% { transform: translateY(-20vh) translateX(40px) rotate(360deg); opacity: 0; }
+    }
+
+    /* Glowing orbs */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .orb1 { width: 500px; height: 500px; background: #E31B23; top: -200px; left: -150px; }
+    .orb2 { width: 450px; height: 450px; background: #ff6a4b; bottom: -150px; right: -100px; opacity: 0.2; }
+    .orb3 { width: 350px; height: 350px; background: #f5a623; top: 50%; left: 60%; opacity: 0.15; }
+
+    /* Main container */
+    .login-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 520px;
+      animation: fadeInScale 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.95) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Premium card */
+    .login-card {
+      background: rgba(15, 8, 12, 0.65);
+      backdrop-filter: blur(20px);
+      border-radius: 3rem;
+      padding: 2.5rem 2rem;
+      border: 1px solid rgba(227, 27, 35, 0.4);
+      box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+
+    /* Logo section with actual image */
+    .logo-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .brand-logo {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+      animation: subtleGlow 3s ease-in-out infinite;
+    }
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(227,27,35,0.2), rgba(0,0,0,0.1));
+      padding: 6px;
+    }
+    @keyframes subtleGlow {
+      0%, 100% { filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); }
+      50% { filter: drop-shadow(0 10px 30px rgba(227,27,35,0.5)); }
+    }
+    .logo-section h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FFE6D5, #FFB88C);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+      margin-top: 0.5rem;
+    }
+    .vip-badge {
+      display: inline-block;
+      background: rgba(227,27,35,0.25);
+      backdrop-filter: blur(4px);
+      padding: 4px 14px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #ffba9f;
+      margin-top: 10px;
+      border: 1px solid rgba(227,27,35,0.4);
+    }
+    .vip-badge i {
+      margin-right: 6px;
+      font-size: 0.65rem;
+    }
+
+    /* Form styling */
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffaa88;
+      font-size: 1.1rem;
+      z-index: 2;
+      opacity: 0.8;
+    }
+    .input-field {
+      width: 100%;
+      background: rgba(25, 15, 20, 0.7);
+      border: 1.5px solid rgba(227, 27, 35, 0.3);
+      border-radius: 2rem;
+      padding: 1rem 1rem 1rem 3rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #fff4ea;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: #E31B23;
+      box-shadow: 0 0 0 3px rgba(227,27,35,0.2);
+      background: rgba(30, 18, 22, 0.8);
+    }
+    .input-field::placeholder {
+      color: rgba(255, 210, 180, 0.5);
+      font-weight: 400;
+    }
+
+    /* Toggle password visibility */
+    .toggle-password {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #ffaa88;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 0.2s;
+      z-index: 2;
+    }
+    .toggle-password:hover {
+      color: #E31B23;
+    }
+
+    /* Login button */
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(95deg, #E31B23, #b8121a);
+      border: none;
+      border-radius: 2rem;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px -6px rgba(227,27,35,0.5);
+    }
+    .login-btn i {
+      transition: transform 0.2s;
+    }
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px -8px rgba(227,27,35,0.7);
+      background: linear-gradient(95deg, #ff2a33, #d4151d);
+    }
+    .login-btn:active {
+      transform: translateY(1px);
+    }
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Error message */
+    .error-message {
+      background: rgba(227, 27, 35, 0.15);
+      border-left: 3px solid #E31B23;
+      border-radius: 1rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: #ffb7a7;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(4px);
+      transform: translateX(0);
+      transition: all 0.2s;
+    }
+    .error-message i {
+      font-size: 1rem;
+      color: #E31B23;
+    }
+
+    /* Security note */
+    .security-note {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.7rem;
+      color: rgba(255, 210, 180, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .security-note span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .security-note i {
+      font-size: 0.65rem;
+    }
+
+    /* fingerprint animation */
+    .fingerprint-area {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    .fingerprint-area i {
+      font-size: 1.5rem;
+      color: #ffaa88;
+    }
+
+    /* ========= NEW: MODES / CARDS SECTION ========= */
+    .mode-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1.8rem 0 1.2rem;
+      position: relative;
+    }
+    .mode-divider::before,
+    .mode-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(227,27,35,0.4), transparent);
+    }
+    .mode-divider span {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: rgba(227,27,35,0.2);
+      padding: 0.2rem 0.9rem;
+      border-radius: 40px;
+      color: #ffc6ae;
+      backdrop-filter: blur(2px);
+      margin: 0 12px;
+    }
+    
+    .mode-cards {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.2rem;
+      margin-bottom: 0.4rem;
+    }
+    
+    .mode-card {
+      flex: 1;
+      background: rgba(20, 12, 16, 0.55);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(227, 27, 35, 0.3);
+      border-radius: 1.8rem;
+      padding: 1rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      gap: 0.6rem;
+    }
+    .mode-card:hover {
+      transform: translateY(-3px);
+      border-color: #E31B23;
+      background: rgba(30, 18, 22, 0.7);
+      box-shadow: 0 8px 20px -8px rgba(227,27,35,0.4);
+    }
+    .mode-card:active {
+      transform: translateY(1px);
+    }
+    .mode-card i:first-child {
+      font-size: 1.8rem;
+      color: #ffaa88;
+      width: 2rem;
+      text-align: center;
+      transition: color 0.2s;
+    }
+    .mode-card:hover i:first-child {
+      color: #E31B23;
+    }
+    .mode-info {
+      flex: 1;
+    }
+    .mode-info h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff0e3;
+      margin-bottom: 0.2rem;
+      letter-spacing: -0.2px;
+    }
+    .mode-info p {
+      font-size: 0.65rem;
+      color: rgba(255, 200, 170, 0.7);
+      font-weight: 400;
+    }
+    .mode-card i:last-child {
+      font-size: 0.9rem;
+      color: #ffaa88;
+      opacity: 0.6;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .mode-card:hover i:last-child {
+      opacity: 1;
+      transform: translateX(4px);
+      color: #E31B23;
+    }
+    
+    /* responsive: stack cards on small screens */
+    @media (max-width: 520px) {
+      .mode-cards {
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      .mode-card {
+        padding: 0.85rem 1rem;
+      }
+      .login-card {
+        padding: 1.8rem 1.5rem;
+        border-radius: 2rem;
+      }
+      .logo-section h2 { font-size: 1.5rem; }
+      .brand-logo { width: 70px; height: 70px; }
+    }
+    
+    /* Shine effect on card */
+    .login-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <div class="glow-orb orb1"></div>
+  <div class="glow-orb orb2"></div>
+  <div class="glow-orb orb3"></div>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo-section">
+        <!-- Logo from images/rands-logo.png -->
+        <div class="brand-logo">
+          <img src="images/rands-logo.png" alt="Rands Vibe Pass | VVIP Logo">
+        </div>
+        <h2>VVIP Access Portal</h2>
+        <div class="vip-badge">
+          <i class="fas fa-shield-alt"></i> RESTRICTED AREA
+        </div>
+      </div>
+
+      <!-- Error message container -->
+      <div id="errorBox" class="error-message" style="display: none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="errorText">Invalid credentials</span>
+      </div>
+
+      <!-- Login Form (primary VVIP authentication) -->
+      <form id="vvipLoginForm" autocomplete="off">
+        <div class="input-group">
+          <i class="fas fa-user input-icon"></i>
+          <input type="text" id="username" class="input-field" placeholder="VVIP Username" autocomplete="off" value="">
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="password" class="input-field" placeholder="Password" autocomplete="off">
+          <button type="button" id="togglePassBtn" class="toggle-password">
+            <i class="far fa-eye-slash"></i>
+          </button>
+        </div>
+
+        <button type="submit" id="loginButton" class="login-btn">
+          <i class="fas fa-key"></i> <span>Authenticate Access</span>
+        </button>
+      </form>
+
+      <div class="fingerprint-area">
+        <i class="fas fa-fingerprint"></i>
+      </div>
+      <div class="security-note">
+        <span><i class="fas fa-lock"></i> Encrypted session</span>
+        <span><i class="fas fa-clock"></i> Session timeout: 8 hours</span>
+        <span><i class="fas fa-id-card"></i> VVIP only</span>
+      </div>
+
+      <!-- ========= NEW MODES / CARDS ========= -->
+      <div class="mode-divider">
+        <span>⚡ Alternative Access Modes ⚡</span>
+      </div>
+      <div class="mode-cards">
+        <!-- Management Console Card → management-console.html -->
+        <div class="mode-card" data-url="management-console.html" id="managementConsoleCard">
+          <i class="fas fa-tachometer-alt"></i>
+          <div class="mode-info">
+            <h4>Management Console</h4>
+            <p>Administrator & Analytics Hub</p>
+          </div>
+          <i class="fas fa-arrow-right"></i>
+        </div>
+        <!-- VVIP Access Card (Alternate) → vvip-access.html -->
+        <div class="mode-card" data-url="vvip-access.html" id="vvipAccessCard">
+          <i class="fas fa-crown"></i>
+          <div class="mode-info">
+            <h4>VVIP Access</h4>
+            <p>Elite Members' Private Lounge</p>
+          </div>
+          <i class="fas fa-arrow-right"></i>
+        </div>
+      </div>
+      <!-- subtle hint: direct portals -->
+      <div style="text-align: center; margin-top: 0.8rem; font-size: 0.6rem; color: rgba(255,200,170,0.4);">
+        <i class="fas fa-share-square"></i> Direct access — no additional authentication required
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // VVIP credentials (case-sensitive)
+      const VALID_USERNAME = "VVIP";
+      const VALID_PASSWORD = "randscapetown";
+
+      // DOM elements
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const loginForm = document.getElementById('vvipLoginForm');
+      const loginBtn = document.getElementById('loginButton');
+      const errorBox = document.getElementById('errorBox');
+      const errorText = document.getElementById('errorText');
+      const togglePassBtn = document.getElementById('togglePassBtn');
+
+      // Helper: Show error message
+      function showError(message) {
+        errorText.innerText = message;
+        errorBox.style.display = 'flex';
+        setTimeout(() => {
+          if (errorBox) errorBox.style.display = 'none';
+        }, 4000);
+      }
+
+      function hideError() {
+        errorBox.style.display = 'none';
+      }
+
+      // Toggle password visibility
+      let isPasswordVisible = false;
+      togglePassBtn.addEventListener('click', () => {
+        isPasswordVisible = !isPasswordVisible;
+        passwordInput.type = isPasswordVisible ? 'text' : 'password';
+        const icon = togglePassBtn.querySelector('i');
+        if (isPasswordVisible) {
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        } else {
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        }
+      });
+
+      // Loading state on main login button
+      function setLoading(isLoading) {
+        if (isLoading) {
+          loginBtn.disabled = true;
+          loginBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> <span>Verifying VVIP...</span>';
+        } else {
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = '<i class="fas fa-key"></i> <span>Authenticate Access</span>';
+        }
+      }
+
+      // Flash & redirect to vvip-tab.html (original destination)
+      function flashAndRedirectToVVIPTab() {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = '#E31B23';
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.2s ease';
+        overlay.style.zIndex = '99999';
+        overlay.style.pointerEvents = 'none';
+        document.body.appendChild(overlay);
+        
+        setTimeout(() => { overlay.style.opacity = '0.7'; }, 10);
+        setTimeout(() => {
+          sessionStorage.setItem('rands_vibe_authenticated', 'true');
+          sessionStorage.setItem('vvip_auth_time', Date.now().toString());
+          sessionStorage.removeItem('vvip_redirect_after_login');
+          window.location.href = 'vvip-tab.html';
+        }, 200);
+      }
+
+      // Process main login
+      function attemptLogin(event) {
+        if (event) event.preventDefault();
+        hideError();
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        
+        if (!username || !password) {
+          showError('Please enter both VVIP username and password');
+          return;
+        }
+        
+        if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+          setLoading(true);
+          setTimeout(() => {
+            flashAndRedirectToVVIPTab();
+          }, 600);
+        } else {
+          showError('Access Denied. Invalid VVIP credentials.');
+          // Shake effect
+          const card = document.querySelector('.login-card');
+          card.style.transform = 'translateX(0)';
+          card.style.transition = '0.1s';
+          card.style.transform = 'translateX(6px)';
+          setTimeout(() => { card.style.transform = 'translateX(-4px)'; }, 80);
+          setTimeout(() => { card.style.transform = 'translateX(2px)'; }, 160);
+          setTimeout(() => { card.style.transform = 'translateX(0)'; }, 240);
+          passwordInput.value = '';
+          passwordInput.focus();
+        }
+      }
+
+      loginForm.addEventListener('submit', attemptLogin);
+      
+      // ========= NEW: MODE CARDS REDIRECTION =========
+      // Management Console -> management-console.html
+      // VVIP Access -> vvip-access.html
+      function setupModeCards() {
+        const cards = document.querySelectorAll('.mode-card');
+        cards.forEach(card => {
+          card.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const targetUrl = card.getAttribute('data-url');
+            if (targetUrl) {
+              // optional subtle haptic feedback (visual flash)
+              card.style.transform = 'scale(0.98)';
+              setTimeout(() => { card.style.transform = ''; }, 120);
+              // direct redirect without authentication
+              window.location.href = targetUrl;
+            }
+          });
+          // accessibility: add role and keyboard hint
+          card.setAttribute('role', 'button');
+          card.setAttribute('tabindex', '0');
+          card.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              const targetUrl = card.getAttribute('data-url');
+              if (targetUrl) window.location.href = targetUrl;
+            }
+          });
+        });
+      }
+      
+      // Floating particles background (already defined but keep)
+      function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        if (!particlesContainer) return;
+        const particleCount = 60;
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('particle');
+          const size = Math.random() * 6 + 2;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
+          particle.style.left = `${Math.random() * 100}%`;
+          particle.style.animationDuration = `${Math.random() * 8 + 6}s`;
+          particle.style.animationDelay = `${Math.random() * 5}s`;
+          particle.style.opacity = Math.random() * 0.5 + 0.2;
+          particlesContainer.appendChild(particle);
+        }
+      }
+      
+      createParticles();
+      setupModeCards();
+      
+      // Auto-focus username
+      usernameInput.focus();
+      
+      // Session check: if already authenticated on login page, redirect to vvip-tab.html (avoid double login)
+      const alreadyAuth = sessionStorage.getItem('rands_vibe_authenticated') === 'true';
+      if (alreadyAuth && window.location.pathname.includes('login.html')) {
+        setTimeout(() => {
+          window.location.href = 'vvip-tab.html';
+        }, 800);
+      }
+      
+      // Console logs for debug & showcase
+      console.log('✅ VVIP Login Portal Ready | Credentials: VVIP / randscapetown');
+      console.log('✅ Logo path: images/rands-logo.png');
+      console.log('✅ Primary login → vvip-tab.html');
+      console.log('✅ ADDITIONAL MODES: Management Console → management-console.html | VVIP Access → vvip-access.html');
+    })();
+  </script>
+</body>
+</html>
