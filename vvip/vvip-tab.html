@@ -405,11 +405,91 @@ body {
     padding: 20px;
     border: 2px solid #b30000;
     transition: all 0.2s;
+    position: relative;
 }
 .active-order-card.ready {
     border-color: #00ff9c;
     box-shadow: 0 0 20px rgba(0,255,156,0.2);
 }
+/* ===== VVIP ORDER STYLES - MAKES THEM STAND OUT ===== */
+.active-order-card.vvip-order {
+    border: 3px solid #ffd700;
+    background: linear-gradient(135deg, #2a1500 0%, #1a1a1a 100%);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    animation: vvipShake 0.8s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+.active-order-card.vvip-order::before {
+    content: "👑👑👑 VVIP PRIORITY ORDER 👑👑👑";
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #1a1a1a;
+    padding: 8px 20px;
+    border-radius: 0 20px 0 30px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    box-shadow: -2px 2px 10px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+.active-order-card.vvip-order::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 215, 0, 0.05) 0px,
+        rgba(255, 215, 0, 0.05) 20px,
+        transparent 20px,
+        transparent 40px
+    );
+    pointer-events: none;
+}
+.active-order-card.vvip-order .active-order-id {
+    background: #ffd700;
+    color: #1a1a1a;
+    font-weight: 800;
+    animation: pulse 1s infinite;
+}
+.active-order-card.vvip-order .order-vvip-badge {
+    display: inline-block;
+    background: #ffd700;
+    color: #1a1a1a;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    margin-left: 10px;
+    animation: blink 1s infinite;
+}
+.vvip-glow {
+    text-shadow: 0 0 8px #ffd700;
+}
+
+@keyframes vvipShake {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    10% { transform: translateX(-3px) translateY(-1px); }
+    20% { transform: translateX(3px) translateY(1px); }
+    30% { transform: translateX(-2px) translateY(-1px); }
+    40% { transform: translateX(2px) translateY(1px); }
+    50% { transform: translateX(-1px) translateY(0); }
+    60% { transform: translateX(1px) translateY(0); }
+    70% { transform: translateX(0) translateY(-1px); }
+    80% { transform: translateX(0) translateY(1px); }
+    90% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 .active-order-header {
     display: flex;
     justify-content: space-between;
@@ -737,7 +817,8 @@ button {
             <div style="text-align:center; padding:40px;">Loading orders...</div>
         </div>
         <div style="margin-top:20px; text-align:center; font-size:12px; color:#888;">
-            Orders automatically refresh every 2 seconds. When an order is marked <strong style="color:#b30000;">READY</strong>, it will be highlighted and a sound will play.
+            Orders automatically refresh every 2 seconds. When an order is marked <strong style="color:#b30000;">READY</strong>, it will be highlighted and a sound will play.<br>
+            <strong style="color:#ffd700;">👑 VVIP ORDERS appear with GOLD border, SHAKING animation, and special badge!</strong>
         </div>
     </div>
 
@@ -927,6 +1008,19 @@ const vendorMenus = {
     ]
 };
 
+// ==================== HELPER: Check if customer is VVIP ====================
+function isVVIPCustomer(account) {
+    if (!account) return false;
+    // Check if name contains VVIP, VIP, Platinum, Gold, or if ID starts with VVIP
+    const nameCheck = account.name && (account.name.toLowerCase().includes("vvip") || 
+                                        account.name.toLowerCase().includes("vip") ||
+                                        account.name.toLowerCase().includes("platinum") ||
+                                        account.name.toLowerCase().includes("gold"));
+    const idCheck = account.id && (account.id.toLowerCase().includes("vvip") || 
+                                   account.id.toLowerCase().includes("vip"));
+    return nameCheck || idCheck || account.isVVIP === true;
+}
+
 // ==================== CART TITLE UPDATE FUNCTION ====================
 function updateCartTitle() {
     const vendor = document.getElementById("vendor").value;
@@ -976,7 +1070,7 @@ function initTestAccounts() {
     if (accounts.length === 0) {
         accounts = [
             { id: "+27761234567", name: "Test User 1", balance: 5000, pin: "1234", tableTab: 0, tableName: null },
-            { id: "+27769876543", name: "Test User 2", balance: 2500, pin: "5678", tableTab: 0, tableName: null },
+            { id: "+27769876543", name: "VVIP Customer", balance: 25000, pin: "5678", tableTab: 0, tableName: null, isVVIP: true },
             { id: "Paradise", name: "Paradise Group", balance: 1000, pin: "0000", tableTab: 0, tableName: null }
         ];
         saveWalletAccounts(accounts);
@@ -1031,10 +1125,18 @@ function renderBandsList() {
         container.innerHTML = '<div class="empty-state">No wallet accounts found.</div>';
         return;
     }
-    let html = `<table class="bands-table"><thead><tr><th>Wallet ID</th><th>Name</th><th>Balance</th><th>Table</th><th>Action</th></tr></thead><tbody>`;
+    let html = `<table class="bands-table"><thead><tr><th>Wallet ID</th><th>Name</th><th>Balance</th><th>Table</th><th>VVIP</th><th>Action</th></tr></thead><tbody>`;
     for (let id in walletAccounts) {
         const acc = walletAccounts[id];
-        html += `<tr><td>${id}</td><td>${acc.name || '-'}</td><td>R${acc.balance}</td><td>${acc.tableName || '-'}</td><td><button onclick="printWristband('${id}')" class="btn-small">🖨️ Print Wristband</button></td></tr>`;
+        const isVip = isVVIPCustomer(acc);
+        html += `<tr>
+                    <td>${id}</td>
+                    <td>${acc.name || '-'} ${isVip ? '👑' : ''}</td>
+                    <td>R${acc.balance}</td>
+                    <td>${acc.tableName || '-'}</td>
+                    <td>${isVip ? '👑 YES' : '-'}</td>
+                    <td><button onclick="printWristband('${id}')" class="btn-small">🖨️ Print Wristband</button></td>
+                </tr>`;
     }
     html += `</tbody></table>`;
     container.innerHTML = html;
@@ -1042,6 +1144,7 @@ function renderBandsList() {
 function printWristband(bandId) {
     const account = walletAccounts[bandId];
     if (!account) { showVVIPModal("Error", "Wallet not found", "⚠️"); return; }
+    const isVip = isVVIPCustomer(account);
     const printWindow = window.open('', '_blank');
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bandId)}`;
     printWindow.document.write(`
@@ -1050,8 +1153,9 @@ function printWristband(bandId) {
         <head><title>Wristband - ${bandId}</title>
         <style>
             body { margin:0; padding:20px; font-family:Arial; background:white; display:flex; justify-content:center; align-items:center; min-height:100vh; }
-            .wristband { width:300px; background:linear-gradient(145deg,#b30000,#8b0000); border-radius:30px; padding:25px; text-align:center; color:white; border:2px solid #ff4d4d; }
+            .wristband { width:300px; background:linear-gradient(145deg,${isVip ? '#b8860b' : '#b30000'},${isVip ? '#8b6508' : '#8b0000'}); border-radius:30px; padding:25px; text-align:center; color:white; border:2px solid ${isVip ? '#ffd700' : '#ff4d4d'}; }
             .logo { font-size:32px; margin-bottom:15px; }
+            .vvip-badge { background:#ffd700; color:#1a1a1a; padding:5px; border-radius:20px; font-size:12px; margin-bottom:10px; }
             .band-id { font-size:28px; font-weight:bold; margin:15px 0; background:rgba(255,255,255,0.2); padding:8px; border-radius:40px; }
             .qr { margin:15px 0; background:white; padding:10px; display:inline-block; border-radius:20px; }
             .qr img { width:150px; height:150px; }
@@ -1062,6 +1166,7 @@ function printWristband(bandId) {
         <body>
             <div class="wristband">
                 <div class="logo">🍾 Rands VVIP</div>
+                ${isVip ? '<div class="vvip-badge">👑 VVIP MEMBER 👑</div>' : ''}
                 <div class="band-id">${bandId}</div>
                 <div class="qr"><img src="${qrUrl}" alt="QR Code"></div>
                 <div class="footer">Scan this code at the gate<br>Valid only for the event</div>
@@ -1182,7 +1287,8 @@ function loadCustomerCart() {
     }
     document.getElementById("customerInfoBar").style.display = "block";
     updateCartDisplay();
-    showVVIPModal("Customer Loaded", `Welcome ${band}. Balance: R${account.balance}`, "👋");
+    const vipMsg = isVVIPCustomer(account) ? " 👑 VVIP CUSTOMER DETECTED! Priority service activated. 👑" : "";
+    showVVIPModal("Customer Loaded", `Welcome ${band}. Balance: R${account.balance}${vipMsg}`, "👋");
 }
 function clearCustomerCart() {
     currentCart = [];
@@ -1232,16 +1338,23 @@ function checkoutCart() {
         if (!ordersByVendor[item.vendor]) ordersByVendor[item.vendor] = [];
         ordersByVendor[item.vendor].push({ name: item.name, price: item.price, quantity: item.quantity });
     });
+    
+    // Check if this is a VVIP order
+    const isVVIP = isVVIPCustomer(currentCustomerAccount);
+    
     for (let vendor in ordersByVendor) {
         let orderId = Date.now() + Math.floor(Math.random()*1000);
         let order = {
             orderId: orderId,
             bandId: currentCustomerAccount.id,
+            bandName: currentCustomerAccount.name || currentCustomerAccount.id,
             vendor: vendor,
             items: ordersByVendor[vendor],
             total: ordersByVendor[vendor].reduce((s,i)=> s + i.price*i.quantity, 0),
             timestamp: new Date().toLocaleTimeString(),
-            status: "pending"
+            status: "pending",
+            isVVIP: isVVIP,  // <-- VVIP FLAG ADDED HERE
+            vvipBadge: isVVIP ? "👑 VVIP PRIORITY" : null
         };
         globalOrders.push(order);
         let storageKey = vendor === "Rands Smart Counter" ? "rands_smart_counter_orders" :
@@ -1251,12 +1364,39 @@ function checkoutCart() {
         localStorage.setItem(storageKey, JSON.stringify(existing));
     }
     saveAll();
-    showVVIPModal("Purchase Complete", `Total: R${total}<br>From Table Tab: R${usedTable}<br>From Personal: R${usedPersonal}`, "🧾");
+    
+    const vipMessage = isVVIP ? "<br><br>👑👑👑 VVIP ORDER - PRIORITY QUEUE 👑👑👑<br>Kitchen staff notified with visual priority!" : "";
+    showVVIPModal("Purchase Complete", `Total: R${total}<br>From Table Tab: R${usedTable}<br>From Personal: R${usedPersonal}${vipMessage}`, isVVIP ? "👑" : "🧾");
+    
+    // Play special sound for VVIP orders
+    if (isVVIP) {
+        playVVIPNotificationSound();
+    }
+    
     clearCustomerCart();
     updateQuickStats();
     if (document.getElementById("dashboardModal").style.display === "flex") renderDashboard();
     if (document.getElementById("activeOrders").classList.contains("active")) renderActiveOrders();
 }
+
+// Special sound for VVIP orders
+function playVVIPNotificationSound() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        // Fancy VVIP sound - rising tone
+        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
+    } catch(e) { console.log("Sound not supported"); }
+}
+
 function showQuickCart() {
     if (currentCart.length === 0) { showVVIPModal("Empty Cart", "No items in cart.", "🛒"); return; }
     let modal = document.getElementById("quickCartModal");
@@ -1316,6 +1456,14 @@ function renderActiveOrders() {
     const saved = localStorage.getItem("globalOrders");
     if (saved) globalOrders = JSON.parse(saved);
     const activeOrders = globalOrders.filter(o => o.status !== "collected");
+    
+    // Sort orders: VVIP first, then by timestamp
+    activeOrders.sort((a, b) => {
+        if (a.isVVIP && !b.isVVIP) return -1;
+        if (!a.isVVIP && b.isVVIP) return 1;
+        return 0;
+    });
+    
     if (activeOrders.length === 0) {
         container.innerHTML = '<div style="text-align:center; padding:40px;">No active orders. Take a new order from POS.</div>';
         return;
@@ -1323,6 +1471,7 @@ function renderActiveOrders() {
     let html = "";
     activeOrders.forEach(order => {
         let statusClass = "", statusText = "", readyClass = "";
+        let vvipClass = order.isVVIP ? "vvip-order" : "";
         let pendingMessage = "PENDING (Sent to kitchen)";
         if (order.vendor === "Rands Smart Counter") pendingMessage = "PENDING (Sent to Smart Counters)";
         else if (order.vendor === "Shisha Lounge") pendingMessage = "PENDING (Sent to Shisha Lounge)";
@@ -1333,12 +1482,17 @@ function renderActiveOrders() {
             case "ready": statusClass = "status-ready"; statusText = "READY FOR COLLECTION"; readyClass = "ready"; break;
         }
         let vendorIcon = order.vendor === "Rands Smart Counter" ? "🍺" : order.vendor === "Shisha Lounge" ? "💨" : "🥩";
-        html += `<div class="active-order-card ${readyClass}">
+        
+        // VVIP badge HTML
+        const vvipBadgeHtml = order.isVVIP ? '<span class="order-vvip-badge">👑 VVIP PRIORITY ORDER - FAST TRACK 👑</span>' : '';
+        
+        html += `<div class="active-order-card ${readyClass} ${vvipClass}">
                     <div class="active-order-header">
-                        <span class="active-order-id">#${order.orderId}</span>
+                        <span class="active-order-id">#${order.orderId} ${order.isVVIP ? '👑' : ''}</span>
                         <span class="active-order-time">${order.timestamp}</span>
                     </div>
-                    <div class="active-order-band">${vendorIcon} <strong>${order.vendor}</strong> | Band: ${order.bandId}</div>
+                    <div class="active-order-band">${vendorIcon} <strong>${order.vendor}</strong> | Band: ${order.bandId} ${order.isVVIP ? '✨ VVIP ✨' : ''}</div>
+                    ${vvipBadgeHtml}
                     <div class="status-badge ${statusClass}">${statusText}</div>
                     <div class="active-order-items">${order.items.map(item => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #333;"><span>${item.quantity}x ${item.name}</span><span>R${item.price * item.quantity}</span></div>`).join('')}</div>
                     <div class="active-order-total" style="text-align:right; font-size:20px; font-weight:bold; color:#00ff9c; margin:15px 0;">Total: R${order.total}</div>
