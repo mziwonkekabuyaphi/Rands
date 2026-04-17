@@ -130,6 +130,71 @@
         padding: 18px;
         border: 2px solid #b30000;
         transition: all 0.2s;
+        position: relative;
+    }
+
+    /* ===== VVIP ORDER STYLES FOR COLLECTION SCREEN ===== */
+    .order-card.vvip-order {
+        border: 3px solid #ffd700;
+        background: linear-gradient(135deg, #2a1f0a 0%, #1a1a1a 100%);
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+        animation: vvipShake 0.6s ease-in-out infinite;
+    }
+    
+    .order-card.vvip-order::before {
+        content: "👑 VVIP PRIORITY PICKUP 👑";
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: linear-gradient(135deg, #ffd700, #ffaa00);
+        color: #1a1a1a;
+        padding: 5px 15px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .order-card.vvip-order .order-id {
+        background: #ffd700;
+        color: #1a1a1a;
+        animation: pulse 1s infinite;
+    }
+    
+    .order-card.vvip-order .customer-name {
+        color: #ffd700;
+        text-shadow: 0 0 2px #b8860b;
+    }
+    
+    .vvip-badge-collection {
+        display: inline-block;
+        background: #ffd700;
+        color: #1a1a1a;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 800;
+        margin-left: 10px;
+        animation: blink 1s infinite;
+    }
+    
+    @keyframes vvipShake {
+        0%, 100% { transform: translateX(0) translateY(0); }
+        10% { transform: translateX(-2px) translateY(-1px); }
+        20% { transform: translateX(2px) translateY(1px); }
+        30% { transform: translateX(-1px) translateY(-1px); }
+        40% { transform: translateX(1px) translateY(1px); }
+        50% { transform: translateX(0) translateY(0); }
+        60% { transform: translateX(-1px) translateY(0); }
+        70% { transform: translateX(1px) translateY(0); }
+        80% { transform: translateX(0) translateY(0); }
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
     }
 
     .order-card.ready {
@@ -451,13 +516,34 @@
         }
     }
 
-    function showNotification(message, isNewOrder = false) {
+    function playVVIPNotificationSound() {
+        if (!soundEnabled) return;
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        } catch(e) {}
+    }
+
+    function showNotification(message, isNewOrder = false, isVVIP = false) {
         const notif = document.getElementById('notification');
         notif.innerText = message;
         notif.classList.add('show');
         
         if (isNewOrder) {
-            playNotificationSound();
+            if (isVVIP) {
+                playVVIPNotificationSound();
+            } else {
+                playNotificationSound();
+            }
         }
         
         setTimeout(() => {
@@ -484,6 +570,7 @@
         const orderIndex = orders.findIndex(o => o.orderId === orderId);
         
         if (orderIndex !== -1 && orders[orderIndex].status === 'ready') {
+            const wasVVIP = orders[orderIndex].isVVIP === true;
             orders[orderIndex].status = 'collected';
             orders[orderIndex].collectedAt = new Date().toISOString();
             saveGlobalOrders(orders);
@@ -522,17 +609,20 @@
         // Only show READY orders (not pending, not preparing, not collected)
         let readyOrders = orders.filter(o => o.status === 'ready');
         
-        // Apply vendor filter
-        if (currentVendorFilter !== 'all') {
-            readyOrders = readyOrders.filter(o => o.vendor === currentVendorFilter);
-        }
-        
-        // Sort by timestamp (oldest first - first ready, first served)
+        // Sort VVIP orders to the TOP of collection queue
         readyOrders.sort((a, b) => {
+            if (a.isVVIP && !b.isVVIP) return -1;
+            if (!a.isVVIP && b.isVVIP) return 1;
+            // Same priority, oldest ready first
             const timeA = a.readyAt || a.timestamp;
             const timeB = b.readyAt || b.timestamp;
             return (timeA || '').localeCompare(timeB || '');
         });
+        
+        // Apply vendor filter
+        if (currentVendorFilter !== 'all') {
+            readyOrders = readyOrders.filter(o => o.vendor === currentVendorFilter);
+        }
         
         // Update ready orders count
         const readyCount = readyOrders.length;
@@ -541,7 +631,10 @@
         // Check for new ready orders (sound alert)
         if (readyCount > lastReadyCount && lastReadyCount !== 0) {
             const newReadyCount = readyCount - lastReadyCount;
-            showNotification(`🔔 ${newReadyCount} new order(s) ready for collection!`, true);
+            // Check if any new order is VVIP
+            const newOrders = readyOrders.slice(0, newReadyCount);
+            const hasVVIP = newOrders.some(o => o.isVVIP === true);
+            showNotification(`🔔 ${newReadyCount} new order(s) ready for collection!`, true, hasVVIP);
         }
         lastReadyCount = readyCount;
         
@@ -559,6 +652,9 @@
         container.innerHTML = readyOrders.map(order => {
             const vendorIcon = order.vendor === "Rands Smart Counter" ? "🍺" : "🥩";
             const vendorClass = order.vendor === "Rands Smart Counter" ? "vendor-smart" : "vendor-butcher";
+            const isVVIP = order.isVVIP === true;
+            const vvipClass = isVVIP ? "vvip-order" : "";
+            const vvipBadgeHtml = isVVIP ? '<span class="vvip-badge-collection">👑 VVIP PRIORITY PICKUP</span>' : '';
             
             // Calculate how long ago it became ready
             let readyTimeText = '';
@@ -578,9 +674,9 @@
             }
             
             return `
-                <div class="order-card ready">
+                <div class="order-card ready ${vvipClass}">
                     <div class="order-header">
-                        <span class="order-id">#${order.orderId}</span>
+                        <span class="order-id">#${order.orderId} ${isVVIP ? '👑' : ''}</span>
                         <span class="order-vendor ${vendorClass}">${vendorIcon} ${order.vendor}</span>
                         <span class="status-badge status-ready">✅ READY</span>
                     </div>
@@ -588,6 +684,7 @@
                     <div class="customer-info">
                         <div class="customer-name">
                             <i class="fas fa-user-circle"></i> ${escapeHtml(order.bandName || order.bandId)}
+                            ${vvipBadgeHtml}
                         </div>
                         <div class="customer-phone">
                             <i class="fas fa-phone"></i> ${escapeHtml(order.bandId)}
