@@ -302,7 +302,7 @@
         <button class="tab-btn" onclick="switchTab('activity')"><i class="fas fa-history"></i> Activity Log</button>
     </div>
 
-    <!-- Wallet Tab (unchanged, fully preserved) -->
+    <!-- Wallet Tab -->
     <div id="walletTab">
         <div class="stats-grid" id="walletStatsGrid">
             <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><div class="stat-value" id="totalAccounts">0</div><div class="stat-label">Total Accounts</div></div></div>
@@ -321,7 +321,7 @@
         <div class="dashboard-card"><div class="card-header"><h3><i class="fas fa-undo-alt"></i> Refund Requests</h3><button class="action-btn info" onclick="refreshRefunds()" style="padding:6px 12px;"><i class="fas fa-sync-alt"></i> Refresh</button></div><div class="card-body"><div class="refund-list" id="refundRequestsList"></div></div></div></div>
     </div>
 
-    <!-- TICKETS TAB: FULL EVENT CARD SECTION (BANNER ALWAYS ./images/rands-logo1.png) -->
+    <!-- TICKETS TAB -->
     <div id="ticketsTab" style="display:none;">
         <div class="stats-grid" id="ticketStatsGrid">
             <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-info"><div class="stat-value" id="totalTickets">0</div><div class="stat-label">Tickets Sold</div></div></div>
@@ -330,10 +330,7 @@
             <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-info"><div class="stat-value" id="totalRevenue">R0</div><div class="stat-label">Revenue</div></div></div>
         </div>
         
-        <!-- FULL VISIBLE EVENT CARD with fixed Rands Logo Banner -->
-        <div class="full-event-card-section" id="fullEventCardContainer">
-            <!-- Dynamic event card will be rendered here, but banner always shows ./images/rands-logo1.png -->
-        </div>
+        <div class="full-event-card-section" id="fullEventCardContainer"></div>
         
         <div class="main-grid">
             <div class="dashboard-card">
@@ -362,7 +359,7 @@
     <div class="dashboard-footer"><p>Rands Wallet Admin • Mobile Complete Control</p></div>
 </div>
 
-<!-- MODALS (unchanged) -->
+<!-- MODALS -->
 <div class="modal" id="topUpModal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-plus-circle"></i> Top Up Wallet</h3></div><div class="modal-body"><div style="margin-bottom:15px;"><label style="font-size:0.75rem;">Account: <span id="modalAccountId" style="color:#E30613;">-</span></label></div><div class="topup-input-group"><input type="number" id="modalTopupAmount" placeholder="Enter amount" class="topup-input"></div><div class="preset-amounts"><button class="preset-btn" onclick="setModalAmount(50)">R50</button><button class="preset-btn" onclick="setModalAmount(100)">R100</button><button class="preset-btn" onclick="setModalAmount(200)">R200</button><button class="preset-btn" onclick="setModalAmount(500)">R500</button><button class="preset-btn" onclick="setModalAmount(1000)">R1000</button></div></div><div class="modal-footer"><button class="modal-btn confirm" onclick="confirmTopUp()">Confirm</button><button class="modal-btn cancel" onclick="closeModal()">Cancel</button></div></div></div>
 <div class="modal" id="addEventModal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-calendar-plus"></i> Add Event</h3></div><div class="modal-body"><input type="text" id="newEventName" placeholder="Event Name" class="topup-input" style="margin-bottom:10px;"><input type="date" id="newEventDate" class="topup-input" style="margin-bottom:10px;"><input type="text" id="newEventLocation" placeholder="Location" class="topup-input" style="margin-bottom:10px;"><div style="margin:12px 0 8px;"><label style="color:#E30613; font-size:0.7rem;">Ticket Types (Price/Capacity)</label></div><input type="number" id="newEarlyBirdPrice" placeholder="Early Bird Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newEarlyBirdCapacity" placeholder="Early Bird Capacity" class="topup-input" style="margin-bottom:10px;"><input type="number" id="newGeneralPrice" placeholder="General Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newGeneralCapacity" placeholder="General Capacity" class="topup-input" style="margin-bottom:10px;"><input type="number" id="newVipPrice" placeholder="VIP Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newVipCapacity" placeholder="VIP Capacity" class="topup-input"></div><div class="modal-footer"><button class="modal-btn confirm" onclick="confirmAddEvent()">Create</button><button class="modal-btn cancel" onclick="closeAddEventModal()">Cancel</button></div></div></div>
 <div class="modal" id="editTicketModal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-edit"></i> Edit Tickets</h3><p id="editEventNameDisplay" style="font-size:0.7rem;"></p></div><div class="modal-body"><div style="margin-bottom:12px;"><label style="color:#E30613; font-size:0.7rem;">Early Bird</label><div style="display:flex; gap:8px; margin-top:5px;"><input type="number" id="editEarlyBirdPrice" placeholder="Price" class="topup-input"><input type="number" id="editEarlyBirdCapacity" placeholder="Capacity" class="topup-input"></div></div><div style="margin-bottom:12px;"><label style="color:#E30613; font-size:0.7rem;">General</label><div style="display:flex; gap:8px; margin-top:5px;"><input type="number" id="editGeneralPrice" placeholder="Price" class="topup-input"><input type="number" id="editGeneralCapacity" placeholder="Capacity" class="topup-input"></div></div><div style="margin-bottom:12px;"><label style="color:#E30613; font-size:0.7rem;">VIP</label><div style="display:flex; gap:8px; margin-top:5px;"><input type="number" id="editVipPrice" placeholder="Price" class="topup-input"><input type="number" id="editVipCapacity" placeholder="Capacity" class="topup-input"></div></div></div><div class="modal-footer"><button class="modal-btn confirm" onclick="confirmEditTickets()">Save</button><button class="modal-btn cancel" onclick="closeEditTicketModal()">Cancel</button></div></div></div>
@@ -393,7 +390,47 @@
     function updateWalletStats() { document.getElementById('totalAccounts').innerText = accounts.length; let totalBalance = accounts.reduce((s,a) => s + a.balance, 0); let blockedCount = accounts.filter(a => a.status === 'Blocked').length; document.getElementById('totalBalance').innerText = 'R' + totalBalance.toFixed(2); document.getElementById('blockedAccounts').innerText = blockedCount; let totalTx = Object.values(transactionsMap).reduce((s,t) => s + t.length, 0); document.getElementById('totalTransactions').innerText = totalTx; }
     function updateRefundStats() { const pending = refundRequests.filter(r => r.status === 'pending').length; const approved = refundRequests.filter(r => r.status === 'approved').length; const rejected = refundRequests.filter(r => r.status === 'rejected').length; const totalAmount = refundRequests.filter(r => r.status === 'approved').reduce((s, r) => s + (r.amount || 0), 0); document.getElementById('pendingRefunds').innerText = pending; document.getElementById('approvedRefunds').innerText = approved; document.getElementById('rejectedRefunds').innerText = rejected; document.getElementById('totalRefundAmount').innerText = 'R' + totalAmount.toFixed(2); }
     function renderRefundRequests() { const container = document.getElementById('refundRequestsList'); if (refundRequests.length === 0) { container.innerHTML = '<div class="empty-state"><span>📭</span><p>No refund requests</p></div>'; return; } container.innerHTML = refundRequests.map(req => `<div class="refund-item"><div class="refund-info"><div class="refund-id">#${req.id}</div><div class="refund-details">${escapeHtml(req.userPhone || req.userId)} • ${req.reason || 'No reason'}</div></div><div><div class="refund-amount">R${(req.amount || 0).toFixed(2)}</div><div class="refund-status ${req.status === 'pending' ? 'status-pending' : req.status === 'approved' ? 'status-approved' : 'status-rejected'}">${req.status?.toUpperCase() || 'PENDING'}</div>${req.status === 'pending' ? `<div style="display:flex; gap:5px; margin-top:8px;"><button class="action-btn success" style="padding:4px 10px; font-size:0.6rem;" onclick="approveRefund(${req.id})">Approve</button><button class="action-btn danger" style="padding:4px 10px; font-size:0.6rem;" onclick="rejectRefund(${req.id})">Reject</button></div>` : ''}</div></div>`).join(''); }
-    function approveRefund(refundId) { const refund = refundRequests.find(r => r.id === refundId); if (!refund) return; refund.status = 'approved'; refund.processedAt = new Date().toISOString(); saveRefunds(); logStaffActivity('APPROVE_REFUND', `Approved refund #${refundId}`, refund.userId); showToast(`Refund #${refundId} approved`, 'success'); updateRefundStats(); renderRefundRequests(); }
+    
+    // ========== FIXED approveRefund FUNCTION - NOW ADDS MONEY BACK TO CUSTOMER BALANCE ==========
+    function approveRefund(refundId) {
+        const refund = refundRequests.find(r => r.id === refundId);
+        if (!refund) return;
+        
+        // Find the customer account using userId or userPhone
+        let customerAccount = accounts.find(a => a.id === refund.userId);
+        if (!customerAccount && refund.userPhone) {
+            customerAccount = accounts.find(a => a.id === refund.userPhone);
+        }
+        
+        if (customerAccount) {
+            // ADD THE REFUND AMOUNT BACK TO CUSTOMER'S BALANCE
+            customerAccount.balance += refund.amount;
+            saveAccounts();
+            
+            // Add transaction record for the refund
+            addTransaction(customerAccount.id, `Refund approved: +R${refund.amount.toFixed(2)} (Refund #${refundId})`, refund.amount);
+            
+            showToast(`Refund #${refundId} approved! R${refund.amount.toFixed(2)} added to ${customerAccount.id}'s balance`, 'success');
+            
+            // Update the selected account display if it's the same customer
+            if (selectedAccountId === customerAccount.id) {
+                document.getElementById('selBalance').innerText = 'R' + customerAccount.balance.toFixed(2);
+                renderAccountTransactions();
+            }
+            renderAccountList();
+        } else {
+            showToast(`Warning: Could not find customer account for refund #${refundId}`, 'error');
+        }
+        
+        refund.status = 'approved';
+        refund.processedAt = new Date().toISOString();
+        saveRefunds();
+        logStaffActivity('APPROVE_REFUND', `Approved refund #${refundId} for R${(refund.amount || 0).toFixed(2)} to ${refund.userPhone || refund.userId}`, refund.userId);
+        
+        updateRefundStats();
+        renderRefundRequests();
+    }
+    
     function rejectRefund(refundId) { const refund = refundRequests.find(r => r.id === refundId); if (!refund) return; refund.status = 'rejected'; saveRefunds(); logStaffActivity('REJECT_REFUND', `Rejected refund #${refundId}`, refund.userId); showToast(`Refund #${refundId} rejected`, 'warning'); updateRefundStats(); renderRefundRequests(); }
     function refreshRefunds() { loadRefunds(); updateRefundStats(); renderRefundRequests(); showToast('Refunds refreshed', 'success'); }
     function updateActivityStats() { document.getElementById('totalActions').innerText = staffActivity.length; const today = new Date().toISOString().slice(0,10); const todayActions = staffActivity.filter(a => a.date === today).length; document.getElementById('todayActions').innerText = todayActions; document.getElementById('adminActions').innerText = staffActivity.length; }
@@ -409,7 +446,7 @@
     function confirmTopUp() { const amount = parseFloat(document.getElementById('modalTopupAmount').value); if (isNaN(amount) || amount <= 0) { showToast('Enter valid amount', 'error'); return; } const acc = accounts.find(a => a.id === selectedAccountId); acc.balance += amount; saveAccounts(); addTransaction(selectedAccountId, `Admin Top Up: +R${amount.toFixed(2)}`, amount); logStaffActivity('TOP_UP', `Topped up ${selectedAccountId} with R${amount.toFixed(2)}`, selectedAccountId); updateWalletStats(); renderAccountList(); document.getElementById('selBalance').innerText = 'R' + acc.balance.toFixed(2); renderAccountTransactions(); showToast(`R${amount.toFixed(2)} added`, 'success'); closeModal(); }
     function updateTicketStats() { const tickets = loadTickets(); document.getElementById('totalTickets').innerText = tickets.length; document.getElementById('totalEvents').innerText = events.filter(e => e.status === 'active').length; const uniqueHolders = new Set(tickets.map(t => t.ticketId?.split('_')[0])).size; document.getElementById('totalTicketHolders').innerText = uniqueHolders; let revenue = 0; for (let event of events) { for (let type in event.ticketTypes) { revenue += (event.ticketTypes[type].sold || 0) * (event.ticketTypes[type].price || 0); } } document.getElementById('totalRevenue').innerText = 'R' + revenue.toLocaleString(); }
     
-    // *** FULL STANDALONE EVENT CARD RENDER WITH FIXED BANNER (./images/rands-logo1.png) ***
+    // *** FULL STANDALONE EVENT CARD RENDER ***
     function renderFullEventCard() {
         const container = document.getElementById('fullEventCardContainer');
         if (!events.length) { container.innerHTML = '<div class="empty-state" style="background:white; border-radius:28px; padding:30px;"><i class="fas fa-calendar-times" style="font-size:48px; color:#E30613;"></i><p style="margin-top:12px;">No events yet. Click "Add Event"</p></div>'; return; }
@@ -419,11 +456,9 @@
         const totalCap = (event.ticketTypes.earlyBird.capacity || 0) + (event.ticketTypes.general.capacity || 0) + (event.ticketTypes.vip.capacity || 0);
         const percent = totalCap ? Math.round((totalSold / totalCap) * 100) : 0;
         const statusClass = event.status === 'active' ? 'active' : (event.status === 'upcoming' ? 'upcoming' : 'ended');
-        // Banner is FIXED to ./images/rands-logo1.png (no dynamic image)
         container.innerHTML = `
             <div class="event-card-full">
                 <div class="event-banner-full">
-                    <!-- Banner background image is fixed via CSS: ./images/rands-logo1.png -->
                     <span class="event-status-badge-full ${statusClass}">${event.status === 'active' ? '🔥 LIVE' : event.status.toUpperCase()}</span>
                 </div>
                 <div class="event-content-full">
