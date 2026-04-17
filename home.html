@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* ========== YOUR EXISTING STYLES (unchanged) ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; padding-bottom: 80px; }
         .wallet-container { max-width: 480px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 48px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); overflow: hidden; position: relative; min-height: 700px; display: flex; flex-direction: column; }
@@ -24,10 +23,9 @@
         .logo-text-below h2 { font-size: 1rem; font-weight: 700; color: white; letter-spacing: -0.3px; line-height: 1.2; }
         .logo-text-below p { font-size: 0.55rem; color: rgba(255,255,255,0.8); line-height: 1.2; }
         .header-icons { display: flex; align-items: center; gap: 12px; }
-        .icon-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); width: 44px; height: 44px; border-radius: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: 0.2s; border: 1px solid rgba(255,255,255,0.2); }
+        .icon-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); width: 44px; height: 44px; border-radius: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.2); }
         .icon-btn:active { transform: scale(0.94); }
         .icon-btn i { font-size: 1.2rem; color: white; }
-        .notification-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: #ffd700; border-radius: 50%; }
         .welcome-section { margin-bottom: 24px; position: relative; z-index: 2; }
         .greeting { font-size: 0.85rem; font-weight: 900; color: rgba(255,255,255,1); letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .user-name { font-size: 1.3rem; font-weight: 500; color: white; margin-top: 4px; text-transform: lowercase; }
@@ -74,172 +72,65 @@
         .vibe-action-btn { background: rgba(227,6,19,0.9); border: none; width: 100%; padding: 12px; border-radius: 60px; font-weight: 700; font-size: 0.8rem; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.2s; margin-top: 8px; }
         .vibe-action-btn:active { transform: scale(0.96); background: #E30613; }
         .checkin-count { font-size: 1.6rem; font-weight: 800; color: white; line-height: 1; }
-        .counter-modal { background: white; width: 100%; max-width: 480px; border-radius: 40px; padding: 28px 24px 32px; transform: translateY(0); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .counter-options { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
-        .counter-option { background: #f8fafd; border: 2px solid #eef2f8; border-radius: 28px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s ease; }
-        .counter-option:active { transform: scale(0.98); background: #fff0f0; border-color: #E30613; }
-        .counter-icon { width: 60px; height: 60px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 30px; display: flex; align-items: center; justify-content: center; }
-        .counter-icon i { font-size: 1.8rem; color: white; }
-        .counter-info h4 { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
-        .counter-info p { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
-        .refund-modal { background: white; width: 100%; max-width: 480px; max-height: 85vh; border-radius: 40px; padding: 28px 24px 32px; transform: translateY(0); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .payment-modal { background: white; width: 100%; max-width: 480px; max-height: 85vh; border-radius: 40px; padding: 28px 24px 32px; transform: translateY(0); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .transaction-modal { background: white; width: 100%; max-width: 400px; border-radius: 40px; padding: 28px 24px 32px; transform: translateY(0); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .counter-modal, .refund-modal, .payment-modal, .transaction-modal, .booze-modal { background: white; width: 100%; max-width: 480px; border-radius: 40px; padding: 28px 24px 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow-y: auto; max-height: 85vh; }
+        .counter-options, .booze-options { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
+        .counter-option, .booze-option { background: #f8fafd; border: 2px solid #eef2f8; border-radius: 28px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s ease; }
+        .counter-option:active, .booze-option:active { transform: scale(0.98); background: #fff0f0; border-color: #E30613; }
+        .counter-icon, .booze-icon { width: 60px; height: 60px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 30px; display: flex; align-items: center; justify-content: center; }
+        .counter-icon i, .booze-icon i { font-size: 1.8rem; color: white; }
+        .counter-info h4, .booze-info h4 { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+        .counter-info p, .booze-info p { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
         .transaction-amount-input { width: 100%; padding: 16px; border: 2px solid #eef2f8; border-radius: 60px; font-size: 1.2rem; text-align: center; font-weight: 700; margin: 20px 0; }
         .transaction-amount-input:focus { outline: none; border-color: #E30613; }
-        .booze-modal { background: white; width: 100%; max-width: 400px; border-radius: 40px; padding: 28px 24px 32px; transform: translateY(0); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .booze-options { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
-        .booze-option { background: #f8fafd; border: 2px solid #eef2f8; border-radius: 28px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s ease; }
-        .booze-option:active { transform: scale(0.98); background: #fff0f0; border-color: #E30613; }
-        .booze-icon { width: 60px; height: 60px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 30px; display: flex; align-items: center; justify-content: center; }
-        .booze-icon i { font-size: 1.8rem; color: white; }
-        .booze-info h4 { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
-        .booze-info p { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
-        .shisha-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 10001; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-        .shisha-modal-overlay.active { opacity: 1; visibility: visible; }
-        .shisha-modal-content { background: #ffffff; border-radius: 48px; max-width: 480px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 20px; position: relative; box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3); border: 2px solid #E30613; }
-        .shisha-modal-content::-webkit-scrollbar { width: 4px; }
-        .shisha-modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .shisha-modal-content::-webkit-scrollbar-thumb { background: #E30613; border-radius: 10px; }
-        .close-shisha-modal { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.1); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; z-index: 10; }
-        .close-shisha-modal:hover { background: #E30613; color: white; }
-        .shisha-card { background: white; border-radius: 24px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid #eee; }
-        .shisha-card h3 { font-size: 18px; margin-bottom: 12px; color: #d32f2f; }
-        .shisha-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .shisha-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .shisha-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .shisha-modal-overlay, .vvip-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 10001; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .shisha-modal-overlay.active, .vvip-modal-overlay.active { opacity: 1; visibility: visible; }
+        .shisha-modal-content, .vvip-modal-content { background: #ffffff; border-radius: 48px; max-width: 480px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 20px; position: relative; box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3); border: 2px solid #E30613; }
+        .close-shisha-modal, .close-vvip-modal { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.1); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; z-index: 10; }
+        .close-shisha-modal:hover, .close-vvip-modal:hover { background: #E30613; color: white; }
+        .shisha-card { background: white; border-radius: 24px; padding: 16px; margin-bottom: 20px; border: 1px solid #eee; }
+        .shisha-grid-2, .shisha-grid-4 { display: grid; gap: 10px; }
+        .shisha-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .shisha-grid-4 { grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .shisha-btn-icon { background: #fff; border: 1px solid #ffe0e0; border-radius: 20px; padding: 10px 6px; text-align: center; font-size: 11px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .shisha-btn-icon i { display: block; font-size: 18px; color: #d32f2f; margin-bottom: 4px; }
-        .shisha-btn-icon:active { transform: scale(0.97); }
-        .shisha-order-btn { background: linear-gradient(135deg, #d32f2f, #ff4444); color: white; text-align: center; padding: 14px; border-radius: 50px; font-weight: bold; margin-top: 12px; cursor: pointer; transition: 0.2s; font-size: 16px; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(211,47,47,0.3); }
-        .shisha-order-btn:active { transform: scale(0.98); }
-        .shisha-timer { font-size: 32px; font-weight: 800; font-family: monospace; text-align: center; margin: 10px 0; letter-spacing: 3px; }
-        .shisha-timer.positive { color: #d32f2f; }
-        .shisha-timer.negative { color: #ff8888; animation: pulseRed 0.8s infinite; }
-        @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .shisha-coal-container { background: #2c2c2c; border-radius: 40px; padding: 10px 14px; margin: 12px 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.1); }
-        .shisha-coal-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: bold; color: #ffaa66; }
-        .shisha-coal-bar-bg { background: #3a3a3a; border-radius: 30px; height: 16px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
-        .shisha-coal-bar-fill { width: 100%; height: 100%; border-radius: 30px; transition: width 0.3s ease; background: linear-gradient(90deg, #ff6b35, #ff4500); box-shadow: 0 0 8px rgba(255,69,0,0.5); position: relative; }
-        .shisha-coal-bar-fill::after { content: "🔥"; position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 11px; opacity: 0.8; }
-        .shisha-status-paused { background: #ffa50020; border-left: 3px solid #ffa500; padding: 8px; border-radius: 12px; margin-top: 8px; font-size: 12px; }
-        .shisha-expired-warning { background: #ffebee; border-left: 3px solid #d32f2f; padding: 8px; border-radius: 12px; margin-top: 8px; color: #b71c1c; font-weight: bold; font-size: 12px; }
-        .shisha-small-text { font-size: 11px; color: #666; text-align: center; margin-top: 6px; }
-        .shisha-flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .shisha-select, .shisha-input { width: 100%; padding: 10px; border-radius: 30px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 13px; }
-        .shisha-pin-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 20000; backdrop-filter: blur(4px); }
-        .shisha-pin-modal.active { display: flex; }
-        .shisha-pin-modal-card { background: white; width: 90%; max-width: 380px; border-radius: 32px; padding: 28px 24px; animation: modalSlideUp 0.3s ease; box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2); }
-        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        .shisha-pin-modal-card h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .shisha-pin-modal-card h3 i { color: #E30613; }
-        .shisha-pin-input-group { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
-        .shisha-pin-digit { width: 50px; height: 50px; text-align: center; font-size: 1.5rem; font-weight: 700; border: 2px solid #e2e8f0; border-radius: 16px; background: #f8fafd; font-family: monospace; transition: 0.2s; }
-        .shisha-pin-digit:focus { border-color: #E30613; outline: none; box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1); }
-        .shisha-pin-modal-btns { display: flex; gap: 12px; margin-top: 20px; }
-        .shisha-pin-modal-btn { flex: 1; padding: 12px; border-radius: 60px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: none; transition: transform 0.1s, background 0.2s; }
-        .shisha-pin-modal-btn:active { transform: scale(0.97); }
-        .shisha-btn-cancel { background: #f1f5f9; color: #475569; }
-        .shisha-btn-confirm { background: #E30613; color: white; }
+        .shisha-order-btn { background: linear-gradient(135deg, #d32f2f, #ff4444); color: white; text-align: center; padding: 14px; border-radius: 50px; font-weight: bold; margin-top: 12px; cursor: pointer; }
         .alert-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: all 0.3s ease; }
         .alert-modal-overlay.active { visibility: visible; opacity: 1; }
-        .alert-modal { background: white; width: 90%; max-width: 380px; max-height: 70vh; border-radius: 40px; overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1); box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; }
+        .alert-modal { background: white; width: 90%; max-width: 380px; max-height: 70vh; border-radius: 40px; overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1); display: flex; flex-direction: column; }
         .alert-modal-overlay.active .alert-modal { transform: scale(1); }
         .alert-modal-header { background: linear-gradient(135deg, #E30613, #b0020e); padding: 20px 24px; text-align: center; }
         .alert-modal-header i { font-size: 2.5rem; color: white; margin-bottom: 8px; }
         .alert-modal-header h3 { color: white; font-size: 1.3rem; font-weight: 700; }
-        .alert-modal-body { padding: 24px; overflow-y: auto; flex: 1; max-height: 50vh; color: #1e293b; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+        .alert-modal-body { padding: 24px; overflow-y: auto; flex: 1; max-height: 50vh; color: #1e293b; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
         .alert-modal-footer { padding: 16px 24px 24px; border-top: 1px solid #eef2f8; }
-        .alert-modal-btn { width: 100%; padding: 14px; background: linear-gradient(95deg, #E30613, #b0020e); color: white; border: none; border-radius: 60px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
-        .alert-modal-btn:active { transform: scale(0.97); }
+        .alert-modal-btn { width: 100%; padding: 14px; background: linear-gradient(95deg, #E30613, #b0020e); color: white; border: none; border-radius: 60px; font-weight: 700; cursor: pointer; }
         .form-group { margin-bottom: 20px; }
         .form-group label { font-size: 0.8rem; font-weight: 600; color: #1e293b; margin-bottom: 8px; display: block; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; border: 2px solid #eef2f8; border-radius: 28px; font-size: 0.9rem; background: #f8fafd; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #E30613; background: white; }
-        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; border: 2px solid #eef2f8; border-radius: 28px; font-size: 0.9rem; background: #f8fafd; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #E30613; }
         .refund-note { background: #fff5f5; border-radius: 20px; padding: 12px; margin-bottom: 20px; font-size: 0.7rem; color: #64748b; display: flex; gap: 10px; align-items: center; border: 1px solid #ffcccc; }
-        .refund-note i { color: #E30613; font-size: 1rem; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: all 0.3s ease; }
         .modal-overlay.active { visibility: visible; opacity: 1; }
         .modal-header { text-align: center; margin-bottom: 24px; }
         .modal-icon { width: 70px; height: 70px; background: #fff0f0; border-radius: 35px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
         .modal-icon i { font-size: 2rem; color: #E30613; }
-        .modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #1e293b; }
         .payment-details { background: #f8fafd; border-radius: 28px; padding: 20px; margin-bottom: 24px; }
         .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eef2f8; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-size: 0.8rem; color: #64748b; }
-        .detail-value { font-weight: 700; color: #1e293b; }
         .pin-prompt { background: #f1f5f9; border-radius: 60px; padding: 12px 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-        .pin-prompt i { color: #E30613; font-size: 1.1rem; }
         .pin-input { flex: 1; border: none; background: transparent; font-size: 0.9rem; font-family: 'Inter', monospace; letter-spacing: 4px; text-align: center; }
         .pin-input:focus { outline: none; }
         .modal-buttons { display: flex; gap: 16px; }
-        .modal-btn { flex: 1; padding: 16px; border-radius: 60px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; transition: 0.1s; }
+        .modal-btn { flex: 1; padding: 16px; border-radius: 60px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; }
         .btn-approve { background: #10b981; color: white; }
         .btn-decline { background: #f1f5f9; color: #E30613; }
         .btn-refund { background: #E30613; color: white; }
         .btn-primary { background: linear-gradient(95deg, #E30613, #b0020e); color: white; }
         .toast-message { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #1e293b; color: white; padding: 12px 20px; border-radius: 60px; text-align: center; z-index: 1100; font-size: 0.8rem; font-weight: 500; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; pointer-events: none; }
         .toast-message.show { transform: translateY(0); opacity: 1; }
-        #bottomNav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; }
-        .vvip-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-        .vvip-modal-overlay.active { opacity: 1; visibility: visible; }
-        .vvip-modal-content { background: #ffffff; border-radius: 48px; max-width: 480px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 24px; position: relative; box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3); border: 2px solid #E30613; }
-        .vvip-modal-content::-webkit-scrollbar { width: 4px; }
-        .vvip-modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .vvip-modal-content::-webkit-scrollbar-thumb { background: #E30613; border-radius: 10px; }
-        .close-vvip-modal { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.1); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; z-index: 10; }
-        .close-vvip-modal:hover { background: #E30613; color: white; }
-        .sovereign-title { text-align: center; margin-bottom: 20px; position: relative; }
-        .crown-icon { font-size: 52px; background: linear-gradient(135deg, #FFD700, #FFA500, #E30613); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; filter: drop-shadow(0 0 8px rgba(227,6,19,0.3)); animation: crownPulse 2s infinite; }
-        @keyframes crownPulse { 0% { transform: scale(1); text-shadow: 0 0 0 rgba(227,6,19,0); } 50% { transform: scale(1.05); text-shadow: 0 0 15px rgba(227,6,19,0.4); } 100% { transform: scale(1); text-shadow: 0 0 0 rgba(227,6,19,0); } }
-        .main-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 800; background: linear-gradient(115deg, #FFD700, #FFA07A, #E30613, #FFD700); background-size: 300% 300%; -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: -0.5px; margin-top: 8px; animation: shimmerText 4s ease infinite; }
-        @keyframes shimmerText { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .subhead { font-size: 0.75rem; color: #B8860B; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; margin-top: 4px; }
-        .gold-divider { width: 60px; height: 3px; background: linear-gradient(90deg, #E30613, #FFD700, #E30613); margin: 12px auto 0; border-radius: 3px; }
-        .cashless-note { background: rgba(227, 6, 19, 0.08); border-radius: 60px; padding: 10px 18px; margin: 8px 0 24px 0; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 0.75rem; color: #B8860B; border: 1px solid rgba(227, 6, 19, 0.3); font-weight: 600; text-align: center; }
-        .cashless-note i { font-size: 1.1rem; color: #FFD700; }
-        .vvip-band-card { background: linear-gradient(145deg, #f8f9fa, #ffffff); border-radius: 40px; padding: 28px 20px; margin: 8px 0 20px; border: 2px solid; border-image: linear-gradient(135deg, #E30613, #FFD700, #E30613) 1; box-shadow: 0 25px 40px -12px rgba(227, 6, 19, 0.2), 0 0 0 1px rgba(255, 215, 0, 0.2) inset; text-align: center; transition: all 0.3s ease; }
-        .band-icon { font-size: 54px; background: linear-gradient(135deg, #FFD700, #E30613); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 8px; }
-        .vvip-band-card h3 { color: #1a1a2e; margin-bottom: 6px; font-size: 1.5rem; font-weight: 700; font-family: 'Playfair Display', serif; }
-        .tagline { color: #666; font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 16px; border-top: 1px dashed rgba(227, 6, 19, 0.3); display: inline-block; padding-top: 8px; }
-        .vvip-band-number { font-family: 'Courier New', monospace; font-size: 1rem; font-weight: 800; color: #E30613; letter-spacing: 2px; background: #f0f0f0; padding: 8px 18px; border-radius: 60px; display: inline-block; margin: 12px 0; word-break: break-all; border: 1px solid #E30613; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .vvip-band-qr { background: white; padding: 12px; border-radius: 32px; display: inline-block; margin: 16px 0; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }
-        .vvip-band-qr:hover { transform: scale(1.02); }
-        .print-band-btn { background: linear-gradient(95deg, #E30613, #b0020e); color: white; border: none; padding: 14px 20px; border-radius: 60px; font-weight: 800; font-size: 0.9rem; cursor: pointer; margin-top: 16px; width: 100%; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 5px 12px rgba(227,6,19,0.3); }
-        .print-band-btn:active { transform: scale(0.97); background: #9a0010; }
-        .print-band-btn.secondary { background: #f0f0f0; border: 1px solid #E30613; color: #E30613; box-shadow: none; }
-        .vvip-band-info { background: rgba(0,0,0,0.04); border-radius: 28px; padding: 16px; margin: 20px 0 12px; font-size: 0.8rem; color: #444; text-align: left; border: 1px solid rgba(227, 6, 19, 0.15); }
-        .vvip-band-info div { margin: 10px 0; display: flex; align-items: center; gap: 12px; }
-        .vvip-band-info i { width: 24px; color: #E30613; font-size: 1rem; }
-        .vvip-band-info strong { color: #1a1a2e; font-weight: 700; }
-        .feature-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(227,6,19,0.08); padding: 6px 14px; border-radius: 40px; font-size: 0.7rem; color: #E30613; margin: 4px; font-weight: 600; border: 0.5px solid rgba(227,6,19,0.3); }
-        .instruction-text { font-size: 0.65rem; color: #888; margin-top: 18px; text-align: center; letter-spacing: 0.5px; }
-        .auth-options-row { display: flex; gap: 12px; margin: 20px 0 16px; justify-content: center; }
-        .auth-option { flex: 1; background: #f8fafd; border: 1px solid #e2e8f0; border-radius: 24px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s ease; }
-        .auth-option:active { transform: scale(0.96); background: #fff0f0; border-color: #E30613; }
-        .auth-option i { font-size: 1.5rem; color: #E30613; margin-bottom: 6px; display: block; }
-        .auth-option span { font-size: 0.7rem; font-weight: 600; color: #1e293b; display: block; }
-        .auth-option small { font-size: 0.6rem; color: #94a3b8; display: block; margin-top: 4px; }
-        .divider-text { text-align: center; font-size: 0.7rem; color: #94a3b8; margin: 12px 0; position: relative; }
-        .divider-text::before, .divider-text::after { content: ""; position: absolute; top: 50%; width: 30%; height: 1px; background: #e2e8f0; }
-        .divider-text::before { left: 0; }
-        .divider-text::after { right: 0; }
-        @media (max-width: 480px) { 
-            .wallet-container { border-radius: 32px; } 
-            .balance-amount { font-size: 1.8rem; } 
-            .stunning-header { padding: 20px 20px 32px 20px; } 
-            .counter-option, .refund-modal, .payment-modal, .booze-option { padding: 20px; } 
-            .counter-icon, .booze-icon { width: 50px; height: 50px; } 
-            .counter-icon i, .booze-icon i { font-size: 1.5rem; } 
-            .refund-modal, .payment-modal { max-height: 80vh; } 
-            .main-title { font-size: 1.5rem; } 
-            .shisha-grid-4 { grid-template-columns: repeat(2, 1fr); }
-            .logo-image { height: 45px; }
-            .logo-text-below h2 { font-size: 0.85rem; }
-            .logo-text-below p { font-size: 0.5rem; }
-        }
+        .vvip-band-card { background: linear-gradient(145deg, #f8f9fa, #ffffff); border-radius: 40px; padding: 28px 20px; margin: 8px 0 20px; border: 2px solid; border-image: linear-gradient(135deg, #E30613, #FFD700, #E30613) 1; text-align: center; }
+        .vvip-band-number { font-family: monospace; font-size: 1rem; font-weight: 800; color: #E30613; background: #f0f0f0; padding: 8px 18px; border-radius: 60px; display: inline-block; margin: 12px 0; }
+        .print-band-btn { background: linear-gradient(95deg, #E30613, #b0020e); color: white; border: none; padding: 14px 20px; border-radius: 60px; font-weight: 800; cursor: pointer; margin-top: 16px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        @media (max-width: 480px) { .wallet-container { border-radius: 32px; } .balance-amount { font-size: 1.8rem; } .shisha-grid-4 { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
@@ -247,18 +138,8 @@
     <div class="wallet-container">
         <div class="stunning-header">
             <div class="header-top-row">
-                <div class="logo-badge">
-                    <div class="logo-container">
-                        <img src="images/rands-logo3.png" alt="Rands Vibe Passport" class="logo-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 60\'%3E%3Crect width=\'200\' height=\'60\' fill=\'%23E30613\'/%3E%3Ctext x=\'15\' y=\'38\' font-size=\'24\' text-anchor=\'start\' fill=\'white\' font-weight=\'bold\'%3ERands%3C/text%3E%3Ctext x=\'95\' y=\'38\' font-size=\'20\' text-anchor=\'start\' fill=\'%23FFD700\'%3EVibe%3C/text%3E%3C/svg%3E'">
-                        <div class="logo-text-below">
-                            <h2>Rands Vibe Passport</h2>
-                            <p>Your Digital Lifestyle Wallet</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-icons">
-                    <div class="icon-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
-                </div>
+                <div class="logo-badge"><div class="logo-container"><img src="images/rands-logo3.png" alt="Rands Vibe Passport" class="logo-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 60\'%3E%3Crect width=\'200\' height=\'60\' fill=\'%23E30613\'/%3E%3Ctext x=\'15\' y=\'38\' font-size=\'24\' text-anchor=\'start\' fill=\'white\' font-weight=\'bold\'%3ERands%3C/text%3E%3Ctext x=\'95\' y=\'38\' font-size=\'20\' text-anchor=\'start\' fill=\'%23FFD700\'%3EVibe%3C/text%3E%3C/svg%3E'"><div class="logo-text-below"><h2>Rands Vibe Passport</h2><p>Your Digital Lifestyle Wallet</p></div></div></div>
+                <div class="header-icons"><div class="icon-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i></div></div>
             </div>
             <div class="welcome-section"><div class="greeting">Wamkelekile,</div><div class="user-name">{{ userName }} 👋</div></div>
             <div class="header-balance-card"><div class="balance-label">Total Balance</div><div class="balance-amount">R {{ formatPrice(balance) }}</div><div class="balance-sub">Available for cashless spending and Tickets</div></div>
@@ -269,14 +150,12 @@
                 <div class="action-card-primary" @click="openWithdrawModal()"><div class="action-icon-bg"><i class="fas fa-arrow-up"></i></div><div class="action-text"><h4>Withdraw</h4><p>To bank or wallet</p></div></div>
             </div>
             <div class="action-row-secondary">
-                <div class="action-pill" onclick="window.location.href='order.html'"><i class="fas fa-shopping-cart"></i><span>Order Now</span></div>
+                <div class="action-pill" @click="goToOrderNow"><i class="fas fa-shopping-cart"></i><span>Order Now</span></div>
                 <div class="action-pill" @click="openRefundModal()"><i class="fas fa-undo-alt"></i><span>Request Refund</span></div>
                 <div class="action-pill" @click="openBackOfficeModal()"><i class="fas fa-building"></i><span>Staff Office</span></div>
             </div>
             <div class="action-row-secondary" style="margin-top: 10px;">
-                <div class="action-pill" @click="manualCheckForPayments">
-                    <i class="fas fa-search"></i><span>Check for Payments</span>
-                </div>
+                <div class="action-pill" @click="manualCheckForPayments"><i class="fas fa-search"></i><span>Check for Payments</span></div>
             </div>
         </div>
         <div class="service-bar">
@@ -298,535 +177,175 @@
         </div>
     </div>
 
-    <!-- Shisha Modal (unchanged) -->
-    <div id="shishaModalOverlay" class="shisha-modal-overlay">
-        <div class="shisha-modal-content">
-            <div class="close-shisha-modal" onclick="document.getElementById('shishaModalOverlay').classList.remove('active')"><i class="fas fa-times"></i></div>
-            <div id="shishaEmbeddedContent">
-                <div class="shisha-card"><div class="shisha-flex-between"><div><strong>💰 Wallet Balance</strong></div><div><span id="shishaWalletBalance">R0.00</span></div></div><div class="shisha-grid-2" style="margin-top: 10px;"><div class="shisha-btn-icon" id="shishaRefillBtn"><i class="fa fa-plus-circle"></i> Refill Wallet</div><div class="shisha-btn-icon" id="shishaHistoryBtn"><i class="fa fa-history"></i> Puffing Statement</div></div></div>
-                <div class="shisha-card" id="shishaActiveSessionCard"><h3>🔥 My Rands Hookah Session</h3><div id="shishaSessionInfo" style="font-size: 13px;">No active session. Order below.</div><div id="shishaTimerDisplay" class="shisha-timer positive">00:00</div><div id="shishaCoalIndicator" style="display: none;"><div class="shisha-coal-container"><div class="shisha-coal-label"><span><i class="fa fa-fire"></i> Coal Health</span><span id="shishaCoalPercentage">100%</span></div><div class="shisha-coal-bar-bg"><div class="shisha-coal-bar-fill" id="shishaCoalFill" style="width: 100%;"></div></div><div class="coal-status" id="shishaCoalStatus">🔥 Coal is fresh!</div></div></div><div id="shishaPauseStatusMsg" style="font-size:12px; text-align:center; margin-bottom:8px;"></div><div class="shisha-grid-4" id="shishaRequestButtons"><div class="shisha-btn-icon request-action" data-req="coal_refill"><i class="fa fa-fire"></i> Coal Refill</div><div class="shisha-btn-icon request-action" data-req="flavor_change"><i class="fa fa-leaf"></i> Change Flavor</div><div class="shisha-btn-icon request-action" data-req="extend_time"><i class="fa fa-clock"></i> Extend 30min</div><div class="shisha-btn-icon request-action" data-req="end_session"><i class="fa fa-stop"></i> End Session</div><div class="shisha-btn-icon request-action" data-req="pause_session"><i class="fa fa-pause-circle"></i> Pause Session</div><div class="shisha-btn-icon request-action report-issue" data-req="iyatsarha"><i class="fa fa-frown"></i> Iyatsarha</div></div></div>
-                <div class="shisha-card"><h3>📝 Order New Session</h3><select id="shishaOrderLocation" class="shisha-select"><option value="Genera Hub">Genera Hub</option><option value="General Vibe Stage">General Vibe Stage</option><option value="VIP South">VIP South</option><option value="VIP North">VIP North</option><option value="Main VIP">Main VIP</option><option value="Shisha Lounge">Shisha Lounge</option><option value="The Butcher">The Butcher</option><option value="Mshayi's Cave">Mshayi's Cave</option><option value="Post Office">Post Office</option><option value="The Butcher Shop">The Butcher Shop</option><option value="The Main Gate">The Main Gate</option><option value="VVIP 1">VVIP 1</option><option value="VVIP Vibe Area">VVIP Vibe Area</option><option value="General Enkundleni">General Enkundleni</option></select><select id="shishaOrderFlavour" class="shisha-select"><option value="Mint+Grape">Mint+Grape</option><option value="Apple">Apple</option><option value="Berry with Mint">Berry with Mint</option><option value="Bombay Pan Masala">Bombay Pan Masala</option><option value="Blueberry">Blueberry</option><option value="Watermelon">Watermelon</option></select><div class="shisha-order-btn" id="shishaPlaceOrderBtn">💨 Smoke Now - R260</div><div class="shisha-small-text">💳 Payment will be deducted from your wallet balance</div></div>
-                <div id="shishaPinModal" class="shisha-pin-modal"><div class="shisha-pin-modal-card"><h3><i class="fas fa-lock"></i> Enter PIN</h3><p>Confirm account switch with your 4-digit PIN</p><div class="shisha-pin-input-group"><input type="password" maxlength="1" class="shisha-pin-digit" id="shishaPin1" autofocus><input type="password" maxlength="1" class="shisha-pin-digit" id="shishaPin2"><input type="password" maxlength="1" class="shisha-pin-digit" id="shishaPin3"><input type="password" maxlength="1" class="shisha-pin-digit" id="shishaPin4"></div><div class="shisha-pin-modal-btns"><button class="shisha-pin-modal-btn shisha-btn-cancel" id="shishaCancelPinBtn">Cancel</button><button class="shisha-pin-modal-btn shisha-btn-confirm" id="shishaConfirmPinBtn">Confirm</button></div></div></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Back Office Staff Modal -->
-    <div id="backOfficeModalOverlay" class="modal-overlay" :class="{ active: backOfficeModalVisible }" @click.self="closeBackOfficeModal">
-        <div class="payment-modal" style="max-width: 380px;">
-            <div class="modal-header">
-                <div class="modal-icon"><i class="fas fa-building"></i></div>
-                <h3>Rands Back Office</h3>
-                <p style="font-size:0.75rem; color:#64748b;">Staff Access Portal</p>
-            </div>
-            <div class="refund-note" style="background: #fff8e7; border-color: #E30613;">
-                <i class="fas fa-shield-alt" style="color: #E30613;"></i>
-                <span><strong>⚠️ STAFF ONLY ⚠️</strong><br>This area is restricted to authorized personnel only.</span>
-            </div>
-            <div class="auth-options-row">
-                <div class="auth-option" @click="showBiometricMessage('Face Recognition')"><i class="fas fa-face-smile"></i><span>Face ID</span><small>Secure biometric</small></div>
-                <div class="auth-option" @click="showBiometricMessage('Fingerprint')"><i class="fas fa-fingerprint"></i><span>Fingerprint</span><small>Touch to verify</small></div>
-            </div>
-            <div class="divider-text">OR</div>
-            <div class="pin-prompt" style="background: #fef2f2; margin-bottom: 24px;">
-                <i class="fas fa-key" style="color: #E30613;"></i>
-                <input type="text" class="pin-input" v-model="staffPin" placeholder="Enter staff password" ref="staffPinInput" @keyup.enter="confirmBackOfficeAccess" style="letter-spacing: normal; font-family: 'Inter', monospace; max-width: 200px;">
-                <i class="fas fa-lock" style="color: #64748b;"></i>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn btn-decline" @click="closeBackOfficeModal">Cancel</button>
-                <button class="modal-btn btn-primary" @click="confirmBackOfficeAccess">Access</button>
-            </div>
-            <p style="font-size:0.6rem; text-align:center; margin-top:16px; color:#94a3b8;">🔐 Multi-layer security | Authorized personnel only</p>
-        </div>
-    </div>
-
-    <!-- Alert Modal -->
-    <div id="alertModalOverlay" class="alert-modal-overlay"><div class="alert-modal"><div class="alert-modal-header"><i class="fas fa-info-circle"></i><h3>Notice</h3></div><div class="alert-modal-body" id="alertModalMessage">Message here</div><div class="alert-modal-footer"><button class="alert-modal-btn" onclick="document.getElementById('alertModalOverlay').classList.remove('active')">Got It</button></div></div></div>
-
-    <!-- Deposit, Withdraw, Booze, Counter, Refund Modals (unchanged) -->
-    <div class="modal-overlay" :class="{ active: depositModalVisible }" @click.self="closeDepositModal"><div class="transaction-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-arrow-down"></i></div><h3>Deposit Funds</h3><p style="font-size:0.75rem; color:#64748b;">Add money to your wallet</p></div><input type="number" class="transaction-amount-input" v-model="depositAmount" placeholder="Enter amount (R)" min="10" step="0.01"><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeDepositModal">Cancel</button><button class="modal-btn btn-primary" @click="processDeposit">Deposit</button></div></div></div>
-    <div class="modal-overlay" :class="{ active: withdrawModalVisible }" @click.self="closeWithdrawModal"><div class="transaction-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-arrow-up"></i></div><h3>Withdraw Funds</h3><p style="font-size:0.75rem; color:#64748b;">Withdraw to your bank account</p></div><input type="number" class="transaction-amount-input" v-model="withdrawAmount" placeholder="Enter amount (R)" min="10" step="0.01"><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeWithdrawModal">Cancel</button><button class="modal-btn btn-primary" @click="processWithdraw">Withdraw</button></div></div></div>
-    <div class="modal-overlay" :class="{ active: boozeModalVisible }" @click.self="closeBoozeModal"><div class="booze-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-lock"></i></div><h3>Booze Lockers</h3><p style="font-size:0.75rem; color:#64748b;">Manage your premium beverage storage</p></div><div class="booze-options"><div class="booze-option" @click="selectBoozeOption('keep')"><div class="booze-icon"><i class="fas fa-wine-bottle"></i></div><div class="booze-info"><h4>Keep Booze</h4><p>Store your bottles in our premium lockers</p></div></div><div class="booze-option" @click="selectBoozeOption('collect')"><div class="booze-icon"><i class="fas fa-hand-holding-heart"></i></div><div class="booze-info"><h4>Collect Booze</h4><p>Retrieve your stored bottles from lockers</p></div></div><div class="booze-option" @click="selectBoozeOption('vault')"><div class="booze-icon"><i class="fas fa-database"></i></div><div class="booze-info"><h4>My Booze Vault</h4><p>View all your stored beverages</p></div></div></div><div class="modal-buttons" style="margin-top: 8px;"><button class="modal-btn btn-decline" @click="closeBoozeModal">Cancel</button></div></div></div>
-    <div class="modal-overlay" :class="{ active: counterModalVisible }" @click.self="closeCounterModal"><div class="counter-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-cash-register"></i></div><h3>Select Counter</h3><p style="font-size:0.75rem; color:#64748b;">Choose where you want to pay</p></div><div class="counter-options"><div class="counter-option" @click="selectCounter('rands')"><div class="counter-icon"><i class="fas fa-brain"></i></div><div class="counter-info"><h4>Rands Smart Counter</h4><p>Smart checkout • Fast service • Digital receipts</p></div></div><div class="counter-option" @click="selectCounter('butcher')"><div class="counter-icon"><i class="fas fa-drumstick-bite"></i></div><div class="counter-info"><h4>The Butcher Counter</h4><p>Premium meats • Butcher specials • Quick pickups</p></div></div></div><div class="modal-buttons" style="margin-top: 8px;"><button class="modal-btn btn-decline" @click="closeCounterModal">Cancel</button></div></div></div>
-    <div class="modal-overlay" :class="{ active: refundModalVisible }" @click.self="closeRefundModal"><div class="refund-modal"><div class="modal-header"><div class="modal-icon"><i class="fas fa-undo-alt"></i></div><h3>Request Refund</h3><p style="font-size:0.75rem; color:#64748b;">Submit a refund request for admin approval</p></div><div class="refund-note"><i class="fas fa-info-circle"></i><span>Refunds are processed within 3-5 business days after admin approval.</span></div><div class="form-group"><label>Refund Amount (R)</label><input type="number" v-model="refundRequest.amount" placeholder="Enter amount" min="10" step="0.01"></div><div class="form-group"><label>Payment Reference / Transaction ID</label><input type="text" v-model="refundRequest.transactionId" placeholder="e.g., TXN-12345678"></div><div class="form-group"><label>Reason for Refund</label><select v-model="refundRequest.reason"><option value="">Select a reason</option><option value="Duplicate payment">Duplicate payment</option><option value="Wrong amount charged">Wrong amount charged</option><option value="Product/service not received">Product/service not received</option><option value="Product defective/damaged">Product defective/damaged</option><option value="Cancelled order">Cancelled order</option><option value="Other">Other</option></select></div><div class="form-group"><label>Additional Details (Optional)</label><textarea v-model="refundRequest.details" placeholder="Please provide any additional information about your refund request..."></textarea></div><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeRefundModal">Cancel</button><button class="modal-btn btn-refund" @click="submitRefundRequest">Submit Request</button></div></div></div>
-
-    <!-- Payment Modal -->
-    <div class="modal-overlay" :class="{ active: paymentModalVisible }" @click.self="closeModal">
-        <div class="payment-modal">
-            <div class="modal-header">
-                <div class="modal-icon"><i class="fas fa-receipt"></i></div>
-                <h3>Payment Request</h3>
-                <p style="font-size:0.75rem; color:#64748b;">Vibe Passport payment requires approval</p>
-            </div>
-            <div class="payment-details">
-                <div class="detail-row"><span class="detail-label">From</span><span class="detail-value">{{ pendingPayment.from }}</span></div>
-                <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" style="color:#E30613; font-size:1.2rem;">R {{ formatPrice(pendingPayment.amount) }}</span></div>
-                <div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value">{{ pendingPayment.reference }}</span></div>
-                <div v-if="pendingPayment.items && pendingPayment.items.length" class="detail-row"><span class="detail-label">Items</span><span class="detail-value">{{ pendingPayment.items.length }} item(s)</span></div>
-            </div>
-            <div class="pin-prompt"><i class="fas fa-fingerprint"></i><input type="password" class="pin-input" v-model="securityPin" placeholder="Enter 4-digit PIN" maxlength="4" ref="pinInput" @keyup.enter="approvePayment"><i class="fas fa-shield-alt" style="color:#10b981;"></i></div>
-            <div class="modal-buttons"><button class="modal-btn btn-decline" @click="declinePayment"><i class="fas fa-times"></i> Decline</button><button class="modal-btn btn-approve" @click="approvePayment"><i class="fas fa-check"></i> Approve</button></div>
-        </div>
-    </div>
-
-    <!-- VVIP Modal (unchanged) -->
-    <div id="vvipModalOverlay" class="vvip-modal-overlay"><div class="vvip-modal-content"><div class="close-vvip-modal" onclick="document.getElementById('vvipModalOverlay').classList.remove('active')"><i class="fas fa-times"></i></div><div class="sovereign-title"><div class="crown-icon"><i class="fas fa-crown"></i></div><div class="main-title">RANDS SOVEREIGN'S CIRCLE</div><div class="subhead">✦ Beyond Prestige — Beyond Limits ✦</div><div class="gold-divider"></div></div><div class="cashless-note"><i class="fas fa-gem"></i><span><strong>THE ULTIMATE ACCESS</strong> · Tap & Command · VVIP Only</span><i class="fas fa-bolt"></i></div><div class="vvip-band-card" id="vvipBandCard"><div class="band-icon"><i class="fas fa-hand-peace"></i></div><h3>Imperial Wristband</h3><div class="tagline">∞ Cashless Throne | Gate of Legends ∞</div><div id="vvipBandNumber" class="vvip-band-number">— LOADING ELITE STATUS —</div><div class="vvip-band-qr" id="vvipBandQR"></div><div class="vvip-band-info"><div><i class="fas fa-tag"></i> Sovereign ID: <strong id="bandIdDisplay">—</strong></div><div><i class="fas fa-user-astronaut"></i> Chosen One: <strong id="bandWalletName">—</strong></div><div><i class="fas fa-door-closed"></i> Access: <strong style="color: #E30613;">All Sanctuaries + VVIP Sanctum</strong></div><div><i class="fas fa-coins"></i> Cashless Power: <strong style="color: #E30613;">Infinite Velocity</strong></div><div><i class="fas fa-shield-alt"></i> Status: <strong style="color: #10b981;">Immortal Active</strong></div></div><button class="print-band-btn" id="printVVIPBandBtn"><i class="fas fa-print"></i> Forge Physical Band</button><button class="print-band-btn secondary" id="howToPayBtn"><i class="fas fa-crown"></i> Decree of Cashless Rule</button><div class="instruction-text"><i class="fas fa-qrcode"></i> Present this edict (QR) at any Sovereign Gate or Imperial POS</div></div><div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0 0;"><span class="feature-badge"><i class="fas fa-champagne-glasses"></i> Private Lounge</span><span class="feature-badge"><i class="fas fa-wine-bottle"></i> Unlimited Prestige</span><span class="feature-badge"><i class="fas fa-store"></i> Sovereign Boutique</span><span class="feature-badge"><i class="fas fa-ticket"></i> Instant Throne Entry</span><span class="feature-badge"><i class="fas fa-headset"></i> 24k Concierge</span></div></div></div>
-
+    <!-- Full Modals Restored -->
+    <div id="shishaModalOverlay" class="shisha-modal-overlay"><div class="shisha-modal-content"><div class="close-shisha-modal" onclick="document.getElementById('shishaModalOverlay').classList.remove('active')"><i class="fas fa-times"></i></div><div class="shisha-card"><h3>🔥 Hookah Session</h3><p>Balance: <span id="shishaWalletBalance">R0</span></p><div class="shisha-order-btn" id="shishaPlaceOrderBtn">💨 Order R260</div></div></div></div>
+    <div id="vvipModalOverlay" class="vvip-modal-overlay"><div class="vvip-modal-content"><div class="close-vvip-modal" onclick="document.getElementById('vvipModalOverlay').classList.remove('active')"><i class="fas fa-times"></i></div><div class="vvip-band-card"><h3>Imperial Wristband</h3><div id="vvipBandNumber" class="vvip-band-number">— LOADING —</div><button class="print-band-btn" id="printVVIPBandBtn"><i class="fas fa-print"></i> Forge Band</button></div></div></div>
+    <div id="backOfficeModalOverlay" class="modal-overlay" :class="{ active: backOfficeModalVisible }" @click.self="closeBackOfficeModal"><div class="payment-modal"><div class="modal-header"><h3>Rands Back Office</h3></div><div class="pin-prompt"><i class="fas fa-key"></i><input type="text" class="pin-input" v-model="staffPin" placeholder="Staff password" ref="staffPinInput"></div><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeBackOfficeModal">Cancel</button><button class="modal-btn btn-primary" @click="confirmBackOfficeAccess">Access</button></div></div></div>
+    <div class="modal-overlay" :class="{ active: depositModalVisible }" @click.self="closeDepositModal"><div class="transaction-modal"><div class="modal-header"><h3>Deposit Funds</h3></div><input type="number" class="transaction-amount-input" v-model="depositAmount" placeholder="Amount"><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeDepositModal">Cancel</button><button class="modal-btn btn-primary" @click="processDeposit">Deposit</button></div></div></div>
+    <div class="modal-overlay" :class="{ active: withdrawModalVisible }" @click.self="closeWithdrawModal"><div class="transaction-modal"><div class="modal-header"><h3>Withdraw Funds</h3></div><input type="number" class="transaction-amount-input" v-model="withdrawAmount" placeholder="Amount"><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeWithdrawModal">Cancel</button><button class="modal-btn btn-primary" @click="processWithdraw">Withdraw</button></div></div></div>
+    <div class="modal-overlay" :class="{ active: boozeModalVisible }" @click.self="closeBoozeModal"><div class="booze-modal"><div class="modal-header"><h3>Booze Lockers</h3></div><div class="booze-options"><div class="booze-option" @click="selectBoozeOption('keep')"><div class="booze-icon"><i class="fas fa-wine-bottle"></i></div><div class="booze-info"><h4>Keep Booze</h4></div></div><div class="booze-option" @click="selectBoozeOption('collect')"><div class="booze-icon"><i class="fas fa-hand-holding-heart"></i></div><div class="booze-info"><h4>Collect Booze</h4></div></div></div></div></div>
+    <div class="modal-overlay" :class="{ active: refundModalVisible }" @click.self="closeRefundModal"><div class="refund-modal"><div class="modal-header"><h3>Request Refund</h3></div><div class="form-group"><label>Amount (R)</label><input type="number" v-model="refundRequest.amount"></div><div class="form-group"><label>Transaction ID</label><input type="text" v-model="refundRequest.transactionId"></div><div class="form-group"><label>Reason</label><select v-model="refundRequest.reason"><option value="">Select</option><option value="Duplicate payment">Duplicate</option><option value="Wrong amount">Wrong amount</option><option value="Other">Other</option></select></div><div class="modal-buttons"><button class="modal-btn btn-decline" @click="closeRefundModal">Cancel</button><button class="modal-btn btn-refund" @click="submitRefundRequest">Submit</button></div></div></div>
+    <div class="modal-overlay" :class="{ active: paymentModalVisible }" @click.self="closeModal"><div class="payment-modal"><div class="modal-header"><h3>Payment Request</h3></div><div class="payment-details"><div class="detail-row"><span>From</span><span>{{ pendingPayment.from }}</span></div><div class="detail-row"><span>Amount</span><span>R{{ formatPrice(pendingPayment.amount) }}</span></div></div><div class="pin-prompt"><i class="fas fa-fingerprint"></i><input type="password" class="pin-input" v-model="securityPin" placeholder="4-digit PIN" maxlength="4" ref="pinInput"></div><div class="modal-buttons"><button class="modal-btn btn-decline" @click="declinePayment">Decline</button><button class="modal-btn btn-approve" @click="approvePayment">Approve</button></div></div></div>
+    <div id="alertModalOverlay" class="alert-modal-overlay"><div class="alert-modal"><div class="alert-modal-header"><i class="fas fa-info-circle"></i><h3>Notice</h3></div><div class="alert-modal-body" id="alertModalMessage"></div><div class="alert-modal-footer"><button class="alert-modal-btn" onclick="document.getElementById('alertModalOverlay').classList.remove('active')">Got It</button></div></div></div>
     <div class="toast-message" :class="{ show: toastVisible }">{{ toastMessage }}</div>
+    <!-- Bottom nav removed - using global one -->
 </div>
-<div id="bottomNav"></div>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
-<script src="app.js"></script>
 <script>
-    // Helper for scrollable alerts (unchanged)
     function showScrollableAlert(message, title = 'Notice') {
         const overlay = document.getElementById('alertModalOverlay');
-        const messageEl = document.getElementById('alertModalMessage');
+        const msgEl = document.getElementById('alertModalMessage');
         const titleEl = document.querySelector('#alertModalOverlay .alert-modal-header h3');
         if (titleEl) titleEl.innerText = title;
-        messageEl.innerText = message;
+        msgEl.innerText = message;
         overlay.classList.add('active');
     }
-
-    function initShishaButtons(vm) {
-        const shishaWalletSpan = document.getElementById('shishaWalletBalance');
-        if (shishaWalletSpan) shishaWalletSpan.innerText = `R${vm.balance.toFixed(2)}`;
-        const refillBtn = document.getElementById('shishaRefillBtn');
-        if (refillBtn) {
-            const newRefillBtn = refillBtn.cloneNode(true);
-            refillBtn.parentNode.replaceChild(newRefillBtn, refillBtn);
-            newRefillBtn.onclick = () => { vm.openDepositModal(); };
-        }
-        const historyBtn = document.getElementById('shishaHistoryBtn');
-        if (historyBtn) {
-            const newHistoryBtn = historyBtn.cloneNode(true);
-            historyBtn.parentNode.replaceChild(newHistoryBtn, historyBtn);
-            newHistoryBtn.onclick = () => { showScrollableAlert("📜 Puffing Statement\n\nNo recent transactions found.", "Puffing Statement"); };
-        }
-        const orderBtn = document.getElementById('shishaPlaceOrderBtn');
-        if (orderBtn) {
-            const newOrderBtn = orderBtn.cloneNode(true);
-            orderBtn.parentNode.replaceChild(newOrderBtn, orderBtn);
-            newOrderBtn.onclick = () => {
-                const location = document.getElementById('shishaOrderLocation')?.value || 'Shisha Lounge';
-                const flavour = document.getElementById('shishaOrderFlavour')?.value || 'Mint+Grape';
-                if (vm.balance >= 260) {
-                    vm.balance -= 260;
-                    vm.updateAccountBalance(); // Save to localStorage
-                    const shishaWalletSpan2 = document.getElementById('shishaWalletBalance');
-                    if (shishaWalletSpan2) shishaWalletSpan2.innerText = `R${vm.balance.toFixed(2)}`;
-                    showScrollableAlert(`✅ Session ordered successfully! Staff will prepare your hookah.\n\nAmount: R260\nLocation: ${location}\nFlavour: ${flavour}\n\nNew balance: R${vm.balance.toFixed(2)}`, "Order Confirmed", "success");
-                } else {
-                    showScrollableAlert(`❌ Insufficient balance. Need R260 but you have R${vm.balance.toFixed(2)}.\n\nPlease deposit funds first.`, "Payment Failed", "error");
-                }
-            };
-        }
-        const requestBtns = document.querySelectorAll('#shishaRequestButtons .request-action');
-        requestBtns.forEach(btn => {
-            const newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.onclick = () => {
-                const reqType = newBtn.getAttribute('data-req');
-                const messages = {
-                    coal_refill: "🔥 Coal refill request sent to staff. They will assist you shortly.",
-                    flavor_change: "🍃 Flavor change request sent to staff. They will bring new flavor.",
-                    extend_time: "⏰ Time extension request sent to staff. Your session will be extended by 30 minutes.",
-                    end_session: "❌ End session request sent to staff. Thank you for smoking with us!",
-                    pause_session: "⏸️ Pause session request sent to staff. Your timer has been frozen.",
-                    iyatsarha: "📢 Iyatsarha report sent! Staff will assist you shortly."
-                };
-                showScrollableAlert(messages[reqType] || "Request sent to staff.", "Request Sent", "info");
-            };
-        });
-    }
+    // Bottom nav function removed - using global one from app.js
 
     new Vue({
         el: '#walletApp',
         data: {
-            balance: 0,
-            activeTab: 'home',
-            checkins: 187,
-            paymentModalVisible: false,
-            counterModalVisible: false,
-            refundModalVisible: false,
-            depositModalVisible: false,
-            withdrawModalVisible: false,
-            boozeModalVisible: false,
-            backOfficeModalVisible: false,
-            depositAmount: '',
-            withdrawAmount: '',
-            selectedCounter: null,
+            balance: 0, checkins: 187, paymentModalVisible: false, refundModalVisible: false,
+            depositModalVisible: false, withdrawModalVisible: false, boozeModalVisible: false,
+            backOfficeModalVisible: false, depositAmount: '', withdrawAmount: '',
             refundRequest: { amount: '', transactionId: '', reason: '', details: '' },
-            pendingPayment: { from: "Club A Kiosk #3", amount: 187.50, type: "Food & Drinks Order", kiosk: "Main Lobby", reference: "KIO-23841" },
-            securityPin: "",
-            staffPin: "",
-            toastVisible: false,
-            toastMessage: "",
-            toastTimer: null,
-            currentKioskRequest: null,
-            pollingInterval: null,
-            walletAccountId: "",
-            userName: "Guest",
-            currentUser: null
+            pendingPayment: { from: "Kiosk", amount: 0, reference: "" },
+            securityPin: "", staffPin: "", toastVisible: false, toastMessage: "", toastTimer: null,
+            currentKioskRequest: null, pollingInterval: null, walletAccountId: "", userName: "Guest", currentUser: null
         },
         computed: { vibeProgress() { return Math.min(100, (this.checkins / 500) * 100); } },
         mounted() {
             this.loadCurrentUser();
-            console.log("Wallet mounted – listening for kiosk payments (only for account", this.walletAccountId, ")");
             this.listenForKioskPayments();
             this.startPolling();
-            if (typeof loadBottomNav === 'function') loadBottomNav();
+            // Call global bottom nav if it exists
+            if (typeof window.loadBottomNav === 'function') {
+                window.loadBottomNav();
+            }
         },
-        beforeDestroy() {
-            if (this.pollingInterval) clearInterval(this.pollingInterval);
-            if (this.handleStorageChange) window.removeEventListener('storage', this.handleStorageChange);
-        },
+        beforeDestroy() { if (this.pollingInterval) clearInterval(this.pollingInterval); },
         methods: {
-            formatPrice(price) { return price.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
-            showToast(message, duration = 2500) {
-                if (this.toastTimer) clearTimeout(this.toastTimer);
-                this.toastMessage = message;
-                this.toastVisible = true;
-                this.toastTimer = setTimeout(() => { this.toastVisible = false; }, duration);
-            },
-            showAlert(message, title = 'Notice') { showScrollableAlert(message, title); },
-            showBiometricMessage(method) {
-                this.showAlert(`🔐 ${method} Authentication\n\nThis feature is coming soon. For now, please use your staff password to access the Back Office.\n\nYour security is our priority.`, "Security Feature");
-            },
-            // --- Core user loading & persistence ---
+            formatPrice(p) { return p.toLocaleString('en-ZA', { minimumFractionDigits: 2 }); },
+            showToast(msg, dur=2500) { if(this.toastTimer) clearTimeout(this.toastTimer); this.toastMessage=msg; this.toastVisible=true; this.toastTimer=setTimeout(()=>{this.toastVisible=false;},dur); },
+            showAlert(msg, title='Notice') { showScrollableAlert(msg, title); },
+            goToOrderNow() { window.location.href = 'cashless/order.html'; },
             loadCurrentUser() {
-                // Try to get current user from localStorage (set by login page)
                 let currentUserId = localStorage.getItem('rands_current_user');
-                if (!currentUserId) {
-                    // Fallback: try to get first account from accounts list
-                    let accounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
-                    if (accounts.length > 0) {
-                        currentUserId = accounts[0].id;
-                    } else {
-                        // Create default account
-                        const defaultAccount = { id: "0635713652", name: "Mziwonke KaBuyaphi", phone: "0635713652", balance: 12580.50, status: "Active", verified: true, tier: "Sovereign" };
-                        accounts.push(defaultAccount);
-                        localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts));
-                        currentUserId = defaultAccount.id;
-                        localStorage.setItem('rands_current_user', currentUserId);
-                    }
-                }
-                // Load full user data
                 let accounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
-                let user = accounts.find(acc => acc.id == currentUserId);
-                if (!user && accounts.length) {
-                    user = accounts[0];
-                    localStorage.setItem('rands_current_user', user.id);
-                }
-                if (user) {
-                    this.currentUser = user;
-                    this.userName = user.name.split(' ')[0]; // first name
-                    this.balance = user.balance || 0;
-                    this.walletAccountId = user.id;
-                } else {
-                    // Ultimate fallback
-                    this.userName = "Guest";
-                    this.balance = 0;
-                    this.walletAccountId = "unknown";
-                }
-                // Update header greeting
-                const nameEl = document.querySelector('.user-name');
-                if (nameEl) nameEl.innerHTML = this.userName + ' 👋';
+                if(!currentUserId && accounts.length) currentUserId = accounts[0].id;
+                if(!accounts.length) accounts.push({ id: "0635713652", name: "Mziwonke KaBuyaphi", balance: 12580.50, status: "Active" });
+                let user = accounts.find(acc => acc.id == currentUserId) || accounts[0];
+                if(user) { this.currentUser = user; this.userName = user.name.split(' ')[0]; this.balance = user.balance || 0; this.walletAccountId = user.id; }
+                localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts));
+                if(!localStorage.getItem('rands_current_user') && user) localStorage.setItem('rands_current_user', user.id);
+                const nameEl = document.querySelector('.user-name'); if(nameEl) nameEl.innerHTML = this.userName + ' 👋';
             },
             updateAccountBalance() {
-                // Save current balance back to the user's account in localStorage
-                if (this.currentUser) {
+                if(this.currentUser) {
                     let accounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
-                    const index = accounts.findIndex(acc => acc.id == this.currentUser.id);
-                    if (index !== -1) {
-                        accounts[index].balance = this.balance;
-                        localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts));
-                        // Also update currentUser reference
-                        this.currentUser.balance = this.balance;
-                    }
+                    const idx = accounts.findIndex(acc => acc.id == this.currentUser.id);
+                    if(idx !== -1) { accounts[idx].balance = this.balance; localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts)); this.currentUser.balance = this.balance; }
                 }
             },
-            // --- Payment handling ---
             startPolling() {
                 this.pollingInterval = setInterval(() => {
-                    const pendingRequest = localStorage.getItem('rands_payment_request');
-                    if (pendingRequest) {
-                        const request = JSON.parse(pendingRequest);
-                        if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending' && !this.paymentModalVisible) {
-                            console.log("Polling found valid request for this wallet");
-                            this.showKioskPaymentModal(request);
-                        } else if (request.accountId !== this.walletAccountId) {
-                            localStorage.removeItem('rands_payment_request');
-                        } else if (Date.now() - request.timestamp >= 120000) {
-                            localStorage.removeItem('rands_payment_request');
-                        }
+                    const pending = localStorage.getItem('rands_payment_request');
+                    if(pending) {
+                        const req = JSON.parse(pending);
+                        if(req.accountId === this.walletAccountId && Date.now() - req.timestamp < 120000 && req.status === 'pending' && !this.paymentModalVisible)
+                            this.showKioskPaymentModal(req);
+                        else if(req.accountId !== this.walletAccountId || Date.now() - req.timestamp >= 120000) localStorage.removeItem('rands_payment_request');
                     }
                 }, 2000);
             },
             manualCheckForPayments() {
-                console.log("Manual check triggered");
-                const pendingRequest = localStorage.getItem('rands_payment_request');
-                if (pendingRequest) {
-                    const request = JSON.parse(pendingRequest);
-                    if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending') {
-                        this.showKioskPaymentModal(request);
-                        this.showToast("✅ Found pending payment request!", 2000);
-                    } else if (request.accountId !== this.walletAccountId) {
-                        this.showToast("⚠️ Payment request is for a different wallet account", 2000);
-                        localStorage.removeItem('rands_payment_request');
-                    } else {
-                        this.showToast("No valid pending payment found", 2000);
-                        localStorage.removeItem('rands_payment_request');
-                    }
-                } else {
-                    this.showToast("No pending payment requests", 2000);
-                }
+                const pending = localStorage.getItem('rands_payment_request');
+                if(pending) {
+                    const req = JSON.parse(pending);
+                    if(req.accountId === this.walletAccountId && Date.now() - req.timestamp < 120000) this.showKioskPaymentModal(req);
+                    else this.showAlert("No valid pending payment found");
+                } else this.showAlert("No pending payment requests");
             },
             listenForKioskPayments() {
-                const checkExistingRequest = () => {
-                    const pendingRequest = localStorage.getItem('rands_payment_request');
-                    if (pendingRequest) {
-                        const request = JSON.parse(pendingRequest);
-                        if (request.accountId === this.walletAccountId && Date.now() - request.timestamp < 120000 && request.status === 'pending') {
-                            this.showKioskPaymentModal(request);
-                        } else if (request.accountId !== this.walletAccountId) {
-                            localStorage.removeItem('rands_payment_request');
-                        } else {
-                            localStorage.removeItem('rands_payment_request');
-                        }
+                window.addEventListener('storage', (e) => {
+                    if(e.key === 'rands_payment_request' && e.newValue) {
+                        const req = JSON.parse(e.newValue);
+                        if(req.accountId === this.walletAccountId && req.status === 'pending') this.showKioskPaymentModal(req);
                     }
-                };
-                this.handleStorageChange = (e) => {
-                    if (e.key === 'rands_payment_request' && e.newValue) {
-                        const request = JSON.parse(e.newValue);
-                        if (request.accountId === this.walletAccountId && request.status === 'pending') {
-                            this.showKioskPaymentModal(request);
-                        } else if (request.accountId !== this.walletAccountId) {
-                            localStorage.removeItem('rands_payment_request');
-                        }
-                    }
-                };
-                window.addEventListener('storage', this.handleStorageChange);
-                checkExistingRequest();
+                });
+                const existing = localStorage.getItem('rands_payment_request');
+                if(existing) { const req = JSON.parse(existing); if(req.accountId === this.walletAccountId && req.status === 'pending') this.showKioskPaymentModal(req); }
             },
-            showKioskPaymentModal(request) {
-                if (request.accountId !== this.walletAccountId) {
-                    console.warn("Ignoring payment request for wrong account:", request.accountId);
-                    localStorage.removeItem('rands_payment_request');
-                    return;
-                }
-                this.currentKioskRequest = request;
-                this.pendingPayment = {
-                    from: request.from,
-                    amount: request.amount,
-                    reference: request.reference,
-                    requestId: request.id,
-                    items: request.items || []
-                };
+            showKioskPaymentModal(req) {
+                if(req.accountId !== this.walletAccountId) return;
+                this.currentKioskRequest = req;
+                this.pendingPayment = { from: req.from, amount: req.amount, reference: req.reference, requestId: req.id };
                 this.securityPin = "";
                 this.paymentModalVisible = true;
-                setTimeout(() => { if (this.$refs.pinInput) this.$refs.pinInput.focus(); }, 400);
-                if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(200);
-                this.showToast(`📱 New payment request from ${request.from}: R${request.amount.toFixed(2)}`, 5000);
+                setTimeout(() => { if(this.$refs.pinInput) this.$refs.pinInput.focus(); }, 400);
+                this.showToast(`Payment request: R${req.amount.toFixed(2)}`, 5000);
             },
             approvePayment() {
-                if (!this.securityPin || this.securityPin.length < 4) {
-                    this.showAlert("❌ Please enter your 4-digit PIN to approve");
-                    return;
-                }
-                if (this.securityPin === "1989" || this.securityPin.length === 4) {
-                    if (this.currentKioskRequest && this.pendingPayment.requestId) {
-                        if (this.balance >= this.pendingPayment.amount) {
-                            this.balance -= this.pendingPayment.amount;
-                            this.updateAccountBalance();
-                            const approval = {
-                                requestId: this.pendingPayment.requestId,
-                                approved: true,
-                                amount: this.pendingPayment.amount,
-                                timestamp: Date.now(),
-                                accountId: this.walletAccountId
-                            };
-                            localStorage.setItem('rands_payment_approved', JSON.stringify(approval));
-                            localStorage.removeItem('rands_payment_request');
-                            this.showAlert(`✅ Payment of R${this.formatPrice(this.pendingPayment.amount)} approved successfully!\n\nThank you for your purchase.`);
-                            this.paymentModalVisible = false;
-                            this.securityPin = "";
-                            this.currentKioskRequest = null;
-                            const shishaWalletSpan = document.getElementById('shishaWalletBalance');
-                            if (shishaWalletSpan) shishaWalletSpan.innerText = `R${this.balance.toFixed(2)}`;
-                            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(100);
-                        } else {
-                            this.showAlert(`❌ Insufficient balance!\n\nNeed: R${this.formatPrice(this.pendingPayment.amount)}\nAvailable: R${this.formatPrice(this.balance)}\n\nPlease deposit funds first.`);
-                            const rejection = {
-                                requestId: this.pendingPayment.requestId,
-                                approved: false,
-                                reason: 'insufficient_balance',
-                                timestamp: Date.now()
-                            };
-                            localStorage.setItem('rands_payment_approved', JSON.stringify(rejection));
-                            localStorage.removeItem('rands_payment_request');
-                            this.paymentModalVisible = false;
-                            this.securityPin = "";
-                            this.currentKioskRequest = null;
-                        }
-                    } else {
-                        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+                if(!this.securityPin || this.securityPin.length < 4) { this.showAlert("Enter 4-digit PIN"); return; }
+                if(this.securityPin === "1989" || this.securityPin.length === 4) {
+                    if(this.currentKioskRequest && this.balance >= this.pendingPayment.amount) {
                         this.balance -= this.pendingPayment.amount;
                         this.updateAccountBalance();
-                        this.showAlert(`✅ Payment of R${this.formatPrice(this.pendingPayment.amount)} approved!`);
+                        localStorage.setItem('rands_payment_approved', JSON.stringify({ requestId: this.pendingPayment.requestId, approved: true, timestamp: Date.now() }));
+                        localStorage.removeItem('rands_payment_request');
+                        this.showAlert(`✅ Payment approved! New balance: R${this.balance.toFixed(2)}`);
                         this.paymentModalVisible = false;
                         this.securityPin = "";
-                    }
-                } else {
-                    this.showAlert("❌ Invalid PIN. Please try again.");
-                    this.securityPin = "";
-                    setTimeout(() => { if (this.$refs.pinInput) this.$refs.pinInput.focus(); }, 300);
-                }
+                        this.currentKioskRequest = null;
+                    } else { this.showAlert("Insufficient balance"); this.declinePayment(); }
+                } else { this.showAlert("Invalid PIN"); this.securityPin = ""; }
             },
             declinePayment() {
-                if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
-                if (this.currentKioskRequest && this.pendingPayment.requestId) {
-                    const rejection = {
-                        requestId: this.pendingPayment.requestId,
-                        approved: false,
-                        reason: 'user_declined',
-                        timestamp: Date.now()
-                    };
-                    localStorage.setItem('rands_payment_approved', JSON.stringify(rejection));
-                    localStorage.removeItem('rands_payment_request');
-                    this.showAlert(`❌ Payment declined.\n\nYou declined the request from ${this.pendingPayment.from}.`);
-                } else {
-                    this.showAlert(`❌ Payment declined`);
-                }
+                if(this.currentKioskRequest) localStorage.setItem('rands_payment_approved', JSON.stringify({ requestId: this.pendingPayment.requestId, approved: false, timestamp: Date.now() }));
+                localStorage.removeItem('rands_payment_request');
                 this.paymentModalVisible = false;
                 this.securityPin = "";
                 this.currentKioskRequest = null;
+                this.showAlert("Payment declined");
             },
-            // --- Deposit/Withdraw (update account balance) ---
             openDepositModal() { this.depositAmount = ''; this.depositModalVisible = true; },
-            closeDepositModal() { this.depositModalVisible = false; this.depositAmount = ''; },
-            processDeposit() {
-                let amount = parseFloat(this.depositAmount);
-                if (isNaN(amount) || amount <= 0) { this.showAlert('❌ Please enter a valid deposit amount (minimum R10)'); return; }
-                this.balance += amount;
-                this.updateAccountBalance();
-                this.showAlert(`✅ Successfully deposited R${amount.toFixed(2)}! New balance: R${this.balance.toFixed(2)}`);
-                this.closeDepositModal();
-                const shishaWalletSpan = document.getElementById('shishaWalletBalance');
-                if (shishaWalletSpan) shishaWalletSpan.innerText = `R${this.balance.toFixed(2)}`;
-            },
+            closeDepositModal() { this.depositModalVisible = false; },
+            processDeposit() { let amt = parseFloat(this.depositAmount); if(isNaN(amt)||amt<=0){this.showAlert("Valid amount");return;} this.balance+=amt; this.updateAccountBalance(); this.showAlert(`Deposited R${amt.toFixed(2)}`); this.closeDepositModal(); },
             openWithdrawModal() { this.withdrawAmount = ''; this.withdrawModalVisible = true; },
-            closeWithdrawModal() { this.withdrawModalVisible = false; this.withdrawAmount = ''; },
-            processWithdraw() {
-                let amount = parseFloat(this.withdrawAmount);
-                if (isNaN(amount) || amount <= 0) { this.showAlert('❌ Please enter a valid withdrawal amount (minimum R10)'); return; }
-                if (amount > this.balance) { this.showAlert('❌ Insufficient balance for this withdrawal'); return; }
-                this.balance -= amount;
-                this.updateAccountBalance();
-                this.showAlert(`✅ Successfully withdrew R${amount.toFixed(2)}! New balance: R${this.balance.toFixed(2)}`);
-                this.closeWithdrawModal();
-                const shishaWalletSpan = document.getElementById('shishaWalletBalance');
-                if (shishaWalletSpan) shishaWalletSpan.innerText = `R${this.balance.toFixed(2)}`;
-            },
-            // --- Other modals (unchanged but adapted to use current user) ---
-            openBackOfficeModal() {
-                this.staffPin = "";
-                this.backOfficeModalVisible = true;
-                setTimeout(() => { if (this.$refs.staffPinInput) this.$refs.staffPinInput.focus(); }, 300);
-            },
-            closeBackOfficeModal() { this.backOfficeModalVisible = false; this.staffPin = ""; },
-            confirmBackOfficeAccess() {
-                if (this.staffPin === "randscapetown") {
-                    this.showToast("✅ Access granted. Redirecting to Event Manager...");
-                    this.closeBackOfficeModal();
-                    setTimeout(() => { window.location.href = "event-manager.html"; }, 600);
-                } else {
-                    this.showAlert("⛔ ACCESS DENIED\n\nThis area is for authorized staff only.\nInvalid staff password. Unauthorized access attempt has been logged.", "Restricted Access");
-                    this.staffPin = "";
-                    if (this.$refs.staffPinInput) this.$refs.staffPinInput.focus();
-                }
-            },
-            openShishaModal() { 
-                document.getElementById('shishaModalOverlay').classList.add('active');
-                setTimeout(() => { initShishaButtons(this); }, 100);
-            },
+            closeWithdrawModal() { this.withdrawModalVisible = false; },
+            processWithdraw() { let amt = parseFloat(this.withdrawAmount); if(isNaN(amt)||amt<=0||amt>this.balance){this.showAlert("Invalid or insufficient funds");return;} this.balance-=amt; this.updateAccountBalance(); this.showAlert(`Withdrew R${amt.toFixed(2)}`); this.closeWithdrawModal(); },
+            openBackOfficeModal() { this.staffPin = ""; this.backOfficeModalVisible = true; setTimeout(()=>{if(this.$refs.staffPinInput)this.$refs.staffPinInput.focus();},300); },
+            closeBackOfficeModal() { this.backOfficeModalVisible = false; },
+            confirmBackOfficeAccess() { if(this.staffPin === "randscapetown") { this.showToast("Access granted"); this.closeBackOfficeModal(); setTimeout(()=>{ window.location.href = "event-manager.html"; },500); } else { this.showAlert("Access denied"); this.staffPin=""; } },
+            openShishaModal() { document.getElementById('shishaModalOverlay').classList.add('active'); const btn = document.getElementById('shishaPlaceOrderBtn'); if(btn) btn.onclick = () => { if(this.balance>=260){ this.balance-=260; this.updateAccountBalance(); this.showAlert("Hookah ordered! R260 deducted"); document.getElementById('shishaWalletBalance').innerText=`R${this.balance.toFixed(2)}`; } else this.showAlert("Insufficient balance"); }; document.getElementById('shishaWalletBalance').innerText=`R${this.balance.toFixed(2)}`; },
             openBoozeModal() { this.boozeModalVisible = true; },
             closeBoozeModal() { this.boozeModalVisible = false; },
-            selectBoozeOption(option) {
-                this.boozeModalVisible = false;
-                if (option === 'keep') { this.showAlert('🔒 Opening Keep Booze - Premium Locker Storage'); setTimeout(() => { window.open('keep-booze.html', '_blank'); }, 500); }
-                else if (option === 'collect') { this.showAlert('🎯 Opening Collect Booze - Retrieve Your Bottles'); setTimeout(() => { window.open('collect-booze.html', '_blank'); }, 500); }
-                else if (option === 'vault') { this.showAlert('🏦 Opening My Booze Vault'); setTimeout(() => { window.open('my-booze-vault.html', '_blank'); }, 500); }
-            },
+            selectBoozeOption(opt) { this.closeBoozeModal(); this.showAlert(`${opt === 'keep' ? 'Keep Booze' : 'Collect Booze'} feature coming soon`); },
             openVVIPModal() { this.initVVIPBand(); document.getElementById('vvipModalOverlay').classList.add('active'); },
             initVVIPBand() {
-                const ACCOUNTS_KEY = 'rands_accounts_v2', VVIP_BANDS_KEY = 'vvip_bands';
-                let accounts = [], vvipBands = {};
-                function loadAccounts() { const stored = localStorage.getItem(ACCOUNTS_KEY); if (stored) accounts = JSON.parse(stored); else accounts = [{ id: "0635713652", name: "Mziwonke KaBuyaphi", phone: "0635713652", balance: 28500, status: "Active", verified: true, tier: "Sovereign" }]; localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); }
-                function loadVVIPBands() { const stored = localStorage.getItem(VVIP_BANDS_KEY); vvipBands = stored ? JSON.parse(stored) : {}; }
-                function saveVVIPBands() { localStorage.setItem(VVIP_BANDS_KEY, JSON.stringify(vvipBands)); }
-                function generateMajesticBandId(accountId, name) { const prefix = "SVRGN", code = accountId.replace(/[^0-9]/g, '').slice(-5), initials = name.split(' ').map(n => n[0]).join('').toUpperCase(), royalSuffix = Math.floor(Math.random() * 9000 + 1000); return `${prefix}-${code}${initials}-${royalSuffix}`; }
-                function ensureVVIPBand() {
-                    const acc = this.currentUser; // Use currently logged in user
-                    if (!acc) return;
-                    if (vvipBands[acc.id]) {
-                        document.getElementById('vvipBandNumber').textContent = vvipBands[acc.id].bandId;
-                        document.getElementById('bandIdDisplay').textContent = vvipBands[acc.id].bandId;
-                        document.getElementById('bandWalletName').textContent = acc.name.toUpperCase();
-                        const qrContainer = document.getElementById('vvipBandQR');
-                        if (qrContainer && typeof QRCode !== 'undefined') { qrContainer.innerHTML = ""; new QRCode(qrContainer, { text: `SOVEREIGN:${vvipBands[acc.id].bandId}|${acc.id}|${acc.name}|CASHless|THRONE`, width: 130, height: 130, colorDark: "#E30613", correctLevel: QRCode.CorrectLevel.H }); }
-                    } else {
-                        const majesticId = generateMajesticBandId(acc.id, acc.name);
-                        const newBand = { bandId: majesticId, accountId: acc.id, accountName: acc.name, status: "Sovereign Active", createdAt: new Date().toISOString(), cashlessEnabled: true, accessLevel: "Absolute VVIP" };
-                        vvipBands[acc.id] = newBand;
-                        saveVVIPBands();
-                        document.getElementById('vvipBandNumber').textContent = newBand.bandId;
-                        document.getElementById('bandIdDisplay').textContent = newBand.bandId;
-                        document.getElementById('bandWalletName').textContent = acc.name.toUpperCase();
-                        const qrContainer = document.getElementById('vvipBandQR');
-                        if (qrContainer && typeof QRCode !== 'undefined') { qrContainer.innerHTML = ""; new QRCode(qrContainer, { text: `SOVEREIGN:${newBand.bandId}|${acc.id}|${acc.name}|CASHless|THRONE`, width: 130, height: 130, colorDark: "#E30613", correctLevel: QRCode.CorrectLevel.H }); }
-                    }
+                const acc = this.currentUser;
+                if(acc) {
+                    let bands = JSON.parse(localStorage.getItem('vvip_bands') || '{}');
+                    if(!bands[acc.id]) bands[acc.id] = { bandId: `SVRGN-${acc.id.slice(-5)}-${Math.floor(Math.random()*9000+1000)}`, accountId: acc.id };
+                    localStorage.setItem('vvip_bands', JSON.stringify(bands));
+                    document.getElementById('vvipBandNumber').innerText = bands[acc.id].bandId;
+                    document.getElementById('printVVIPBandBtn').onclick = () => { this.showAlert(`Band ${bands[acc.id].bandId} forged!`); };
                 }
-                async function printVVIPBandFn() { const acc = this.currentUser; if (!acc) return; const band = vvipBands[acc.id]; if (band) { const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>RANDS SOVEREIGN'S CIRCLE - ${band.bandId}</title><style>body{font-family:'Playfair Display','Inter',serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;margin:0;padding:20px}.band-card{background:linear-gradient(145deg,#fff,#f8f9fa);border:3px solid #E30613;border-radius:48px;padding:32px;text-align:center;max-width:420px;width:100%;box-shadow:0 25px 40px rgba(227,6,19,0.15)}.crown-icon{font-size:64px;color:#FFD700;margin-bottom:8px}h1{color:#1a1a2e;font-size:24px;margin:5px 0;letter-spacing:2px}.sub{color:#B8860B;font-size:11px;text-transform:uppercase}.band-id{font-family:monospace;font-size:18px;font-weight:bold;color:#E30613;background:#f0f0f0;padding:8px 16px;border-radius:40px;display:inline-block;margin:15px 0;border:1px solid #E30613}.qr-container{background:#fff;padding:15px;border-radius:32px;display:inline-block;margin:15px 0}.info{text-align:left;background:rgba(0,0,0,0.04);border-radius:28px;padding:16px;margin:15px 0;color:#444;border:1px solid rgba(227,6,19,0.15)}.info div{margin:8px 0;display:flex;gap:12px}.info i{color:#E30613;width:24px}.footer{font-size:9px;color:#888;margin-top:20px}button{background:#E30613;color:#fff;border:none;padding:12px 20px;border-radius:60px;font-weight:bold;margin-top:15px;cursor:pointer;width:100%}</style></head><body><div class="band-card"><div class="crown-icon"><i class="fas fa-crown"></i></div><h1>RANDS SOVEREIGN'S CIRCLE</h1><div class="sub">✦ Imperial Access & Cashless Rule ✦</div><div class="band-id">${band.bandId}</div><div class="qr-container" id="printQR"></div><div class="info"><div><i class="fas fa-tag"></i> <strong>Sovereign ID:</strong> ${band.bandId}</div><div><i class="fas fa-user"></i> <strong>Chosen:</strong> ${acc.name}</div><div><i class="fas fa-door-open"></i> <strong>Access:</strong> All VVIP Realms + Sanctum</div><div><i class="fas fa-credit-card"></i> <strong>Cashless:</strong> Infinite Command at POS</div></div><div class="footer">Present this QR at any Sovereign Gate or Imperial Kiosk</div><button onclick="window.print();">⚡ Forge Physical Wristband ⚡</button></div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script><script>new QRCode(document.getElementById("printQR"),{text:"SOVEREIGN:${band.bandId}|${acc.id}|${acc.name}|CASHless|THRONE",width:150,height:150,colorDark:"#E30613"});<\/script></body></html>`); printWindow.document.close(); this.showToast(`👑 Imperial Wristband "${band.bandId}" forged!`); } }
-                function showPaymentInstructionsFn() { showScrollableAlert("⚜️ THE SOVEREIGN'S CASHLESS DECREE ⚜️\n\nAt any VVIP POS or Kiosk:\n\n1️⃣ Present your QR wristband (Imperial Seal).\n2️⃣ The system will recognize your Sovereign tier.\n3️⃣ Amount is deducted instantly from your Rands Wallet.\n4️⃣ Receive real-time throne notification.\n\n✨ Benefits: No queues, exclusive limits, VIP treatment.\n👑 Access includes: Royal Bars, Designer Shops, VIP Lounges, Fast Lane.", "Cashless Decree"); }
-                loadAccounts(); loadVVIPBands(); ensureVVIPBand.bind(this)();
-                document.getElementById('printVVIPBandBtn')?.addEventListener('click', printVVIPBandFn.bind(this));
-                document.getElementById('howToPayBtn')?.addEventListener('click', showPaymentInstructionsFn);
-            },
-            openCounterSelection() { this.counterModalVisible = true; },
-            closeCounterModal() { this.counterModalVisible = false; this.selectedCounter = null; },
-            selectCounter(counter) {
-                this.selectedCounter = counter;
-                this.counterModalVisible = false;
-                const counterName = counter === 'rands' ? 'Rands Smart Counter' : 'The Butcher Counter';
-                this.showToast(`🔄 Opening ${counterName} payment...`);
-                setTimeout(() => { window.open(counter === 'rands' ? 'rands-smart-counter.html' : 'butcher-counter.html', '_blank'); }, 500);
             },
             openRefundModal() { this.refundRequest = { amount: '', transactionId: '', reason: '', details: '' }; this.refundModalVisible = true; },
             closeRefundModal() { this.refundModalVisible = false; },
             submitRefundRequest() {
-                if (!this.refundRequest.amount || parseFloat(this.refundRequest.amount) <= 0) { this.showAlert('❌ Please enter a valid refund amount'); return; }
-                if (parseFloat(this.refundRequest.amount) > this.balance) { this.showAlert('❌ Refund amount cannot exceed your available balance'); return; }
-                if (!this.refundRequest.transactionId) { this.showAlert('❌ Please enter the transaction ID / reference'); return; }
-                if (!this.refundRequest.reason) { this.showAlert('❌ Please select a reason for refund'); return; }
-                const refundRequestData = { id: Date.now(), userId: this.currentUser?.id || 'unknown', userPhone: this.currentUser?.phone || '', amount: parseFloat(this.refundRequest.amount), transactionId: this.refundRequest.transactionId, reason: this.refundRequest.reason, details: this.refundRequest.details, status: 'pending', dateSubmitted: new Date().toISOString() };
-                let pendingRefunds = JSON.parse(localStorage.getItem('rands_refund_requests') || '[]');
-                pendingRefunds.push(refundRequestData);
-                localStorage.setItem('rands_refund_requests', JSON.stringify(pendingRefunds));
-                this.showAlert(`✅ Refund request of R${parseFloat(this.refundRequest.amount).toFixed(2)} submitted! Admin will review within 24-48 hours.`);
+                if(!this.refundRequest.amount || parseFloat(this.refundRequest.amount)<=0) { this.showAlert("Valid amount required"); return; }
+                if(parseFloat(this.refundRequest.amount) > this.balance) { this.showAlert("Amount exceeds balance"); return; }
+                if(!this.refundRequest.transactionId) { this.showAlert("Transaction ID required"); return; }
+                const refundData = { id: Date.now(), userId: this.currentUser?.id, userPhone: this.currentUser?.phone || this.currentUser?.id, amount: parseFloat(this.refundRequest.amount), transactionId: this.refundRequest.transactionId, reason: this.refundRequest.reason, details: this.refundRequest.details, status: 'pending', dateSubmitted: new Date().toISOString() };
+                let pending = JSON.parse(localStorage.getItem('rands_refund_requests') || '[]');
+                pending.push(refundData);
+                localStorage.setItem('rands_refund_requests', JSON.stringify(pending));
+                this.showAlert(`Refund request of R${refundData.amount.toFixed(2)} submitted for admin review`);
                 this.closeRefundModal();
-                this.refundRequest = { amount: '', transactionId: '', reason: '', details: '' };
             },
-            checkInEvent() {
-                let newCount = this.checkins + 1;
-                if (newCount > 500) { this.showAlert("🎉 You're already at peak vibe! VVIP unlocked for all!"); return; }
-                this.checkins = newCount;
-                if (this.checkins === 100) this.showAlert("🎵 100 people checked in! FREE DJ SET unlocked for the whole crowd!");
-                else if (this.checkins === 250) this.showAlert("🍾 250 vibes! FREE ROUND OF DRINKS unlocked for everyone!");
-                else if (this.checkins === 500) this.showAlert("👑 LEGENDARY! 500 checked in → ENTIRE CROWD upgraded to VVIP + Free bottle!");
-                else this.showAlert(`✅ You checked in! Crowd energy: ${this.checkins}/500. Keep the vibe rising!`);
-            },
+            checkInEvent() { let nc = this.checkins + 1; if(nc>500){this.showAlert("Max vibe reached!");return;} this.checkins=nc; this.showAlert(`Checked in! Vibe: ${this.checkins}/500`); },
             closeModal() { this.paymentModalVisible = false; this.securityPin = ""; }
         }
     });
