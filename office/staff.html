@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Rands | Staff Operations Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fb; overflow-x: hidden; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 270px; height: 100%; background: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.05); z-index: 100; transition: all 0.3s ease; overflow-y: auto; border-right: 1px solid #edf2f7; }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #eff3f8; display: flex; align-items: center; gap: 12px; }
+        .tenant-logo { width: 42px; height: 42px; background: #E30613; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; }
+        .tenant-info h3 { font-size: 1rem; font-weight: 700; color: #1e293b; }
+        .tenant-info p { font-size: 0.7rem; color: #6c7a8e; }
+        .role-badge-header { background: #fef3c7; color: #d97706; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
+        .nav-menu { padding: 20px 0; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; color: #4a5568; font-weight: 500; transition: all 0.2s; cursor: pointer; }
+        .nav-item i { width: 22px; font-size: 1.1rem; }
+        .nav-item:hover { background: #fff0f0; color: #E30613; }
+        .nav-item.active { background: #E30613; color: white; box-shadow: 0 4px 10px rgba(227,6,19,0.2); }
+        .nav-item.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+        .main-content { margin-left: 270px; transition: all 0.3s ease; min-height: 100vh; }
+        .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; }
+        .header-left h3 { font-size: 1.2rem; font-weight: 600; color: #1e293b; }
+        .header-right { display: flex; align-items: center; gap: 24px; }
+        .notification-icon { position: relative; cursor: pointer; font-size: 1.2rem; color: #4a5568; }
+        .badge-dot { position: absolute; top: -4px; right: -6px; width: 10px; height: 10px; background: #E30613; border-radius: 50%; border: 2px solid white; }
+        .profile-dropdown { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 12px; border-radius: 40px; background: #f8fafd; }
+        .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .dashboard-container { padding: 28px 32px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: white; border-radius: 28px; padding: 20px; border: 1px solid #edf2f7; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -12px rgba(0,0,0,0.1); }
+        .stat-icon { width: 48px; height: 48px; background: #fff0f0; border-radius: 24px; display: flex; align-items: center; justify-content: center; color: #E30613; font-size: 1.4rem; margin-bottom: 16px; }
+        .stat-title { font-size: 0.75rem; font-weight: 500; color: #6c7a8e; text-transform: uppercase; }
+        .stat-number { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-top: 6px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 20px 0; flex-wrap: wrap; gap: 12px; }
+        .section-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; }
+        .btn-success { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; }
+        .table-wrapper { overflow-x: auto; background: white; border-radius: 24px; border: 1px solid #edf2f7; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .data-table th, .data-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .status-badge { padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .status-active { background: #e6f7e6; color: #10b981; }
+        .status-warning { background: #fff3e0; color: #f59e0b; }
+        .status-success { background: #e0f2fe; color: #0ea5e9; }
+        .status-valid { background: #d1fae5; color: #059669; }
+        .status-invalid { background: #fee2e2; color: #dc2626; }
+        .queue-list { background: white; border-radius: 24px; border: 1px solid #edf2f7; overflow: hidden; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+        .item-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 30px; background: #f1f5f9; }
+        .form-control { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 40px; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+        .modal-mask { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s; }
+        .modal-mask.active { visibility: visible; opacity: 1; }
+        .modal-container { background: white; width: 90%; max-width: 500px; border-radius: 32px; padding: 28px; }
+        .scanner-area { background: #1a1e24; border-radius: 24px; padding: 40px; text-align: center; margin-bottom: 24px; }
+        .scanner-placeholder { font-size: 4rem; color: #E30613; margin-bottom: 16px; }
+        .sync-status { display: flex; align-items: center; gap: 6px; background: #f0fdf4; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
+        .sync-status i { font-size: 0.65rem; }
+        .sync-status.warning { background: #fef3c7; color: #d97706; }
+        .permission-message { text-align: center; padding: 60px 20px; background: white; border-radius: 28px; border: 1px solid #edf2f7; }
+        .permission-message i { font-size: 48px; color: #E30613; margin-bottom: 16px; display: block; }
+        .fullscreen-active .sidebar, .fullscreen-active .top-header .header-right .notification-icon, .fullscreen-active .top-header .menu-toggle { display: none !important; }
+        .fullscreen-active .top-header { justify-content: space-between !important; gap: 20px !important; position: fixed; top: 0; left: 0; right: 0; z-index: 10001; }
+        .fullscreen-active .dashboard-container { margin-top: 70px; }
+        .fullscreen-active .main-content { margin-left: 0 !important; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; background: #f5f7fb; overflow-y: auto; }
+        .fullscreen-active .exit-fullscreen-btn { display: flex !important; }
+        .fullscreen-active .fullscreen-btn-module { display: none; }
+        .fullscreen-active .header-right { display: flex !important; }
+        .exit-fullscreen-btn { display: none; background: #E30613; color: white; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; font-size: 0.85rem; cursor: pointer; align-items: center; gap: 8px; margin-left: auto; }
+        .fullscreen-btn-module { background: transparent; border: 1px solid #E30613; color: #E30613; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-left: auto; transition: 0.2s; }
+        .fullscreen-btn-module:hover { background: #fff0f0; }
+        .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; color: #1e293b; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .dashboard-container { padding: 20px; }
+            .menu-toggle { display: block; margin-right: 16px; }
+            .fullscreen-btn-module { padding: 4px 10px; font-size: 0.7rem; }
+            .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
+        }
+        @media (min-width: 769px) { .menu-toggle { display: none; } }
+    </style>
+</head>
+<body>
+<div id="app">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
+        <div class="sidebar-header">
+            <div class="tenant-logo" :style="{ backgroundColor: branding.primaryColor }">{{ tenantInitial }}</div>
+            <div class="tenant-info">
+                <h3>{{ tenantName }}</h3>
+                <p>Staff Portal</p>
+                <span class="role-badge-header"><i class="fas fa-user-tag"></i> {{ staffRoleDisplay }}</span>
+            </div>
+        </div>
+        <div class="nav-menu">
+            <div v-for="item in dynamicMenu" :key="item.id" class="nav-item" :class="{ active: currentSection === item.id }" @click="currentSection = item.id; closeSidebar()">
+                <i :class="item.icon"></i>
+                <span>{{ item.label }}</span>
+            </div>
+        </div>
+    </aside>
+
+```
+<div class="main-content">
+    <div class="top-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+            <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
+        </div>
+        <div class="sync-status" :class="{ warning: syncWarning }">
+            <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
+            <span>{{ syncStatusText }}</span>
+        </div>
+        <div class="header-right">
+            <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
+            <div class="profile-dropdown" @click="logout">
+                <div class="avatar">{{ staffInitial }}</div>
+                <span style="font-size:0.85rem;">{{ staffName }}</span>
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+        </div>
+        <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen</button>
+        <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit</button>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- DASHBOARD -->
+        <div v-if="currentSection === 'dashboard'">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Today's Sales</div><div class="stat-number">R {{ todaySales }}</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Queue Position</div><div class="stat-number">{{ queueCount }}</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Pending Orders</div><div class="stat-number">{{ pendingOrdersCount }}</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-qrcode"></i></div><div class="stat-title">Scanned Today</div><div class="stat-number">{{ scannedToday }}</div></div>
+            </div>
+            <div class="section-header"><h2>Quick Actions</h2></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <button class="btn-primary" @click="currentSection = 'boxoffice'" v-if="isScreenAvailable('boxoffice')"><i class="fas fa-ticket-alt"></i> Box Office POS</button>
+                <button class="btn-primary" @click="currentSection = 'gatecontrol'" v-if="isScreenAvailable('gatecontrol')"><i class="fas fa-qrcode"></i> Gate Scanner</button>
+                <button class="btn-primary" @click="currentSection = 'butcher-pos'" v-if="isScreenAvailable('butcher-pos')"><i class="fas fa-utensils"></i> Butcher POS</button>
+                <button class="btn-primary" @click="currentSection = 'shisha-pos'" v-if="isScreenAvailable('shisha-pos')"><i class="fas fa-smoking"></i> Shisha POS</button>
+                <button class="btn-primary" @click="currentSection = 'shisha-admin'" v-if="isScreenAvailable('shisha-admin')"><i class="fas fa-cog"></i> Shisha Admin</button>
+                <button class="btn-primary" @click="currentSection = 'vvip'" v-if="isScreenAvailable('vvip')"><i class="fas fa-crown"></i> VVIP Concierge</button>
+            </div>
+        </div>
+
+        <!-- BOX OFFICE POS -->
+        <div v-if="currentSection === 'boxoffice' && isScreenAvailable('boxoffice')">
+            <div class="section-header"><h2><i class="fas fa-ticket-alt"></i> Box Office POS</h2></div>
+            <div class="scanner-area">
+                <div class="scanner-placeholder"><i class="fas fa-camera"></i></div>
+                <p style="color: white; margin-bottom: 16px;">Sell tickets or scan for entry</p>
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <input type="text" class="form-control" v-model="scanCode" placeholder="Enter ticket ID" style="max-width: 250px;">
+                    <button class="btn-primary" @click="sellTicket"><i class="fas fa-dollar-sign"></i> Sell Ticket</button>
+                    <button class="btn-outline" @click="validateTicket" style="background:white;"><i class="fas fa-check"></i> Validate Entry</button>
+                </div>
+            </div>
+            <div class="section-header"><h2>Today's Ticket Sales</h2></div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Ticket ID</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
+                    <tbody>
+                        <tr v-for="sale in ticketSales" :key="sale.id"><td>{{ sale.id }}</td><td>{{ sale.event }}</td><td>R{{ sale.amount }}</td><td>{{ sale.time }}</td></tr>
+                        <tr v-if="ticketSales.length === 0"><td colspan="4" style="text-align:center;">No sales today</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GATE CONTROL -->
+        <div v-if="currentSection === 'gatecontrol' && isScreenAvailable('gatecontrol')">
+            <div class="section-header"><h2><i class="fas fa-qrcode"></i> Gate Scanner</h2></div>
+            <div class="scanner-area">
+                <div class="scanner-placeholder"><i class="fas fa-camera"></i></div>
+                <p style="color: white; margin-bottom: 16px;">Scan tickets for entry validation only</p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <input type="text" class="form-control" v-model="scanCodeGate" placeholder="Scan or enter ticket ID" style="max-width: 300px;">
+                    <button class="btn-primary" @click="validateGateTicket"><i class="fas fa-check-circle"></i> Validate & Allow Entry</button>
+                </div>
+            </div>
+            <div class="section-header"><h2>Recent Validations</h2></div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Ticket ID</th><th>Status</th><th>Time</th></tr></thead>
+                    <tbody>
+                        <tr v-for="scan in gateScans" :key="scan.id"><td>{{ scan.id }}</td><td><span class="status-badge" :class="scan.valid ? 'status-valid' : 'status-invalid'">{{ scan.valid ? 'Entry Granted' : 'Invalid' }}</span></td><td>{{ scan.time }}</td></tr>
+                        <tr v-if="gateScans.length === 0"><td colspan="3" style="text-align:center;">No scans yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BUTCHER POS -->
+        <div v-if="currentSection === 'butcher-pos' && isScreenAvailable('butcher-pos')">
+            <div class="section-header"><h2><i class="fas fa-utensils"></i> Butcher POS</h2></div>
+            <div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Current Order</div><div class="stat-number">R {{ butcherCartTotal }}</div></div></div>
+            <div class="section-header"><h2>Food Menu</h2></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                <button v-for="item in butcherMenu" :key="item.id" class="btn-outline" style="padding: 12px;" @click="addToButcherCart(item)">{{ item.name }} - R{{ item.price }}</button>
+            </div>
+            <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutButcher"><i class="fas fa-credit-card"></i> Complete Sale (R{{ butcherCartTotal }})</button></div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+                    <tbody>
+                        <tr v-for="(item, idx) in butcherCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromButcherCart(idx)"></i></td></tr>
+                        <tr v-if="butcherCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SHISHA POS -->
+        <div v-if="currentSection === 'shisha-pos' && isScreenAvailable('shisha-pos')">
+            <div class="section-header"><h2><i class="fas fa-smoking"></i> Shisha POS</h2></div>
+            <div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Current Order</div><div class="stat-number">R {{ shishaCartTotal }}</div></div></div>
+            <div class="section-header"><h2>Shisha Menu</h2></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                <button v-for="item in shishaMenu" :key="item.id" class="btn-outline" style="padding: 12px;" @click="addToShishaCart(item)">{{ item.name }} - R{{ item.price }}</button>
+            </div>
+            <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutShisha"><i class="fas fa-credit-card"></i> Complete Sale (R{{ shishaCartTotal }})</button></div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+                    <tbody>
+                        <tr v-for="(item, idx) in shishaCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromShishaCart(idx)"></i></td></tr>
+                        <tr v-if="shishaCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SHISHA ADMIN -->
+        <div v-if="currentSection === 'shisha-admin' && isScreenAvailable('shisha-admin')">
+            <div class="section-header"><h2><i class="fas fa-cog"></i> Shisha Admin</h2><button class="btn-primary" @click="startShishaSession"><i class="fas fa-plus"></i> Start Session</button></div>
+            <div v-for="session in shishaSessions" :key="session.id" class="item-card">
+                <div><strong>Table {{ session.table }}</strong> - {{ session.customer }}<div>Started: {{ session.timeStart }}</div><div>Flavor: {{ session.flavor || 'Double Apple' }}</div></div>
+                <button class="btn-outline" @click="endShishaSession(session.id)">End Session</button>
+            </div>
+            <div v-if="shishaSessions.length === 0" style="padding: 40px; text-align: center; color: #94a3b8;">No active shisha sessions</div>
+        </div>
+
+        <!-- VVIP CONCIERGE -->
+        <div v-if="currentSection === 'vvip' && isScreenAvailable('vvip')">
+            <div class="section-header"><h2><i class="fas fa-crown"></i> VVIP Concierge</h2><button class="btn-primary" @click="addVvipItem"><i class="fas fa-plus"></i> Add Charge</button></div>
+            <div v-for="tab in vvipTabs" :key="tab.id" class="item-card">
+                <div><strong>{{ tab.customer }}</strong><div>Balance: R{{ tab.balance }} | Limit: R{{ tab.limit }}</div></div>
+                <div><button class="btn-outline" @click="closeTab(tab.id)">Close Tab</button><button class="btn-outline" style="margin-left:8px;" @click="addToTab(tab.id)">Add Item</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal-mask" :class="{ active: showValidationModal }">
+    <div class="modal-container" style="text-align:center;">
+        <i class="fas" :class="validationResult.valid ? 'fa-check-circle' : 'fa-times-circle'" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: validationResult.valid ? '#10b981' : '#dc2626' }"></i>
+        <h3>{{ validationResult.valid ? 'Valid Ticket!' : 'Invalid Ticket' }}</h3>
+        <p style="margin: 16px 0;">{{ validationResult.message }}</p>
+        <button class="btn-primary" @click="showValidationModal = false">Close</button>
+    </div>
+</div>
+
+<div class="modal-mask" :class="{ active: showInfoModal }">
+    <div class="modal-container" style="text-align:center;">
+        <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
+        <h3>{{ infoTitle }}</h3>
+        <p style="margin: 16px 0;">{{ infoMessage }}</p>
+        <button class="btn-primary" @click="showInfoModal = false">OK</button>
+    </div>
+</div>
+```
+
+</div>
+
+<script>
+    const STORAGE_KEYS = { TENANTS: 'qless_tenants', STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules' };
+
+    // CORRECTED SCREEN REQUIREMENTS - matches Super Admin module names exactly
+    const SCREEN_REQUIREMENTS = {
+        'boxoffice': {
+            label: 'Box Office POS',
+            icon: 'fas fa-ticket-alt',
+            requiredModules: ['Tickets'],
+            allowedRoles: ['boxoffice', 'venuemanager']
+        },
+        'gatecontrol': {
+            label: 'Gate Scanner',
+            icon: 'fas fa-qrcode',
+            requiredModules: ['Tickets'],
+            allowedRoles: ['gatecontrol', 'venuemanager']
+        },
+        'butcher-pos': {
+            label: 'Butcher POS',
+            icon: 'fas fa-utensils',
+            requiredModules: ['Self-Serve Kiosk'],
+            allowedRoles: ['hospitality', 'venuemanager']
+        },
+        'shisha-pos': {
+            label: 'Shisha POS',
+            icon: 'fas fa-smoking',
+            requiredModules: ['Self-Serve Kiosk'],
+            allowedRoles: ['shishamaster', 'venuemanager']
+        },
+        'shisha-admin': {
+            label: 'Shisha Admin',
+            icon: 'fas fa-cog',
+            requiredModules: ['Shisha System'],
+            allowedRoles: ['shishamaster', 'venuemanager']
+        },
+        'vvip': {
+            label: 'VVIP Concierge',
+            icon: 'fas fa-crown',
+            requiredModules: ['VVIP Management'],
+            allowedRoles: ['venuemanager']
+        }
+    };
+
+    const ROLE_DISPLAY = {
+        boxoffice: 'Box Office', gatecontrol: 'Gate Control', hospitality: 'Hospitality',
+        shishamaster: 'Shisha Master', support: 'Support Staff', venuemanager: 'Venue Manager'
+    };
+
+    new Vue({
+        el: '#app',
+        data: {
+            sidebarOpen: false, currentSection: 'dashboard', tenantId: null, tenantName: 'Loading...',
+            staffName: 'Staff Member', staffRole: 'support', staffRoleDisplay: 'Support Staff',
+            branding: { primaryColor: '#E30613', logoUrl: '' }, tenantModules: [],
+            todaySales: 8450, queueCount: 12, pendingOrdersCount: 5, scannedToday: 67,
+            scanCode: '', scanCodeGate: '', ticketSales: [], gateScans: [],
+            butcherMenu: [{ id: 1, name: 'Burger', price: 65 }, { id: 2, name: 'Pizza', price: 120 }, { id: 3, name: 'Wings', price: 55 }, { id: 4, name: 'Steak', price: 150 }, { id: 5, name: 'Chips', price: 35 }, { id: 6, name: 'Soda', price: 25 }],
+            butcherCart: [],
+            shishaMenu: [{ id: 1, name: 'Double Apple', price: 120 }, { id: 2, name: 'Blue Mist', price: 120 }, { id: 3, name: 'Watermelon', price: 120 }, { id: 4, name: 'Grape Mint', price: 130 }, { id: 5, name: 'Peach', price: 120 }, { id: 6, name: 'Lemon Mint', price: 125 }],
+            shishaCart: [],
+            shishaSessions: [{ id: 1, table: '5', customer: 'VIP Group', timeStart: '09:30', flavor: 'Double Apple' }, { id: 2, table: '8', customer: 'Lounge', timeStart: '10:00', flavor: 'Blue Mist' }],
+            vvipTabs: [{ id: 1, customer: 'Mr. Khumalo', balance: 1250, limit: 5000 }, { id: 2, customer: 'Ms. Ndlovu', balance: 350, limit: 2000 }, { id: 3, customer: 'The Royal Family', balance: 5000, limit: 10000 }],
+            showValidationModal: false, validationResult: { valid: false, message: '' }, showInfoModal: false,
+            infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
+            syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null
+        },
+        computed: {
+            tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
+            staffInitial() { return this.staffName ? this.staffName.charAt(0).toUpperCase() : 'S'; },
+            shishaCartTotal() { return this.shishaCart.reduce((sum, item) => sum + (item.price * item.qty), 0); },
+            butcherCartTotal() { return this.butcherCart.reduce((sum, item) => sum + (item.price * item.qty), 0); },
+            dynamicMenu() {
+                const menu = [{ id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' }];
+                for (const [screenId, requirements] of Object.entries(SCREEN_REQUIREMENTS)) {
+                    const modulesEnabled = requirements.requiredModules.every(moduleName => this.isModuleEnabled(moduleName));
+                    const roleAllowed = requirements.allowedRoles.includes(this.staffRole);
+                    if (modulesEnabled && roleAllowed) {
+                        menu.push({ id: screenId, label: requirements.label, icon: requirements.icon });
+                    }
+                }
+                return menu;
+            },
+            currentSectionTitle() {
+                const item = this.dynamicMenu.find(i => i.id === this.currentSection);
+                if (item) return item.label;
+                const screenReq = SCREEN_REQUIREMENTS[this.currentSection];
+                return screenReq ? screenReq.label : 'Dashboard';
+            }
+        },
+        methods: {
+            closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
+            showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') {
+                this.infoTitle = title; this.infoMessage = message; this.infoIcon = icon; this.infoIconColor = iconColor; this.showInfoModal = true;
+            },
+            isScreenAvailable(screenId) {
+                const requirements = SCREEN_REQUIREMENTS[screenId];
+                if (!requirements) return false;
+                const modulesEnabled = requirements.requiredModules.every(moduleName => this.isModuleEnabled(moduleName));
+                const roleAllowed = requirements.allowedRoles.includes(this.staffRole);
+                return modulesEnabled && roleAllowed;
+            },
+            isModuleEnabled(moduleName) {
+                const module = this.tenantModules.find(m => m.name === moduleName);
+                return module ? module.enabled : false;
+            },
+            setupRealtimeSync() {
+                window.addEventListener('storage', (e) => {
+                    // Module changes from Super Admin
+                    if (e.key === STORAGE_KEYS.TENANT_MODULES) {
+                        this.syncing = true; this.syncStatusText = 'Updating...';
+                        setTimeout(() => { this.loadModules(); this.syncing = false; this.syncStatusText = 'Live'; this.syncWarning = false; this.showAlert('Modules Updated', 'Available screens have been updated by your manager.', 'fas fa-sync-alt', '#10b981'); }, 500);
+                    }
+                    // Branding changes from Brand Studio or Admin settings
+                    if (e.key === `qless_tenant_branding_${this.tenantId}` && e.newValue) {
+                        const data = JSON.parse(e.newValue);
+                        this.tenantName = data.tenantName || this.tenantName;
+                        this.branding = data.branding || this.branding;
+                        this.applyBrandingToDOM();
+                    }
+                });
+                this.syncInterval = setInterval(() => {
+                    this.syncing = true; this.syncStatusText = 'Checking...';
+                    const oldModules = JSON.stringify(this.tenantModules);
+                    this.loadModules();
+                    if (JSON.stringify(this.tenantModules) !== oldModules) { this.syncWarning = true; this.syncStatusText = 'Update Available'; }
+                    else { this.syncStatusText = 'Live'; this.syncWarning = false; }
+                    this.syncing = false;
+                }, 30000);
+            },
+            loadStaffData() {
+                const tenantId = sessionStorage.getItem('qless_tenant_id');
+                const staffDisplayName = sessionStorage.getItem('qless_user_name');
+                const staffRole = sessionStorage.getItem('qless_staff_role');
+                if (!tenantId) { this.showAlert('Session Expired', 'Please login again.', 'fas fa-exclamation-triangle', '#dc2626'); setTimeout(() => { window.location.href = 'login.html'; }, 2000); return; }
+                this.tenantId = parseInt(tenantId);
+                this.staffName = staffDisplayName || 'Staff Member';
+                this.staffRole = staffRole || 'support';
+                this.staffRoleDisplay = ROLE_DISPLAY[this.staffRole] || 'Staff';
+                const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
+                const tenant = tenants.find(t => t.id === this.tenantId);
+                this.tenantName = tenant ? tenant.businessName : 'Venue';
+                this.loadModules(); this.loadBranding();
+            },
+            loadModules() {
+                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
+                const modules = allModules[this.tenantId] || [];
+                if (modules.length === 0) {
+                    this.tenantModules = [
+                        { id: 1, name: 'Tickets', enabled: true, isCustom: false },
+                        { id: 2, name: 'Queue Management', enabled: true, isCustom: false },
+                        { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false },
+                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false },
+                        { id: 5, name: 'Shisha System', enabled: false, isCustom: false },
+                        { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }
+                    ];
+                } else {
+                    this.tenantModules = modules;
+                }
+                console.log('Loaded modules:', this.tenantModules);
+                this.$forceUpdate();
+            },
+            loadBranding() {
+                const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.tenantName = data.tenantName || this.tenantName;
+                    this.branding = data.branding || { primaryColor: '#E30613', secondaryColor: '#ffffff', logoUrl: '', sidebarStyle: 'dark' };
+                }
+                this.applyBrandingToDOM();
+            },
+            applyBrandingToDOM() {
+                const primary = this.branding.primaryColor || '#E30613';
+                const secondary = this.branding.secondaryColor || '#ffffff';
+                document.documentElement.style.setProperty('--primary-color', primary);
+                // Apply secondary color to top header
+                const header = document.querySelector('.top-header');
+                if (header && secondary) header.style.backgroundColor = secondary;
+                // Apply logo to sidebar tenant-logo area
+                const logoEl = document.querySelector('.tenant-logo');
+                if (logoEl) {
+                    if (this.branding.logoUrl) {
+                        logoEl.innerHTML = `<img src="${this.branding.logoUrl}" style="width:100%; height:100%; object-fit:contain; border-radius:8px; padding:2px;">`;
+                        logoEl.style.background = 'white';
+                    } else {
+                        logoEl.innerHTML = this.tenantInitial;
+                        logoEl.style.background = primary;
+                    }
+                }
+            },
+            sellTicket() {
+                if (!this.scanCode) { this.showAlert('Missing Info', 'Please enter ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                const amount = Math.floor(Math.random() * 200) + 50;
+                this.ticketSales.unshift({ id: this.scanCode, event: 'Current Event', amount: amount, time: new Date().toLocaleTimeString() });
+                this.scannedToday++; this.todaySales += amount;
+                this.showAlert('Ticket Sold', `Ticket ${this.scanCode} sold for R${amount}`, 'fas fa-check-circle', '#10b981');
+                this.scanCode = '';
+            },
+            validateTicket() {
+                if (!this.scanCode) { this.showAlert('Missing Ticket ID', 'Please enter a ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                const isValid = Math.random() > 0.2;
+                this.validationResult = { valid: isValid, message: isValid ? `Ticket ${this.scanCode} is valid! Entry granted.` : `Ticket ${this.scanCode} is invalid or already used.` };
+                this.showValidationModal = true;
+                if (isValid) this.scannedToday++;
+                this.scanCode = '';
+            },
+            validateGateTicket() {
+                if (!this.scanCodeGate) { this.showAlert('Missing Ticket ID', 'Please scan or enter ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                const isValid = Math.random() > 0.2;
+                this.gateScans.unshift({ id: this.scanCodeGate, valid: isValid, time: new Date().toLocaleTimeString() });
+                this.validationResult = { valid: isValid, message: isValid ? `Ticket ${this.scanCodeGate} is valid! Entry granted.` : `Ticket ${this.scanCodeGate} is invalid or already used.` };
+                this.showValidationModal = true;
+                if (isValid) this.scannedToday++;
+                this.scanCodeGate = '';
+            },
+            addToButcherCart(item) { const existing = this.butcherCart.find(i => i.id === item.id); if (existing) existing.qty++; else this.butcherCart.push({ ...item, qty: 1 }); this.showAlert('Added', `${item.name} added to order`, 'fas fa-shopping-cart', '#10b981'); },
+            removeFromButcherCart(index) { this.butcherCart.splice(index, 1); },
+            checkoutButcher() { if (this.butcherCart.length === 0) { this.showAlert('Cart Empty', 'Nothing to checkout', 'fas fa-exclamation-triangle', '#dc2626'); return; } const total = this.butcherCartTotal; this.showAlert('Sale Complete', `Food order total: R${total}`, 'fas fa-check-circle', '#10b981'); this.butcherCart = []; this.todaySales += total; },
+            addToShishaCart(item) { const existing = this.shishaCart.find(i => i.id === item.id); if (existing) existing.qty++; else this.shishaCart.push({ ...item, qty: 1 }); this.showAlert('Added', `${item.name} added to order`, 'fas fa-shopping-cart', '#10b981'); },
+            removeFromShishaCart(index) { this.shishaCart.splice(index, 1); },
+            checkoutShisha() { if (this.shishaCart.length === 0) { this.showAlert('Cart Empty', 'Nothing to checkout', 'fas fa-exclamation-triangle', '#dc2626'); return; } const total = this.shishaCartTotal; this.showAlert('Sale Complete', `Shisha order total: R${total}`, 'fas fa-check-circle', '#10b981'); this.shishaCart = []; this.todaySales += total; },
+            startShishaSession() { const newId = Math.max(...this.shishaSessions.map(s => s.id), 0) + 1; this.shishaSessions.push({ id: newId, table: Math.floor(Math.random() * 20) + 1, customer: 'New Customer', timeStart: new Date().toLocaleTimeString(), flavor: 'Double Apple' }); this.showAlert('Session Started', 'New shisha session started', 'fas fa-smoking', '#10b981'); },
+            endShishaSession(id) { this.shishaSessions = this.shishaSessions.filter(s => s.id !== id); this.showAlert('Session Ended', 'Shisha session ended', 'fas fa-check-circle', '#10b981'); },
+            addVvipItem() { this.showAlert('VVIP Concierge', 'Add charge to VVIP tab', 'fas fa-crown', '#f59e0b'); },
+            closeTab(id) { this.vvipTabs = this.vvipTabs.filter(t => t.id !== id); this.showAlert('Tab Closed', 'VVIP tab has been closed', 'fas fa-check-circle', '#10b981'); },
+            addToTab(id) { this.showAlert('VVIP Concierge', `Add item to tab ${id}`, 'fas fa-crown', '#f59e0b'); },
+            logout() { if (this.syncInterval) clearInterval(this.syncInterval); sessionStorage.clear(); window.location.href = 'login.html'; }
+        },
+        mounted() {
+            const isLoggedIn = sessionStorage.getItem('qless_logged_in'); const role = sessionStorage.getItem('qless_user_role');
+            if (!isLoggedIn || role !== 'staff') { window.location.href = 'login.html'; return; }
+            this.loadStaffData(); this.setupRealtimeSync();
+            window.addEventListener('resize', () => { if(window.innerWidth > 768) this.sidebarOpen = false; });
+            setTimeout(() => {
+                const appElement = document.querySelector('#app'); if (!appElement) return;
+                let isFullscreen = false; const exitBtn = document.getElementById('exitFullscreenBtn'); const fullscreenBtn = document.getElementById('globalFullscreenBtn');
+                function toggleFullscreen() { if (!isFullscreen) { appElement.classList.add('fullscreen-active'); isFullscreen = true; if (exitBtn) exitBtn.style.display = 'flex'; if (fullscreenBtn) fullscreenBtn.style.display = 'none'; } else { appElement.classList.remove('fullscreen-active'); isFullscreen = false; if (exitBtn) exitBtn.style.display = 'none'; if (fullscreenBtn) fullscreenBtn.style.display = ''; } }
+                if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen); if (exitBtn) exitBtn.addEventListener('click', toggleFullscreen);
+            }, 500);
+        },
+        beforeDestroy() { if (this.syncInterval) clearInterval(this.syncInterval); }
+    });
+</script>
+
+</body>
+</html>
