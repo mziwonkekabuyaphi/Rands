@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>The Butcher Shop - Track Your Order</title>
 <style>
   * {
@@ -58,19 +58,6 @@
     border: 1px solid rgba(220, 38, 38, 0.2);
   }
 
-  /* VVIP Badge */
-  .vvip-badge {
-    background: linear-gradient(135deg, #ffd700, #ffaa00);
-    color: #1a1a1a;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 800;
-    display: inline-block;
-    margin-left: 10px;
-    animation: pulse 1s infinite;
-  }
-
   /* Ticket Display */
   .ticket-display {
     text-align: center;
@@ -98,10 +85,11 @@
     font-weight: 600;
     margin-top: 12px;
   }
-  .status-pending { background: #f97316; color: white; }
+  .status-new { background: #f97316; color: white; }
   .status-preparing { background: #3b82f6; color: white; }
   .status-ready { background: #10b981; color: white; animation: pulse 1s infinite; }
-  .status-collected { background: #475569; color: white; }
+  .status-completed { background: #475569; color: white; }
+  .status-called { background: #8b5cf6; color: white; }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -186,9 +174,6 @@
     align-items: center;
     gap: 8px;
   }
-  .order-items h3 i {
-    font-size: 1rem;
-  }
   .order-item {
     display: flex;
     justify-content: space-between;
@@ -224,6 +209,14 @@
     min-width: 70px;
     text-align: right;
   }
+  .item-notes {
+    background: rgba(249,115,22,0.12);
+    border-radius: 12px;
+    padding: 6px 10px;
+    margin-top: 8px;
+    font-size: 0.7rem;
+    color: #fcd34d;
+  }
   .order-total {
     display: flex;
     justify-content: space-between;
@@ -240,6 +233,25 @@
   .order-total span:last-child {
     color: #facc15;
     font-size: 1.2rem;
+  }
+
+  /* Queue Position Card */
+  .queue-position-card {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #facc15;
+  }
+  .queue-position-number {
+    font-size: 48px;
+    font-weight: 800;
+    color: #facc15;
+  }
+  .ahead-count {
+    font-size: 12px;
+    color: #94a3b8;
   }
 
   /* Ready Banner */
@@ -328,7 +340,6 @@
     opacity: 1;
   }
 
-  /* Footer */
   .footer {
     text-align: center;
     padding: 20px;
@@ -337,13 +348,9 @@
     margin-top: 20px;
   }
 
-  /* Loading & Error States */
-  .loading, .error-card {
+  .error-card {
     text-align: center;
     padding: 60px 20px;
-    color: #94a3b8;
-  }
-  .error-card {
     background: #1a1f2e;
     border-radius: 32px;
     border: 1px solid #dc2626;
@@ -354,41 +361,25 @@
     margin-bottom: 16px;
   }
 
-  /* Empty Cart State */
-  .empty-cart {
-    text-align: center;
-    padding: 30px;
-    color: #64748b;
-  }
-  .empty-cart i {
-    font-size: 2rem;
-    margin-bottom: 12px;
-    opacity: 0.5;
-  }
-
   @media (max-width: 500px) {
     body { padding: 12px; }
     .ticket-number { font-size: 2.5rem; }
     .status-card { padding: 20px; }
-    .item-name { font-size: 0.85rem; }
-    .order-total span:last-child { font-size: 1rem; }
+    .queue-position-number { font-size: 36px; }
   }
 </style>
 </head>
 <body>
 
 <div class="tracking-container" id="trackingApp">
-  <!-- Header -->
   <div class="header">
     <div class="logo">🥩</div>
     <h1>The Butcher Shop</h1>
     <p>Real-time updates for your order</p>
   </div>
 
-  <!-- Dynamic Content -->
   <div id="mainContent"></div>
 
-  <!-- Footer -->
   <div class="footer">
     The Butcher Shop • Premium Quality Meats • Fire & Grill
   </div>
@@ -397,101 +388,111 @@
 <div id="toast" class="toast"></div>
 
 <script>
-  // ==================== STORAGE KEYS (Matching Kitchen Screen) ====================
-  const VENDOR_NAME = "The Butcher Shop";
-  const GLOBAL_ORDERS_KEY = "globalOrders";
+  // ==================== STORAGE KEYS (Matching Kiosk System) ====================
+  const QUEUE_KEY = "butcher_shop_queue";
+  const ORDERS_KEY = "butcher_shop_orders";
 
   // Get URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const orderId = urlParams.get('order');
 
   // Helper functions
-  function getAllOrders() { 
-    return JSON.parse(localStorage.getItem(GLOBAL_ORDERS_KEY) || '[]'); 
-  }
+  function getQueue() { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); }
+  function getOrders() { return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); }
 
-  // Get current status with order items
+  // Get current status from kiosk data structure
   function getCurrentStatus() {
     if (!orderId) return { error: "No order number provided" };
     
-    const allOrders = getAllOrders();
+    const queue = getQueue();
+    const orders = getOrders();
     
-    // Find order that matches the orderId and vendor
-    const order = allOrders.find(o => o.orderId == orderId && o.vendor === VENDOR_NAME);
+    // Find ticket in queue
+    const ticketIndex = queue.findIndex(t => t.ticketNumber === orderId);
+    const ticket = ticketIndex !== -1 ? queue[ticketIndex] : null;
     
-    if (!order) {
-      return {
-        error: "Order not found",
-        status: "not_found",
-        statusText: "Order Not Found",
-        statusClass: "status-pending"
-      };
+    // Find order details
+    const order = orders.find(o => o.ticketNumber === orderId);
+    
+    // Calculate queue position (only for non-called, non-ready orders)
+    let position = null;
+    let aheadCount = 0;
+    if (ticketIndex !== -1 && ticket && !ticket.called) {
+      // Count how many tickets before this one that haven't been called yet
+      aheadCount = queue.filter((t, idx) => idx < ticketIndex && !t.called).length;
+      position = aheadCount + 1;
     }
     
-    // Map status from kitchen system to customer-friendly status
-    let status = order.status;
+    // Determine status from kitchenStatus or queue called flag
+    let status = "unknown";
     let statusText = "";
     let statusClass = "";
     let progressPercent = 0;
     let estimatedWait = "";
     
-    switch(order.status) {
-      case "pending":
-        statusText = "Order Received";
-        statusClass = "status-pending";
-        progressPercent = 10;
-        estimatedWait = "~10-15 min";
-        break;
-      case "preparing":
-        statusText = "Being Prepared 🔥";
-        statusClass = "status-preparing";
-        progressPercent = 50;
-        estimatedWait = "~5-10 min";
-        break;
-      case "ready":
-        statusText = "READY FOR COLLECTION! 🎉";
-        statusClass = "status-ready";
-        progressPercent = 100;
-        estimatedWait = "Ready Now!";
-        break;
-      case "collected":
-        statusText = "Collected ✓";
-        statusClass = "status-collected";
-        progressPercent = 100;
-        estimatedWait = "Enjoy your meal!";
-        break;
-      default:
-        statusText = order.status;
-        statusClass = "status-pending";
-        progressPercent = 0;
-        estimatedWait = "~10-15 min";
+    if (order && order.kitchenStatus === 'ready') {
+      status = "ready";
+      statusText = "READY FOR COLLECTION! 🎉";
+      statusClass = "status-ready";
+      progressPercent = 100;
+      estimatedWait = "Ready Now!";
+    } 
+    else if (order && order.kitchenStatus === 'preparing') {
+      status = "preparing";
+      statusText = "Being Prepared 🔥";
+      statusClass = "status-preparing";
+      progressPercent = 60;
+      estimatedWait = "~5-10 minutes";
     }
-    
-    // Calculate queue position for pending orders
-    let position = null;
-    if (order.status === "pending") {
-      const pendingOrders = allOrders.filter(o => o.vendor === VENDOR_NAME && o.status === "pending");
-      const idx = pendingOrders.findIndex(o => o.orderId == orderId);
-      position = idx !== -1 ? idx + 1 : null;
-      if (position) {
-        estimatedWait = `~${position * 5} min`;
-      }
+    else if (order && order.kitchenStatus === 'new') {
+      status = "new";
+      statusText = "Order Received 📝";
+      statusClass = "status-new";
+      progressPercent = 20;
+      estimatedWait = position ? `~${position * 4} minutes` : "~10-15 minutes";
+    }
+    else if (ticket && ticket.called === true) {
+      status = "called";
+      statusText = "YOU'RE NEXT! 🔔";
+      statusClass = "status-called";
+      progressPercent = 40;
+      estimatedWait = "Now serving!";
+    }
+    else if (ticket && ticketIndex !== -1) {
+      status = "waiting";
+      statusText = "In Queue ⏳";
+      statusClass = "status-new";
+      progressPercent = Math.min(35, Math.floor(((queue.length - position) / queue.length) * 35));
+      estimatedWait = `~${position * 4} minutes`;
+    }
+    else if (order && order.kitchenStatus === 'completed') {
+      status = "completed";
+      statusText = "Collected ✓";
+      statusClass = "status-completed";
+      progressPercent = 100;
+      estimatedWait = "Enjoy your meal!";
+    }
+    else {
+      status = "not_found";
+      statusText = "Order Not Found";
+      statusClass = "status-new";
     }
     
     return {
+      ticket,
       order,
       position,
-      status: order.status,
+      aheadCount,
+      queueLength: queue.length,
+      status,
       statusText,
       statusClass,
       estimatedWait,
       progressPercent,
-      isVVIP: order.isVVIP || false,
       error: null
     };
   }
 
-  // Show toast message
   function showToast(message) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -499,21 +500,19 @@
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  // Share via WhatsApp
   function shareWhatsApp() {
-    const status = getCurrentStatus();
-    const isReady = status.status === "ready";
+    const statusData = getCurrentStatus();
+    const isReady = statusData.status === "ready";
     const message = isReady 
       ? `🥩🎉 My order ${orderId} at The Butcher Shop is READY for collection!\nTrack here: ${window.location.href}`
-      : `🥩 My order ${orderId} at The Butcher Shop is ${status.statusText}\nTrack here: ${window.location.href}`;
+      : `🥩 My order ${orderId} at The Butcher Shop is ${statusData.statusText}\nTrack here: ${window.location.href}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
     showToast('📱 Opening WhatsApp...');
   }
 
-  // Share via SMS
   function shareSMS() {
-    const status = getCurrentStatus();
-    const isReady = status.status === "ready";
+    const statusData = getCurrentStatus();
+    const isReady = statusData.status === "ready";
     const message = isReady 
       ? `My order ${orderId} at The Butcher Shop is READY! Track: ${window.location.href}`
       : `My order ${orderId} at The Butcher Shop. Track: ${window.location.href}`;
@@ -521,20 +520,16 @@
     showToast('💬 Opening SMS...');
   }
 
-  // Request delay
   function requestDelay() {
-    showToast('⏱️ Delay request sent to kitchen staff. They will assist you shortly.');
-    // Store delay request in localStorage for kitchen to see
-    const delayRequests = JSON.parse(localStorage.getItem('delayRequests') || '[]');
+    showToast('⏱️ Delay request sent to staff. They will assist you shortly.');
+    const delayRequests = JSON.parse(localStorage.getItem('butcher_delay_requests') || '[]');
     delayRequests.push({
       orderId: orderId,
-      timestamp: new Date().toISOString(),
-      vendor: VENDOR_NAME
+      timestamp: new Date().toISOString()
     });
-    localStorage.setItem('delayRequests', JSON.stringify(delayRequests));
+    localStorage.setItem('butcher_delay_requests', JSON.stringify(delayRequests));
   }
 
-  // Escape HTML helper
   function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/[&<>]/g, function(m) {
@@ -545,7 +540,6 @@
     });
   }
 
-  // Get emoji for item
   function getItemEmoji(name) {
     const nameLower = name.toLowerCase();
     if (nameLower.includes('ribeye') || nameLower.includes('t-bone') || nameLower.includes('steak')) return '🥩';
@@ -556,39 +550,22 @@
     if (nameLower.includes('pap')) return '🍚';
     if (nameLower.includes('coke') || nameLower.includes('cola')) return '🥤';
     if (nameLower.includes('water')) return '💧';
-    if (nameLower.includes('beer') || nameLower.includes('lager')) return '🍺';
+    if (nameLower.includes('beer')) return '🍺';
     if (nameLower.includes('bbq') || nameLower.includes('barbecue')) return '🔥';
     if (nameLower.includes('burger')) return '🍔';
     if (nameLower.includes('chicken')) return '🍗';
     return '🍽️';
   }
 
-  // Format timestamp
-  function formatTime(timestamp) {
-    if (!timestamp) return '—';
-    try {
-      const date = new Date(timestamp);
-      return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    } catch(e) {
-      return timestamp;
-    }
-  }
-
-  // Render order items
   function renderOrderItems(order) {
     if (!order || !order.items || order.items.length === 0) {
-      return `
-        <div class="empty-cart">
-          <i class="fas fa-shopping-basket"></i>
-          <p>No items in this order</p>
-        </div>
-      `;
+      return '<div style="text-align:center; padding:20px; color:#64748b;">No items found</div>';
     }
     
     let itemsHtml = '';
     let orderTotal = order.total || 0;
     
-    order.items.forEach((item, idx) => {
+    order.items.forEach((item) => {
       const itemTotal = item.price * item.quantity;
       const emoji = getItemEmoji(item.name);
       
@@ -600,6 +577,7 @@
               <span>${escapeHtml(item.name)}</span>
               <span class="item-quantity">x${item.quantity}</span>
             </div>
+            ${item.notes ? `<div class="item-notes">📝 ${escapeHtml(item.notes)}</div>` : ''}
           </div>
           <div class="item-price">
             R${itemTotal.toFixed(2)}
@@ -617,78 +595,83 @@
     `;
   }
 
-  // Render the main UI
   function render() {
     const container = document.getElementById('mainContent');
     const statusData = getCurrentStatus();
     
-    // Handle error / no order ID
     if (!orderId) {
       container.innerHTML = `
         <div class="error-card">
           <i class="fas fa-ticket-alt"></i>
           <h3>No Order Number</h3>
           <p style="margin-top: 12px;">Please provide a valid order number in the URL.</p>
-          <p style="margin-top: 8px; font-size: 0.8rem;">Example: ?order=12345</p>
+          <p style="margin-top: 8px; font-size: 0.8rem;">Example: ?order=B-001</p>
         </div>
       `;
       return;
     }
     
-    if (statusData.error || statusData.status === "not_found") {
+    if (statusData.status === "not_found") {
       container.innerHTML = `
         <div class="error-card">
           <i class="fas fa-search"></i>
           <h3>Order Not Found</h3>
           <p style="margin-top: 12px;">We couldn't find order #${escapeHtml(orderId)}.</p>
-          <p style="margin-top: 8px; font-size: 0.8rem;">Please check your order number and try again.</p>
-          <p style="margin-top: 8px; font-size: 0.8rem;">Make sure you're looking up an order from The Butcher Shop.</p>
+          <p style="margin-top: 8px; font-size: 0.8rem;">Please check your ticket number and try again.</p>
         </div>
       `;
       return;
     }
     
-    const { order, position, statusText, statusClass, estimatedWait, progressPercent, isVVIP } = statusData;
-    
-    // Determine step completion based on status
-    let stepCompleted = 0;
-    if (order.status === "pending") stepCompleted = 0;
-    else if (order.status === "preparing") stepCompleted = 1;
-    else if (order.status === "ready") stepCompleted = 2;
-    else if (order.status === "collected") stepCompleted = 3;
-    
-    const steps = [
-      { name: "Order Received", icon: "📝", completed: stepCompleted >= 0 },
-      { name: "Preparing", icon: "👨‍🍳", completed: stepCompleted >= 1 },
-      { name: "Ready", icon: "✅", completed: stepCompleted >= 2 },
-      { name: "Collected", icon: "🎉", completed: stepCompleted >= 3 }
-    ];
+    const { order, position, aheadCount, queueLength, statusText, statusClass, estimatedWait, progressPercent } = statusData;
     
     // Ready banner
-    const readyBanner = order.status === "ready" ? `
+    const readyBanner = statusData.status === "ready" ? `
       <div class="ready-banner">
         <div class="icon">🎉🥩</div>
         <h2>READY FOR COLLECTION!</h2>
         <p>Your order is ready at the counter</p>
-        <p style="margin-top: 12px; font-size: 0.9rem;">Please have your order number ready</p>
+        <p style="margin-top: 12px; font-size: 0.9rem;">Please have your ticket number ready</p>
       </div>
     ` : '';
     
-    // VVIP badge
-    const vvipHtml = isVVIP ? '<span class="vvip-badge">👑 VVIP PRIORITY 👑</span>' : '';
+    // Queue position card (only show if waiting)
+    const queueCard = (statusData.status === "waiting" || statusData.status === "new") && position ? `
+      <div class="queue-position-card">
+        <div class="queue-position-number">#${position}</div>
+        <div>Your position in queue</div>
+        <div class="ahead-count">${aheadCount} ${aheadCount === 1 ? 'order' : 'orders'} ahead of you</div>
+      </div>
+    ` : '';
     
     // Build order items HTML
-    const orderItemsHtml = renderOrderItems(order);
+    const orderItemsHtml = order ? renderOrderItems(order) : '<div style="text-align:center; padding:20px;">Loading order details...</div>';
     
-    // Main content
+    // Steps based on actual status
+    let stepCompleted = 0;
+    if (statusData.status === "new") stepCompleted = 0;
+    else if (statusData.status === "waiting") stepCompleted = 0;
+    else if (statusData.status === "called") stepCompleted = 1;
+    else if (statusData.status === "preparing") stepCompleted = 2;
+    else if (statusData.status === "ready") stepCompleted = 3;
+    else if (statusData.status === "completed") stepCompleted = 4;
+    
+    const steps = [
+      { name: "Order Placed", icon: "📝", completed: stepCompleted >= 0 },
+      { name: "Queue", icon: "⏳", completed: stepCompleted >= 1 },
+      { name: "Preparing", icon: "👨‍🍳", completed: stepCompleted >= 2 },
+      { name: "Ready", icon: "✅", completed: stepCompleted >= 3 },
+      { name: "Collected", icon: "🎉", completed: stepCompleted >= 4 }
+    ];
+    
     container.innerHTML = `
       ${readyBanner}
+      ${queueCard}
       
       <div class="status-card">
         <div class="ticket-display">
           <div class="ticket-label">YOUR ORDER NUMBER</div>
-          <div class="ticket-number">#${escapeHtml(String(order.orderId))} ${isVVIP ? '👑' : ''}</div>
-          ${vvipHtml}
+          <div class="ticket-number">${escapeHtml(orderId)}</div>
           <span class="status-badge ${statusClass}">${statusText}</span>
         </div>
         
@@ -706,26 +689,14 @@
           </div>
         </div>
         
-        ${order.status === "pending" && position ? `
-          <div class="info-row">
-            <span class="info-label">📊 Queue Position</span>
-            <span class="info-value">#${position} in line</span>
-          </div>
-        ` : ''}
-        
         <div class="info-row">
           <span class="info-label">⏱️ Estimated Wait</span>
-          <span class="info-value ${order.status === 'ready' ? 'urgent' : ''}">${estimatedWait}</span>
-        </div>
-        
-        <div class="info-row">
-          <span class="info-label">👤 Customer</span>
-          <span class="info-value">${escapeHtml(order.bandName || order.bandId || 'Walk-in Customer')}</span>
+          <span class="info-value ${statusData.status === 'ready' || statusData.status === 'called' ? 'urgent' : ''}">${estimatedWait}</span>
         </div>
         
         <div class="info-row">
           <span class="info-label">📅 Order Placed</span>
-          <span class="info-value">${formatTime(order.timestamp)}</span>
+          <span class="info-value">${order?.createdAt ? new Date(order.createdAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '—'}</span>
         </div>
         
         <div class="info-row">
@@ -734,7 +705,6 @@
         </div>
       </div>
       
-      <!-- ORDER ITEMS SECTION -->
       <div class="order-items">
         <h3>
           <i class="fas fa-receipt"></i>
@@ -751,7 +721,7 @@
           <i class="fas fa-sms"></i> SMS
         </button>
         <button class="btn btn-secondary" id="delayBtn">
-          <i class="fas fa-clock"></i> Delay?
+          <i class="fas fa-clock"></i> Need Help?
         </button>
       </div>
     `;
@@ -768,20 +738,21 @@
     document.getElementById('delayBtn')?.addEventListener('click', requestDelay);
   }
   
-  // Check for order status changes and notify
+  // Check for updates and notify on status change
   let lastStatus = null;
+  let lastQueuePosition = null;
   
   function checkForUpdates() {
     const statusData = getCurrentStatus();
-    if (statusData.order && lastStatus !== statusData.order.status) {
+    const newStatus = statusData.status;
+    const newPosition = statusData.position;
+    
+    if (lastStatus !== newStatus) {
       // Status changed!
-      const oldStatus = lastStatus;
-      lastStatus = statusData.order.status;
-      
-      if (statusData.order.status === "ready" && oldStatus !== "ready") {
+      if (newStatus === "ready" && lastStatus !== "ready") {
         showToast('🎉 Your order is ready for collection! Head to the counter.');
         if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-        // Play a beep if possible
+        // Play sound
         try {
           const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           const oscillator = audioCtx.createOscillator();
@@ -793,24 +764,38 @@
           oscillator.start();
           oscillator.stop(audioCtx.currentTime + 0.3);
         } catch(e) {}
-      } else if (statusData.order.status === "preparing" && oldStatus === "pending") {
+      } else if (newStatus === "called" && lastStatus !== "called") {
+        showToast('🔔 You\'re next! Please get ready at the counter.');
+        if (navigator.vibrate) navigator.vibrate(100);
+      } else if (newStatus === "preparing" && lastStatus === "new") {
         showToast('🔥 Your order is now being prepared!');
       }
+      lastStatus = newStatus;
     }
+    
+    if (lastQueuePosition !== newPosition && newPosition && newPosition > 0) {
+      // Position changed
+      if (newPosition < lastQueuePosition) {
+        showToast(`📊 You moved up! ${newPosition} ${newPosition === 1 ? 'person' : 'people'} ahead of you now.`);
+      }
+      lastQueuePosition = newPosition;
+    }
+    
     render();
   }
   
-  // Listen for storage events (updates from kitchen screen)
+  // Listen for storage events (updates from kiosk/kitchen)
   window.addEventListener('storage', (event) => {
-    if (event.key === GLOBAL_ORDERS_KEY) {
+    if (event.key === QUEUE_KEY || event.key === ORDERS_KEY) {
       checkForUpdates();
     }
   });
   
   // Initial render
   const initialData = getCurrentStatus();
-  if (initialData.order) {
-    lastStatus = initialData.order.status;
+  if (initialData.status !== "not_found") {
+    lastStatus = initialData.status;
+    lastQueuePosition = initialData.position;
   }
   render();
   

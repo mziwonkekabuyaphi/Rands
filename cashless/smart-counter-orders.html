@@ -22,7 +22,49 @@ body { background: #fff; color: #222; padding: 20px; }
 .queue-title h2 { font-size: 36px; color: #b30000; }
 .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px,1fr)); gap: 20px; max-height: 600px; overflow-y: auto; padding: 5px; }
 
-/* ===== VVIP ORDER STYLES - MAKES THEM STAND OUT ON COUNTER SCREEN ===== */
+/* Source Badge Styles */
+.order-source-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 700;
+    margin-left: 8px;
+}
+.source-wallet {
+    background: #3b82f6;
+    color: white;
+}
+.source-kiosk {
+    background: #10b981;
+    color: white;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.filter-tab {
+    padding: 8px 20px;
+    border-radius: 30px;
+    background: #f0f0f0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.filter-tab.active {
+    background: #b30000;
+    color: white;
+}
+.filter-tab:hover:not(.active) {
+    background: #ffe0e0;
+}
+
+/* ===== VVIP ORDER STYLES ===== */
 .order-card {
     background: #fff;
     border-radius: 20px;
@@ -145,6 +187,11 @@ body { background: #fff; color: #222; padding: 20px; }
         <div class="queue-icon">🍺</div>
         <div class="queue-title"><h2>Drink Orders Queue</h2></div>
     </div>
+    <div class="filter-tabs">
+        <div class="filter-tab active" data-filter="all">All Orders</div>
+        <div class="filter-tab" data-filter="wallet">💰 Wallet Orders</div>
+        <div class="filter-tab" data-filter="kiosk">📱 Kiosk Orders</div>
+    </div>
     <div class="orders-grid" id="ordersGrid"></div>
 </div>
 
@@ -158,48 +205,226 @@ body { background: #fff; color: #222; padding: 20px; }
 
 <div class="connection-status">
     <div class="status-dot"></div>
-    <div>Connected to POS · Live</div>
+    <div>Connected to POS · Live (Wallet + Kiosk)</div>
 </div>
 
 <script>
 const VENDOR_NAME = "Rands Smart Counter";
-let orders = [];
+
+// Storage keys from both systems
+const GLOBAL_ORDERS_KEY = "globalOrders";        // Wallet orders
+const KIOSK_QUEUE_KEY = "butcher_shop_queue";    // Kiosk queue
+const KIOSK_ORDERS_KEY = "butcher_shop_orders";  // Kiosk orders
+
+let unifiedOrders = [];
+let currentFilter = "all"; // all, wallet, kiosk
 let showCompleted = false;
 
-function loadOrders() {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        const allOrders = JSON.parse(saved);
-        // Only show pending and preparing for bar (ready goes to collection screen)
-        orders = allOrders.filter(o => o.vendor === VENDOR_NAME && (o.status === "pending" || o.status === "preparing"));
-        // Sort orders: VVIP first, then by timestamp
-        orders.sort((a, b) => {
-            if (a.isVVIP && !b.isVVIP) return -1;
-            if (!a.isVVIP && b.isVVIP) return 1;
-            return 0;
-        });
-    }
-    updateStats();
-    renderOrders();
-    renderCompletedOrders();
+// Helper to get wallet orders
+function getWalletOrders() {
+    const saved = localStorage.getItem(GLOBAL_ORDERS_KEY);
+    if (!saved) return [];
+    const allOrders = JSON.parse(saved);
+    return allOrders.filter(o => o.vendor === VENDOR_NAME);
 }
 
-function updateStats() {
-    document.getElementById("pendingCount").innerText = orders.filter(o => o.status === "pending").length;
-    document.getElementById("preparingCount").innerText = orders.filter(o => o.status === "preparing").length;
+// Helper to get kiosk orders (only drink/alcohol items)
+function getKioskOrders() {
+    const orders = JSON.parse(localStorage.getItem(KIOSK_ORDERS_KEY) || '[]');
+    const queue = JSON.parse(localStorage.getItem(KIOSK_QUEUE_KEY) || '[]');
     
-    const allOrders = JSON.parse(localStorage.getItem("globalOrders") || "[]");
-    const today = new Date().toISOString().slice(0,10);
-    const todayRevenue = allOrders.filter(o => o.vendor === VENDOR_NAME && o.status === "collected" && o.date === today)
-        .reduce((sum, o) => sum + o.total, 0);
-    document.getElementById("todayRevenue").innerText = "R" + todayRevenue.toFixed(2);
+    // Filter for drink/alcohol items only
+    const drinkKeywords = ['coke', 'cola', 'water', 'beer', 'lager', 'stout', 'wine', 'spirit', 'cocktail', 'juice', 'soda', 'fanta', 'sprite'];
     
-    const completedOrders = allOrders.filter(o => o.vendor === VENDOR_NAME && o.status === "collected" && o.prepTime);
-    if (completedOrders.length > 0) {
-        const avg = completedOrders.reduce((sum, o) => sum + o.prepTime, 0) / completedOrders.length;
-        document.getElementById("avgTime").innerText = Math.round(avg) + "m";
-    } else {
-        document.getElementById("avgTime").innerText = "--m";
+    return orders.map(order => {
+        // Filter items that are drinks
+        const drinkItems = order.items.filter(item => {
+            const itemName = item.name.toLowerCase();
+            return drinkKeywords.some(keyword => itemName.includes(keyword));
+        });
+        
+        // Skip orders with no drink items
+        if (drinkItems.length === 0) return null;
+        
+        // Find if this order has been called
+        const queueEntry = queue.find(q => q.ticketNumber === order.ticketNumber);
+        
+        // Map kitchenStatus to our status format
+        let status = order.kitchenStatus || "pending";
+        if (status === "new") status = "pending";
+        if (status === "completed") status = "collected";
+        
+        // Calculate drink-only total
+        const drinkTotal = drinkItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        return {
+            orderId: order.ticketNumber,
+            vendor: VENDOR_NAME,
+            status: status,
+            items: drinkItems,
+            total: drinkTotal,
+            originalTotal: order.total,
+            timestamp: order.createdAt ? new Date(order.createdAt).toLocaleTimeString() : new Date().toLocaleTimeString(),
+            date: order.createdAt ? new Date(order.createdAt).toISOString().slice(0,10) : new Date().toISOString().slice(0,10),
+            
+            // Customer info
+            bandName: order.customerName || `Kiosk Customer`,
+            bandId: order.whatsapp || '',
+            phoneNumber: order.whatsapp || '',
+            
+            // Kiosk specific
+            source: "kiosk",
+            ticketNumber: order.ticketNumber,
+            whatsapp: order.whatsapp,
+            called: queueEntry?.called || false,
+            originalKitchenStatus: order.kitchenStatus,
+            
+            // For prep time tracking
+            prepStartTime: order.prepStartTime,
+            prepTime: order.prepTime,
+            
+            // VVIP flag (kiosk orders aren't VVIP by default)
+            isVVIP: false
+        };
+    }).filter(order => order !== null); // Remove null entries (orders with no drinks)
+}
+
+// Get all unified orders
+function getAllUnifiedOrders() {
+    const walletOrders = getWalletOrders();
+    const kioskOrders = getKioskOrders();
+    
+    // Add source identifier
+    const walletWithSource = walletOrders.map(o => ({ ...o, source: "wallet" }));
+    const kioskWithSource = kioskOrders.map(o => ({ ...o, source: "kiosk" }));
+    
+    let combined = [...walletWithSource, ...kioskWithSource];
+    
+    // Filter to only pending and preparing (active bar orders)
+    combined = combined.filter(o => o.status === "pending" || o.status === "preparing");
+    
+    // Sort: VVIP first, then by timestamp, then by source (kiosk first for priority)
+    combined.sort((a, b) => {
+        if (a.isVVIP && !b.isVVIP) return -1;
+        if (!a.isVVIP && b.isVVIP) return 1;
+        if (a.source === "kiosk" && b.source === "wallet") return -1;
+        if (a.source === "wallet" && b.source === "kiosk") return 1;
+        return 0;
+    });
+    
+    return combined;
+}
+
+// Update kiosk order status
+function updateKioskOrderStatus(orderId, newStatus) {
+    const orders = JSON.parse(localStorage.getItem(KIOSK_ORDERS_KEY) || '[]');
+    const orderIndex = orders.findIndex(o => o.ticketNumber === orderId);
+    
+    if (orderIndex !== -1) {
+        let kitchenStatus = newStatus;
+        if (newStatus === "pending") kitchenStatus = "new";
+        if (newStatus === "preparing") kitchenStatus = "preparing";
+        if (newStatus === "ready") kitchenStatus = "ready";
+        if (newStatus === "collected") kitchenStatus = "completed";
+        
+        const oldStatus = orders[orderIndex].kitchenStatus;
+        
+        if (newStatus === "preparing" && oldStatus === "new") {
+            orders[orderIndex].prepStartTime = Date.now();
+        }
+        
+        orders[orderIndex].kitchenStatus = kitchenStatus;
+        
+        if (newStatus === "ready") {
+            const startTime = orders[orderIndex].prepStartTime || Date.now();
+            orders[orderIndex].prepTime = Math.round((Date.now() - startTime) / 60000);
+            orders[orderIndex].readyAt = new Date().toISOString();
+        }
+        
+        localStorage.setItem(KIOSK_ORDERS_KEY, JSON.stringify(orders));
+        
+        // Update queue
+        if (newStatus === "preparing") {
+            const queue = JSON.parse(localStorage.getItem(KIOSK_QUEUE_KEY) || '[]');
+            const queueIndex = queue.findIndex(q => q.ticketNumber === orderId);
+            if (queueIndex !== -1 && !queue[queueIndex].called) {
+                queue[queueIndex].called = true;
+                localStorage.setItem(KIOSK_QUEUE_KEY, JSON.stringify(queue));
+            }
+        }
+        
+        return true;
+    }
+    return false;
+}
+
+// Update wallet order status
+function updateWalletOrderStatus(orderId, newStatus) {
+    const saved = localStorage.getItem(GLOBAL_ORDERS_KEY);
+    if (saved) {
+        let allOrders = JSON.parse(saved);
+        const idx = allOrders.findIndex(o => o.orderId === orderId && o.vendor === VENDOR_NAME);
+        
+        if (idx !== -1) {
+            const oldStatus = allOrders[idx].status;
+            
+            if (newStatus === "preparing" && oldStatus === "pending") {
+                allOrders[idx].prepStartTime = Date.now();
+            }
+            
+            allOrders[idx].status = newStatus;
+            
+            if (newStatus === "ready") {
+                const startTime = allOrders[idx].prepStartTime || Date.now();
+                allOrders[idx].prepTime = Math.round((Date.now() - startTime) / 60000);
+                allOrders[idx].readyAt = new Date().toISOString();
+            }
+            
+            localStorage.setItem(GLOBAL_ORDERS_KEY, JSON.stringify(allOrders));
+            
+            // Update vendor-specific storage
+            const vendorKey = "rands_smart_counter_orders";
+            const vendorOrders = allOrders.filter(o => o.vendor === VENDOR_NAME);
+            localStorage.setItem(vendorKey, JSON.stringify(vendorOrders));
+            
+            return true;
+        }
+    }
+    return false;
+}
+
+// Update order status (routes to correct storage)
+function updateOrderStatus(orderId, newStatus, source) {
+    let success = false;
+    
+    if (source === "wallet") {
+        success = updateWalletOrderStatus(orderId, newStatus);
+    } else if (source === "kiosk") {
+        success = updateKioskOrderStatus(orderId, newStatus);
+    }
+    
+    if (success) {
+        showToast(`🍺 Order #${orderId} is now ${newStatus.toUpperCase()}`, "info");
+        loadOrders();
+        return true;
+    }
+    return false;
+}
+
+// Mark order as ready
+function markOrderReady(orderId, source) {
+    let success = false;
+    
+    if (source === "wallet") {
+        success = updateWalletOrderStatus(orderId, "ready");
+    } else if (source === "kiosk") {
+        success = updateKioskOrderStatus(orderId, "ready");
+    }
+    
+    if (success) {
+        playNotificationSound();
+        showToast(`✅ Order #${orderId} is READY! Sent to Collection Screen.`, "ready");
+        loadOrders();
     }
 }
 
@@ -243,14 +468,63 @@ function playVVIPNotificationSound() {
     } catch(e) {}
 }
 
+function loadOrders() {
+    const allOrders = getAllUnifiedOrders();
+    
+    // Apply filter
+    if (currentFilter === "wallet") {
+        unifiedOrders = allOrders.filter(o => o.source === "wallet");
+    } else if (currentFilter === "kiosk") {
+        unifiedOrders = allOrders.filter(o => o.source === "kiosk");
+    } else {
+        unifiedOrders = allOrders;
+    }
+    
+    updateStats();
+    renderOrders();
+    renderCompletedOrders();
+}
+
+function updateStats() {
+    document.getElementById("pendingCount").innerText = unifiedOrders.filter(o => o.status === "pending").length;
+    document.getElementById("preparingCount").innerText = unifiedOrders.filter(o => o.status === "preparing").length;
+    
+    // Calculate today's revenue from both sources
+    const walletOrders = getWalletOrders();
+    const kioskOrders = getKioskOrders();
+    const today = new Date().toISOString().slice(0,10);
+    
+    const walletRevenue = walletOrders.filter(o => o.status === "collected" && o.date === today)
+        .reduce((sum, o) => sum + o.total, 0);
+    
+    const kioskRevenue = kioskOrders.filter(o => {
+        const orderDate = o.createdAt ? new Date(o.createdAt).toISOString().slice(0,10) : null;
+        return (o.kitchenStatus === "completed" || o.status === "collected") && orderDate === today;
+    }).reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    document.getElementById("todayRevenue").innerText = "R" + (walletRevenue + kioskRevenue).toFixed(2);
+    
+    // Calculate average prep time from both sources
+    const completedWallet = walletOrders.filter(o => o.status === "collected" && o.prepTime);
+    const completedKiosk = kioskOrders.filter(o => (o.kitchenStatus === "completed") && o.prepTime);
+    
+    const allCompleted = [...completedWallet, ...completedKiosk];
+    if (allCompleted.length > 0) {
+        const avg = allCompleted.reduce((sum, o) => sum + o.prepTime, 0) / allCompleted.length;
+        document.getElementById("avgTime").innerText = Math.round(avg) + "m";
+    } else {
+        document.getElementById("avgTime").innerText = "--m";
+    }
+}
+
 function renderOrders() {
     const grid = document.getElementById("ordersGrid");
-    if (orders.length === 0) {
-        grid.innerHTML = `<div class="empty-state"><span>🍺</span><h3>No Active Orders</h3><p>Orders will appear here when placed.</p><p style="font-size:12px; margin-top:10px;">When you mark an order as READY, it will move to the Collection Screen.</p></div>`;
+    if (unifiedOrders.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><span>🍺</span><h3>No Active Orders</h3><p>Orders will appear here when placed from Wallet or Kiosk.</p></div>`;
         return;
     }
     
-    grid.innerHTML = orders.map(order => {
+    grid.innerHTML = unifiedOrders.map(order => {
         let statusClass = "", statusText = "", statusIcon = "";
         switch (order.status) {
             case "pending": statusClass = "status-pending"; statusText = "PENDING"; statusIcon = "⏳"; break;
@@ -260,31 +534,42 @@ function renderOrders() {
         
         const isVVIP = order.isVVIP === true;
         const vvipClass = isVVIP ? "vvip-order" : "";
-        const vvipBadgeHtml = isVVIP ? '<span class="vvip-badge-on-card">👑 VVIP PRIORITY</span>' : '';
+        const sourceBadge = order.source === "wallet" 
+            ? '<span class="order-source-badge source-wallet">💰 Wallet</span>' 
+            : '<span class="order-source-badge source-kiosk">📱 Kiosk</span>';
+        
+        // Show note if kiosk order had non-drink items
+        const noteHtml = (order.source === "kiosk" && order.originalTotal && order.originalTotal > order.total) 
+            ? `<div style="font-size:10px; color:#ff9800; margin-top:5px;">⚠️ Note: This order also has food items (kitchen screen)</div>` 
+            : '';
         
         return `
             <div class="order-card ${vvipClass}">
                 <div class="order-header">
-                    <span class="order-id">#${order.orderId} ${isVVIP ? '👑' : ''}</span>
+                    <span class="order-id">#${order.orderId} ${isVVIP ? '👑' : ''} ${sourceBadge}</span>
                     <span class="order-time">${order.timestamp || 'just now'}</span>
                 </div>
                 <div class="order-customer">
                     <span style="color:#888;">Customer: </span>
-                    <span class="customer-band">${escapeHtml(order.bandName || order.bandId)}</span>
-                    ${vvipBadgeHtml}
+                    <span class="customer-band">${escapeHtml(order.bandName || order.bandId || 'Customer')}</span>
+                    ${isVVIP ? '<span class="vvip-badge-on-card">👑 VVIP PRIORITY</span>' : ''}
                 </div>
+                ${noteHtml}
                 <div class="status-badge ${statusClass}">${statusIcon} ${statusText}</div>
                 <div class="order-items">
                     ${order.items.map(item => `
-                        <div class="item-row"><span>${item.quantity}x ${escapeHtml(item.name)}</span><span>R${(item.price * item.quantity).toFixed(2)}</span></div>
+                        <div class="item-row">
+                            <span>${item.quantity}x ${escapeHtml(item.name)}</span>
+                            <span>R${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
                     `).join('')}
                 </div>
                 <div class="order-total">Total: R${order.total.toFixed(2)}</div>
                 <div class="order-actions">
-                    <button class="btn btn-prepare" onclick="updateOrderStatus(${order.orderId}, 'preparing')" ${order.status !== "pending" ? "disabled" : ""}>
+                    <button class="btn btn-prepare" onclick="updateOrderStatus('${order.orderId}', 'preparing', '${order.source}')" ${order.status !== "pending" ? "disabled" : ""}>
                         🍳 START PREPARING
                     </button>
-                    <button class="btn btn-ready" onclick="markOrderReady(${order.orderId})" ${order.status !== "preparing" ? "disabled" : ""}>
+                    <button class="btn btn-ready" onclick="markOrderReady('${order.orderId}', '${order.source}')" ${order.status !== "preparing" ? "disabled" : ""}>
                         ✅ MARK READY → COLLECTION
                     </button>
                 </div>
@@ -295,28 +580,42 @@ function renderOrders() {
 
 function renderCompletedOrders() {
     const grid = document.getElementById("completedOrdersGrid");
-    const allOrders = JSON.parse(localStorage.getItem("globalOrders") || "[]");
-    const completedOrders = allOrders.filter(o => o.vendor === VENDOR_NAME && o.status === "collected");
+    
+    // Get completed orders from both sources
+    const walletOrders = getWalletOrders();
+    const kioskOrders = getKioskOrders();
+    
+    const completedWallet = walletOrders.filter(o => o.status === "collected").map(o => ({ ...o, source: "wallet" }));
+    const completedKiosk = kioskOrders.filter(o => o.kitchenStatus === "completed").map(o => ({ ...o, source: "kiosk", orderId: o.ticketNumber }));
+    
+    const completedOrders = [...completedWallet, ...completedKiosk];
+    completedOrders.sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt));
     
     if (completedOrders.length === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:20px; color:#aaa;">No completed orders yet</div>`;
         return;
     }
     
-    grid.innerHTML = completedOrders.map(order => `
-        <div class="completed-order-card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span style="color:#b30000; font-weight:bold;">#${order.orderId}</span>
-                <span style="color:#999; font-size:12px;">${order.timestamp || '—'}</span>
+    grid.innerHTML = completedOrders.map(order => {
+        const sourceBadge = order.source === "wallet" 
+            ? '<span class="order-source-badge source-wallet" style="font-size:8px;">💰 Wallet</span>' 
+            : '<span class="order-source-badge source-kiosk" style="font-size:8px;">📱 Kiosk</span>';
+        
+        return `
+            <div class="completed-order-card">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#b30000; font-weight:bold;">#${order.orderId} ${sourceBadge}</span>
+                    <span style="color:#999; font-size:12px;">${order.timestamp || (order.createdAt ? new Date(order.createdAt).toLocaleTimeString() : '—')}</span>
+                </div>
+                <div style="font-size:13px; color:#666;">${escapeHtml(order.bandName || order.customerName || 'Customer')}</div>
+                <div style="margin:10px 0;">
+                    ${order.items ? order.items.slice(0, 3).map(item => `<div style="font-size:12px;">${item.quantity}x ${escapeHtml(item.name)}</div>`).join('') : ''}
+                </div>
+                <div class="order-total" style="font-size:16px; padding:8px;">Total: R${order.total.toFixed(2)}</div>
+                ${order.prepTime ? `<div style="font-size:11px; color:#999; text-align:right;">Prep time: ${order.prepTime}m</div>` : ''}
             </div>
-            <div style="font-size:13px; color:#666;">${escapeHtml(order.bandName || order.bandId)}</div>
-            <div style="margin:10px 0;">
-                ${order.items.map(item => `<div style="font-size:12px;">${item.quantity}x ${escapeHtml(item.name)}</div>`).join('')}
-            </div>
-            <div class="order-total" style="font-size:16px; padding:8px;">Total: R${order.total.toFixed(2)}</div>
-            ${order.prepTime ? `<div style="font-size:11px; color:#999; text-align:right;">Prep time: ${order.prepTime}m</div>` : ''}
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function escapeHtml(str) {
@@ -327,68 +626,6 @@ function escapeHtml(str) {
         if (m === '>') return '&gt;';
         return m;
     });
-}
-
-// Update status to preparing (bar action)
-function updateOrderStatus(orderId, newStatus) {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        let allOrders = JSON.parse(saved);
-        const idx = allOrders.findIndex(o => o.orderId === orderId);
-        if (idx !== -1 && allOrders[idx].vendor === VENDOR_NAME) {
-            const oldStatus = allOrders[idx].status;
-            
-            if (newStatus === "preparing" && oldStatus === "pending") {
-                allOrders[idx].prepStartTime = Date.now();
-            }
-            
-            allOrders[idx].status = newStatus;
-            localStorage.setItem("globalOrders", JSON.stringify(allOrders));
-            
-            // Update vendor-specific storage
-            const vendorKey = "rands_smart_counter_orders";
-            const vendorOrders = allOrders.filter(o => o.vendor === VENDOR_NAME);
-            localStorage.setItem(vendorKey, JSON.stringify(vendorOrders));
-            
-            showToast(`🍺 Order #${orderId} is now PREPARING`, "info");
-            loadOrders();
-        }
-    }
-}
-
-// MARK AS READY - This sends the order to the collection screen (order-collect.html)
-// The order status becomes "ready" and will appear in your existing collection page
-function markOrderReady(orderId) {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        let allOrders = JSON.parse(saved);
-        const idx = allOrders.findIndex(o => o.orderId === orderId);
-        if (idx !== -1 && allOrders[idx].vendor === VENDOR_NAME && allOrders[idx].status === "preparing") {
-            
-            // Calculate prep time
-            const startTime = allOrders[idx].prepStartTime || Date.now();
-            const prepTime = Math.round((Date.now() - startTime) / 60000);
-            allOrders[idx].prepTime = prepTime;
-            allOrders[idx].readyAt = new Date().toISOString();
-            
-            // Set status to "ready" - this will make it appear in order-collect.html
-            allOrders[idx].status = "ready";
-            
-            localStorage.setItem("globalOrders", JSON.stringify(allOrders));
-            
-            // Update vendor-specific storage
-            const vendorKey = "rands_smart_counter_orders";
-            const vendorOrders = allOrders.filter(o => o.vendor === VENDOR_NAME);
-            localStorage.setItem(vendorKey, JSON.stringify(vendorOrders));
-            
-            // Play sound notification
-            playNotificationSound();
-            showToast(`✅ Order #${orderId} is READY! Sent to Collection Screen.`, "ready");
-            
-            // Reload the bar view - this order will disappear from bar (since we filter out ready orders)
-            loadOrders();
-        }
-    }
 }
 
 function showToast(message, type) {
@@ -423,26 +660,35 @@ function toggleCompletedOrders() {
     }
 }
 
-function checkForUpdates() {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        const allOrders = JSON.parse(saved);
-        // Only show pending and preparing for bar (ready goes to collection screen)
-        const newOrders = allOrders.filter(o => o.vendor === VENDOR_NAME && (o.status === "pending" || o.status === "preparing"));
-        // Sort orders: VVIP first, then by timestamp
-        newOrders.sort((a, b) => {
-            if (a.isVVIP && !b.isVVIP) return -1;
-            if (!a.isVVIP && b.isVVIP) return 1;
-            return 0;
+// Set up filter tabs
+function setupFilters() {
+    const tabs = document.querySelectorAll('.filter-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            loadOrders();
         });
-        
-        if (JSON.stringify(newOrders) !== JSON.stringify(orders)) {
-            orders = newOrders;
-            updateStats();
-            renderOrders();
-        }
-        renderCompletedOrders();
+    });
+}
+
+function checkForUpdates() {
+    const newOrders = getAllUnifiedOrders();
+    let filteredNew = newOrders;
+    
+    if (currentFilter === "wallet") {
+        filteredNew = newOrders.filter(o => o.source === "wallet");
+    } else if (currentFilter === "kiosk") {
+        filteredNew = newOrders.filter(o => o.source === "kiosk");
     }
+    
+    if (JSON.stringify(filteredNew) !== JSON.stringify(unifiedOrders)) {
+        unifiedOrders = filteredNew;
+        updateStats();
+        renderOrders();
+    }
+    renderCompletedOrders();
 }
 
 // Add animation style
@@ -457,13 +703,14 @@ document.head.appendChild(style);
 
 // Listen for storage events from other tabs
 window.addEventListener('storage', (e) => {
-    if (e.key === 'globalOrders') {
+    if (e.key === GLOBAL_ORDERS_KEY || e.key === KIOSK_ORDERS_KEY || e.key === KIOSK_QUEUE_KEY) {
         checkForUpdates();
     }
 });
 
 // Auto refresh every 2 seconds
 setInterval(checkForUpdates, 2000);
+setupFilters();
 loadOrders();
 </script>
 </body>
