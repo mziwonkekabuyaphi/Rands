@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Rands | Tenant Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fb; overflow-x: hidden; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 270px; height: 100%; background: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.05); z-index: 100; transition: all 0.3s ease; overflow-y: auto; border-right: 1px solid #edf2f7; }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #eff3f8; display: flex; align-items: center; gap: 12px; }
+        .tenant-logo { width: 42px; height: 42px; background: #E30613; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; }
+        .tenant-info h3 { font-size: 1rem; font-weight: 700; color: #1e293b; }
+        .tenant-info p { font-size: 0.7rem; color: #6c7a8e; }
+        .nav-menu { padding: 20px 0; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; color: #4a5568; font-weight: 500; transition: all 0.2s; cursor: pointer; }
+        .nav-item i { width: 22px; font-size: 1.1rem; }
+        .nav-item:hover { background: #fff0f0; color: #E30613; }
+        .nav-item.active { background: #E30613; color: white; box-shadow: 0 4px 10px rgba(227,6,19,0.2); }
+        .main-content { margin-left: 270px; transition: all 0.3s ease; min-height: 100vh; }
+        .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; }
+        .header-left h3 { font-size: 1.2rem; font-weight: 600; color: #1e293b; }
+        .header-right { display: flex; align-items: center; gap: 24px; }
+        .notification-icon { position: relative; cursor: pointer; font-size: 1.2rem; color: #4a5568; }
+        .badge-dot { position: absolute; top: -4px; right: -6px; width: 10px; height: 10px; background: #E30613; border-radius: 50%; border: 2px solid white; }
+        .profile-dropdown { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 12px; border-radius: 40px; background: #f8fafd; }
+        .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .dashboard-container { padding: 28px 32px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: white; border-radius: 28px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #edf2f7; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -12px rgba(0,0,0,0.1); }
+        .stat-icon { width: 48px; height: 48px; background: #fff0f0; border-radius: 24px; display: flex; align-items: center; justify-content: center; color: #E30613; font-size: 1.4rem; margin-bottom: 16px; }
+        .stat-title { font-size: 0.75rem; font-weight: 500; color: #6c7a8e; text-transform: uppercase; }
+        .stat-number { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-top: 6px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 20px 0; flex-wrap: wrap; gap: 12px; }
+        .section-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.1s; }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; }
+        .table-wrapper { overflow-x: auto; background: white; border-radius: 24px; border: 1px solid #edf2f7; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        .data-table th, .data-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .data-table th { background: #fafcff; font-weight: 600; color: #4a5568; }
+        .status-badge { padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .status-active { background: #e6f7e6; color: #10b981; }
+        .status-warning { background: #fff3e0; color: #f59e0b; }
+        .status-success { background: #e0f2fe; color: #0ea5e9; }
+        .status-inactive { background: #fee2e2; color: #E30613; }
+        .status-suspended { background: #fee2e2; color: #dc2626; }
+        .queue-list { background: white; border-radius: 24px; border: 1px solid #edf2f7; overflow: hidden; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+        .queue-actions button { margin-left: 8px; padding: 6px 14px; border-radius: 30px; border: none; cursor: pointer; font-weight: 500; }
+        .btn-call { background: #E30613; color: white; }
+        .btn-skip { background: #f1f5f9; color: #4a5568; }
+        .item-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 30px; background: #f1f5f9; }
+        .role-badge { background: #e0e7ff; color: #4f46e5; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .modal-mask { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s; }
+        .modal-mask.active { visibility: visible; opacity: 1; }
+        .modal-container { background: white; width: 90%; max-width: 500px; border-radius: 32px; padding: 28px; }
+        .form-control { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 40px; font-family: 'Inter', sans-serif; font-size: 0.85rem; margin-bottom: 16px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: #1e293b; }
+        .credential-cell { font-family: monospace; font-size: 0.75rem; background: #f1f5f9; padding: 4px 8px; border-radius: 8px; display: inline-block; }
+        .copy-icon { margin-left: 6px; cursor: pointer; color: #64748b; }
+        .copy-icon:hover { color: #E30613; }
+        .action-icons { display: flex; gap: 12px; cursor: pointer; }
+        .action-icons i:hover { color: #E30613; }
+        .settings-panel { background: white; border-radius: 28px; padding: 24px; border: 1px solid #edf2f7; margin-top: 20px; }
+        .color-preview { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .preview-box { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .sync-status { display: flex; align-items: center; gap: 6px; background: #f0fdf4; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
+        .sync-status i { font-size: 0.65rem; }
+        .sync-status.warning { background: #fef3c7; color: #d97706; }
+        .fullscreen-active .sidebar, .fullscreen-active .top-header .header-right .notification-icon, .fullscreen-active .top-header .menu-toggle { display: none !important; }
+        .fullscreen-active .top-header { justify-content: space-between !important; gap: 20px !important; position: fixed; top: 0; left: 0; right: 0; z-index: 10001; }
+        .fullscreen-active .dashboard-container { margin-top: 70px; }
+        .fullscreen-active .main-content { margin-left: 0 !important; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; background: #f5f7fb; overflow-y: auto; }
+        .fullscreen-active .exit-fullscreen-btn { display: flex !important; }
+        .fullscreen-active .fullscreen-btn-module { display: none; }
+        .fullscreen-active .header-right { display: flex !important; }
+        .exit-fullscreen-btn { display: none; background: #E30613; color: white; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; font-size: 0.85rem; cursor: pointer; align-items: center; gap: 8px; margin-left: auto; }
+        .fullscreen-btn-module { background: transparent; border: 1px solid #E30613; color: #E30613; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-left: auto; transition: 0.2s; }
+        .fullscreen-btn-module:hover { background: #fff0f0; }
+        .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; color: #1e293b; }
+        .role-boxoffice { background: #dbeafe; color: #2563eb; }
+        .role-hospitality { background: #fce7f3; color: #db2777; }
+        .role-shishamaster { background: #fed7aa; color: #ea580c; }
+        .role-gatecontrol { background: #d1fae5; color: #059669; }
+        .role-support { background: #e0e7ff; color: #4f46e5; }
+        .role-venuemanager { background: #fef3c7; color: #d97706; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .dashboard-container { padding: 20px; }
+            .menu-toggle { display: block; margin-right: 16px; }
+            .fullscreen-btn-module { padding: 4px 10px; font-size: 0.7rem; }
+            .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
+        }
+        @media (min-width: 769px) { .menu-toggle { display: none; } }
+
+```
+    /* Module card view - makes modules more visible */
+    .modules-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+    .module-card-item {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid #edf2f7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    .module-card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .module-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .module-info p { font-size: 0.7rem; color: #64748b; }
+    .module-status { display: flex; align-items: center; gap: 12px; }
+    .module-badge-enabled { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+    .module-badge-disabled { background: #ef4444; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+</style>
+```
+
+</head>
+<body>
+<div id="app">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
+        <div class="sidebar-header">
+            <div class="tenant-logo" :style="{ backgroundColor: branding.primaryColor }">{{ tenantInitial }}</div>
+            <div class="tenant-info">
+                <h3>{{ tenantName }}</h3>
+                <p>Venue Dashboard</p>
+            </div>
+        </div>
+        <div class="nav-menu">
+            <div v-for="item in navItems" :key="item.id" class="nav-item" :class="{ active: currentSection === item.id }" @click="currentSection = item.id; closeSidebar()">
+                <i :class="item.icon"></i>
+                <span>{{ item.label }}</span>
+            </div>
+        </div>
+    </aside>
+
+```
+<div class="main-content">
+    <div class="top-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+            <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
+        </div>
+        <div class="sync-status" :class="{ warning: syncWarning }">
+            <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
+            <span>{{ syncStatusText }}</span>
+        </div>
+        <div class="header-right">
+            <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
+            <div class="profile-dropdown" @click="logout">
+                <div class="avatar">{{ adminInitial }}</div>
+                <span style="font-size:0.85rem;">{{ adminName }}</span>
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+        </div>
+        <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen</button>
+        <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit</button>
+    </div>
+
+    <div class="dashboard-container">
+        <div v-if="currentSection === 'dashboard'">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Total Staff</div><div class="stat-number">{{ staffList.length }}</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-check"></i></div><div class="stat-title">Active Staff</div><div class="stat-number">{{ activeStaffCount }}</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-title">Tickets Sold</div><div class="stat-number">1,284</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-rand-sign"></i></div><div class="stat-title">Revenue (MTD)</div><div class="stat-number">R 48,250</div></div>
+            </div>
+            <div class="section-header">
+                <h2>Staff by Role</h2>
+                <button class="btn-outline" @click="currentSection = 'staff'">Manage Staff <i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr v-for="staff in recentStaff" :key="staff.id">
+                            <td>{{ staff.name }}</td>
+                            <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
+                            <td>{{ staff.username }}</td>
+                            <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
+                        </tr>
+                        <tr v-if="recentStaff.length === 0"><td colspan="4" style="text-align:center; color:#999;">No staff members yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div v-if="currentSection === 'staff'">
+            <div class="section-header">
+                <h2><i class="fas fa-users"></i> Staff Management</h2>
+                <button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Name</th><th>Role</th><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="staff in staffList" :key="staff.id">
+                            <td><strong>{{ staff.name }}</strong></td>
+                            <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
+                            <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></td>
+                            <td><span class="credential-cell">••••••<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.password)"></i></span></td>
+                            <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
+                            <td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i><i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i></div></td>
+                        </tr>
+                        <tr v-if="staffList.length === 0"><td colspan="6" style="text-align:center; padding:40px;">No staff members. Click "Add Staff" to create one.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="settings-panel" style="margin-top: 20px;">
+                <h4 style="margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Role Permissions Guide</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; font-size: 0.75rem;">
+                    <div><span class="role-badge role-boxoffice">Box Office</span> - Ticket sales, entry scanning</div>
+                    <div><span class="role-badge role-hospitality">Hospitality</span> - Food & shisha orders (POS)</div>
+                    <div><span class="role-badge role-shishamaster">Shisha Master</span> - Manage shisha sessions</div>
+                    <div><span class="role-badge role-gatecontrol">Gate Control</span> - Entry scanning only</div>
+                    <div><span class="role-badge role-support">Support Staff</span> - View only, no operations</div>
+                    <div><span class="role-badge role-venuemanager">Venue Manager</span> - Full access to everything</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULES SECTION - COMPLETELY REDONE FOR VISIBILITY -->
+        <div v-if="currentSection === 'modules'">
+            <div class="section-header">
+                <h2><i class="fas fa-puzzle-piece"></i> Available Modules</h2>
+                <div>
+                    <button class="btn-outline" @click="refreshModules" style="margin-right: 8px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <span style="font-size: 0.7rem; color: #64748b;">Configured by Super Admin</span>
+                </div>
+            </div>
+            
+            <!-- Debug info -->
+            <div style="background: #f0f9ff; border-radius: 16px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #E30613;">
+                <p style="font-size: 0.75rem; margin-bottom: 8px;"><i class="fas fa-info-circle"></i> <strong>Module Status:</strong> {{ tenantModules.length }} modules loaded from Super Admin</p>
+                <button class="btn-outline" @click="forceRefreshModules" style="font-size: 0.7rem; padding: 4px 12px;">🔄 Force Reload from Super Admin</button>
+            </div>
+            
+            <!-- Module Cards View - Much clearer than table -->
+            <div class="modules-container" v-if="tenantModules.length > 0">
+                <div v-for="module in tenantModules" :key="module.id" class="module-card-item">
+                    <div class="module-info">
+                        <h4><i :class="getModuleIcon(module.name)" style="color: #E30613; margin-right: 8px;"></i> {{ module.name }}</h4>
+                        <p>{{ getModuleDescription(module.name) }}</p>
+                    </div>
+                    <div class="module-status">
+                        <span :class="module.enabled ? 'module-badge-enabled' : 'module-badge-disabled'">
+                            {{ module.enabled ? 'ENABLED' : 'DISABLED' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fallback table view if cards don't work -->
+            <div class="table-wrapper" v-else>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Module Name</th><th>Status</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="module in allModules" :key="module.id">
+                            <td><strong>{{ module.displayName }}</strong> <span v-if="module.isCustom" class="badge" style="background:#fef3c7; color:#d97706;">Custom</span></td>
+                            <td><span class="status-badge" :class="module.enabled ? 'status-active' : 'status-warning'">{{ module.enabled ? 'Enabled' : 'Disabled' }}</span></td>
+                            <td style="color:#64748b;">{{ module.description }}</td>
+                        </tr>
+                        <tr v-if="allModules.length === 0"><td colspan="3" style="text-align:center; padding:40px;">No modules found. Click "Force Reload" to sync with Super Admin.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div v-if="currentSection === 'settings'">
+            <div class="section-header"><h2>Branding & Settings</h2></div>
+
+            <!-- Brand Studio CTA -->
+            <div style="background: linear-gradient(135deg, #fff0f0, #fff5f5); border-radius: 24px; padding: 24px; border: 1px solid #fecdd3; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;"><i class="fas fa-palette" style="color:#E30613;"></i> Brand Studio</h3>
+                    <p style="font-size: 0.8rem; color: #64748b;">Upload your logo, customize colors & sidebar style.<br>Changes reflect instantly on Staff dashboards.</p>
+                </div>
+                <a href="tenant-settings.html" style="background: #E30613; color: white; text-decoration: none; padding: 12px 24px; border-radius: 40px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;">
+                    <i class="fas fa-paint-brush"></i> Open Brand Studio
+                </a>
+            </div>
+
+            <div class="settings-panel">
+                <h4 style="margin-bottom: 16px; color: #1e293b;"><i class="fas fa-info-circle" style="color:#E30613;"></i> Current Branding</h4>
+                <div class="form-group"><label>Tenant Name</label><input class="form-control" v-model="tenantName" @blur="saveBranding"></div>
+                <div class="form-group"><label>Primary Color</label>
+                    <div class="color-preview">
+                        <input type="color" v-model="branding.primaryColor" class="form-control" style="width:80px; padding:4px;" @change="saveBranding">
+                        <div class="preview-box" :style="{ backgroundColor: branding.primaryColor }"></div>
+                        <span>{{ branding.primaryColor }}</span>
+                    </div>
+                </div>
+                <div v-if="branding.logoUrl" style="margin-bottom: 16px;">
+                    <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:8px;">Current Logo</label>
+                    <img :src="branding.logoUrl" style="height:48px; border-radius:10px; background:#f8fafc; padding:6px; border:1px solid #edf2f7;">
+                </div>
+                <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:16px;"><i class="fas fa-lightbulb"></i> For full customization (logo upload, header color, sidebar style) use Brand Studio above.</p>
+                <button class="btn-primary" @click="saveBranding"><i class="fas fa-save"></i> Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Staff Modal -->
+<div class="modal-mask" :class="{ active: showStaffModal }">
+    <div class="modal-container">
+        <h3 style="margin-bottom: 20px;"><i class="fas fa-user-plus"></i> {{ isEditing ? 'Edit Staff' : 'Add New Staff' }}</h3>
+        <div class="form-group"><label>Full Name *</label><input class="form-control" v-model="staffForm.name" placeholder="e.g., John Doe"></div>
+        <div class="form-group"><label>Username *</label><input class="form-control" v-model="staffForm.username" placeholder="Login username (unique)"></div>
+        <div class="form-group"><label>Password *</label><input type="password" class="form-control" v-model="staffForm.password" placeholder="Login password (min 4 characters)"></div>
+        <div class="form-group">
+            <label>Role * - Determines what staff can access</label>
+            <select class="form-control" v-model="staffForm.role">
+                <option value="boxoffice">🎟️ Box Office - Ticket sales, entry scanning</option>
+                <option value="hospitality">🍽️ Hospitality - Food & shisha orders (POS)</option>
+                <option value="shishamaster">💨 Shisha Master - Manage shisha sessions, tables</option>
+                <option value="gatecontrol">🚪 Gate Control - Entry scanning only</option>
+                <option value="support">🧹 Support Staff - View only, no operations</option>
+                <option value="venuemanager">👔 Venue Manager - Full access to everything</option>
+            </select>
+        </div>
+        <div class="modal-buttons" style="display:flex; gap:12px; margin-top:20px;">
+            <button class="btn-outline" @click="closeStaffModal">Cancel</button>
+            <button class="btn-primary" @click="saveStaff">{{ isEditing ? 'Update' : 'Create' }}</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" :class="{ active: showResetModal }">
+    <div class="modal-container">
+        <h3><i class="fas fa-key"></i> Reset Password</h3>
+        <p>New password for <strong>{{ resettingStaff?.name }}</strong></p>
+        <input type="password" class="form-control" v-model="newPassword" placeholder="New password (min 4 characters)" style="margin:16px 0;">
+        <div style="display:flex; gap:12px; margin-top:16px;">
+            <button class="btn-outline" @click="showResetModal = false">Cancel</button>
+            <button class="btn-primary" @click="confirmResetPassword">Reset</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" :class="{ active: showInfoModal }">
+    <div class="modal-container" style="text-align:center;">
+        <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
+        <h3>{{ infoTitle }}</h3>
+        <p style="margin: 16px 0; white-space: pre-line;">{{ infoMessage }}</p>
+        <button class="btn-primary" @click="showInfoModal = false">OK</button>
+    </div>
+</div>
+```
+
+</div>
+
+<script>
+    const STORAGE_KEYS = { TENANTS: 'qless_tenants', STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules' };
+
+    new Vue({
+        el: '#app',
+        data: {
+            sidebarOpen: false, currentSection: 'dashboard', tenantId: null, tenantName: 'Loading...', adminName: 'Admin',
+            branding: { primaryColor: '#E30613', logoUrl: '' }, tenantModules: [], staffList: [], showStaffModal: false,
+            showResetModal: false, showInfoModal: false, isEditing: false, editingStaffId: null,
+            staffForm: { name: '', username: '', password: '', role: 'boxoffice' }, resettingStaff: null, newPassword: '',
+            infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
+            navItems: [{ id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' }, { id: 'staff', label: 'Staff Management', icon: 'fas fa-users' }, { id: 'modules', label: 'Modules', icon: 'fas fa-puzzle-piece' }, { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }],
+            syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null
+        },
+        computed: {
+            tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
+            adminInitial() { return this.adminName ? this.adminName.charAt(0).toUpperCase() : 'A'; },
+            activeStaffCount() { return this.staffList.filter(s => s.status === 'Active').length; },
+            recentStaff() { return this.staffList.slice(0, 5); },
+            currentSectionTitle() { const item = this.navItems.find(i => i.id === this.currentSection); return item ? item.label : 'Dashboard'; },
+            allModules() {
+                const moduleMap = { 
+                    'Tickets': { displayName: 'Tickets & Events', description: 'Event ticketing and QR code scanning' }, 
+                    'Queue Management': { displayName: 'Queue System', description: 'Virtual queuing' }, 
+                    'Self-Serve Kiosk': { displayName: 'Orders', description: 'Food ordering system' }, 
+                    'Virtual Booze Lockers': { displayName: 'Lockers', description: 'Secure bottle storage' }, 
+                    'Shisha System': { displayName: 'Shisha', description: 'Hookah management' }, 
+                    'VVIP Management': { displayName: 'VVIP Tabs', description: 'Exclusive VIP accounts' } 
+                };
+                return this.tenantModules.map(m => ({ 
+                    id: m.id, 
+                    name: m.name, 
+                    displayName: moduleMap[m.name]?.displayName || m.name, 
+                    description: m.description || moduleMap[m.name]?.description || 'Custom module', 
+                    enabled: m.enabled, 
+                    isCustom: m.isCustom || false 
+                }));
+            }
+        },
+        methods: {
+            closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
+            
+            getModuleIcon(moduleName) {
+                const icons = {
+                    'Tickets': 'fas fa-ticket-alt',
+                    'Queue Management': 'fas fa-hourglass-half',
+                    'Self-Serve Kiosk': 'fas fa-clipboard-list',
+                    'Virtual Booze Lockers': 'fas fa-lock',
+                    'Shisha System': 'fas fa-smoking',
+                    'VVIP Management': 'fas fa-crown'
+                };
+                return icons[moduleName] || 'fas fa-puzzle-piece';
+            },
+            
+            getModuleDescription(moduleName) {
+                const descriptions = {
+                    'Tickets': 'Event ticketing and QR code scanning',
+                    'Queue Management': 'Smart virtual queuing system',
+                    'Self-Serve Kiosk': 'Food & beverage ordering system',
+                    'Virtual Booze Lockers': 'Secure bottle storage management',
+                    'Shisha System': 'Hookah session management',
+                    'VVIP Management': 'Exclusive VIP accounts & tabs'
+                };
+                return descriptions[moduleName] || 'Custom module configured by Super Admin';
+            },
+            
+            getRoleDisplay(role) {
+                const roles = { boxoffice: 'Box Office', hospitality: 'Hospitality', shishamaster: 'Shisha Master', gatecontrol: 'Gate Control', support: 'Support Staff', venuemanager: 'Venue Manager' };
+                return roles[role] || role;
+            },
+            getRoleClass(role) {
+                const classes = { boxoffice: 'role-boxoffice', hospitality: 'role-hospitality', shishamaster: 'role-shishamaster', gatecontrol: 'role-gatecontrol', support: 'role-support', venuemanager: 'role-venuemanager' };
+                return classes[role] || '';
+            },
+            showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') { this.infoTitle = title; this.infoMessage = message; this.infoIcon = icon; this.infoIconColor = iconColor; this.showInfoModal = true; },
+            copyToClipboard(text) { navigator.clipboard.writeText(text); this.showAlert('Copied!', 'Text copied to clipboard', 'fas fa-check-circle', '#10b981'); },
+            
+            refreshModules() {
+                this.loadModules();
+                this.showAlert('Modules Refreshed', 'Module list has been updated from Super Admin settings.', 'fas fa-sync-alt', '#10b981');
+            },
+            
+            forceRefreshModules() {
+                // Force clear cache and reload
+                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
+                console.log('Full modules from localStorage:', allModules);
+                console.log('Current tenant ID:', this.tenantId);
+                console.log('Modules for this tenant:', allModules[this.tenantId]);
+                
+                if (allModules[this.tenantId] && allModules[this.tenantId].length > 0) {
+                    this.tenantModules = allModules[this.tenantId];
+                    this.showAlert('Modules Loaded', `Found ${this.tenantModules.length} modules from Super Admin.`, 'fas fa-check-circle', '#10b981');
+                } else {
+                    this.showAlert('No Modules Found', 'No modules configured by Super Admin yet. Default modules loaded.', 'fas fa-info-circle', '#f59e0b');
+                    // Load default modules
+                    this.tenantModules = [
+                        { id: 1, name: 'Tickets', enabled: true, isCustom: false },
+                        { id: 2, name: 'Queue Management', enabled: true, isCustom: false },
+                        { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false },
+                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false },
+                        { id: 5, name: 'Shisha System', enabled: false, isCustom: false },
+                        { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }
+                    ];
+                }
+                this.$forceUpdate();
+            },
+            
+            setupRealtimeSync() {
+                window.addEventListener('storage', (e) => {
+                    // Listen for module changes from Super Admin
+                    if (e.key === STORAGE_KEYS.TENANT_MODULES) { 
+                        console.log('Module change detected from Super Admin!'); 
+                        this.syncing = true; 
+                        this.syncStatusText = 'Updating...'; 
+                        setTimeout(() => { 
+                            this.forceRefreshModules(); 
+                            this.syncing = false; 
+                            this.syncStatusText = 'Live'; 
+                            this.syncWarning = false; 
+                            this.showAlert('Modules Updated', 'Super Admin has updated module settings. The module list has been refreshed.', 'fas fa-sync-alt', '#10b981'); 
+                        }, 500); 
+                    }
+                    // Listen for branding changes from Brand Studio (tenant-settings.html)
+                    if (e.key === `qless_tenant_branding_${this.tenantId}` && e.newValue) {
+                        const data = JSON.parse(e.newValue);
+                        this.tenantName = data.tenantName || this.tenantName;
+                        this.branding = data.branding || this.branding;
+                        this.applyBrandingToDOM();
+                    }
+                });
+                this.syncInterval = setInterval(() => { 
+                    this.syncing = true; 
+                    this.syncStatusText = 'Checking...'; 
+                    const oldModules = JSON.stringify(this.tenantModules); 
+                    this.forceRefreshModules(); 
+                    if (JSON.stringify(this.tenantModules) !== oldModules) { 
+                        this.syncWarning = true; 
+                        this.syncStatusText = 'Update Available'; 
+                    } else { 
+                        this.syncStatusText = 'Live'; 
+                        this.syncWarning = false; 
+                    } 
+                    this.syncing = false; 
+                }, 30000);
+            },
+            
+            loadTenantData() {
+                const tenantId = sessionStorage.getItem('qless_tenant_id'); 
+                const tenantName = sessionStorage.getItem('qless_tenant_name'); 
+                const adminUser = sessionStorage.getItem('qless_user_name');
+                if (!tenantId) { 
+                    this.showAlert('Session Error', 'No tenant session found. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626'); 
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000); 
+                    return; 
+                }
+                this.tenantId = parseInt(tenantId); 
+                this.tenantName = tenantName || 'Venue'; 
+                this.adminName = adminUser || 'Administrator';
+                this.loadStaff(); 
+                this.forceRefreshModules();  // Use force refresh instead of regular load
+                this.loadBranding();
+            },
+            
+            loadStaff() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); this.staffList = allStaff.filter(s => s.tenantId === this.tenantId); },
+            saveStaffToStorage() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId); localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList])); window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.STAFF })); },
+            
+            loadModules() { 
+                // This is kept for compatibility but forceRefreshModules is the main one now
+                this.forceRefreshModules();
+            },
+            
+            loadBranding() {
+                const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.tenantName = data.tenantName || this.tenantName;
+                    this.branding = data.branding || { primaryColor: '#E30613', secondaryColor: '#ffffff', logoUrl: '', sidebarStyle: 'dark' };
+                }
+                this.applyBrandingToDOM();
+            },
+            applyBrandingToDOM() {
+                // Apply primary color CSS variable
+                document.documentElement.style.setProperty('--primary-color', this.branding.primaryColor || '#E30613');
+                // Apply secondary color to top header
+                if (this.branding.secondaryColor) {
+                    const header = document.querySelector('.top-header');
+                    if (header) header.style.backgroundColor = this.branding.secondaryColor;
+                }
+                // Apply sidebar color
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar && this.branding.primaryColor) {
+                    // Update sidebar active item color via style
+                    document.documentElement.style.setProperty('--brand-primary', this.branding.primaryColor);
+                }
+                // Apply logo to sidebar header
+                const logoEl = document.querySelector('.tenant-logo');
+                if (logoEl && this.branding.logoUrl) {
+                    logoEl.innerHTML = `<img src="${this.branding.logoUrl}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
+                } else if (logoEl) {
+                    logoEl.innerHTML = this.tenantInitial;
+                }
+            },
+            saveBranding() {
+                const data = { tenantName: this.tenantName, branding: this.branding };
+                localStorage.setItem(`qless_tenant_branding_${this.tenantId}`, JSON.stringify(data));
+                // Notify other open tabs (staff.html, tenant-settings.html)
+                window.dispatchEvent(new StorageEvent('storage', { key: `qless_tenant_branding_${this.tenantId}`, newValue: JSON.stringify(data) }));
+                const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
+                const tenant = tenants.find(t => t.id === this.tenantId);
+                if (tenant) tenant.businessName = this.tenantName;
+                localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants));
+                this.applyBrandingToDOM();
+                this.showAlert('Saved', 'Branding saved! Staff dashboards will reflect changes.', 'fas fa-check-circle', '#10b981');
+            },
+            openCreateStaffModal() { this.isEditing = false; this.editingStaffId = null; this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' }; this.showStaffModal = true; },
+            editStaff(staff) { this.isEditing = true; this.editingStaffId = staff.id; this.staffForm = { name: staff.name, username: staff.username, password: staff.password, role: staff.role }; this.showStaffModal = true; },
+            saveStaff() {
+                if (!this.staffForm.name || !this.staffForm.username || !this.staffForm.password) { this.showAlert('Missing Fields', 'Please fill all required fields', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                if (this.staffForm.password.length < 4) { this.showAlert('Invalid Password', 'Password must be at least 4 characters', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                const existingStaff = this.staffList.find(s => s.username === this.staffForm.username && s.id !== this.editingStaffId);
+                if (existingStaff) { this.showAlert('Duplicate Username', 'A staff member with this username already exists', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                const roleDisplay = this.getRoleDisplay(this.staffForm.role);
+                if (this.isEditing && this.editingStaffId) { const index = this.staffList.findIndex(s => s.id === this.editingStaffId); if (index !== -1) { this.staffList[index] = { ...this.staffList[index], name: this.staffForm.name, username: this.staffForm.username, password: this.staffForm.password, role: this.staffForm.role }; this.showAlert('Updated', `Staff member ${this.staffForm.name} (${roleDisplay}) has been updated`, 'fas fa-check-circle', '#10b981'); } }
+                else { const newStaff = { id: Date.now(), tenantId: this.tenantId, name: this.staffForm.name, username: this.staffForm.username, password: this.staffForm.password, role: this.staffForm.role, status: 'Active', createdAt: new Date().toISOString() }; this.staffList.push(newStaff); this.showAlert('Staff Created', `${newStaff.name} (${roleDisplay}) has been added.\n\nUsername: ${newStaff.username}\nPassword: ${newStaff.password}`, 'fas fa-check-circle', '#10b981'); }
+                this.saveStaffToStorage(); this.closeStaffModal();
+            },
+            closeStaffModal() { this.showStaffModal = false; this.isEditing = false; this.editingStaffId = null; this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' }; },
+            toggleStaffStatus(staffId) { const staff = this.staffList.find(s => s.id === staffId); if (staff) { staff.status = staff.status === 'Active' ? 'Inactive' : 'Active'; this.saveStaffToStorage(); this.showAlert('Status Updated', `${staff.name} is now ${staff.status}`, 'fas fa-check-circle', '#10b981'); } },
+            deleteStaff(staffId) { const staff = this.staffList.find(s => s.id === staffId); if (staff && confirm(`Are you sure you want to delete ${staff.name}?`)) { this.staffList = this.staffList.filter(s => s.id !== staffId); this.saveStaffToStorage(); this.showAlert('Deleted', 'Staff member has been removed', 'fas fa-check-circle', '#10b981'); } },
+            resetStaffPassword(staff) { this.resettingStaff = staff; this.newPassword = ''; this.showResetModal = true; },
+            confirmResetPassword() { if (!this.newPassword || this.newPassword.length < 4) { this.showAlert('Invalid Password', 'Password must be at least 4 characters', 'fas fa-exclamation-triangle', '#dc2626'); return; } const staff = this.staffList.find(s => s.id === this.resettingStaff.id); if (staff) { staff.password = this.newPassword; this.saveStaffToStorage(); this.showAlert('Password Reset', `New password for ${staff.name}: ${this.newPassword}`, 'fas fa-key', '#10b981'); } this.showResetModal = false; this.resettingStaff = null; this.newPassword = ''; },
+            logout() { if (this.syncInterval) clearInterval(this.syncInterval); sessionStorage.clear(); window.location.href = 'login.html'; }
+        },
+        mounted() {
+            const isLoggedIn = sessionStorage.getItem('qless_logged_in'); const role = sessionStorage.getItem('qless_user_role');
+            if (!isLoggedIn || role !== 'tenant_administrator') { window.location.href = 'login.html'; return; }
+            this.loadTenantData(); 
+            this.setupRealtimeSync();
+            console.log('Tenant Admin ready. Listening for module changes...');
+            window.addEventListener('resize', () => { if(window.innerWidth > 768) this.sidebarOpen = false; });
+            setTimeout(() => { const appElement = document.querySelector('#app'); if (!appElement) return; let isFullscreen = false; const exitBtn = document.getElementById('exitFullscreenBtn'); const fullscreenBtn = document.getElementById('globalFullscreenBtn'); function toggleFullscreen() { if (!isFullscreen) { appElement.classList.add('fullscreen-active'); isFullscreen = true; if (exitBtn) exitBtn.style.display = 'flex'; if (fullscreenBtn) fullscreenBtn.style.display = 'none'; } else { appElement.classList.remove('fullscreen-active'); isFullscreen = false; if (exitBtn) exitBtn.style.display = 'none'; if (fullscreenBtn) fullscreenBtn.style.display = ''; } } if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen); if (exitBtn) exitBtn.addEventListener('click', toggleFullscreen); }, 500);
+        },
+        beforeDestroy() { if (this.syncInterval) clearInterval(this.syncInterval); }
+    });
+</script>
+
+</body>
+</html>
