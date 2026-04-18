@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rands Venue OS | Enterprise Management Platform</title>
+<meta name="description" content="Rands Venue OS - Complete venue management platform for modern businesses">
+<meta name="theme-color" content="#E30613">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rands Venue OS">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180x180.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120x120.png">
+
+<!-- Standard Favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="shortcut icon" href="icons/favicon.ico">
+
+<!-- Android Chrome Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+
+<!-- Maskable Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="icons/maskable-icon-192x192.png" purpose="maskable">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/maskable-icon-512x512.png" purpose="maskable">
+
+<!-- Microsoft Tile -->
+<meta name="msapplication-TileColor" content="#E30613">
+<meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+
+<style>
+/* ========== SPLASH SCREEN STYLES ========== */
+:root {
+  --primary: #E30613;
+  --primary-dark: #b3000c;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, 'Montserrat', sans-serif;
+  background: linear-gradient(135deg, #0a0c0f 0%, #1a1e24 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Splash Screen Container */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #E30613 0%, #b3000c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+  opacity: 1;
+  visibility: visible;
+}
+
+.splash-screen.hide-splash {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-content {
+  text-align: center;
+  animation: fadeInUp 0.8s ease-out;
+  padding: 20px;
+  max-width: 90%;
+}
+
+/* Logo Container */
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  background: white;
+  border-radius: 28px;
+  margin: 0 auto 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: pulse 1.5s infinite;
+}
+
+.splash-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.splash-logo i {
+  font-size: 60px;
+  color: #E30613;
+}
+
+/* Title Styles */
+.splash-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.5px;
+  margin-bottom: 15px;
+  font-family: 'Montserrat', 'Segoe UI', sans-serif;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.splash-title span {
+  font-weight: 900;
+  position: relative;
+  display: inline-block;
+}
+
+.splash-title span::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  z-index: -1;
+}
+
+/* Subtitle */
+.splash-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+/* Loading Spinner */
+.splash-loader {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Progress Bar Container */
+.splash-progress {
+  width: 280px;
+  max-width: 80vw;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  margin: 20px auto 0;
+  overflow: hidden;
+}
+
+.splash-progress-bar {
+  width: 0%;
+  height: 100%;
+  background: white;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Status Text */
+.splash-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  margin-top: 15px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Install Prompt */
+.install-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1001;
+  animation: slideUp 0.5s ease;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.install-banner p {
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.install-banner button {
+  background: #E30613;
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.install-banner button:hover {
+  background: #ff2a33;
+  transform: scale(1.02);
+}
+
+.close-install {
+  background: transparent !important;
+  padding: 8px !important;
+  font-size: 1.2rem !important;
+  margin-left: 8px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .splash-logo {
+    width: 90px;
+    height: 90px;
+    border-radius: 22px;
+  }
+  
+  .splash-title {
+    font-size: 1.6rem;
+  }
+  
+  .splash-subtitle {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+  }
+  
+  .splash-loader {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .splash-progress {
+    width: 220px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN COMPONENT -->
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-content">
+    <div class="splash-logo" id="splashLogo">
+      <!-- Custom logo with exact path: images/rands-logo.png -->
+      <img src="images/rands-logo.png" alt="Rands Venue OS" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'67\' font-size=\'45\' text-anchor=\'middle\' fill=\'white\' font-weight=\'bold\'%3ER%3C/text%3E%3C/svg%3E'">
+    </div>
+    <h1 class="splash-title"><span>Rands</span> Venue OS</h1>
+    <div class="splash-subtitle">Enterprise Management Platform</div>
+    <div class="splash-loader"></div>
+    <div class="splash-progress">
+      <div class="splash-progress-bar" id="splashProgressBar"></div>
+    </div>
+    <div class="splash-text" id="splashText">Initializing system...</div>
+  </div>
+</div>
+
+<!-- Install Banner -->
+<div id="installBanner" class="install-banner" style="display: none;">
+  <p>📱 <strong>Add to Home Screen</strong> — Get app-like experience</p>
+  <div>
+    <button id="installBtn">Install</button>
+    <button id="closeInstallBtn" class="close-install">✕</button>
+  </div>
+</div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+/**
+ * ========== SPLASH SCREEN CONTROLLER ==========
+ */
+
+// Configuration
+const splashConfig = {
+  totalDuration: 2500,
+  steps: [
+    { progress: 20, text: 'Loading modules...' },
+    { progress: 40, text: 'Connecting to services...' },
+    { progress: 60, text: 'Syncing data...' },
+    { progress: 80, text: 'Preparing dashboard...' },
+    { progress: 100, text: 'Ready! Launching...' }
+  ],
+  onComplete: function() {
+    console.log('Splash complete - redirecting to login');
+    window.location.href = 'login.html';
+  }
+};
+
+// DOM Elements
+const splashScreen = document.getElementById('splashScreen');
+const splashProgressBar = document.getElementById('splashProgressBar');
+const splashText = document.getElementById('splashText');
+
+let currentProgress = 0;
+let currentStepIndex = 0;
+
+function startSplash() {
+  currentProgress = 0;
+  currentStepIndex = 0;
+  splashScreen.classList.remove('hide-splash');
+  splashScreen.style.display = 'flex';
+  
+  if (splashProgressBar) {
+    splashProgressBar.style.width = '0%';
+  }
+  
+  startSequentialProgress();
+}
+
+function startSequentialProgress() {
+  if (currentStepIndex >= splashConfig.steps.length) {
+    return;
+  }
+  
+  const targetProgress = splashConfig.steps[currentStepIndex].progress;
+  const targetText = splashConfig.steps[currentStepIndex].text;
+  
+  if (splashText) {
+    splashText.textContent = targetText;
+  }
+  
+  animateProgressTo(targetProgress, () => {
+    currentStepIndex++;
+    if (currentStepIndex < splashConfig.steps.length) {
+      setTimeout(startSequentialProgress, 300);
+    } else {
+      setTimeout(() => {
+        hideSplash();
+      }, 400);
+    }
+  });
+}
+
+function animateProgressTo(target, callback) {
+  const startProgress = currentProgress;
+  const duration = 400;
+  const startTime = performance.now();
+  
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    
+    currentProgress = startProgress + (target - startProgress) * progress;
+    
+    if (splashProgressBar) {
+      splashProgressBar.style.width = currentProgress + '%';
+    }
+    
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    } else {
+      currentProgress = target;
+      if (callback) callback();
+    }
+  }
+  
+  requestAnimationFrame(update);
+}
+
+function hideSplash() {
+  splashScreen.classList.add('hide-splash');
+  setTimeout(() => {
+    splashScreen.style.display = 'none';
+    if (splashConfig.onComplete) {
+      splashConfig.onComplete();
+    }
+  }, 600);
+}
+
+// ========== PWA INSTALLATION ==========
+
+let deferredPrompt;
+const installBanner = document.getElementById('installBanner');
+const installBtn = document.getElementById('installBtn');
+const closeInstallBtn = document.getElementById('closeInstallBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('installDismissed')) {
+    installBanner.style.display = 'flex';
+  }
+});
+
+installBtn.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`Install: ${outcome}`);
+    deferredPrompt = null;
+    installBanner.style.display = 'none';
+    localStorage.setItem('installDismissed', 'true');
+  }
+});
+
+closeInstallBtn.addEventListener('click', () => {
+  installBanner.style.display = 'none';
+  localStorage.setItem('installDismissed', 'true');
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('App installed successfully');
+  installBanner.style.display = 'none';
+  deferredPrompt = null;
+});
+
+// ========== SERVICE WORKER REGISTRATION ==========
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/Wallet-/sw.js')
+      .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+      .catch(err => console.error('❌ Service Worker registration failed:', err));
+  });
+}
+
+// ========== INITIALIZE ==========
+window.addEventListener('DOMContentLoaded', () => {
+  startSplash();
+});
+</script>
+</body>
+</html>
