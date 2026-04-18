@@ -324,38 +324,55 @@
             margin-bottom: 16px;
         }
 
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); width: 260px; }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-            .dashboard-container { padding: 20px; }
-            .menu-toggle { display: block; margin-right: 16px; font-size: 1.3rem; cursor: pointer; }
+        /* Sync Status Indicator */
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0fdf4;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #10b981;
+            margin-right: 16px;
         }
-        @media (min-width: 769px) { .menu-toggle { display: none; } }
+        .sync-status i {
+            font-size: 0.65rem;
+        }
+        .sync-status.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
 
-        /* ========== FULLSCREEN MODE STYLES ========== */
+        /* Custom module badge */
+        .custom-badge {
+            background: #fef3c7;
+            color: #d97706;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        /* Fullscreen Mode Styles */
         .fullscreen-active .sidebar,
-        .fullscreen-active .top-header .header-right,
+        .fullscreen-active .top-header .header-right .notification-icon,
         .fullscreen-active .top-header .menu-toggle {
             display: none !important;
         }
 
         .fullscreen-active .top-header {
-            justify-content: flex-start !important;
+            justify-content: space-between !important;
             gap: 20px !important;
-            background: white;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 10001;
-            padding: 12px 24px;
-            border-bottom: 1px solid #edf2f7;
         }
 
         .fullscreen-active .dashboard-container {
             margin-top: 70px;
-            padding: 20px 32px;
         }
 
         .fullscreen-active .main-content {
@@ -374,8 +391,12 @@
             display: flex !important;
         }
 
-        .fullscreen-active .fullscreen-btn-module:not(.keep-visible) {
+        .fullscreen-active .fullscreen-btn-module {
             display: none;
+        }
+
+        .fullscreen-active .header-right {
+            display: flex !important;
         }
 
         .exit-fullscreen-btn {
@@ -390,12 +411,7 @@
             cursor: pointer;
             align-items: center;
             gap: 8px;
-            transition: 0.2s;
-        }
-
-        .exit-fullscreen-btn:hover {
-            background: #b0020e;
-            transform: scale(0.97);
+            margin-left: auto;
         }
 
         .fullscreen-btn-module {
@@ -410,23 +426,20 @@
             margin-left: auto;
             transition: 0.2s;
         }
-
         .fullscreen-btn-module:hover {
             background: #fff0f0;
         }
 
         @media (max-width: 768px) {
-            .fullscreen-active .dashboard-container {
-                padding: 16px !important;
-            }
-            .fullscreen-btn-module {
-                padding: 4px 12px;
-                font-size: 0.7rem;
-            }
-            .fullscreen-active .top-header .header-left h3 {
-                font-size: 1rem;
-            }
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .dashboard-container { padding: 20px; }
+            .menu-toggle { display: block; margin-right: 16px; font-size: 1.3rem; cursor: pointer; }
+            .fullscreen-btn-module { padding: 4px 10px; font-size: 0.7rem; }
+            .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
         }
+        @media (min-width: 769px) { .menu-toggle { display: none; } }
     </style>
 </head>
 <body>
@@ -453,6 +466,10 @@
                 <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
                 <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
             </div>
+            <div class="sync-status" :class="{ warning: syncWarning }">
+                <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
+                <span>{{ syncStatusText }}</span>
+            </div>
             <div class="header-right">
                 <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
                 <div class="profile-dropdown" @click="logout">
@@ -461,8 +478,8 @@
                     <i class="fas fa-sign-out-alt"></i>
                 </div>
             </div>
-            <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen Mode</button>
-            <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit Fullscreen</button>
+            <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen</button>
+            <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit</button>
         </div>
 
         <div class="dashboard-container">
@@ -565,7 +582,7 @@
                 </div>
             </div>
 
-            <!-- SHISHA MODULE (Staff view) -->
+            <!-- SHISHA MODULE -->
             <div v-if="currentSection === 'shisha' && isModuleEnabled('shisha')">
                 <div class="section-header"><h2>Active Shisha Sessions</h2><button class="btn-primary" @click="startShishaSession"><i class="fas fa-plus"></i> Start Session</button></div>
                 <div v-for="session in shishaSessions" :key="session.id" class="item-card">
@@ -574,7 +591,7 @@
                 </div>
             </div>
 
-            <!-- VVIP MODULE (Staff view) -->
+            <!-- VVIP MODULE -->
             <div v-if="currentSection === 'vvip' && isModuleEnabled('vvip')">
                 <div class="section-header"><h2>VVIP Tabs</h2></div>
                 <div v-for="tab in vvipTabs" :key="tab.id" class="item-card">
@@ -583,12 +600,28 @@
                 </div>
             </div>
 
-            <!-- LOCKERS MODULE (Staff view) -->
+            <!-- LOCKERS MODULE -->
             <div v-if="currentSection === 'lockers' && isModuleEnabled('lockers')">
                 <div class="section-header"><h2>Locker Inventory</h2></div>
                 <div v-for="locker in lockers" :key="locker.id" class="item-card">
                     <div><strong>{{ locker.itemName }}</strong> - Qty: {{ locker.qty }}<div>Status: {{ locker.status }}</div></div>
                     <button class="btn-outline" @click="markUsed(locker.id)">Mark Used</button>
+                </div>
+            </div>
+
+            <!-- CUSTOM MODULES -->
+            <div v-for="customMod in enabledCustomModules" :key="customMod.id" v-if="currentSection === customMod.sectionId">
+                <div class="section-header">
+                    <h2><i :class="customMod.icon"></i> {{ customMod.name }}</h2>
+                    <span class="custom-badge"><i class="fas fa-magic"></i> Custom Module</span>
+                </div>
+                <div class="settings-panel" style="text-align:center; padding:60px; background:white; border-radius:28px;">
+                    <i :class="customMod.icon" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
+                    <h3>{{ customMod.name }}</h3>
+                    <p style="margin-top:12px;">{{ customMod.description || 'This custom module has been enabled by your venue manager.' }}</p>
+                    <p style="font-size:0.8rem; margin-top:16px; color:#64748b;">
+                        <i class="fas fa-info-circle"></i> Content for this module will be available soon.
+                    </p>
                 </div>
             </div>
         </div>
@@ -601,6 +634,16 @@
             <h3>{{ validationResult.valid ? 'Ticket Validated!' : 'Invalid Ticket' }}</h3>
             <p style="margin: 16px 0;">{{ validationResult.message }}</p>
             <button class="btn-primary" @click="showValidationModal = false">Close</button>
+        </div>
+    </div>
+
+    <!-- Info Alert Modal for Sync Notifications -->
+    <div class="modal-mask" :class="{ active: showInfoModal }">
+        <div class="modal-container" style="text-align:center;">
+            <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
+            <h3>{{ infoTitle }}</h3>
+            <p style="margin: 16px 0;">{{ infoMessage }}</p>
+            <button class="btn-primary" @click="showInfoModal = false">OK</button>
         </div>
     </div>
 </div>
@@ -666,7 +709,17 @@
                 { id: 2, itemName: 'Heineken 6pk', qty: 1, status: 'Reserved' }
             ],
             showValidationModal: false,
-            validationResult: { valid: false, message: '' }
+            validationResult: { valid: false, message: '' },
+            showInfoModal: false,
+            infoTitle: '',
+            infoMessage: '',
+            infoIcon: 'fas fa-info-circle',
+            infoIconColor: '#E30613',
+            // Sync status
+            syncing: false,
+            syncWarning: false,
+            syncStatusText: 'Live',
+            syncInterval: null
         },
         computed: {
             tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
@@ -699,15 +752,45 @@
                     menu.push({ id: 'lockers', label: 'Lockers', icon: 'fas fa-lock', enabled: true });
                 }
                 
+                // Add custom modules
+                this.enabledCustomModules.forEach(custom => {
+                    menu.push({
+                        id: custom.sectionId,
+                        label: custom.name,
+                        icon: custom.icon || 'fas fa-plug',
+                        enabled: true
+                    });
+                });
+                
                 return menu;
             },
             currentSectionTitle() {
                 const item = this.dynamicMenu.find(i => i.id === this.currentSection);
                 return item ? item.label : 'Dashboard';
+            },
+            enabledCustomModules() {
+                const customModules = [];
+                this.tenantModules.forEach(module => {
+                    if (module.enabled && module.isCustom) {
+                        customModules.push({
+                            ...module,
+                            sectionId: module.name.toLowerCase().replace(/\s+/g, '_')
+                        });
+                    }
+                });
+                return customModules;
             }
         },
         methods: {
             closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
+            
+            showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') {
+                this.infoTitle = title;
+                this.infoMessage = message;
+                this.infoIcon = icon;
+                this.infoIconColor = iconColor;
+                this.showInfoModal = true;
+            },
             
             isModuleEnabled(moduleName) {
                 const moduleMap = {
@@ -724,17 +807,67 @@
                 return module ? module.enabled : false;
             },
             
+            // Real-time sync from Super Admin and Tenant Admin
+            setupRealtimeSync() {
+                // Listen for storage events from other tabs (Super Admin or Tenant Admin)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === STORAGE_KEYS.TENANT_MODULES) {
+                        this.syncing = true;
+                        this.syncStatusText = 'Updating...';
+                        setTimeout(() => {
+                            this.loadModules();
+                            this.syncing = false;
+                            this.syncStatusText = 'Live';
+                            this.syncWarning = false;
+                            this.showAlert('Modules Updated', 'Your venue manager has updated available modules. The menu has been refreshed automatically.', 'fas fa-sync-alt', '#10b981');
+                        }, 500);
+                    } else if (e.key === STORAGE_KEYS.TENANTS) {
+                        this.syncing = true;
+                        this.syncStatusText = 'Syncing...';
+                        setTimeout(() => {
+                            this.loadStaffData();
+                            this.syncing = false;
+                            this.syncStatusText = 'Live';
+                        }, 300);
+                    } else if (e.key === `qless_tenant_branding_${this.tenantId}`) {
+                        this.syncing = true;
+                        this.syncStatusText = 'Updating branding...';
+                        setTimeout(() => {
+                            this.loadBranding();
+                            this.syncing = false;
+                            this.syncStatusText = 'Live';
+                            this.showAlert('Branding Updated', 'Venue branding has been updated by your manager.', 'fas fa-palette', '#10b981');
+                        }, 300);
+                    }
+                });
+                
+                // Poll for changes every 30 seconds as backup
+                this.syncInterval = setInterval(() => {
+                    this.syncing = true;
+                    this.syncStatusText = 'Checking...';
+                    const oldModules = JSON.stringify(this.tenantModules);
+                    this.loadModules();
+                    if (JSON.stringify(this.tenantModules) !== oldModules) {
+                        this.syncWarning = true;
+                        this.syncStatusText = 'Update Available';
+                        this.showAlert('Module Update Available', 'Your venue manager has changed available modules. Refresh to see changes.', 'fas fa-bell', '#f59e0b');
+                    } else {
+                        this.syncStatusText = 'Live';
+                        this.syncWarning = false;
+                    }
+                    this.syncing = false;
+                }, 30000);
+            },
+            
             loadStaffData() {
                 const tenantId = sessionStorage.getItem('qless_tenant_id');
                 const staffUsername = sessionStorage.getItem('qless_username');
                 const staffDisplayName = sessionStorage.getItem('qless_user_name');
                 const staffRole = sessionStorage.getItem('qless_staff_role');
                 
-                console.log('Loading staff data:', { tenantId, staffUsername, staffDisplayName, staffRole });
-                
                 if (!tenantId) { 
-                    alert('Session expired. Please login again.'); 
-                    window.location.href = 'login.html'; 
+                    this.showAlert('Session Expired', 'Please login again.', 'fas fa-exclamation-triangle', '#dc2626');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
                     return; 
                 }
                 
@@ -746,9 +879,6 @@
                 const tenant = tenants.find(t => t.id === this.tenantId);
                 this.tenantName = tenant ? tenant.businessName : 'Venue';
                 
-                console.log('Tenant found:', tenant);
-                console.log('Tenant name set to:', this.tenantName);
-                
                 this.loadModules();
                 this.loadBranding();
             },
@@ -757,35 +887,40 @@
                 const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
                 const modules = allModules[this.tenantId] || [];
                 
-                console.log('Loaded modules for tenant', this.tenantId, ':', modules);
-                
                 if (modules.length === 0) {
                     this.tenantModules = [
-                        { id: 1, name: 'Tickets', enabled: true },
-                        { id: 2, name: 'Queue Management', enabled: true },
-                        { id: 3, name: 'Self-Serve Kiosk', enabled: false },
-                        { id: 4, name: 'Virtual Booze Lockers', enabled: true },
-                        { id: 5, name: 'Shisha System', enabled: false },
-                        { id: 6, name: 'VVIP Management', enabled: true }
+                        { id: 1, name: 'Tickets', enabled: true, isCustom: false },
+                        { id: 2, name: 'Queue Management', enabled: true, isCustom: false },
+                        { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false },
+                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false },
+                        { id: 5, name: 'Shisha System', enabled: false, isCustom: false },
+                        { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }
                     ];
                 } else {
                     this.tenantModules = modules;
                 }
                 
-                console.log('Final tenantModules:', this.tenantModules);
+                // Force menu update
+                this.$forceUpdate();
             },
             
             loadBranding() {
                 const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`);
                 if (saved) {
                     const data = JSON.parse(saved);
+                    this.tenantName = data.tenantName || this.tenantName;
                     this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' };
+                    // Apply branding to logo dynamically
+                    const logoElement = document.querySelector('.tenant-logo');
+                    if (logoElement && this.branding.primaryColor) {
+                        logoElement.style.backgroundColor = this.branding.primaryColor;
+                    }
                 }
             },
             
             validateTicket() {
                 if (!this.scanCode) {
-                    alert('Please enter a ticket ID');
+                    this.showAlert('Missing Ticket ID', 'Please enter a ticket ID to validate', 'fas fa-exclamation-triangle', '#dc2626');
                     return;
                 }
                 const isValid = Math.random() > 0.3;
@@ -806,23 +941,26 @@
             
             callNext() {
                 if (this.queueList.length) {
-                    alert(`Calling next customer: ${this.queueList[0].name}`);
+                    this.showAlert('Calling Next', `Calling next customer: ${this.queueList[0].name}`, 'fas fa-bell', '#10b981');
                     this.queueList.shift();
                     this.queueList.forEach((c, idx) => c.position = idx + 1);
                     this.queueCount = this.queueList.length;
                 } else {
-                    alert('No customers in queue');
+                    this.showAlert('Queue Empty', 'No customers in queue', 'fas fa-info-circle', '#f59e0b');
                 }
             },
             
             callCustomer(id) {
                 const customer = this.queueList.find(c => c.id === id);
-                if (customer) alert(`Calling ${customer.name} to counter`);
+                if (customer) this.showAlert('Calling Customer', `Calling ${customer.name} to counter`, 'fas fa-phone', '#10b981');
             },
             
             updateOrderStatus(orderId, newStatus) {
                 const order = this.orders.find(o => o.id === orderId);
-                if (order) order.status = newStatus;
+                if (order) {
+                    order.status = newStatus;
+                    this.showAlert('Order Updated', `Order #${orderId} status changed to ${newStatus}`, 'fas fa-check-circle', '#10b981');
+                }
             },
             
             addToCart(product) {
@@ -832,7 +970,7 @@
                 } else {
                     this.cart.push({ ...product, qty: 1 });
                 }
-                alert(`${product.name} added to cart`);
+                this.showAlert('Added to Cart', `${product.name} added to cart`, 'fas fa-shopping-cart', '#10b981');
             },
             
             removeFromCart(index) {
@@ -841,11 +979,11 @@
             
             checkout() {
                 if (this.cart.length === 0) {
-                    alert('Cart is empty');
+                    this.showAlert('Cart Empty', 'Cannot checkout with empty cart', 'fas fa-exclamation-triangle', '#dc2626');
                     return;
                 }
                 const total = this.cartTotal;
-                alert(`Checkout complete! Total: R${total}\nPayment processed successfully.`);
+                this.showAlert('Checkout Complete', `Total: R${total}\nPayment processed successfully.`, 'fas fa-credit-card', '#10b981');
                 this.cart = [];
                 this.todaySales += total;
             },
@@ -858,23 +996,24 @@
                     customer: 'New Customer',
                     timeStart: new Date().toLocaleTimeString()
                 });
-                alert('New shisha session started');
+                this.showAlert('Session Started', 'New shisha session started', 'fas fa-smoking', '#10b981');
             },
             
             endShishaSession(id) {
                 this.shishaSessions = this.shishaSessions.filter(s => s.id !== id);
-                alert('Shisha session ended');
+                this.showAlert('Session Ended', 'Shisha session has been ended', 'fas fa-check-circle', '#10b981');
             },
             
             addToTab(tabId) {
-                alert(`Add item to VVIP tab ${tabId}`);
+                this.showAlert('VVIP', `Add item to VVIP tab ${tabId}`, 'fas fa-crown', '#f59e0b');
             },
             
             markUsed(id) {
-                alert(`Locker item ${id} marked as used`);
+                this.showAlert('Locker', `Locker item ${id} marked as used`, 'fas fa-check', '#10b981');
             },
             
             logout() {
+                if (this.syncInterval) clearInterval(this.syncInterval);
                 sessionStorage.clear();
                 window.location.href = 'login.html';
             }
@@ -883,20 +1022,19 @@
             const isLoggedIn = sessionStorage.getItem('qless_logged_in');
             const role = sessionStorage.getItem('qless_user_role');
             
-            console.log('Auth check:', { isLoggedIn, role });
-            
             if (!isLoggedIn || role !== 'staff') { 
                 window.location.href = 'login.html'; 
                 return; 
             }
             
             this.loadStaffData();
+            this.setupRealtimeSync();
             
             window.addEventListener('resize', () => { 
                 if(window.innerWidth > 768) this.sidebarOpen = false; 
             });
             
-            // ========== FULLSCREEN MODULE INITIALIZATION ==========
+            // Fullscreen functionality
             setTimeout(() => {
                 const appElement = document.querySelector('#app');
                 if (!appElement) return;
@@ -911,29 +1049,24 @@
                         isFullscreen = true;
                         if (exitBtn) exitBtn.style.display = 'flex';
                         if (fullscreenBtn) fullscreenBtn.style.display = 'none';
-                        const headerRight = document.querySelector('.top-header .header-right');
-                        if (headerRight) headerRight.style.display = 'none';
                     } else {
                         appElement.classList.remove('fullscreen-active');
                         isFullscreen = false;
                         if (exitBtn) exitBtn.style.display = 'none';
                         if (fullscreenBtn) fullscreenBtn.style.display = '';
-                        const headerRight = document.querySelector('.top-header .header-right');
-                        if (headerRight) headerRight.style.display = '';
                     }
                 }
                 
                 if (fullscreenBtn) {
-                    fullscreenBtn.removeEventListener('click', toggleFullscreen);
                     fullscreenBtn.addEventListener('click', toggleFullscreen);
                 }
                 if (exitBtn) {
-                    exitBtn.removeEventListener('click', toggleFullscreen);
                     exitBtn.addEventListener('click', toggleFullscreen);
                 }
-                
-                console.log('Fullscreen module initialized!');
             }, 500);
+        },
+        beforeDestroy() {
+            if (this.syncInterval) clearInterval(this.syncInterval);
         }
     });
 </script>
