@@ -22,7 +22,25 @@ body { background: #fff; color: #222; padding: 20px; }
 .queue-title h2 { font-size: 36px; color: #b30000; }
 .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px,1fr)); gap: 20px; max-height: 600px; overflow-y: auto; padding: 5px; }
 
-/* ===== VVIP ORDER STYLES - MAKES THEM STAND OUT ON COUNTER SCREEN ===== */
+/* Source Badge Styles */
+.order-source-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 700;
+    margin-left: 8px;
+}
+.source-wallet {
+    background: #3b82f6;
+    color: white;
+}
+.source-kiosk {
+    background: #10b981;
+    color: white;
+}
+
+/* VVIP ORDER STYLES */
 .order-card {
     background: #fff;
     border-radius: 24px;
@@ -58,21 +76,6 @@ body { background: #fff; color: #222; padding: 20px; }
     color: #1a1a1a;
     animation: pulse 1s infinite;
 }
-.order-card.vvip-order .customer-band {
-    color: #ffd700;
-    text-shadow: 0 0 2px #b8860b;
-}
-.vvip-badge-on-card {
-    display: inline-block;
-    background: #ffd700;
-    color: #1a1a1a;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 800;
-    margin-left: 10px;
-    animation: blink 1s infinite;
-}
 @keyframes vvipShake {
     0%, 100% { transform: translateX(0) translateY(0); }
     10% { transform: translateX(-3px) translateY(-1px); }
@@ -85,9 +88,9 @@ body { background: #fff; color: #222; padding: 20px; }
     80% { transform: translateX(0) translateY(1px); }
     90% { transform: translateX(0) translateY(0); }
 }
-@keyframes blink {
+@keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    50% { opacity: 0.7; }
 }
 
 .order-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(179,0,0,0.15); }
@@ -112,7 +115,6 @@ body { background: #fff; color: #222; padding: 20px; }
 .empty-state { grid-column: 1/-1; text-align: center; padding: 60px; background: #fafafa; border-radius: 30px; border: 2px dashed #b30000; color: #b30000; }
 .connection-status { position: fixed; bottom: 20px; right: 20px; background: #fff; padding: 12px 25px; border-radius: 50px; border: 2px solid #b30000; display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #00cc66; animation: pulse 1.5s infinite; }
-.ready-highlight { border: 3px solid #00cc66; box-shadow: 0 0 20px rgba(0,204,102,0.2); background: #fff; }
 .completed-orders-section { margin-top: 30px; }
 .completed-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; padding: 10px; background: #fff; border-radius: 20px; border: 1px solid #eee; }
 .completed-header h3 { color: #666; font-size: 18px; }
@@ -121,7 +123,30 @@ body { background: #fff; color: #222; padding: 20px; }
 .completed-orders-grid.show { max-height: 800px; overflow-y: auto; }
 .completed-order-card { background: #fafafa; border-radius: 16px; padding: 15px; border: 1px solid #eee; opacity: 0.8; }
 .completed-order-card .order-total { font-size: 18px; }
-@keyframes pulse { 0% { opacity:1; } 70% { opacity:0.7; } 100% { opacity:1; } }
+
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.filter-tab {
+    padding: 8px 20px;
+    border-radius: 30px;
+    background: #f0f0f0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.filter-tab.active {
+    background: #b30000;
+    color: white;
+}
+.filter-tab:hover:not(.active) {
+    background: #ffe0e0;
+}
 </style>
 </head>
 <body>
@@ -145,6 +170,11 @@ body { background: #fff; color: #222; padding: 20px; }
         <div class="queue-icon">🥩</div>
         <div class="queue-title"><h2>Active Food Orders</h2></div>
     </div>
+    <div class="filter-tabs">
+        <div class="filter-tab active" data-filter="all">All Orders</div>
+        <div class="filter-tab" data-filter="wallet">💰 Wallet Orders</div>
+        <div class="filter-tab" data-filter="kiosk">📱 Kiosk Orders</div>
+    </div>
     <div class="orders-grid" id="ordersGrid"></div>
 </div>
 
@@ -158,51 +188,213 @@ body { background: #fff; color: #222; padding: 20px; }
 
 <div class="connection-status">
     <div class="status-dot"></div>
-    <div>Connected to POS · Live</div>
+    <div>Connected to POS · Live (Wallet + Kiosk)</div>
 </div>
 
 <script>
 const VENDOR_NAME = "The Butcher Shop";
-let orders = [];
+
+// Storage keys from both systems
+const GLOBAL_ORDERS_KEY = "globalOrders";        // Wallet orders
+const KIOSK_QUEUE_KEY = "butcher_shop_queue";    // Kiosk queue
+const KIOSK_ORDERS_KEY = "butcher_shop_orders";  // Kiosk orders
+
+let unifiedOrders = [];
+let currentFilter = "all"; // all, wallet, kiosk
 let showCompleted = false;
 
-function loadOrders() {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        const allOrders = JSON.parse(saved);
-        // Only show orders that are NOT collected AND NOT ready? 
-        // For kitchen: show pending and preparing. Ready orders go to collection screen.
-        // But we want kitchen to see "ready" briefly? Actually they mark as ready -> order moves to collection screen.
-        // So here we show only pending and preparing (active kitchen orders)
-        orders = allOrders.filter(o => o.vendor === VENDOR_NAME && (o.status === "pending" || o.status === "preparing"));
-        // Sort orders: VVIP first, then by timestamp
-        orders.sort((a, b) => {
-            if (a.isVVIP && !b.isVVIP) return -1;
-            if (!a.isVVIP && b.isVVIP) return 1;
-            return 0;
-        });
-    }
-    updateStats();
-    renderOrders();
-    renderCompletedOrders();
+// Helper to get wallet orders
+function getWalletOrders() {
+    const saved = localStorage.getItem(GLOBAL_ORDERS_KEY);
+    if (!saved) return [];
+    const allOrders = JSON.parse(saved);
+    return allOrders.filter(o => o.vendor === VENDOR_NAME);
 }
 
-function updateStats() {
-    document.getElementById("pendingCount").innerText = orders.filter(o => o.status === "pending").length;
-    document.getElementById("preparingCount").innerText = orders.filter(o => o.status === "preparing").length;
+// Helper to get kiosk orders
+function getKioskOrders() {
+    const orders = JSON.parse(localStorage.getItem(KIOSK_ORDERS_KEY) || '[]');
+    const queue = JSON.parse(localStorage.getItem(KIOSK_QUEUE_KEY) || '[]');
     
-    const allOrders = JSON.parse(localStorage.getItem("globalOrders") || "[]");
-    const today = new Date().toISOString().slice(0,10);
-    const todayRevenue = allOrders.filter(o => o.vendor === VENDOR_NAME && o.status === "collected" && o.date === today)
-        .reduce((sum, o) => sum + o.total, 0);
-    document.getElementById("todayRevenue").innerText = "R" + todayRevenue.toFixed(2);
+    // Map kiosk orders to match the unified format
+    return orders.map(order => {
+        // Find if this order has been called (from queue)
+        const queueEntry = queue.find(q => q.ticketNumber === order.ticketNumber);
+        
+        // Map kitchenStatus to our status format
+        let status = order.kitchenStatus || "pending";
+        if (status === "new") status = "pending";
+        if (status === "completed") status = "collected";
+        
+        return {
+            // Common fields
+            orderId: order.ticketNumber,
+            vendor: VENDOR_NAME,
+            status: status,
+            items: order.items || [],
+            total: order.total || 0,
+            timestamp: order.createdAt ? new Date(order.createdAt).toLocaleTimeString() : new Date().toLocaleTimeString(),
+            date: order.createdAt ? new Date(order.createdAt).toISOString().slice(0,10) : new Date().toISOString().slice(0,10),
+            
+            // Customer info
+            bandName: order.customerName || `Kiosk Customer`,
+            bandId: order.whatsapp || '',
+            phoneNumber: order.whatsapp || '',
+            
+            // Kiosk specific
+            source: "kiosk",
+            ticketNumber: order.ticketNumber,
+            whatsapp: order.whatsapp,
+            called: queueEntry?.called || false,
+            originalKitchenStatus: order.kitchenStatus,
+            
+            // For prep time tracking
+            prepStartTime: order.prepStartTime,
+            prepTime: order.prepTime,
+            
+            // VVIP flag (kiosk orders aren't VVIP by default)
+            isVVIP: false
+        };
+    });
+}
+
+// Get all unified orders
+function getAllUnifiedOrders() {
+    const walletOrders = getWalletOrders();
+    const kioskOrders = getKioskOrders();
     
-    const completedOrders = allOrders.filter(o => o.vendor === VENDOR_NAME && o.status === "collected" && o.prepTime);
-    if (completedOrders.length > 0) {
-        const avg = completedOrders.reduce((sum, o) => sum + o.prepTime, 0) / completedOrders.length;
-        document.getElementById("avgTime").innerText = Math.round(avg) + "m";
-    } else {
-        document.getElementById("avgTime").innerText = "--m";
+    // Combine and add source identifier
+    const walletWithSource = walletOrders.map(o => ({ ...o, source: "wallet" }));
+    const kioskWithSource = kioskOrders.map(o => ({ ...o, source: "kiosk" }));
+    
+    let combined = [...walletWithSource, ...kioskWithSource];
+    
+    // Filter to only pending and preparing (active kitchen orders)
+    combined = combined.filter(o => o.status === "pending" || o.status === "preparing");
+    
+    // Sort: VVIP first, then by timestamp, then by source (kiosk first for priority)
+    combined.sort((a, b) => {
+        if (a.isVVIP && !b.isVVIP) return -1;
+        if (!a.isVVIP && b.isVVIP) return 1;
+        if (a.source === "kiosk" && b.source === "wallet") return -1;
+        if (a.source === "wallet" && b.source === "kiosk") return 1;
+        return 0;
+    });
+    
+    return combined;
+}
+
+// Update kiosk order status (sync back to kiosk storage)
+function updateKioskOrderStatus(orderId, newStatus) {
+    const orders = JSON.parse(localStorage.getItem(KIOSK_ORDERS_KEY) || '[]');
+    const orderIndex = orders.findIndex(o => o.ticketNumber === orderId);
+    
+    if (orderIndex !== -1) {
+        // Map our status to kiosk kitchenStatus
+        let kitchenStatus = newStatus;
+        if (newStatus === "pending") kitchenStatus = "new";
+        if (newStatus === "preparing") kitchenStatus = "preparing";
+        if (newStatus === "ready") kitchenStatus = "ready";
+        if (newStatus === "collected") kitchenStatus = "completed";
+        
+        const oldStatus = orders[orderIndex].kitchenStatus;
+        
+        if (newStatus === "preparing" && oldStatus === "new") {
+            orders[orderIndex].prepStartTime = Date.now();
+        }
+        
+        orders[orderIndex].kitchenStatus = kitchenStatus;
+        
+        if (newStatus === "ready") {
+            const startTime = orders[orderIndex].prepStartTime || Date.now();
+            orders[orderIndex].prepTime = Math.round((Date.now() - startTime) / 60000);
+            orders[orderIndex].readyAt = new Date().toISOString();
+        }
+        
+        localStorage.setItem(KIOSK_ORDERS_KEY, JSON.stringify(orders));
+        
+        // Also update queue if needed (mark as called when preparing)
+        if (newStatus === "preparing") {
+            const queue = JSON.parse(localStorage.getItem(KIOSK_QUEUE_KEY) || '[]');
+            const queueIndex = queue.findIndex(q => q.ticketNumber === orderId);
+            if (queueIndex !== -1 && !queue[queueIndex].called) {
+                queue[queueIndex].called = true;
+                localStorage.setItem(KIOSK_QUEUE_KEY, JSON.stringify(queue));
+            }
+        }
+        
+        return true;
+    }
+    return false;
+}
+
+// Update wallet order status
+function updateWalletOrderStatus(orderId, newStatus) {
+    const saved = localStorage.getItem(GLOBAL_ORDERS_KEY);
+    if (saved) {
+        let allOrders = JSON.parse(saved);
+        const idx = allOrders.findIndex(o => o.orderId === orderId && o.vendor === VENDOR_NAME);
+        
+        if (idx !== -1) {
+            const oldStatus = allOrders[idx].status;
+            
+            if (newStatus === "preparing" && oldStatus === "pending") {
+                allOrders[idx].prepStartTime = Date.now();
+            }
+            
+            allOrders[idx].status = newStatus;
+            
+            if (newStatus === "ready") {
+                const startTime = allOrders[idx].prepStartTime || Date.now();
+                allOrders[idx].prepTime = Math.round((Date.now() - startTime) / 60000);
+                allOrders[idx].readyAt = new Date().toISOString();
+            }
+            
+            localStorage.setItem(GLOBAL_ORDERS_KEY, JSON.stringify(allOrders));
+            
+            // Update vendor-specific storage
+            const vendorKey = "the_butcher_shop_orders";
+            const vendorOrders = allOrders.filter(o => o.vendor === VENDOR_NAME);
+            localStorage.setItem(vendorKey, JSON.stringify(vendorOrders));
+            
+            return true;
+        }
+    }
+    return false;
+}
+
+// Update order status (routes to correct storage)
+function updateOrderStatus(orderId, newStatus, source) {
+    let success = false;
+    
+    if (source === "wallet") {
+        success = updateWalletOrderStatus(orderId, newStatus);
+    } else if (source === "kiosk") {
+        success = updateKioskOrderStatus(orderId, newStatus);
+    }
+    
+    if (success) {
+        showToast(`🔪 Order #${orderId} is now ${newStatus.toUpperCase()}`, "info");
+        loadOrders();
+        return true;
+    }
+    return false;
+}
+
+// Mark order as ready
+function markOrderReady(orderId, source) {
+    let success = false;
+    
+    if (source === "wallet") {
+        success = updateWalletOrderStatus(orderId, "ready");
+    } else if (source === "kiosk") {
+        success = updateKioskOrderStatus(orderId, "ready");
+    }
+    
+    if (success) {
+        playNotificationSound();
+        showToast(`✅ Order #${orderId} is READY! Sent to Collection Screen.`, "ready");
+        loadOrders();
     }
 }
 
@@ -230,30 +422,63 @@ function playNotificationSound() {
     } catch(e) {}
 }
 
-function playVVIPNotificationSound() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
-        gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.5);
-    } catch(e) {}
+function loadOrders() {
+    const allOrders = getAllUnifiedOrders();
+    
+    // Apply filter
+    if (currentFilter === "wallet") {
+        unifiedOrders = allOrders.filter(o => o.source === "wallet");
+    } else if (currentFilter === "kiosk") {
+        unifiedOrders = allOrders.filter(o => o.source === "kiosk");
+    } else {
+        unifiedOrders = allOrders;
+    }
+    
+    updateStats();
+    renderOrders();
+    renderCompletedOrders();
+}
+
+function updateStats() {
+    document.getElementById("pendingCount").innerText = unifiedOrders.filter(o => o.status === "pending").length;
+    document.getElementById("preparingCount").innerText = unifiedOrders.filter(o => o.status === "preparing").length;
+    
+    // Calculate today's revenue from both sources
+    const walletOrders = getWalletOrders();
+    const kioskOrders = getKioskOrders();
+    const today = new Date().toISOString().slice(0,10);
+    
+    const walletRevenue = walletOrders.filter(o => o.status === "collected" && o.date === today)
+        .reduce((sum, o) => sum + o.total, 0);
+    
+    const kioskRevenue = kioskOrders.filter(o => {
+        const orderDate = o.createdAt ? new Date(o.createdAt).toISOString().slice(0,10) : null;
+        return (o.kitchenStatus === "completed" || o.status === "collected") && orderDate === today;
+    }).reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    document.getElementById("todayRevenue").innerText = "R" + (walletRevenue + kioskRevenue).toFixed(2);
+    
+    // Calculate average prep time from both sources
+    const completedWallet = walletOrders.filter(o => o.status === "collected" && o.prepTime);
+    const completedKiosk = kioskOrders.filter(o => (o.kitchenStatus === "completed") && o.prepTime);
+    
+    const allCompleted = [...completedWallet, ...completedKiosk];
+    if (allCompleted.length > 0) {
+        const avg = allCompleted.reduce((sum, o) => sum + o.prepTime, 0) / allCompleted.length;
+        document.getElementById("avgTime").innerText = Math.round(avg) + "m";
+    } else {
+        document.getElementById("avgTime").innerText = "--m";
+    }
 }
 
 function renderOrders() {
     const grid = document.getElementById("ordersGrid");
-    if (orders.length === 0) {
-        grid.innerHTML = `<div class="empty-state"><span>🥩🔥</span><h3>No Active Orders</h3><p>Orders will appear here when customers place them.</p><p style="font-size:12px; margin-top:10px;">When you mark an order as READY, it will move to the Collection Screen.</p></div>`;
+    if (unifiedOrders.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><span>🥩🔥</span><h3>No Active Orders</h3><p>Orders will appear here when customers place them from Wallet or Kiosk.</p></div>`;
         return;
     }
     
-    grid.innerHTML = orders.map(order => {
+    grid.innerHTML = unifiedOrders.map(order => {
         let statusClass = "", statusText = "", statusIcon = "";
         switch (order.status) {
             case "pending": statusClass = "status-pending"; statusText = "PENDING"; statusIcon = "📋"; break;
@@ -263,18 +488,23 @@ function renderOrders() {
         
         const isVVIP = order.isVVIP === true;
         const vvipClass = isVVIP ? "vvip-order" : "";
-        const vvipBadgeHtml = isVVIP ? '<span class="vvip-badge-on-card">👑 VVIP PRIORITY</span>' : '';
+        const sourceBadge = order.source === "wallet" 
+            ? '<span class="order-source-badge source-wallet">💰 Wallet</span>' 
+            : '<span class="order-source-badge source-kiosk">📱 Kiosk</span>';
+        
+        // Customer info (handle both formats)
+        const customerName = order.bandName || order.customerName || (order.source === "kiosk" ? order.whatsapp || "Kiosk Customer" : "Customer");
         
         return `
             <div class="order-card ${vvipClass}">
                 <div class="order-header">
-                    <span class="order-id">#${order.orderId} ${isVVIP ? '👑' : ''}</span>
+                    <span class="order-id">#${order.orderId} ${isVVIP ? '👑' : ''} ${sourceBadge}</span>
                     <span class="order-time">${order.timestamp || 'just now'}</span>
                 </div>
                 <div class="order-customer">
                     <span style="color:#888;">👤 Customer: </span>
-                    <span class="customer-band">${escapeHtml(order.bandName || order.bandId)}</span>
-                    ${vvipBadgeHtml}
+                    <span class="customer-band">${escapeHtml(customerName)}</span>
+                    ${order.phoneNumber ? `<span style="font-size:11px; color:#666; margin-left:8px;">📱 ${order.phoneNumber}</span>` : ''}
                 </div>
                 <div class="status-badge ${statusClass}">${statusIcon} ${statusText}</div>
                 <div class="order-items">
@@ -287,10 +517,10 @@ function renderOrders() {
                 </div>
                 <div class="order-total">Total: R${order.total.toFixed(2)}</div>
                 <div class="order-actions">
-                    <button class="btn btn-prepare" onclick="updateOrderStatus(${order.orderId}, 'preparing')" ${order.status !== "pending" ? "disabled" : ""}>
+                    <button class="btn btn-prepare" onclick="updateOrderStatus('${order.orderId}', 'preparing', '${order.source}')" ${order.status !== "pending" ? "disabled" : ""}>
                         🔥 START PREPARING
                     </button>
-                    <button class="btn btn-ready" onclick="markOrderReady(${order.orderId})" ${order.status !== "preparing" ? "disabled" : ""}>
+                    <button class="btn btn-ready" onclick="markOrderReady('${order.orderId}', '${order.source}')" ${order.status !== "preparing" ? "disabled" : ""}>
                         ✅ MARK READY → COLLECTION
                     </button>
                 </div>
@@ -301,28 +531,43 @@ function renderOrders() {
 
 function renderCompletedOrders() {
     const grid = document.getElementById("completedOrdersGrid");
-    const allOrders = JSON.parse(localStorage.getItem("globalOrders") || "[]");
-    const completedOrders = allOrders.filter(o => o.vendor === VENDOR_NAME && o.status === "collected");
+    
+    // Get completed orders from both sources
+    const walletOrders = getWalletOrders();
+    const kioskOrders = getKioskOrders();
+    
+    const completedWallet = walletOrders.filter(o => o.status === "collected").map(o => ({ ...o, source: "wallet" }));
+    const completedKiosk = kioskOrders.filter(o => o.kitchenStatus === "completed").map(o => ({ ...o, source: "kiosk", orderId: o.ticketNumber }));
+    
+    const completedOrders = [...completedWallet, ...completedKiosk];
+    completedOrders.sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt));
     
     if (completedOrders.length === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:20px; color:#aaa;">No completed orders yet</div>`;
         return;
     }
     
-    grid.innerHTML = completedOrders.map(order => `
-        <div class="completed-order-card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span style="color:#b30000; font-weight:bold;">#${order.orderId}</span>
-                <span style="color:#999; font-size:12px;">${order.timestamp || '—'}</span>
+    grid.innerHTML = completedOrders.map(order => {
+        const sourceBadge = order.source === "wallet" 
+            ? '<span class="order-source-badge source-wallet" style="font-size:8px;">💰 Wallet</span>' 
+            : '<span class="order-source-badge source-kiosk" style="font-size:8px;">📱 Kiosk</span>';
+        
+        return `
+            <div class="completed-order-card">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#b30000; font-weight:bold;">#${order.orderId} ${sourceBadge}</span>
+                    <span style="color:#999; font-size:12px;">${order.timestamp || (order.createdAt ? new Date(order.createdAt).toLocaleTimeString() : '—')}</span>
+                </div>
+                <div style="font-size:13px; color:#666;">${escapeHtml(order.bandName || order.customerName || 'Customer')}</div>
+                <div style="margin:10px 0;">
+                    ${order.items ? order.items.slice(0, 3).map(item => `<div style="font-size:12px;">${item.quantity}x ${escapeHtml(item.name)}</div>`).join('') : ''}
+                    ${order.items && order.items.length > 3 ? `<div style="font-size:11px; color:#999;">+${order.items.length - 3} more items</div>` : ''}
+                </div>
+                <div class="order-total" style="font-size:16px; padding:8px;">Total: R${order.total.toFixed(2)}</div>
+                ${order.prepTime ? `<div style="font-size:11px; color:#999; text-align:right;">Prep time: ${order.prepTime}m</div>` : ''}
             </div>
-            <div style="font-size:13px; color:#666;">${escapeHtml(order.bandName || order.bandId)}</div>
-            <div style="margin:10px 0;">
-                ${order.items.map(item => `<div style="font-size:12px;">${item.quantity}x ${escapeHtml(item.name)}</div>`).join('')}
-            </div>
-            <div class="order-total" style="font-size:16px; padding:8px;">Total: R${order.total.toFixed(2)}</div>
-            ${order.prepTime ? `<div style="font-size:11px; color:#999; text-align:right;">Prep time: ${order.prepTime}m</div>` : ''}
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function escapeHtml(str) {
@@ -333,68 +578,6 @@ function escapeHtml(str) {
         if (m === '>') return '&gt;';
         return m;
     });
-}
-
-// Update status to preparing (kitchen action)
-function updateOrderStatus(orderId, newStatus) {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        let allOrders = JSON.parse(saved);
-        const idx = allOrders.findIndex(o => o.orderId === orderId);
-        if (idx !== -1 && allOrders[idx].vendor === VENDOR_NAME) {
-            const oldStatus = allOrders[idx].status;
-            
-            if (newStatus === "preparing" && oldStatus === "pending") {
-                allOrders[idx].prepStartTime = Date.now();
-            }
-            
-            allOrders[idx].status = newStatus;
-            localStorage.setItem("globalOrders", JSON.stringify(allOrders));
-            
-            // Update vendor-specific storage
-            const vendorKey = "the_butcher_shop_orders";
-            const vendorOrders = allOrders.filter(o => o.vendor === VENDOR_NAME);
-            localStorage.setItem(vendorKey, JSON.stringify(vendorOrders));
-            
-            showToast(`🔪 Order #${orderId} is now PREPARING`, "info");
-            loadOrders();
-        }
-    }
-}
-
-// MARK AS READY - This sends the order to the collection screen (order-collect.html)
-// The order status becomes "ready" and will appear in your existing collection page
-function markOrderReady(orderId) {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        let allOrders = JSON.parse(saved);
-        const idx = allOrders.findIndex(o => o.orderId === orderId);
-        if (idx !== -1 && allOrders[idx].vendor === VENDOR_NAME && allOrders[idx].status === "preparing") {
-            
-            // Calculate prep time
-            const startTime = allOrders[idx].prepStartTime || Date.now();
-            const prepTime = Math.round((Date.now() - startTime) / 60000);
-            allOrders[idx].prepTime = prepTime;
-            allOrders[idx].readyAt = new Date().toISOString();
-            
-            // Set status to "ready" - this will make it appear in order-collect.html
-            allOrders[idx].status = "ready";
-            
-            localStorage.setItem("globalOrders", JSON.stringify(allOrders));
-            
-            // Update vendor-specific storage
-            const vendorKey = "the_butcher_shop_orders";
-            const vendorOrders = allOrders.filter(o => o.vendor === VENDOR_NAME);
-            localStorage.setItem(vendorKey, JSON.stringify(vendorOrders));
-            
-            // Play sound notification
-            playNotificationSound();
-            showToast(`✅ Order #${orderId} is READY! Sent to Collection Screen.`, "ready");
-            
-            // Reload the kitchen view - this order will disappear from kitchen (since we filter out ready orders)
-            loadOrders();
-        }
-    }
 }
 
 function showToast(message, type) {
@@ -429,26 +612,35 @@ function toggleCompletedOrders() {
     }
 }
 
-function checkForUpdates() {
-    const saved = localStorage.getItem("globalOrders");
-    if (saved) {
-        const allOrders = JSON.parse(saved);
-        // Only show pending and preparing for kitchen (ready goes to collection screen)
-        const newOrders = allOrders.filter(o => o.vendor === VENDOR_NAME && (o.status === "pending" || o.status === "preparing"));
-        // Sort orders: VVIP first, then by timestamp
-        newOrders.sort((a, b) => {
-            if (a.isVVIP && !b.isVVIP) return -1;
-            if (!a.isVVIP && b.isVVIP) return 1;
-            return 0;
+// Set up filter tabs
+function setupFilters() {
+    const tabs = document.querySelectorAll('.filter-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            loadOrders();
         });
-        
-        if (JSON.stringify(newOrders) !== JSON.stringify(orders)) {
-            orders = newOrders;
-            updateStats();
-            renderOrders();
-        }
-        renderCompletedOrders();
+    });
+}
+
+function checkForUpdates() {
+    const newOrders = getAllUnifiedOrders();
+    let filteredNew = newOrders;
+    
+    if (currentFilter === "wallet") {
+        filteredNew = newOrders.filter(o => o.source === "wallet");
+    } else if (currentFilter === "kiosk") {
+        filteredNew = newOrders.filter(o => o.source === "kiosk");
     }
+    
+    if (JSON.stringify(filteredNew) !== JSON.stringify(unifiedOrders)) {
+        unifiedOrders = filteredNew;
+        updateStats();
+        renderOrders();
+    }
+    renderCompletedOrders();
 }
 
 // Add animation style
@@ -463,13 +655,14 @@ document.head.appendChild(style);
 
 // Listen for storage events from other tabs
 window.addEventListener('storage', (e) => {
-    if (e.key === 'globalOrders') {
+    if (e.key === GLOBAL_ORDERS_KEY || e.key === KIOSK_ORDERS_KEY || e.key === KIOSK_QUEUE_KEY) {
         checkForUpdates();
     }
 });
 
 // Auto refresh every 2 seconds
 setInterval(checkForUpdates, 2000);
+setupFilters();
 loadOrders();
 </script>
 </body>
