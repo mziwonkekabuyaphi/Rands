@@ -239,7 +239,7 @@
         </div>
     </div>
 
-    <!-- Create/Edit Staff Modal with NEW Role Names -->
+    <!-- Create/Edit Staff Modal -->
     <div class="modal-mask" :class="{ active: showStaffModal }">
         <div class="modal-container">
             <h3 style="margin-bottom: 20px;"><i class="fas fa-user-plus"></i> {{ isEditing ? 'Edit Staff' : 'Add New Staff' }}</h3>
@@ -324,8 +324,34 @@
             showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') { this.infoTitle = title; this.infoMessage = message; this.infoIcon = icon; this.infoIconColor = iconColor; this.showInfoModal = true; },
             copyToClipboard(text) { navigator.clipboard.writeText(text); this.showAlert('Copied!', 'Text copied to clipboard', 'fas fa-check-circle', '#10b981'); },
             setupRealtimeSync() {
-                window.addEventListener('storage', (e) => { if (e.key === STORAGE_KEYS.TENANT_MODULES) { this.syncing = true; this.syncStatusText = 'Updating...'; setTimeout(() => { this.loadModules(); this.syncing = false; this.syncStatusText = 'Live'; this.syncWarning = false; }, 500); } });
-                this.syncInterval = setInterval(() => { this.syncing = true; this.syncStatusText = 'Checking...'; const oldModules = JSON.stringify(this.tenantModules); this.loadModules(); if (JSON.stringify(this.tenantModules) !== oldModules) { this.syncWarning = true; this.syncStatusText = 'Update Available'; } else { this.syncStatusText = 'Live'; this.syncWarning = false; } this.syncing = false; }, 30000);
+                window.addEventListener('storage', (e) => { 
+                    if (e.key === STORAGE_KEYS.TENANT_MODULES) { 
+                        console.log('Module change detected from Super Admin!'); 
+                        this.syncing = true; 
+                        this.syncStatusText = 'Updating...'; 
+                        setTimeout(() => { 
+                            this.loadModules(); 
+                            this.syncing = false; 
+                            this.syncStatusText = 'Live'; 
+                            this.syncWarning = false; 
+                            this.showAlert('Modules Updated', 'Super Admin has updated module settings. The module list has been refreshed.', 'fas fa-sync-alt', '#10b981'); 
+                        }, 500); 
+                    } 
+                });
+                this.syncInterval = setInterval(() => { 
+                    this.syncing = true; 
+                    this.syncStatusText = 'Checking...'; 
+                    const oldModules = JSON.stringify(this.tenantModules); 
+                    this.loadModules(); 
+                    if (JSON.stringify(this.tenantModules) !== oldModules) { 
+                        this.syncWarning = true; 
+                        this.syncStatusText = 'Update Available'; 
+                    } else { 
+                        this.syncStatusText = 'Live'; 
+                        this.syncWarning = false; 
+                    } 
+                    this.syncing = false; 
+                }, 30000);
             },
             loadTenantData() {
                 const tenantId = sessionStorage.getItem('qless_tenant_id'); const tenantName = sessionStorage.getItem('qless_tenant_name'); const adminUser = sessionStorage.getItem('qless_user_name');
@@ -335,7 +361,24 @@
             },
             loadStaff() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); this.staffList = allStaff.filter(s => s.tenantId === this.tenantId); },
             saveStaffToStorage() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId); localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList])); window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.STAFF })); },
-            loadModules() { const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}'); const modules = allModules[this.tenantId] || []; if (modules.length === 0) { this.tenantModules = [{ id: 1, name: 'Tickets', enabled: true, isCustom: false }, { id: 2, name: 'Queue Management', enabled: true, isCustom: false }, { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false }, { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false }, { id: 5, name: 'Shisha System', enabled: false, isCustom: false }, { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }]; } else { this.tenantModules = modules; } },
+            loadModules() { 
+                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}'); 
+                const modules = allModules[this.tenantId] || []; 
+                console.log('Loading modules for tenant', this.tenantId, ':', modules);
+                if (modules.length === 0) { 
+                    this.tenantModules = [
+                        { id: 1, name: 'Tickets', enabled: true, isCustom: false },
+                        { id: 2, name: 'Queue Management', enabled: true, isCustom: false },
+                        { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false },
+                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false },
+                        { id: 5, name: 'Shisha System', enabled: false, isCustom: false },
+                        { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }
+                    ]; 
+                } else { 
+                    this.tenantModules = modules; 
+                }
+                this.$forceUpdate();
+            },
             loadBranding() { const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`); if (saved) { const data = JSON.parse(saved); this.tenantName = data.tenantName || this.tenantName; this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' }; } },
             saveBranding() { const data = { tenantName: this.tenantName, branding: this.branding }; localStorage.setItem(`qless_tenant_branding_${this.tenantId}`, JSON.stringify(data)); const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]'); const tenant = tenants.find(t => t.id === this.tenantId); if (tenant) tenant.businessName = this.tenantName; localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants)); this.showAlert('Saved', 'Branding saved successfully!', 'fas fa-check-circle', '#10b981'); },
             openCreateStaffModal() { this.isEditing = false; this.editingStaffId = null; this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' }; this.showStaffModal = true; },
@@ -360,7 +403,10 @@
         mounted() {
             const isLoggedIn = sessionStorage.getItem('qless_logged_in'); const role = sessionStorage.getItem('qless_user_role');
             if (!isLoggedIn || role !== 'tenant_administrator') { window.location.href = 'login.html'; return; }
-            this.loadTenantData(); this.setupRealtimeSync();
+            this.loadTenantData(); 
+            this.setupRealtimeSync();
+            // Also add a manual refresh button listener for debugging
+            console.log('Tenant Admin ready. Listening for module changes...');
             window.addEventListener('resize', () => { if(window.innerWidth > 768) this.sidebarOpen = false; });
             setTimeout(() => { const appElement = document.querySelector('#app'); if (!appElement) return; let isFullscreen = false; const exitBtn = document.getElementById('exitFullscreenBtn'); const fullscreenBtn = document.getElementById('globalFullscreenBtn'); function toggleFullscreen() { if (!isFullscreen) { appElement.classList.add('fullscreen-active'); isFullscreen = true; if (exitBtn) exitBtn.style.display = 'flex'; if (fullscreenBtn) fullscreenBtn.style.display = 'none'; } else { appElement.classList.remove('fullscreen-active'); isFullscreen = false; if (exitBtn) exitBtn.style.display = 'none'; if (fullscreenBtn) fullscreenBtn.style.display = ''; } } if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen); if (exitBtn) exitBtn.addEventListener('click', toggleFullscreen); }, 500);
         },
