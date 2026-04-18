@@ -105,6 +105,30 @@
             .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
         }
         @media (min-width: 769px) { .menu-toggle { display: none; } }
+        
+        /* Module card view - makes modules more visible */
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .module-card-item {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .module-card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .module-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .module-info p { font-size: 0.7rem; color: #64748b; }
+        .module-status { display: flex; align-items: center; gap: 12px; }
+        .module-badge-enabled { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+        .module-badge-disabled { background: #ef4444; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -211,17 +235,50 @@
                 </div>
             </div>
 
+            <!-- MODULES SECTION - COMPLETELY REDONE FOR VISIBILITY -->
             <div v-if="currentSection === 'modules'">
-                <div class="section-header"><h2>Available Modules</h2><p style="color:#64748b;">Configured by Super Admin</p></div>
-                <div class="table-wrapper">
+                <div class="section-header">
+                    <h2><i class="fas fa-puzzle-piece"></i> Available Modules</h2>
+                    <div>
+                        <button class="btn-outline" @click="refreshModules" style="margin-right: 8px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        <span style="font-size: 0.7rem; color: #64748b;">Configured by Super Admin</span>
+                    </div>
+                </div>
+                
+                <!-- Debug info -->
+                <div style="background: #f0f9ff; border-radius: 16px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #E30613;">
+                    <p style="font-size: 0.75rem; margin-bottom: 8px;"><i class="fas fa-info-circle"></i> <strong>Module Status:</strong> {{ tenantModules.length }} modules loaded from Super Admin</p>
+                    <button class="btn-outline" @click="forceRefreshModules" style="font-size: 0.7rem; padding: 4px 12px;">🔄 Force Reload from Super Admin</button>
+                </div>
+                
+                <!-- Module Cards View - Much clearer than table -->
+                <div class="modules-container" v-if="tenantModules.length > 0">
+                    <div v-for="module in tenantModules" :key="module.id" class="module-card-item">
+                        <div class="module-info">
+                            <h4><i :class="getModuleIcon(module.name)" style="color: #E30613; margin-right: 8px;"></i> {{ module.name }}</h4>
+                            <p>{{ getModuleDescription(module.name) }}</p>
+                        </div>
+                        <div class="module-status">
+                            <span :class="module.enabled ? 'module-badge-enabled' : 'module-badge-disabled'">
+                                {{ module.enabled ? 'ENABLED' : 'DISABLED' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fallback table view if cards don't work -->
+                <div class="table-wrapper" v-else>
                     <table class="data-table">
-                        <thead><tr><th>Module Name</th><th>Status</th><th>Description</th></tr></thead>
+                        <thead>
+                            <tr><th>Module Name</th><th>Status</th><th>Description</th></tr>
+                        </thead>
                         <tbody>
                             <tr v-for="module in allModules" :key="module.id">
                                 <td><strong>{{ module.displayName }}</strong> <span v-if="module.isCustom" class="badge" style="background:#fef3c7; color:#d97706;">Custom</span></td>
                                 <td><span class="status-badge" :class="module.enabled ? 'status-active' : 'status-warning'">{{ module.enabled ? 'Enabled' : 'Disabled' }}</span></td>
                                 <td style="color:#64748b;">{{ module.description }}</td>
                             </tr>
+                            <tr v-if="allModules.length === 0"><td colspan="3" style="text-align:center; padding:40px;">No modules found. Click "Force Reload" to sync with Super Admin.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -307,12 +364,51 @@
             recentStaff() { return this.staffList.slice(0, 5); },
             currentSectionTitle() { const item = this.navItems.find(i => i.id === this.currentSection); return item ? item.label : 'Dashboard'; },
             allModules() {
-                const moduleMap = { 'Tickets': { displayName: 'Tickets & Events', description: 'Event ticketing and QR code scanning' }, 'Queue Management': { displayName: 'Queue System', description: 'Virtual queuing' }, 'Self-Serve Kiosk': { displayName: 'Orders', description: 'Food ordering system' }, 'Virtual Booze Lockers': { displayName: 'Lockers', description: 'Secure bottle storage' }, 'Shisha System': { displayName: 'Shisha', description: 'Hookah management' }, 'VVIP Management': { displayName: 'VVIP Tabs', description: 'Exclusive VIP accounts' } };
-                return this.tenantModules.map(m => ({ id: m.id, name: m.name, displayName: moduleMap[m.name]?.displayName || m.name, description: m.description || moduleMap[m.name]?.description || 'Custom module', enabled: m.enabled, isCustom: m.isCustom || false }));
+                const moduleMap = { 
+                    'Tickets': { displayName: 'Tickets & Events', description: 'Event ticketing and QR code scanning' }, 
+                    'Queue Management': { displayName: 'Queue System', description: 'Virtual queuing' }, 
+                    'Self-Serve Kiosk': { displayName: 'Orders', description: 'Food ordering system' }, 
+                    'Virtual Booze Lockers': { displayName: 'Lockers', description: 'Secure bottle storage' }, 
+                    'Shisha System': { displayName: 'Shisha', description: 'Hookah management' }, 
+                    'VVIP Management': { displayName: 'VVIP Tabs', description: 'Exclusive VIP accounts' } 
+                };
+                return this.tenantModules.map(m => ({ 
+                    id: m.id, 
+                    name: m.name, 
+                    displayName: moduleMap[m.name]?.displayName || m.name, 
+                    description: m.description || moduleMap[m.name]?.description || 'Custom module', 
+                    enabled: m.enabled, 
+                    isCustom: m.isCustom || false 
+                }));
             }
         },
         methods: {
             closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
+            
+            getModuleIcon(moduleName) {
+                const icons = {
+                    'Tickets': 'fas fa-ticket-alt',
+                    'Queue Management': 'fas fa-hourglass-half',
+                    'Self-Serve Kiosk': 'fas fa-clipboard-list',
+                    'Virtual Booze Lockers': 'fas fa-lock',
+                    'Shisha System': 'fas fa-smoking',
+                    'VVIP Management': 'fas fa-crown'
+                };
+                return icons[moduleName] || 'fas fa-puzzle-piece';
+            },
+            
+            getModuleDescription(moduleName) {
+                const descriptions = {
+                    'Tickets': 'Event ticketing and QR code scanning',
+                    'Queue Management': 'Smart virtual queuing system',
+                    'Self-Serve Kiosk': 'Food & beverage ordering system',
+                    'Virtual Booze Lockers': 'Secure bottle storage management',
+                    'Shisha System': 'Hookah session management',
+                    'VVIP Management': 'Exclusive VIP accounts & tabs'
+                };
+                return descriptions[moduleName] || 'Custom module configured by Super Admin';
+            },
+            
             getRoleDisplay(role) {
                 const roles = { boxoffice: 'Box Office', hospitality: 'Hospitality', shishamaster: 'Shisha Master', gatecontrol: 'Gate Control', support: 'Support Staff', venuemanager: 'Venue Manager' };
                 return roles[role] || role;
@@ -323,6 +419,37 @@
             },
             showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') { this.infoTitle = title; this.infoMessage = message; this.infoIcon = icon; this.infoIconColor = iconColor; this.showInfoModal = true; },
             copyToClipboard(text) { navigator.clipboard.writeText(text); this.showAlert('Copied!', 'Text copied to clipboard', 'fas fa-check-circle', '#10b981'); },
+            
+            refreshModules() {
+                this.loadModules();
+                this.showAlert('Modules Refreshed', 'Module list has been updated from Super Admin settings.', 'fas fa-sync-alt', '#10b981');
+            },
+            
+            forceRefreshModules() {
+                // Force clear cache and reload
+                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
+                console.log('Full modules from localStorage:', allModules);
+                console.log('Current tenant ID:', this.tenantId);
+                console.log('Modules for this tenant:', allModules[this.tenantId]);
+                
+                if (allModules[this.tenantId] && allModules[this.tenantId].length > 0) {
+                    this.tenantModules = allModules[this.tenantId];
+                    this.showAlert('Modules Loaded', `Found ${this.tenantModules.length} modules from Super Admin.`, 'fas fa-check-circle', '#10b981');
+                } else {
+                    this.showAlert('No Modules Found', 'No modules configured by Super Admin yet. Default modules loaded.', 'fas fa-info-circle', '#f59e0b');
+                    // Load default modules
+                    this.tenantModules = [
+                        { id: 1, name: 'Tickets', enabled: true, isCustom: false },
+                        { id: 2, name: 'Queue Management', enabled: true, isCustom: false },
+                        { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false },
+                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false },
+                        { id: 5, name: 'Shisha System', enabled: false, isCustom: false },
+                        { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }
+                    ];
+                }
+                this.$forceUpdate();
+            },
+            
             setupRealtimeSync() {
                 window.addEventListener('storage', (e) => { 
                     if (e.key === STORAGE_KEYS.TENANT_MODULES) { 
@@ -330,7 +457,7 @@
                         this.syncing = true; 
                         this.syncStatusText = 'Updating...'; 
                         setTimeout(() => { 
-                            this.loadModules(); 
+                            this.forceRefreshModules(); 
                             this.syncing = false; 
                             this.syncStatusText = 'Live'; 
                             this.syncWarning = false; 
@@ -342,7 +469,7 @@
                     this.syncing = true; 
                     this.syncStatusText = 'Checking...'; 
                     const oldModules = JSON.stringify(this.tenantModules); 
-                    this.loadModules(); 
+                    this.forceRefreshModules(); 
                     if (JSON.stringify(this.tenantModules) !== oldModules) { 
                         this.syncWarning = true; 
                         this.syncStatusText = 'Update Available'; 
@@ -353,32 +480,32 @@
                     this.syncing = false; 
                 }, 30000);
             },
+            
             loadTenantData() {
-                const tenantId = sessionStorage.getItem('qless_tenant_id'); const tenantName = sessionStorage.getItem('qless_tenant_name'); const adminUser = sessionStorage.getItem('qless_user_name');
-                if (!tenantId) { this.showAlert('Session Error', 'No tenant session found. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626'); setTimeout(() => { window.location.href = 'login.html'; }, 2000); return; }
-                this.tenantId = parseInt(tenantId); this.tenantName = tenantName || 'Venue'; this.adminName = adminUser || 'Administrator';
-                this.loadStaff(); this.loadModules(); this.loadBranding();
+                const tenantId = sessionStorage.getItem('qless_tenant_id'); 
+                const tenantName = sessionStorage.getItem('qless_tenant_name'); 
+                const adminUser = sessionStorage.getItem('qless_user_name');
+                if (!tenantId) { 
+                    this.showAlert('Session Error', 'No tenant session found. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626'); 
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000); 
+                    return; 
+                }
+                this.tenantId = parseInt(tenantId); 
+                this.tenantName = tenantName || 'Venue'; 
+                this.adminName = adminUser || 'Administrator';
+                this.loadStaff(); 
+                this.forceRefreshModules();  // Use force refresh instead of regular load
+                this.loadBranding();
             },
+            
             loadStaff() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); this.staffList = allStaff.filter(s => s.tenantId === this.tenantId); },
             saveStaffToStorage() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId); localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList])); window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.STAFF })); },
+            
             loadModules() { 
-                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}'); 
-                const modules = allModules[this.tenantId] || []; 
-                console.log('Loading modules for tenant', this.tenantId, ':', modules);
-                if (modules.length === 0) { 
-                    this.tenantModules = [
-                        { id: 1, name: 'Tickets', enabled: true, isCustom: false },
-                        { id: 2, name: 'Queue Management', enabled: true, isCustom: false },
-                        { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false },
-                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false },
-                        { id: 5, name: 'Shisha System', enabled: false, isCustom: false },
-                        { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }
-                    ]; 
-                } else { 
-                    this.tenantModules = modules; 
-                }
-                this.$forceUpdate();
+                // This is kept for compatibility but forceRefreshModules is the main one now
+                this.forceRefreshModules();
             },
+            
             loadBranding() { const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`); if (saved) { const data = JSON.parse(saved); this.tenantName = data.tenantName || this.tenantName; this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' }; } },
             saveBranding() { const data = { tenantName: this.tenantName, branding: this.branding }; localStorage.setItem(`qless_tenant_branding_${this.tenantId}`, JSON.stringify(data)); const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]'); const tenant = tenants.find(t => t.id === this.tenantId); if (tenant) tenant.businessName = this.tenantName; localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants)); this.showAlert('Saved', 'Branding saved successfully!', 'fas fa-check-circle', '#10b981'); },
             openCreateStaffModal() { this.isEditing = false; this.editingStaffId = null; this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' }; this.showStaffModal = true; },
@@ -405,7 +532,6 @@
             if (!isLoggedIn || role !== 'tenant_administrator') { window.location.href = 'login.html'; return; }
             this.loadTenantData(); 
             this.setupRealtimeSync();
-            // Also add a manual refresh button listener for debugging
             console.log('Tenant Admin ready. Listening for module changes...');
             window.addEventListener('resize', () => { if(window.innerWidth > 768) this.sidebarOpen = false; });
             setTimeout(() => { const appElement = document.querySelector('#app'); if (!appElement) return; let isFullscreen = false; const exitBtn = document.getElementById('exitFullscreenBtn'); const fullscreenBtn = document.getElementById('globalFullscreenBtn'); function toggleFullscreen() { if (!isFullscreen) { appElement.classList.add('fullscreen-active'); isFullscreen = true; if (exitBtn) exitBtn.style.display = 'flex'; if (fullscreenBtn) fullscreenBtn.style.display = 'none'; } else { appElement.classList.remove('fullscreen-active'); isFullscreen = false; if (exitBtn) exitBtn.style.display = 'none'; if (fullscreenBtn) fullscreenBtn.style.display = ''; } } if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen); if (exitBtn) exitBtn.addEventListener('click', toggleFullscreen); }, 500);
