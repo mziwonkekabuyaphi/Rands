@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
     <style>
-        /* Your existing CSS - kept exactly the same */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f5f7fb; overflow-x: hidden; }
         .sidebar { position: fixed; left: 0; top: 0; width: 270px; height: 100%; background: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.05); z-index: 100; transition: all 0.3s ease; overflow-y: auto; border-right: 1px solid #edf2f7; }
@@ -202,7 +201,14 @@
             closeSidebar() { if (window.innerWidth <= 768) this.sidebarOpen = false; },
             showSuccessToast(message) { this.toastMessage = message; this.showToast = true; if (this.toastTimeout) clearTimeout(this.toastTimeout); this.toastTimeout = setTimeout(() => { this.showToast = false; }, 3000); },
             copyToClipboard(text) { navigator.clipboard.writeText(text); this.showSuccessToast('Copied to clipboard!'); },
-            triggerSync() { window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.TENANT_MODULES, newValue: JSON.stringify(this.tenantModules) })); },
+            triggerSync() { 
+                // THIS IS THE KEY FIX - dispatches storage event to notify Tenant Admin and Staff Dashboard
+                window.dispatchEvent(new StorageEvent('storage', { 
+                    key: STORAGE_KEYS.TENANT_MODULES, 
+                    newValue: JSON.stringify(this.tenantModules) 
+                }));
+                console.log('Sync triggered: Module changes sent to other dashboards');
+            },
             loadData() {
                 const tenantsStr = localStorage.getItem(STORAGE_KEYS.TENANTS);
                 if (tenantsStr) { this.tenants = JSON.parse(tenantsStr); } else { this.tenants = [{ id: 1, businessName: 'Skyline Lounge', ownerName: 'Thabo Nkosi', phone: '0821112233', username: 'skyline_admin', password: 'skyline123', status: 'Active' }, { id: 2, businessName: 'Cape Tavern', ownerName: 'Lerato Dlamini', phone: '0834455667', username: 'capetavern', password: 'tavern456', status: 'Active' }, { id: 3, businessName: 'Gold Reef Venue', ownerName: 'Sipho Mbele', phone: '0719988776', username: 'goldreef', password: 'reef789', status: 'Suspended' }]; localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(this.tenants)); }
@@ -212,7 +218,10 @@
                 if (this.tenants.length > 0 && !this.selectedTenantId) { this.selectedTenantId = this.tenants[0].id; }
             },
             saveTenants() { localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(this.tenants)); this.triggerSync(); },
-            saveModules() { localStorage.setItem(STORAGE_KEYS.TENANT_MODULES, JSON.stringify(this.tenantModules)); this.triggerSync(); },
+            saveModules() { 
+                localStorage.setItem(STORAGE_KEYS.TENANT_MODULES, JSON.stringify(this.tenantModules)); 
+                this.triggerSync(); // This sends update to Tenant Admin and Staff Dashboard
+            },
             saveSystemSettings() { localStorage.setItem(STORAGE_KEYS.SYSTEM_SETTINGS, JSON.stringify(this.systemSettings)); },
             saveCustomModules() { localStorage.setItem(STORAGE_KEYS.CUSTOM_MODULES, JSON.stringify(this.customModulesList)); this.triggerSync(); },
             openCreateTenantModal() { this.newTenant = { businessName: '', ownerName: '', phone: '', username: '', password: '' }; this.showTenantModal = true; },
