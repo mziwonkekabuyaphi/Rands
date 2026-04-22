@@ -42,6 +42,7 @@
         .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
         .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; }
         .btn-success { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; }
+        .btn-danger { background: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
         .table-wrapper { overflow-x: auto; background: white; border-radius: 24px; border: 1px solid #edf2f7; }
         .data-table { width: 100%; border-collapse: collapse; min-width: 500px; }
         .data-table th, .data-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
@@ -51,6 +52,8 @@
         .status-success { background: #e0f2fe; color: #0ea5e9; }
         .status-valid { background: #d1fae5; color: #059669; }
         .status-invalid { background: #fee2e2; color: #dc2626; }
+        .status-on-shift { background: #d1fae5; color: #059669; }
+        .status-off-shift { background: #f1f5f9; color: #64748b; }
         .queue-list { background: white; border-radius: 24px; border: 1px solid #edf2f7; overflow: hidden; }
         .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
         .item-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
@@ -77,6 +80,7 @@
         .fullscreen-btn-module { background: transparent; border: 1px solid #E30613; color: #E30613; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-left: auto; transition: 0.2s; }
         .fullscreen-btn-module:hover { background: #fff0f0; }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; color: #1e293b; }
+        .shift-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #10b981; }
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 260px; }
             .sidebar.open { transform: translateX(0); }
@@ -131,14 +135,63 @@
         </div>
 
         <div class="dashboard-container">
-            <!-- DASHBOARD -->
+            <!-- DASHBOARD with Shift Status -->
             <div v-if="currentSection === 'dashboard'">
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Today's Sales</div><div class="stat-number">R {{ todaySales }}</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Queue Position</div><div class="stat-number">{{ queueCount }}</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Pending Orders</div><div class="stat-number">{{ pendingOrdersCount }}</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-qrcode"></i></div><div class="stat-title">Scanned Today</div><div class="stat-number">{{ scannedToday }}</div></div>
+                    <div class="stat-card" :class="{ 'shift-card': isOnShift }">
+                        <div class="stat-icon"><i class="fas" :class="isOnShift ? 'fa-play-circle' : 'fa-stop-circle'"></i></div>
+                        <div class="stat-title">My Shift Status</div>
+                        <div class="stat-number" :style="{ color: isOnShift ? '#10b981' : '#dc2626' }">{{ isOnShift ? 'ON DUTY' : 'OFF DUTY' }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="stat-title">Today's Hours</div>
+                        <div class="stat-number">{{ todayHours.toFixed(1) }}h</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                        <div class="stat-title">Week Total</div>
+                        <div class="stat-number">{{ weekHours.toFixed(1) }}h</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="stat-title">Today's Sales</div>
+                        <div class="stat-number">R {{ todaySales }}</div>
+                    </div>
                 </div>
+                
+                <!-- Shift Control Panel -->
+                <div class="settings-panel" style="text-align: center;">
+                    <div v-if="!isOnShift">
+                        <div class="form-group" style="max-width: 300px; margin: 0 auto 20px;">
+                            <label>Select Station (Optional)</label>
+                            <select class="form-control" v-model="selectedStation">
+                                <option value="">Default Station</option>
+                                <option value="bar_1">Bar 1</option>
+                                <option value="bar_2">Bar 2</option>
+                                <option value="kitchen_1">Kitchen 1</option>
+                                <option value="entrance">Entrance</option>
+                                <option value="shisha_lounge">Shisha Lounge</option>
+                                <option value="vvip_area">VVIP Area</option>
+                            </select>
+                        </div>
+                        <button class="btn-success" @click="startShift" style="padding: 16px 40px; font-size: 1.1rem;">
+                            <i class="fas fa-play"></i> START MY SHIFT
+                        </button>
+                    </div>
+                    <div v-else>
+                        <div class="current-shift-info" style="margin-bottom: 24px;">
+                            <p><strong><i class="fas fa-clock"></i> Shift Started:</strong> {{ shiftStartTime }}</p>
+                            <p><strong><i class="fas fa-hourglass-half"></i> Current Duration:</strong> {{ currentShiftHours.toFixed(2) }} hours</p>
+                            <p><strong><i class="fas fa-map-marker-alt"></i> Station:</strong> {{ currentStation || 'Not assigned' }}</p>
+                        </div>
+                        <button class="btn-danger" @click="endShift" style="padding: 16px 40px; font-size: 1.1rem;">
+                            <i class="fas fa-stop"></i> END MY SHIFT
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
                 <div class="section-header"><h2>Quick Actions</h2></div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px;">
                     <button class="btn-primary" @click="currentSection = 'boxoffice'" v-if="isScreenAvailable('boxoffice')"><i class="fas fa-ticket-alt"></i> Box Office POS</button>
@@ -147,6 +200,24 @@
                     <button class="btn-primary" @click="currentSection = 'shisha-pos'" v-if="isScreenAvailable('shisha-pos')"><i class="fas fa-smoking"></i> Shisha POS</button>
                     <button class="btn-primary" @click="currentSection = 'shisha-admin'" v-if="isScreenAvailable('shisha-admin')"><i class="fas fa-cog"></i> Shisha Admin</button>
                     <button class="btn-primary" @click="currentSection = 'vvip'" v-if="isScreenAvailable('vvip')"><i class="fas fa-crown"></i> VVIP Concierge</button>
+                </div>
+                
+                <!-- Recent Shifts -->
+                <div class="section-header"><h2><i class="fas fa-history"></i> My Recent Shifts</h2></div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th><th>Station</th></tr></thead>
+                        <tbody>
+                            <tr v-for="shift in recentShifts" :key="shift.shift_id">
+                                <td>{{ formatDate(shift.login_time) }}</td>
+                                <td>{{ formatTime(shift.login_time) }}</td>
+                                <td>{{ shift.logout_time ? formatTime(shift.logout_time) : 'Active' }}</td>
+                                <td><strong>{{ shift.hours_worked ? shift.hours_worked.toFixed(1) + 'h' : 'In progress' }}</strong></td>
+                                <td>{{ shift.station_at_login || '-' }}</td>
+                            </tr>
+                            <tr v-if="recentShifts.length === 0"><td colspan="5" style="text-align:center;">No shift history yet. Start your first shift!</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -164,13 +235,9 @@
                 </div>
                 <div class="section-header"><h2>Today's Ticket Sales</h2></div>
                 <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Ticket ID</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
-                        <tbody>
-                            <tr v-for="sale in ticketSales" :key="sale.id"><td>{{ sale.id }}</td><td>{{ sale.event }}</td><td>R{{ sale.amount }}</td><td>{{ sale.time }}</td></tr>
-                            <tr v-if="ticketSales.length === 0"><td colspan="4" style="text-align:center;">No sales today</td></tr>
-                        </tbody>
-                    </table>
+                    <table class="data-table"><thead><tr><th>Ticket ID</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
+                    <tbody><tr v-for="sale in ticketSales" :key="sale.id"><td>{{ sale.id }}</td><td>{{ sale.event }}</td><td>R{{ sale.amount }}</td><td>{{ sale.time }}</td></tr>
+                    <tr v-if="ticketSales.length === 0"><td colspan="4" style="text-align:center;">No sales today</td></tr></tbody></table>
                 </div>
             </div>
 
@@ -187,13 +254,9 @@
                 </div>
                 <div class="section-header"><h2>Recent Validations</h2></div>
                 <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Ticket ID</th><th>Status</th><th>Time</th></tr></thead>
-                        <tbody>
-                            <tr v-for="scan in gateScans" :key="scan.id"><td>{{ scan.id }}</td><td><span class="status-badge" :class="scan.valid ? 'status-valid' : 'status-invalid'">{{ scan.valid ? 'Entry Granted' : 'Invalid' }}</span></td><td>{{ scan.time }}</td></tr>
-                            <tr v-if="gateScans.length === 0"><td colspan="3" style="text-align:center;">No scans yet</td></tr>
-                        </tbody>
-                    </table>
+                    <table class="data-table"><thead><tr><th>Ticket ID</th><th>Status</th><th>Time</th></tr></thead>
+                    <tbody><tr v-for="scan in gateScans" :key="scan.id"><td>{{ scan.id }}</td><td><span class="status-badge" :class="scan.valid ? 'status-valid' : 'status-invalid'">{{ scan.valid ? 'Entry Granted' : 'Invalid' }}</span></td><td>{{ scan.time }}</td></tr>
+                    <tr v-if="gateScans.length === 0"><td colspan="3" style="text-align:center;">No scans yet</td></tr></tbody></table>
                 </div>
             </div>
 
@@ -207,13 +270,9 @@
                 </div>
                 <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutButcher"><i class="fas fa-credit-card"></i> Complete Sale (R{{ butcherCartTotal }})</button></div>
                 <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
-                        <tbody>
-                            <tr v-for="(item, idx) in butcherCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromButcherCart(idx)"></i></td></tr>
-                            <tr v-if="butcherCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
-                        </tbody>
-                    </table>
+                    <table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+                    <tbody><tr v-for="(item, idx) in butcherCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromButcherCart(idx)"></i></td></tr>
+                    <tr v-if="butcherCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr></tbody></table>
                 </div>
             </div>
 
@@ -227,13 +286,9 @@
                 </div>
                 <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutShisha"><i class="fas fa-credit-card"></i> Complete Sale (R{{ shishaCartTotal }})</button></div>
                 <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
-                        <tbody>
-                            <tr v-for="(item, idx) in shishaCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromShishaCart(idx)"></i></td></tr>
-                            <tr v-if="shishaCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
-                        </tbody>
-                    </table>
+                    <table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+                    <tbody><tr v-for="(item, idx) in shishaCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromShishaCart(idx)"></i></td></tr>
+                    <tr v-if="shishaCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr></tbody></table>
                 </div>
             </div>
 
@@ -279,58 +334,24 @@
 </div>
 
 <script>
-    const STORAGE_KEYS = { TENANTS: 'qless_tenants', STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules' };
+    const STORAGE_KEYS = { TENANTS: 'qless_tenants', STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules', SHIFTS: 'qless_shifts' };
 
-    // CORRECTED SCREEN REQUIREMENTS - matches Super Admin module names exactly
     const SCREEN_REQUIREMENTS = {
-        'boxoffice': {
-            label: 'Box Office POS',
-            icon: 'fas fa-ticket-alt',
-            requiredModules: ['Tickets'],
-            allowedRoles: ['boxoffice', 'venuemanager']
-        },
-        'gatecontrol': {
-            label: 'Gate Scanner',
-            icon: 'fas fa-qrcode',
-            requiredModules: ['Tickets'],
-            allowedRoles: ['gatecontrol', 'venuemanager']
-        },
-        'butcher-pos': {
-            label: 'Butcher POS',
-            icon: 'fas fa-utensils',
-            requiredModules: ['Self-Serve Kiosk'],
-            allowedRoles: ['hospitality', 'venuemanager']
-        },
-        'shisha-pos': {
-            label: 'Shisha POS',
-            icon: 'fas fa-smoking',
-            requiredModules: ['Self-Serve Kiosk'],
-            allowedRoles: ['shishamaster', 'venuemanager']
-        },
-        'shisha-admin': {
-            label: 'Shisha Admin',
-            icon: 'fas fa-cog',
-            requiredModules: ['Shisha System'],
-            allowedRoles: ['shishamaster', 'venuemanager']
-        },
-        'vvip': {
-            label: 'VVIP Concierge',
-            icon: 'fas fa-crown',
-            requiredModules: ['VVIP Management'],
-            allowedRoles: ['venuemanager']
-        }
+        'boxoffice': { label: 'Box Office POS', icon: 'fas fa-ticket-alt', requiredModules: ['Tickets'], allowedRoles: ['boxoffice', 'venuemanager'] },
+        'gatecontrol': { label: 'Gate Scanner', icon: 'fas fa-qrcode', requiredModules: ['Tickets'], allowedRoles: ['gatecontrol', 'venuemanager'] },
+        'butcher-pos': { label: 'Butcher POS', icon: 'fas fa-utensils', requiredModules: ['Self-Serve Kiosk'], allowedRoles: ['hospitality', 'venuemanager'] },
+        'shisha-pos': { label: 'Shisha POS', icon: 'fas fa-smoking', requiredModules: ['Self-Serve Kiosk'], allowedRoles: ['shishamaster', 'venuemanager'] },
+        'shisha-admin': { label: 'Shisha Admin', icon: 'fas fa-cog', requiredModules: ['Shisha System'], allowedRoles: ['shishamaster', 'venuemanager'] },
+        'vvip': { label: 'VVIP Concierge', icon: 'fas fa-crown', requiredModules: ['VVIP Management'], allowedRoles: ['venuemanager'] }
     };
 
-    const ROLE_DISPLAY = {
-        boxoffice: 'Box Office', gatecontrol: 'Gate Control', hospitality: 'Hospitality',
-        shishamaster: 'Shisha Master', support: 'Support Staff', venuemanager: 'Venue Manager'
-    };
+    const ROLE_DISPLAY = { boxoffice: 'Box Office', gatecontrol: 'Gate Control', hospitality: 'Hospitality', shishamaster: 'Shisha Master', support: 'Support Staff', venuemanager: 'Venue Manager' };
 
     new Vue({
         el: '#app',
         data: {
             sidebarOpen: false, currentSection: 'dashboard', tenantId: null, tenantName: 'Loading...',
-            staffName: 'Staff Member', staffRole: 'support', staffRoleDisplay: 'Support Staff',
+            staffId: null, staffName: 'Staff Member', staffRole: 'support', staffRoleDisplay: 'Support Staff',
             branding: { primaryColor: '#E30613', logoUrl: '' }, tenantModules: [],
             todaySales: 8450, queueCount: 12, pendingOrdersCount: 5, scannedToday: 67,
             scanCode: '', scanCodeGate: '', ticketSales: [], gateScans: [],
@@ -342,21 +363,31 @@
             vvipTabs: [{ id: 1, customer: 'Mr. Khumalo', balance: 1250, limit: 5000 }, { id: 2, customer: 'Ms. Ndlovu', balance: 350, limit: 2000 }, { id: 3, customer: 'The Royal Family', balance: 5000, limit: 10000 }],
             showValidationModal: false, validationResult: { valid: false, message: '' }, showInfoModal: false,
             infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
-            syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null
+            syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null,
+            // Shift tracking data
+            shifts: [], selectedStation: '', isOnShift: false, activeShift: null, shiftStartTime: '', currentStation: '', todayHours: 0, weekHours: 0
         },
         computed: {
             tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
             staffInitial() { return this.staffName ? this.staffName.charAt(0).toUpperCase() : 'S'; },
             shishaCartTotal() { return this.shishaCart.reduce((sum, item) => sum + (item.price * item.qty), 0); },
             butcherCartTotal() { return this.butcherCart.reduce((sum, item) => sum + (item.price * item.qty), 0); },
+            currentShiftHours() {
+                if (!this.isOnShift || !this.activeShift) return 0;
+                const loginTime = new Date(this.activeShift.login_time);
+                const now = new Date();
+                return (now - loginTime) / (1000 * 60 * 60);
+            },
+            recentShifts() {
+                const staffShifts = this.shifts.filter(s => s.staff_id === this.staffId).sort((a,b) => new Date(b.login_time) - new Date(a.login_time));
+                return staffShifts.slice(0, 10);
+            },
             dynamicMenu() {
                 const menu = [{ id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' }];
                 for (const [screenId, requirements] of Object.entries(SCREEN_REQUIREMENTS)) {
                     const modulesEnabled = requirements.requiredModules.every(moduleName => this.isModuleEnabled(moduleName));
                     const roleAllowed = requirements.allowedRoles.includes(this.staffRole);
-                    if (modulesEnabled && roleAllowed) {
-                        menu.push({ id: screenId, label: requirements.label, icon: requirements.icon });
-                    }
+                    if (modulesEnabled && roleAllowed) menu.push({ id: screenId, label: requirements.label, icon: requirements.icon });
                 }
                 return menu;
             },
@@ -369,9 +400,82 @@
         },
         methods: {
             closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
-            showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') {
-                this.infoTitle = title; this.infoMessage = message; this.infoIcon = icon; this.infoIconColor = iconColor; this.showInfoModal = true;
+            showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') { this.infoTitle = title; this.infoMessage = message; this.infoIcon = icon; this.infoIconColor = iconColor; this.showInfoModal = true; },
+            formatTime(date) { if(!date) return '-'; const d = new Date(date); return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); },
+            formatDate(date) { if(!date) return '-'; const d = new Date(date); return d.toLocaleDateString(); },
+            
+            // Shift Management
+            loadShifts() {
+                const allShifts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS) || '[]');
+                this.shifts = allShifts.filter(s => s.tenant_id === this.tenantId);
+                const active = this.shifts.find(s => s.staff_id === this.staffId && s.status === 'active');
+                if (active) {
+                    this.isOnShift = true;
+                    this.activeShift = active;
+                    this.shiftStartTime = this.formatDateTime(active.login_time);
+                    this.currentStation = active.station_at_login || '';
+                } else {
+                    this.isOnShift = false;
+                    this.activeShift = null;
+                    this.shiftStartTime = '';
+                    this.currentStation = '';
+                }
+                this.calculateHours();
             },
+            saveShifts() {
+                const allShifts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS) || '[]');
+                const otherShifts = allShifts.filter(s => s.tenant_id !== this.tenantId || s.staff_id !== this.staffId);
+                localStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify([...otherShifts, ...this.shifts.filter(s => s.staff_id === this.staffId)]));
+                window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.SHIFTS }));
+            },
+            calculateHours() {
+                const staffShifts = this.shifts.filter(s => s.staff_id === this.staffId);
+                const today = new Date(); today.setHours(0,0,0,0);
+                const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); weekStart.setHours(0,0,0,0);
+                let todayTotal = 0, weekTotal = 0;
+                staffShifts.forEach(shift => {
+                    const loginDate = new Date(shift.login_time);
+                    if(loginDate >= today) {
+                        if(shift.hours_worked) todayTotal += shift.hours_worked;
+                        else if(shift.status === 'active') todayTotal += (new Date() - loginDate) / (1000*60*60);
+                    }
+                    if(loginDate >= weekStart) {
+                        if(shift.hours_worked) weekTotal += shift.hours_worked;
+                    }
+                });
+                this.todayHours = todayTotal;
+                this.weekHours = weekTotal;
+            },
+            formatDateTime(date) { if(!date) return '-'; const d = new Date(date); return d.toLocaleString(); },
+            async startShift() {
+                if (this.isOnShift) { this.showAlert('Already On Shift', 'You already have an active shift', 'fas fa-exclamation-triangle', '#f59e0b'); return; }
+                const shiftId = `shift_${Date.now()}_${this.staffId}`;
+                const newShift = {
+                    shift_id: shiftId, staff_id: this.staffId, tenant_id: this.tenantId,
+                    login_time: new Date().toISOString(), logout_time: null, status: 'active',
+                    hours_worked: null, station_at_login: this.selectedStation || null, staff_role: this.staffRole
+                };
+                this.shifts.push(newShift);
+                this.saveShifts();
+                this.loadShifts();
+                this.showAlert('Shift Started', `Your shift started at ${this.formatTime(new Date())}${this.selectedStation ? ' at ' + this.selectedStation : ''}`, 'fas fa-play-circle', '#10b981');
+                this.selectedStation = '';
+            },
+            async endShift() {
+                if (!this.isOnShift || !this.activeShift) { this.showAlert('No Active Shift', 'You are not currently on shift', 'fas fa-exclamation-triangle', '#f59e0b'); return; }
+                const index = this.shifts.findIndex(s => s.shift_id === this.activeShift.shift_id);
+                if (index !== -1) {
+                    const loginTime = new Date(this.activeShift.login_time);
+                    const hoursWorked = (new Date() - loginTime) / (1000 * 60 * 60);
+                    this.shifts[index].logout_time = new Date().toISOString();
+                    this.shifts[index].status = 'completed';
+                    this.shifts[index].hours_worked = hoursWorked;
+                    this.saveShifts();
+                    this.loadShifts();
+                    this.showAlert('Shift Ended', `Your shift ended. Total hours: ${hoursWorked.toFixed(2)}h`, 'fas fa-stop-circle', '#10b981');
+                }
+            },
+            
             isScreenAvailable(screenId) {
                 const requirements = SCREEN_REQUIREMENTS[screenId];
                 if (!requirements) return false;
@@ -389,6 +493,7 @@
                         this.syncing = true; this.syncStatusText = 'Updating...';
                         setTimeout(() => { this.loadModules(); this.syncing = false; this.syncStatusText = 'Live'; this.syncWarning = false; this.showAlert('Modules Updated', 'Available screens have been updated by your manager.', 'fas fa-sync-alt', '#10b981'); }, 500);
                     }
+                    if (e.key === STORAGE_KEYS.SHIFTS) { this.loadShifts(); }
                 });
                 this.syncInterval = setInterval(() => {
                     this.syncing = true; this.syncStatusText = 'Checking...';
@@ -403,63 +508,33 @@
                 const tenantId = sessionStorage.getItem('qless_tenant_id');
                 const staffDisplayName = sessionStorage.getItem('qless_user_name');
                 const staffRole = sessionStorage.getItem('qless_staff_role');
+                const staffId = sessionStorage.getItem('qless_staff_id');
                 if (!tenantId) { this.showAlert('Session Expired', 'Please login again.', 'fas fa-exclamation-triangle', '#dc2626'); setTimeout(() => { window.location.href = 'login.html'; }, 2000); return; }
                 this.tenantId = parseInt(tenantId);
+                this.staffId = staffId || Date.now();
                 this.staffName = staffDisplayName || 'Staff Member';
                 this.staffRole = staffRole || 'support';
                 this.staffRoleDisplay = ROLE_DISPLAY[this.staffRole] || 'Staff';
                 const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
                 const tenant = tenants.find(t => t.id === this.tenantId);
                 this.tenantName = tenant ? tenant.businessName : 'Venue';
-                this.loadModules(); this.loadBranding();
+                this.loadModules(); this.loadBranding(); this.loadShifts();
             },
             loadModules() {
                 const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
                 const modules = allModules[this.tenantId] || [];
                 if (modules.length === 0) {
-                    this.tenantModules = [
-                        { id: 1, name: 'Tickets', enabled: true, isCustom: false },
-                        { id: 2, name: 'Queue Management', enabled: true, isCustom: false },
-                        { id: 3, name: 'Self-Serve Kiosk', enabled: false, isCustom: false },
-                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, isCustom: false },
-                        { id: 5, name: 'Shisha System', enabled: false, isCustom: false },
-                        { id: 6, name: 'VVIP Management', enabled: true, isCustom: false }
-                    ];
-                } else {
-                    this.tenantModules = modules;
-                }
-                console.log('Loaded modules:', this.tenantModules);
+                    this.tenantModules = [ { id: 1, name: 'Tickets', enabled: true }, { id: 2, name: 'Queue Management', enabled: true }, { id: 3, name: 'Self-Serve Kiosk', enabled: false }, { id: 4, name: 'Virtual Booze Lockers', enabled: true }, { id: 5, name: 'Shisha System', enabled: false }, { id: 6, name: 'VVIP Management', enabled: true } ];
+                } else { this.tenantModules = modules; }
                 this.$forceUpdate();
             },
             loadBranding() {
                 const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`);
                 if (saved) { const data = JSON.parse(saved); this.tenantName = data.tenantName || this.tenantName; this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' }; }
             },
-            sellTicket() {
-                if (!this.scanCode) { this.showAlert('Missing Info', 'Please enter ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; }
-                const amount = Math.floor(Math.random() * 200) + 50;
-                this.ticketSales.unshift({ id: this.scanCode, event: 'Current Event', amount: amount, time: new Date().toLocaleTimeString() });
-                this.scannedToday++; this.todaySales += amount;
-                this.showAlert('Ticket Sold', `Ticket ${this.scanCode} sold for R${amount}`, 'fas fa-check-circle', '#10b981');
-                this.scanCode = '';
-            },
-            validateTicket() {
-                if (!this.scanCode) { this.showAlert('Missing Ticket ID', 'Please enter a ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; }
-                const isValid = Math.random() > 0.2;
-                this.validationResult = { valid: isValid, message: isValid ? `Ticket ${this.scanCode} is valid! Entry granted.` : `Ticket ${this.scanCode} is invalid or already used.` };
-                this.showValidationModal = true;
-                if (isValid) this.scannedToday++;
-                this.scanCode = '';
-            },
-            validateGateTicket() {
-                if (!this.scanCodeGate) { this.showAlert('Missing Ticket ID', 'Please scan or enter ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; }
-                const isValid = Math.random() > 0.2;
-                this.gateScans.unshift({ id: this.scanCodeGate, valid: isValid, time: new Date().toLocaleTimeString() });
-                this.validationResult = { valid: isValid, message: isValid ? `Ticket ${this.scanCodeGate} is valid! Entry granted.` : `Ticket ${this.scanCodeGate} is invalid or already used.` };
-                this.showValidationModal = true;
-                if (isValid) this.scannedToday++;
-                this.scanCodeGate = '';
-            },
+            sellTicket() { if (!this.scanCode) { this.showAlert('Missing Info', 'Please enter ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; } const amount = Math.floor(Math.random() * 200) + 50; this.ticketSales.unshift({ id: this.scanCode, event: 'Current Event', amount: amount, time: new Date().toLocaleTimeString() }); this.scannedToday++; this.todaySales += amount; this.showAlert('Ticket Sold', `Ticket ${this.scanCode} sold for R${amount}`, 'fas fa-check-circle', '#10b981'); this.scanCode = ''; },
+            validateTicket() { if (!this.scanCode) { this.showAlert('Missing Ticket ID', 'Please enter a ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; } const isValid = Math.random() > 0.2; this.validationResult = { valid: isValid, message: isValid ? `Ticket ${this.scanCode} is valid! Entry granted.` : `Ticket ${this.scanCode} is invalid or already used.` }; this.showValidationModal = true; if (isValid) this.scannedToday++; this.scanCode = ''; },
+            validateGateTicket() { if (!this.scanCodeGate) { this.showAlert('Missing Ticket ID', 'Please scan or enter ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; } const isValid = Math.random() > 0.2; this.gateScans.unshift({ id: this.scanCodeGate, valid: isValid, time: new Date().toLocaleTimeString() }); this.validationResult = { valid: isValid, message: isValid ? `Ticket ${this.scanCodeGate} is valid! Entry granted.` : `Ticket ${this.scanCodeGate} is invalid or already used.` }; this.showValidationModal = true; if (isValid) this.scannedToday++; this.scanCodeGate = ''; },
             addToButcherCart(item) { const existing = this.butcherCart.find(i => i.id === item.id); if (existing) existing.qty++; else this.butcherCart.push({ ...item, qty: 1 }); this.showAlert('Added', `${item.name} added to order`, 'fas fa-shopping-cart', '#10b981'); },
             removeFromButcherCart(index) { this.butcherCart.splice(index, 1); },
             checkoutButcher() { if (this.butcherCart.length === 0) { this.showAlert('Cart Empty', 'Nothing to checkout', 'fas fa-exclamation-triangle', '#dc2626'); return; } const total = this.butcherCartTotal; this.showAlert('Sale Complete', `Food order total: R${total}`, 'fas fa-check-circle', '#10b981'); this.butcherCart = []; this.todaySales += total; },
