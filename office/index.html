@@ -338,6 +338,8 @@ body {
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<script src="roleRouter.js"></script>
+
 <script>
 /**
  * ========== SPLASH SCREEN CONTROLLER ==========
@@ -440,6 +442,38 @@ function hideSplash() {
   }, 600);
 }
 
+// ========== CHECK FOR EXISTING SESSION ==========
+// If user is already logged in, redirect directly without showing splash
+function checkExistingSession() {
+  try {
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userData = JSON.parse(user);
+      // User exists, redirect to their dashboard
+      if (typeof redirectByRole === 'function') {
+        redirectByRole(userData);
+      } else {
+        // Fallback redirect based on role
+        if (userData.role === 'customer') {
+          window.location.href = 'home.html';
+        } else if (userData.role === 'super') {
+          window.location.href = 'super-admin.html';
+        } else if (userData.role === 'tenant') {
+          window.location.href = 'tenant-admin.html';
+        } else if (userData.role === 'staff') {
+          window.location.href = 'staff.html';
+        } else {
+          window.location.href = 'login.html';
+        }
+      }
+      return true;
+    }
+  } catch (e) {
+    console.error('Error checking session:', e);
+  }
+  return false;
+}
+
 // ========== PWA INSTALLATION ==========
 
 let deferredPrompt;
@@ -489,7 +523,13 @@ if ('serviceWorker' in navigator) {
 
 // ========== INITIALIZE ==========
 window.addEventListener('DOMContentLoaded', () => {
-  startSplash();
+  // First check if user is already logged in
+  const hasSession = checkExistingSession();
+  
+  // If no session, show splash screen and redirect to login
+  if (!hasSession) {
+    startSplash();
+  }
 });
 </script>
 </body>
