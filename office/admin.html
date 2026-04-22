@@ -138,6 +138,9 @@
         }
         .force-logout-btn:hover { background: #b91c1c; }
         
+        /* Billing nav item specific */
+        .nav-item.billing-nav i { margin-right: 0; }
+        
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 260px; }
             .sidebar.open { transform: translateX(0); }
@@ -161,7 +164,7 @@
             </div>
         </div>
         <div class="nav-menu">
-            <div v-for="item in navItems" :key="item.id" class="nav-item" :class="{ active: currentSection === item.id }" @click="currentSection = item.id; closeSidebar()">
+            <div v-for="item in navItems" :key="item.id" class="nav-item" :class="{ active: currentSection === item.id }" @click="handleNavClick(item)">
                 <i :class="item.icon"></i>
                 <span>{{ item.label }}</span>
             </div>
@@ -241,7 +244,7 @@
                 </div>
             </div>
 
-            <!-- STAFF MANAGEMENT SECTION (Existing) -->
+            <!-- STAFF MANAGEMENT SECTION -->
             <div v-if="currentSection === 'staff'">
                 <div class="section-header">
                     <h2><i class="fas fa-users"></i> Staff Management</h2>
@@ -279,7 +282,7 @@
                 </div>
             </div>
 
-            <!-- WORKFORCE MANAGEMENT SECTION (NEW) -->
+            <!-- WORKFORCE MANAGEMENT SECTION -->
             <div v-if="currentSection === 'workforce'">
                 <div class="section-header">
                     <h2><i class="fas fa-clock"></i> Workforce Management</h2>
@@ -353,7 +356,7 @@
                 </div>
             </div>
 
-            <!-- MODULES SECTION (Existing) -->
+            <!-- MODULES SECTION -->
             <div v-if="currentSection === 'modules'">
                 <div class="section-header">
                     <h2><i class="fas fa-puzzle-piece"></i> Available Modules</h2>
@@ -397,7 +400,7 @@
                 </div>
             </div>
 
-            <!-- SETTINGS SECTION (Existing) -->
+            <!-- SETTINGS SECTION -->
             <div v-if="currentSection === 'settings'">
                 <div class="section-header"><h2>Branding & Settings</h2></div>
                 <div class="settings-panel">
@@ -497,11 +500,12 @@
             infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
             selectedStaff: null, staffShiftHistory: [],
             navItems: [
-                { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
-                { id: 'staff', label: 'Staff Management', icon: 'fas fa-users' },
-                { id: 'workforce', label: 'Workforce', icon: 'fas fa-clock' },
-                { id: 'modules', label: 'Modules', icon: 'fas fa-puzzle-piece' },
-                { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
+                { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt', isExternal: false },
+                { id: 'staff', label: 'Staff Management', icon: 'fas fa-users', isExternal: false },
+                { id: 'workforce', label: 'Workforce', icon: 'fas fa-clock', isExternal: false },
+                { id: 'modules', label: 'Modules', icon: 'fas fa-puzzle-piece', isExternal: false },
+                { id: 'billing', label: 'Billing', icon: 'fas fa-credit-card', isExternal: true, externalUrl: 'pricing.html' },
+                { id: 'settings', label: 'Settings', icon: 'fas fa-cog', isExternal: false }
             ],
             syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null,
             // Workforce data
@@ -563,6 +567,15 @@
         },
         methods: {
             closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
+            
+            handleNavClick(item) {
+                if (item.isExternal && item.externalUrl) {
+                    window.location.href = item.externalUrl;
+                } else {
+                    this.currentSection = item.id;
+                    this.closeSidebar();
+                }
+            },
             
             getModuleIcon(moduleName) {
                 const icons = { 'Tickets': 'fas fa-ticket-alt', 'Queue Management': 'fas fa-hourglass-half', 'Self-Serve Kiosk': 'fas fa-clipboard-list', 'Virtual Booze Lockers': 'fas fa-lock', 'Shisha System': 'fas fa-smoking', 'VVIP Management': 'fas fa-crown' };
