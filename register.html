@@ -641,8 +641,8 @@
                 <div class="profile-preview" id="profilePreview" onclick="document.getElementById('profilePicInput').click()">
                     <i class="fas fa-user"></i>
                 </div>
-                <div class="profile-hint">📸 Tap to take a selfie (front camera)</div>
-                <input type="file" id="profilePicInput" accept="image/*" capture="user" style="display:none;">
+                <div class="profile-hint">📸 Tap to upload a selfie</div>
+                <input type="file" id="profilePicInput" accept="image/*" style="display:none;">
             </div>
             <div class="input-group">
                 <label>Full name</label>
@@ -668,18 +668,18 @@
                     <div class="pin-box" id="pinBox4"></div>
                 </div>
                 <div class="pin-keypad">
-                    <button class="pin-key" onclick="pinPadDigit(1)">1</button>
-                    <button class="pin-key" onclick="pinPadDigit(2)">2</button>
-                    <button class="pin-key" onclick="pinPadDigit(3)">3</button>
-                    <button class="pin-key" onclick="pinPadDigit(4)">4</button>
-                    <button class="pin-key" onclick="pinPadDigit(5)">5</button>
-                    <button class="pin-key" onclick="pinPadDigit(6)">6</button>
-                    <button class="pin-key" onclick="pinPadDigit(7)">7</button>
-                    <button class="pin-key" onclick="pinPadDigit(8)">8</button>
-                    <button class="pin-key" onclick="pinPadDigit(9)">9</button>
-                    <button class="pin-key clear" onclick="pinPadClear()">⌫</button>
-                    <button class="pin-key" onclick="pinPadDigit(0)">0</button>
-                    <button class="pin-key clear" onclick="pinPadClearAll()">C</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(1)">1</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(2)">2</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(3)">3</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(4)">4</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(5)">5</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(6)">6</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(7)">7</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(8)">8</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(9)">9</button>
+                    <button type="button" class="pin-key clear" onclick="pinPadClear()">⌫</button>
+                    <button type="button" class="pin-key" onclick="pinPadDigit(0)">0</button>
+                    <button type="button" class="pin-key clear" onclick="pinPadClearAll()">C</button>
                 </div>
                 <div class="pin-message" id="pinMessage"></div>
             </div>
@@ -732,42 +732,100 @@
 
     function generateCardNumber() {
         let num = '';
-        for (let i = 0; i < 4; i++) num += Math.floor(1000 + Math.random() * 9000) + ' ';
-        return num.trim();
+        for (let i = 0; i < 4; i++) {
+            num += Math.floor(1000 + Math.random() * 9000);
+            if (i < 3) num += ' ';
+        }
+        return num;
     }
 
     function updatePinBoxes(value) {
         const boxes = ['pinBox1', 'pinBox2', 'pinBox3', 'pinBox4'];
         for (let i = 0; i < 4; i++) {
             const box = document.getElementById(boxes[i]);
-            if (i < value.length) { box.innerText = '●'; box.classList.add('filled'); }
-            else { box.innerText = ''; box.classList.remove('filled'); }
+            if (i < value.length) { 
+                box.innerText = '●'; 
+                box.classList.add('filled'); 
+            } else { 
+                box.innerText = ''; 
+                box.classList.remove('filled'); 
+            }
         }
     }
 
     window.pinPadDigit = (d) => {
         if (pinEntryMode === 'set') {
-            if (pinSetValue.length < 4) { pinSetValue += d.toString(); updatePinBoxes(pinSetValue);
-                if (pinSetValue.length === 4) { pinEntryMode = 'confirm'; document.getElementById('pinStageLabel').innerHTML = '<i class="fas fa-check-circle"></i> Confirm your PIN'; document.getElementById('pinMessage').innerHTML = 'Re-enter your 4-digit PIN'; updatePinBoxes(''); } }
+            if (pinSetValue.length < 4) { 
+                pinSetValue += d.toString(); 
+                updatePinBoxes(pinSetValue);
+                if (pinSetValue.length === 4) { 
+                    pinEntryMode = 'confirm'; 
+                    document.getElementById('pinStageLabel').innerHTML = '<i class="fas fa-check-circle"></i> Confirm your PIN'; 
+                    document.getElementById('pinMessage').innerHTML = 'Re-enter your 4-digit PIN';
+                    document.getElementById('pinMessage').style.color = '#E30613';
+                    updatePinBoxes(''); 
+                } 
+            }
         } else if (pinEntryMode === 'confirm') {
-            if (pinConfirmValue.length < 4) { pinConfirmValue += d.toString(); updatePinBoxes(pinConfirmValue);
+            if (pinConfirmValue.length < 4) { 
+                pinConfirmValue += d.toString(); 
+                updatePinBoxes(pinConfirmValue);
                 if (pinConfirmValue.length === 4) {
-                    if (pinConfirmValue === pinSetValue) { newAccount.pin = pinSetValue; document.getElementById('pinMessage').innerHTML = '✓ PIN confirmed!'; document.getElementById('pinMessage').style.color = '#2b7a3e'; }
-                    else { showToast('PINs do not match. Please set again.', 'error'); resetPinPad(); }
-                } }
+                    if (pinConfirmValue === pinSetValue) { 
+                        newAccount.pin = pinSetValue; 
+                        document.getElementById('pinMessage').innerHTML = '✓ PIN confirmed!'; 
+                        document.getElementById('pinMessage').style.color = '#2b7a3e'; 
+                    } else { 
+                        showToast('PINs do not match. Please set again.', 'error'); 
+                        resetPinPad(); 
+                    }
+                } 
+            }
         }
     };
+    
     window.pinPadClear = () => {
-        if (pinEntryMode === 'set') { if (pinSetValue.length > 0) { pinSetValue = pinSetValue.slice(0, -1); updatePinBoxes(pinSetValue); } }
-        else if (pinEntryMode === 'confirm') { if (pinConfirmValue.length > 0) { pinConfirmValue = pinConfirmValue.slice(0, -1); updatePinBoxes(pinConfirmValue); } }
+        if (pinEntryMode === 'set') { 
+            if (pinSetValue.length > 0) { 
+                pinSetValue = pinSetValue.slice(0, -1); 
+                updatePinBoxes(pinSetValue); 
+            } 
+        } else if (pinEntryMode === 'confirm') { 
+            if (pinConfirmValue.length > 0) { 
+                pinConfirmValue = pinConfirmValue.slice(0, -1); 
+                updatePinBoxes(pinConfirmValue); 
+            } 
+        }
     };
-    window.pinPadClearAll = () => { if (pinEntryMode === 'set') { pinSetValue = ""; updatePinBoxes(""); } else if (pinEntryMode === 'confirm') { pinConfirmValue = ""; updatePinBoxes(""); } };
-    function resetPinPad() { pinEntryMode = 'set'; pinSetValue = ""; pinConfirmValue = ""; updatePinBoxes(""); document.getElementById('pinStageLabel').innerHTML = '<i class="fas fa-lock"></i> Set your 4-digit PIN'; document.getElementById('pinMessage').innerHTML = ''; document.getElementById('pinMessage').style.color = '#E30613'; newAccount.pin = ""; }
+    
+    window.pinPadClearAll = () => { 
+        if (pinEntryMode === 'set') { 
+            pinSetValue = ""; 
+            updatePinBoxes(""); 
+        } else if (pinEntryMode === 'confirm') { 
+            pinConfirmValue = ""; 
+            updatePinBoxes(""); 
+        } 
+    };
+    
+    function resetPinPad() { 
+        pinEntryMode = 'set'; 
+        pinSetValue = ""; 
+        pinConfirmValue = ""; 
+        updatePinBoxes(""); 
+        document.getElementById('pinStageLabel').innerHTML = '<i class="fas fa-lock"></i> Set your 4-digit PIN'; 
+        document.getElementById('pinMessage').innerHTML = ''; 
+        document.getElementById('pinMessage').style.color = '#E30613'; 
+        newAccount.pin = ""; 
+    }
 
     function updateSteps() {
         const progress = ((currentStep - 1) / 3) * 100;
         document.getElementById('progressFill').style.width = progress + '%';
-        for (let i = 1; i <= 4; i++) { const stepEl = document.getElementById(`step${i}`); stepEl.className = (i < currentStep) ? 'step completed' : (i === currentStep) ? 'step active' : 'step'; }
+        for (let i = 1; i <= 4; i++) { 
+            const stepEl = document.getElementById(`step${i}`); 
+            stepEl.className = (i < currentStep) ? 'step completed' : (i === currentStep) ? 'step active' : 'step'; 
+        }
         document.getElementById('welcomeCard').classList.toggle('active', currentStep === 1);
         document.getElementById('formCard').classList.toggle('active', currentStep === 2);
         document.getElementById('previewCard').classList.toggle('active', currentStep === 3);
@@ -775,10 +833,8 @@
         
         const prevBtn = document.getElementById('prevBtn');
         if (currentStep === 1) {
-            prevBtn.disabled = false;
             prevBtn.innerHTML = '← Login';
         } else {
-            prevBtn.disabled = false;
             prevBtn.innerHTML = '← Back';
         }
         
@@ -803,69 +859,194 @@
     function validateForm() {
         const name = document.getElementById('fullName').value.trim();
         const whatsapp = document.getElementById('whatsappNumber').value.trim();
-        if (!profilePicBase64) { showToast('Please take a selfie', 'error'); document.querySelector('.profile-section').classList.add('shake'); setTimeout(() => document.querySelector('.profile-section')?.classList.remove('shake'), 500); return false; }
-        if (!name) { showToast('Enter your full name', 'error'); return false; }
-        if (!whatsapp) { showToast('Enter WhatsApp number', 'error'); return false; }
-        if (pinSetValue.length !== 4 || pinConfirmValue.length !== 4 || pinSetValue !== pinConfirmValue) { showToast('Please set and confirm a 4-digit PIN', 'error'); document.querySelector('.pin-setup').classList.add('shake'); setTimeout(() => document.querySelector('.pin-setup')?.classList.remove('shake'), 500); return false; }
+        
+        if (!profilePicBase64) { 
+            showToast('Please upload a profile picture/selfie', 'error'); 
+            document.querySelector('.profile-section').classList.add('shake'); 
+            setTimeout(() => document.querySelector('.profile-section')?.classList.remove('shake'), 500); 
+            return false; 
+        }
+        if (!name) { 
+            showToast('Enter your full name', 'error'); 
+            return false; 
+        }
+        if (!whatsapp) { 
+            showToast('Enter WhatsApp number', 'error'); 
+            return false; 
+        }
+        if (whatsapp.length < 10) {
+            showToast('Please enter a valid phone number', 'error');
+            return false;
+        }
+        if (pinSetValue.length !== 4 || pinConfirmValue.length !== 4 || pinSetValue !== pinConfirmValue) { 
+            showToast('Please set and confirm a 4-digit PIN', 'error'); 
+            document.querySelector('.pin-setup').classList.add('shake'); 
+            setTimeout(() => document.querySelector('.pin-setup')?.classList.remove('shake'), 500); 
+            return false; 
+        }
         return true;
     }
 
     function updatePreview() {
-        document.getElementById('previewName').innerText = newAccount.fullName.toUpperCase() || '---';
+        const name = document.getElementById('fullName').value.trim();
+        const whatsapp = document.getElementById('whatsappNumber').value.trim();
+        
+        document.getElementById('previewName').innerText = name.toUpperCase() || '---';
         document.getElementById('previewCardNumber').innerText = newAccount.cardNumber;
-        document.getElementById('previewAccount').innerText = newAccount.whatsappNumber;
-        document.getElementById('previewAccountId').innerText = newAccount.whatsappNumber;
-        document.getElementById('previewWhatsapp').innerText = newAccount.whatsappNumber;
-        let masked = ''; for (let i = 0; i < newAccount.pin.length; i++) masked += '●';
-        document.getElementById('previewPin').innerText = masked;
-        if (profilePicBase64) document.getElementById('previewProfileImg').src = profilePicBase64;
+        document.getElementById('previewAccount').innerText = whatsapp || '---';
+        document.getElementById('previewAccountId').innerText = whatsapp || '---';
+        document.getElementById('previewWhatsapp').innerText = whatsapp || '---';
+        
+        let masked = ''; 
+        for (let i = 0; i < pinSetValue.length; i++) masked += '●';
+        document.getElementById('previewPin').innerText = masked || '●●●●';
+        
+        if (profilePicBase64) {
+            document.getElementById('previewProfileImg').src = profilePicBase64;
+        }
     }
 
     function saveToLocalStorage() {
-        const accountId = newAccount.whatsappNumber;
+        const accountId = document.getElementById('whatsappNumber').value.trim();
+        const fullName = document.getElementById('fullName').value.trim();
+        const pin = pinSetValue;
+        
         if (!accountId) throw new Error("Account ID missing");
+        if (!fullName) throw new Error("Name missing");
+        if (!pin) throw new Error("PIN missing");
+        
+        // Save to rands_bands
         let existing = JSON.parse(localStorage.getItem('rands_bands') || '{}');
-        existing[accountId] = { balance: 0, status: "Active", pin: newAccount.pin, name: newAccount.fullName, cardNumber: newAccount.cardNumber, phone: accountId, profilePic: profilePicBase64, createdAt: new Date().toISOString() };
+        existing[accountId] = { 
+            balance: 0, 
+            status: "Active", 
+            pin: pin, 
+            name: fullName, 
+            cardNumber: newAccount.cardNumber, 
+            phone: accountId, 
+            profilePic: profilePicBase64, 
+            createdAt: new Date().toISOString() 
+        };
         localStorage.setItem('rands_bands', JSON.stringify(existing));
+        
+        // Save wallet balance
         localStorage.setItem(`wallet_${accountId}`, "0");
-        const cardData = { accountId, holderName: newAccount.fullName.toUpperCase(), balance: 0, pin: newAccount.pin, cardNumber: newAccount.cardNumber, phone: accountId, profilePic: profilePicBase64, tickets: { eventName: "Welcome", total: 0, used: 0, guests: [] }, transactions: [{ type: "account", description: "Account Created", amount: 0, time: new Date().toLocaleTimeString(), date: "Today" }] };
+        
+        // Save smart card data
+        const cardData = { 
+            accountId, 
+            holderName: fullName.toUpperCase(), 
+            balance: 0, 
+            pin: pin, 
+            cardNumber: newAccount.cardNumber, 
+            phone: accountId, 
+            profilePic: profilePicBase64, 
+            tickets: { eventName: "Welcome", total: 0, used: 0, guests: [] }, 
+            transactions: [{ type: "account", description: "Account Created", amount: 0, time: new Date().toLocaleTimeString(), date: "Today" }] 
+        };
         localStorage.setItem(`smart_card_${accountId}`, JSON.stringify(cardData));
+        
+        // Set current logged in account
+        localStorage.setItem('rands_current_account', accountId);
+        
+        return true;
     }
 
     function createAccount() {
         const btn = document.getElementById('nextBtn');
-        btn.innerText = 'Creating...'; btn.disabled = true;
+        const originalText = btn.innerText;
+        btn.innerText = 'Creating...'; 
+        btn.disabled = true;
+        
         try {
-            newAccount.fullName = document.getElementById('fullName').value.trim();
-            newAccount.whatsappNumber = document.getElementById('whatsappNumber').value.trim();
-            newAccount.profilePic = profilePicBase64;
-            newAccount.pin = pinSetValue;
-            if (!newAccount.fullName || !newAccount.whatsappNumber || !newAccount.pin) throw new Error("Missing information");
+            // Validate one more time before saving
+            if (!validateForm()) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                return;
+            }
+            
+            // Save to localStorage
             saveToLocalStorage();
+            
+            // Show success and redirect
             currentStep = 4;
             updateSteps();
-            showToast('Passport created! Redirecting...', 'success');
-            setTimeout(() => { window.location.href = 'wallet.html'; }, 1800);
-        } catch (error) { showToast(`Error: ${error.message}`, 'error'); btn.disabled = false; btn.innerText = 'Create account →'; }
+            showToast('Passport created successfully!', 'success');
+            
+            setTimeout(() => { 
+                window.location.href = 'wallet.html'; 
+            }, 1500);
+            
+        } catch (error) { 
+            console.error('Account creation error:', error);
+            showToast(`Error: ${error.message}`, 'error'); 
+            btn.disabled = false; 
+            btn.innerText = originalText;
+        }
     }
 
     window.nextStep = () => {
-        if (currentStep === 1) { currentStep = 2; updateSteps(); }
-        else if (currentStep === 2) { if (validateForm()) { currentStep = 3; updateSteps(); } }
-        else if (currentStep === 3) { createAccount(); }
-        else if (currentStep === 4) { window.location.href = 'wallet.html'; }
+        if (currentStep === 1) { 
+            currentStep = 2; 
+            updateSteps(); 
+        } else if (currentStep === 2) { 
+            if (validateForm()) { 
+                // Update newAccount object with current values
+                newAccount.fullName = document.getElementById('fullName').value.trim();
+                newAccount.whatsappNumber = document.getElementById('whatsappNumber').value.trim();
+                newAccount.profilePic = profilePicBase64;
+                newAccount.pin = pinSetValue;
+                currentStep = 3; 
+                updateSteps(); 
+            } 
+        } else if (currentStep === 3) { 
+            createAccount(); 
+        } else if (currentStep === 4) { 
+            window.location.href = 'wallet.html'; 
+        }
     };
     
-    function showToast(msg, type) { const toast = document.getElementById('toast'); toast.innerText = msg; toast.className = `toast ${type} show`; setTimeout(() => toast.classList.remove('show'), 3000); }
+    function showToast(msg, type) { 
+        const toast = document.getElementById('toast'); 
+        toast.innerText = msg; 
+        toast.className = `toast ${type} show`; 
+        setTimeout(() => toast.classList.remove('show'), 3000); 
+    }
 
+    // Handle profile picture upload
     document.getElementById('profilePicInput').addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Image too large. Max 5MB', 'error');
+                return;
+            }
+            
             const reader = new FileReader();
-            reader.onload = (ev) => { profilePicBase64 = ev.target.result; document.getElementById('profilePreview').innerHTML = `<img src="${profilePicBase64}" style="width:100%; height:100%; object-fit:cover;">`; };
-            reader.readAsDataURL(e.target.files[0]);
+            reader.onload = (ev) => { 
+                profilePicBase64 = ev.target.result; 
+                const previewDiv = document.getElementById('profilePreview');
+                previewDiv.innerHTML = `<img src="${profilePicBase64}" style="width:100%; height:100%; object-fit:cover;">`;
+                showToast('Selfie uploaded successfully!', 'success');
+            };
+            reader.onerror = () => {
+                showToast('Error reading image file', 'error');
+            };
+            reader.readAsDataURL(file);
         }
     });
-    window.onload = () => { updateSteps(); resetPinPad(); };
+    
+    // Initialize on page load
+    window.onload = () => { 
+        updateSteps(); 
+        resetPinPad(); 
+        
+        // Set default demo values for testing (optional - remove in production)
+        // document.getElementById('fullName').value = 'Mzonke Buyaphi';
+        // document.getElementById('whatsappNumber').value = '+27635713652';
+    };
 </script>
 </body>
 </html>
