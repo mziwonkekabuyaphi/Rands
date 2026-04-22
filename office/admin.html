@@ -138,9 +138,6 @@
         }
         .force-logout-btn:hover { background: #b91c1c; }
         
-        /* Billing nav item specific */
-        .nav-item.billing-nav i { margin-right: 0; }
-        
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 260px; }
             .sidebar.open { transform: translateX(0); }
@@ -151,6 +148,10 @@
             .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
         }
         @media (min-width: 769px) { .menu-toggle { display: none; } }
+        
+        /* Session heartbeat indicator */
+        .session-status { display: flex; align-items: center; gap: 6px; background: #e6f7e6; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
+        .session-status.warning { background: #fee2e2; color: #E30613; }
     </style>
 </head>
 <body>
@@ -177,11 +178,15 @@
                 <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
                 <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
             </div>
-            <div class="sync-status" :class="{ warning: syncWarning }">
-                <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
-                <span>{{ syncStatusText }}</span>
-            </div>
-            <div class="header-right">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="session-status" :class="{ warning: !sessionValid }">
+                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                    <span>Session Active</span>
+                </div>
+                <div class="sync-status" :class="{ warning: syncWarning }">
+                    <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
+                    <span>{{ syncStatusText }}</span>
+                </div>
                 <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
                 <div class="profile-dropdown" @click="logout">
                     <div class="avatar">{{ adminInitial }}</div>
@@ -289,7 +294,6 @@
                     <button class="btn-primary" @click="exportAttendanceReport"><i class="fas fa-download"></i> Export Report</button>
                 </div>
                 
-                <!-- Workforce Stats -->
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div class="stat-title">Currently On Shift</div><div class="stat-number">{{ activeShiftsList.length }}</div></div>
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-hourglass-half"></i></div><div class="stat-title">Total Hours Today</div><div class="stat-number">{{ totalHoursToday.toFixed(1) }}h</div></div>
@@ -297,7 +301,6 @@
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-week"></i></div><div class="stat-title">Week Total Hours</div><div class="stat-number">{{ totalWeekHours.toFixed(1) }}h</div></div>
                 </div>
                 
-                <!-- Filter Bar -->
                 <div class="tenant-selector" style="display: flex; gap: 12px; background: white; border-radius: 24px; padding: 16px 20px; margin-bottom: 24px; flex-wrap: wrap;">
                     <select v-model="attendanceFilter.role" class="tenant-dropdown" style="padding: 8px 16px;" @change="filterAttendance">
                         <option value="">All Roles</option>
@@ -311,7 +314,6 @@
                     <button class="btn-outline" @click="clearFilters"><i class="fas fa-eraser"></i> Clear Filters</button>
                 </div>
                 
-                <!-- Currently Active Staff (Real-time) -->
                 <div class="section-header">
                     <h2><i class="fas fa-circle" style="color: #10b981; font-size: 0.7rem;"></i> Active Shifts ({{ activeShiftsList.length }})</h2>
                 </div>
@@ -331,7 +333,6 @@
                     <p style="margin-top:12px;">No staff currently on shift</p>
                 </div>
                 
-                <!-- All Staff Attendance Table -->
                 <div class="section-header" style="margin-top: 32px;">
                     <h2>Staff Attendance History</h2>
                 </div>
@@ -499,6 +500,7 @@
             staffForm: { name: '', username: '', password: '', role: 'boxoffice' }, resettingStaff: null, newPassword: '',
             infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
             selectedStaff: null, staffShiftHistory: [],
+            sessionValid: true,
             navItems: [
                 { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt', isExternal: false },
                 { id: 'staff', label: 'Staff Management', icon: 'fas fa-users', isExternal: false },
@@ -507,8 +509,7 @@
                 { id: 'billing', label: 'Billing', icon: 'fas fa-credit-card', isExternal: true, externalUrl: 'pricing.html' },
                 { id: 'settings', label: 'Settings', icon: 'fas fa-cog', isExternal: false }
             ],
-            syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null,
-            // Workforce data
+            syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null, sessionHeartbeat: null,
             shifts: [], attendanceFilter: { role: '', date: '' }, totalHoursToday: 0, totalWeekHours: 0, avgHoursPerStaff: 0
         },
         computed: {
@@ -518,7 +519,6 @@
             recentStaff() { return this.staffList.slice(0, 5); },
             currentSectionTitle() { const item = this.navItems.find(i => i.id === this.currentSection); return item ? item.label : 'Dashboard'; },
             
-            // Workforce computed
             activeShiftsList() {
                 return this.shifts.filter(s => s.status === 'active' && s.tenant_id === this.tenantId).map(s => {
                     const staff = this.staffList.find(st => st.id === s.staff_id);
@@ -577,6 +577,58 @@
                 }
             },
             
+            // Session validation with heartbeat
+            validateSession() {
+                const isLoggedIn = sessionStorage.getItem('qless_logged_in');
+                const role = sessionStorage.getItem('qless_user_role');
+                const tenantId = sessionStorage.getItem('qless_tenant_id');
+                const sessionExpiry = sessionStorage.getItem('qless_session_expiry');
+                
+                if (!isLoggedIn || isLoggedIn !== 'true') {
+                    this.sessionValid = false;
+                    this.showAlert('Session Expired', 'Your session has expired. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                    return false;
+                }
+                
+                if (role !== 'tenant_administrator') {
+                    this.sessionValid = false;
+                    this.showAlert('Access Denied', 'You do not have permission to access this page.', 'fas fa-exclamation-triangle', '#dc2626');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                    return false;
+                }
+                
+                if (sessionExpiry && new Date(sessionExpiry) < new Date()) {
+                    this.sessionValid = false;
+                    sessionStorage.clear();
+                    this.showAlert('Session Expired', 'Your session has timed out. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                    return false;
+                }
+                
+                this.sessionValid = true;
+                return true;
+            },
+            
+            startSessionHeartbeat() {
+                // Refresh session expiry on activity
+                const refreshSession = () => {
+                    const expiry = new Date();
+                    expiry.setHours(expiry.getHours() + 2); // 2 hour session
+                    sessionStorage.setItem('qless_session_expiry', expiry.toISOString());
+                    sessionStorage.setItem('qless_last_activity', new Date().toISOString());
+                };
+                
+                // Refresh on user activity
+                const events = ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+                events.forEach(event => {
+                    window.addEventListener(event, refreshSession);
+                });
+                
+                // Initial session expiry
+                refreshSession();
+            },
+            
             getModuleIcon(moduleName) {
                 const icons = { 'Tickets': 'fas fa-ticket-alt', 'Queue Management': 'fas fa-hourglass-half', 'Self-Serve Kiosk': 'fas fa-clipboard-list', 'Virtual Booze Lockers': 'fas fa-lock', 'Shisha System': 'fas fa-smoking', 'VVIP Management': 'fas fa-crown' };
                 return icons[moduleName] || 'fas fa-puzzle-piece';
@@ -608,7 +660,6 @@
                 this.$forceUpdate();
             },
             
-            // Workforce Methods
             loadShifts() {
                 const allShifts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS) || '[]');
                 this.shifts = allShifts.filter(s => s.tenant_id === this.tenantId);
@@ -682,10 +733,25 @@
             },
             
             loadTenantData() {
-                const tenantId = sessionStorage.getItem('qless_tenant_id'); const tenantName = sessionStorage.getItem('qless_tenant_name'); const adminUser = sessionStorage.getItem('qless_user_name');
-                if (!tenantId) { this.showAlert('Session Error', 'No tenant session found. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626'); setTimeout(() => { window.location.href = 'login.html'; }, 2000); return; }
-                this.tenantId = parseInt(tenantId); this.tenantName = tenantName || 'Venue'; this.adminName = adminUser || 'Administrator';
-                this.loadStaff(); this.forceRefreshModules(); this.loadBranding(); this.loadShifts();
+                // First validate session
+                if (!this.validateSession()) return;
+                
+                const tenantId = sessionStorage.getItem('qless_tenant_id');
+                const tenantName = sessionStorage.getItem('qless_tenant_name');
+                const adminUser = sessionStorage.getItem('qless_user_name');
+                
+                if (!tenantId) { 
+                    this.showAlert('Session Error', 'No tenant session found. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626'); 
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000); 
+                    return; 
+                }
+                this.tenantId = parseInt(tenantId); 
+                this.tenantName = tenantName || 'Venue'; 
+                this.adminName = adminUser || 'Administrator';
+                this.loadStaff(); 
+                this.forceRefreshModules(); 
+                this.loadBranding(); 
+                this.loadShifts();
             },
             loadStaff() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); this.staffList = allStaff.filter(s => s.tenantId === this.tenantId); this.calculateTotals(); },
             saveStaffToStorage() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId); localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList])); window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.STAFF })); this.calculateTotals(); },
@@ -709,16 +775,30 @@
             deleteStaff(staffId) { const staff = this.staffList.find(s => s.id === staffId); if (staff && confirm(`Are you sure you want to delete ${staff.name}?`)) { this.staffList = this.staffList.filter(s => s.id !== staffId); this.saveStaffToStorage(); this.showAlert('Deleted', 'Staff member has been removed', 'fas fa-check-circle', '#10b981'); } },
             resetStaffPassword(staff) { this.resettingStaff = staff; this.newPassword = ''; this.showResetModal = true; },
             confirmResetPassword() { if (!this.newPassword || this.newPassword.length < 4) { this.showAlert('Invalid Password', 'Password must be at least 4 characters', 'fas fa-exclamation-triangle', '#dc2626'); return; } const staff = this.staffList.find(s => s.id === this.resettingStaff.id); if (staff) { staff.password = this.newPassword; this.saveStaffToStorage(); this.showAlert('Password Reset', `New password for ${staff.name}: ${this.newPassword}`, 'fas fa-key', '#10b981'); } this.showResetModal = false; this.resettingStaff = null; this.newPassword = ''; },
-            logout() { if (this.syncInterval) clearInterval(this.syncInterval); sessionStorage.clear(); window.location.href = 'login.html'; }
+            logout() { 
+                if (this.syncInterval) clearInterval(this.syncInterval); 
+                if (this.sessionHeartbeat) clearInterval(this.sessionHeartbeat);
+                sessionStorage.clear(); 
+                window.location.href = 'login.html'; 
+            }
         },
         mounted() {
-            const isLoggedIn = sessionStorage.getItem('qless_logged_in'); const role = sessionStorage.getItem('qless_user_role');
-            if (!isLoggedIn || role !== 'tenant_administrator') { window.location.href = 'login.html'; return; }
-            this.loadTenantData(); this.setupRealtimeSync();
+            // Start session heartbeat first
+            this.startSessionHeartbeat();
+            
+            // Validate session before loading
+            if (!this.validateSession()) return;
+            
+            this.loadTenantData(); 
+            this.setupRealtimeSync();
+            
             window.addEventListener('resize', () => { if(window.innerWidth > 768) this.sidebarOpen = false; });
             setTimeout(() => { const appElement = document.querySelector('#app'); if (!appElement) return; let isFullscreen = false; const exitBtn = document.getElementById('exitFullscreenBtn'); const fullscreenBtn = document.getElementById('globalFullscreenBtn'); function toggleFullscreen() { if (!isFullscreen) { appElement.classList.add('fullscreen-active'); isFullscreen = true; if (exitBtn) exitBtn.style.display = 'flex'; if (fullscreenBtn) fullscreenBtn.style.display = 'none'; } else { appElement.classList.remove('fullscreen-active'); isFullscreen = false; if (exitBtn) exitBtn.style.display = 'none'; if (fullscreenBtn) fullscreenBtn.style.display = ''; } } if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen); if (exitBtn) exitBtn.addEventListener('click', toggleFullscreen); }, 500);
         },
-        beforeDestroy() { if (this.syncInterval) clearInterval(this.syncInterval); }
+        beforeDestroy() { 
+            if (this.syncInterval) clearInterval(this.syncInterval); 
+            if (this.sessionHeartbeat) clearInterval(this.sessionHeartbeat);
+        }
     });
 </script>
 </body>
