@@ -577,7 +577,7 @@
                 }
             },
             
-            // Session validation with heartbeat - FIXED: role check now expects 'tenant'
+            // Session validation with heartbeat - FIXED: accepts both 'tenant' and 'tenant_administrator'
             validateSession() {
                 const isLoggedIn = sessionStorage.getItem('qless_logged_in');
                 const role = sessionStorage.getItem('qless_user_role');
@@ -591,8 +591,8 @@
                     return false;
                 }
                 
-                // FIXED: Changed from 'tenant_administrator' to 'tenant' to match login system
-                if (role !== 'tenant') {
+                // FIXED: Accept both 'tenant' AND 'tenant_administrator' roles
+                if (role !== 'tenant' && role !== 'tenant_administrator') {
                     this.sessionValid = false;
                     this.showAlert('Access Denied', 'You do not have permission to access this page. Tenant access required.', 'fas fa-exclamation-triangle', '#dc2626');
                     setTimeout(() => { window.location.href = 'login.html'; }, 2000);
