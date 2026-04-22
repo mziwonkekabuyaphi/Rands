@@ -61,11 +61,6 @@
             gap: 10px;
         }
         .whatsapp-login-btn:active { transform: scale(0.98); }
-        .camera-container { text-align: center; margin: 15px 0; }
-        .video-preview { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 3px solid #E30613; margin: 0 auto; background: #f0f2f5; }
-        .camera-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
-        .camera-btn { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; cursor: pointer; }
-        .selfie-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 10px auto; display: block; border: 2px solid #10b981; }
         .toast-msg { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #1e2a3a; color: white; padding: 10px 16px; border-radius: 60px; text-align: center; z-index: 3500; display: none; font-size: 0.8rem; }
         .toast-msg.show { display: block; }
     </style>
@@ -90,7 +85,6 @@
             <p style="text-align: center; margin: 15px 0; color: #64748b;">or</p>
             <button class="whatsapp-login-btn" id="showSignupBtn" style="background: #E30613;"><i class="fas fa-user-plus"></i> Create New Account</button>
         </div>
-        <!-- Signup form section removed as requested - account creation is now on register.html -->
     </div>
 </div>
 <div id="globalToast" class="toast-msg"></div>
@@ -100,8 +94,6 @@
     const ACCOUNTS_KEY = 'rands_accounts_v2';
     let accounts = [];
     let currentAccountId = null;
-    let stream = null;
-    let capturedSelfie = null;
 
     // Helper functions
     function showToastMsg(msg) { 
@@ -162,7 +154,6 @@
     }
     
     function redirectToWallet() {
-        // Redirect to wallet.html
         window.location.href = 'wallet.html';
     }
     
@@ -178,7 +169,6 @@
         let saved = localStorage.getItem('rands_current_account');
         if (saved && accounts.find(a => a.id === saved)) {
             currentAccountId = saved;
-            // Redirect immediately to wallet if already logged in
             redirectToWallet();
             return;
         }
@@ -190,7 +180,7 @@
             }
         });
         
-        // Create New Account button - redirect to register.html (no account creation code)
+        // Create New Account button - redirect to register.html
         document.getElementById("showSignupBtn")?.addEventListener("click", () => { 
             redirectToRegister();
         });
