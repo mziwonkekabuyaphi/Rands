@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rands Smart Counter · Now Serving</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+body {
+  background: #0f0f0f;
+  color: #ffffff;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.card {
+  background: #1a1a1a;
+  border-radius: 28px;
+  padding: 25px;
+  border: 2px solid #b30000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  margin-bottom: 20px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #b30000;
+}
+.header h1 {
+  font-size: 22px;
+  color: #ff4d4d;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.counter-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #ff4d4d;
+}
+.current-ticket-box {
+  background: #222;
+  border-radius: 24px;
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 30px;
+  border: 2px solid #b30000;
+}
+.ticket-number {
+  font-size: 72px;
+  font-weight: bold;
+  color: #ff4d4d;
+  letter-spacing: 4px;
+  margin: 10px 0;
+}
+.circular-progress-container {
+  width: 140px;
+  height: 140px;
+  margin: 20px auto;
+  position: relative;
+}
+.circular-progress {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.circular-bg {
+  fill: none;
+  stroke: #333;
+  stroke-width: 10;
+}
+.circular-progress-bar {
+  fill: none;
+  stroke: #b30000;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 377;
+  stroke-dashoffset: 377;
+  transition: stroke-dashoffset 1s ease;
+}
+.progress-time {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff4d4d;
+}
+.progress-label {
+  font-size: 12px;
+  color: #ff9999;
+}
+.next-section, .queue-section {
+  margin: 30px 0;
+}
+.next-section h3, .queue-section h3 {
+  margin-bottom: 15px;
+  color: #ff4d4d;
+}
+.next-list, .queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.next-item, .queue-item {
+  background: #222;
+  border-radius: 40px;
+  padding: 12px 20px;
+  border: 1px solid #b30000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.next-item.next-up {
+  border-color: #ff4d4d;
+  background: rgba(179,0,0,0.2);
+  box-shadow: 0 0 10px rgba(255,77,77,0.3);
+}
+.footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  background: #1a1a1a;
+  border-radius: 28px;
+  border: 1px solid #b30000;
+}
+.footer a {
+  color: #ff4d4d;
+  text-decoration: none;
+  margin: 0 10px;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+@media (max-width: 600px) {
+  .ticket-number { font-size: 48px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="header">
+      <h1>🍾 Rands Smart Counter · Now Serving</h1>
+      <div>Auto‑updates every 5s</div>
+    </div>
+    <div class="counter-title">Booze Collection</div>
+
+    <div id="currentServing">
+      <div class="current-ticket-box">
+        <div>Now Serving</div>
+        <div class="ticket-number" id="currentTicket">—</div>
+        <div class="circular-progress-container">
+          <svg class="circular-progress" viewBox="0 0 160 160">
+            <circle class="circular-bg" cx="80" cy="80" r="60"></circle>
+            <circle class="circular-progress-bar" id="progressBar" cx="80" cy="80" r="60" stroke-dashoffset="377"></circle>
+          </svg>
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;">
+            <div class="progress-time" id="timer">00:00</div>
+            <div class="progress-label">Service Time</div>
+          </div>
+        </div>
+        <div id="percent">0% Complete</div>
+      </div>
+    </div>
+
+    <div class="next-section">
+      <h3>⏭️ Next in Line</h3>
+      <div class="next-list" id="nextList"></div>
+    </div>
+
+    <div class="queue-section">
+      <h3>📋 Still to Come</h3>
+      <div class="queue-list" id="queueList"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="now-serving-butcher.html">🥩 Switch to Butcher Shop</a> |
+    <a href="smart-counter-dashboard.html">⚙️ Admin Dashboard</a> |
+    <a href="index.html">🏠 Back to Kiosk</a>
+  </div>
+</div>
+
+<script>
+  const QUEUE_KEY = "rands_smart_queue";
+  let serviceStartTime = null;
+  let interval = null;
+  const SERVICE_DURATION = 300; // 5 minutes
+
+  function getQueue() {
+    return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+  }
+
+  function saveQueue(queue) {
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+  }
+
+  function advanceQueue() {
+    let queue = getQueue();
+    if (queue.length > 0) {
+      queue.shift();
+      saveQueue(queue);
+    }
+    if (interval) clearInterval(interval);
+    serviceStartTime = null;
+    startTimer();
+    renderAll();
+  }
+
+  function startTimer() {
+    const queue = getQueue();
+    if (queue.length === 0) return;
+    if (interval) clearInterval(interval);
+    serviceStartTime = new Date();
+    interval = setInterval(() => {
+      const queueNow = getQueue();
+      if (queueNow.length === 0) {
+        if (interval) clearInterval(interval);
+        interval = null;
+        serviceStartTime = null;
+        renderAll();
+        return;
+      }
+      const now = new Date();
+      const diff = Math.floor((now - serviceStartTime) / 1000);
+      if (diff >= SERVICE_DURATION) {
+        advanceQueue();
+      } else {
+        updateProgress(diff, queueNow[0]);
+      }
+    }, 1000);
+  }
+
+  function updateProgress(elapsedSeconds, currentTicket) {
+    const percent = Math.min((elapsedSeconds / SERVICE_DURATION) * 100, 100);
+    const circumference = 377;
+    const offset = circumference - (percent / 100) * circumference;
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.strokeDashoffset = offset;
+    const timerEl = document.getElementById('timer');
+    if (timerEl) {
+      const minutes = Math.floor(elapsedSeconds / 60);
+      const seconds = elapsedSeconds % 60;
+      timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    }
+    const percentEl = document.getElementById('percent');
+    if (percentEl) percentEl.textContent = `${Math.round(percent)}% Complete`;
+  }
+
+  function renderAll() {
+    const queue = getQueue();
+    const current = queue.length > 0 ? queue[0] : null;
+    document.getElementById('currentTicket').textContent = current ? current.ticketNumber : '—';
+
+    const next = queue.slice(1, 11);
+    const nextList = document.getElementById('nextList');
+    nextList.innerHTML = next.map((t, idx) => `
+      <div class="next-item ${idx === 0 ? 'next-up' : ''}">
+        <span>${t.ticketNumber}</span>
+        <span>~${Math.floor(Math.random() * 5) + 1} min</span>
+      </div>
+    `).join('') || '<div>No upcoming tickets</div>';
+
+    const rest = queue.slice(11);
+    const queueList = document.getElementById('queueList');
+    queueList.innerHTML = rest.map(t => `
+      <div class="queue-item">
+        <span>${t.ticketNumber}</span>
+        <span>${new Date(t.timestamp).toLocaleTimeString()}</span>
+      </div>
+    `).join('') || '<div>Queue empty</div>';
+
+    // If there's a current ticket and timer not running, start it
+    if (current && !interval) {
+      startTimer();
+    } else if (!current && interval) {
+      clearInterval(interval);
+      interval = null;
+      serviceStartTime = null;
+      document.getElementById('timer').textContent = '00:00';
+      document.getElementById('percent').textContent = '0% Complete';
+      const progressBar = document.getElementById('progressBar');
+      if (progressBar) progressBar.style.strokeDashoffset = 377;
+    }
+  }
+
+  setInterval(() => renderAll(), 5000);
+  renderAll();
+</script>
+</body>
+</html>

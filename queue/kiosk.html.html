@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Rands Smart Queue · Join Kiosk</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+body {
+  background: #0f0f0f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  padding-bottom: 80px;
+}
+/* Kiosk Header */
+.kiosk-header {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 30px;
+  padding: 20px 25px;
+  background: #1a1a1a;
+  border-radius: 30px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  border: 2px solid #b30000;
+  text-align: center;
+}
+.kiosk-header h1 {
+  color: #ff4d4d;
+  font-size: 36px;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+/* Main Kiosk Layout */
+.kiosk-container {
+  width: 100%;
+  max-width: 800px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+/* Left Panel - Join Queue Form */
+.join-panel {
+  background: #1a1a1a;
+  border-radius: 28px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border: 2px solid #b30000;
+  height: fit-content;
+}
+.form-group {
+  margin-bottom: 25px;
+}
+.form-group label {
+  display: block;
+  color: #ff9999;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-group input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #b30000;
+  border-radius: 40px;
+  font-size: 16px;
+  background: #2a2a2a;
+  color: white;
+  transition: all 0.3s;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: #ff4d4d;
+  box-shadow: 0 0 0 3px rgba(255,77,77,0.2);
+}
+/* Counter Tags */
+.counter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+}
+.counter-tag {
+  background: #2a2a2a;
+  padding: 15px 20px;
+  border-radius: 60px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid #b30000;
+  flex: 1 0 auto;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.counter-tag:hover {
+  background: #b30000;
+  transform: translateY(-2px);
+}
+.counter-tag.selected {
+  background: #b30000;
+  color: white;
+  border-color: #ff4d4d;
+}
+/* Skip Option */
+.skip-option {
+  background: #2a2a2a;
+  border: 2px dashed #b30000;
+  border-radius: 24px;
+  padding: 20px;
+  margin: 25px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.skip-info h3 {
+  font-size: 18px;
+  color: #ff4d4d;
+  margin-bottom: 5px;
+}
+.skip-info p {
+  color: #aaa;
+  font-size: 14px;
+}
+.skip-price {
+  background: #b30000;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 40px;
+  font-weight: 700;
+  font-size: 24px;
+}
+.skip-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: white;
+}
+.skip-checkbox input {
+  width: 24px;
+  height: 24px;
+  accent-color: #b30000;
+}
+/* Payment Methods */
+.payment-methods {
+  background: #2a2a2a;
+  border-radius: 24px;
+  padding: 20px;
+  margin-top: 20px;
+  display: none;
+  border: 1px solid #b30000;
+}
+.payment-methods.show {
+  display: block;
+}
+.payment-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff9999;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.payment-options {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.payment-option {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid #b30000;
+  border-radius: 40px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+.payment-option.selected {
+  background: #b30000;
+  color: white;
+  border-color: #ff4d4d;
+}
+.wallet-input-group {
+  margin-top: 15px;
+}
+.wallet-input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #b30000;
+  border-radius: 40px;
+  background: #1a1a1a;
+  color: white;
+  margin-bottom: 10px;
+}
+.voucher-input {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.voucher-input input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #b30000;
+  border-radius: 40px;
+  background: #1a1a1a;
+  color: white;
+}
+.apply-voucher {
+  background: #b30000;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+.apply-voucher:hover {
+  background: #ff4d4d;
+}
+.wallet-status {
+  font-size: 12px;
+  margin-top: 8px;
+  text-align: center;
+  color: #ff9999;
+}
+.wallet-method-buttons {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+.wallet-method-btn {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid #b30000;
+  border-radius: 40px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: white;
+}
+.wallet-method-btn:hover {
+  background: #b30000;
+}
+/* Join Button */
+.join-btn {
+  width: 100%;
+  padding: 18px;
+  background: #b30000;
+  color: white;
+  border: none;
+  border-radius: 60px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 20px;
+  box-shadow: 0 6px 0 #6d0000;
+}
+.join-btn:hover {
+  background: #ff4d4d;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #6d0000;
+}
+.join-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+/* Right Panel - Now Serving */
+.serving-panel {
+  background: #1a1a1a;
+  border-radius: 28px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border: 2px solid #b30000;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+.serving-panel h2 {
+  color: #ff4d4d;
+  margin-bottom: 5px;
+  font-size: 24px;
+  text-align: center;
+}
+.counter-serving {
+  background: linear-gradient(145deg, #b30000, #8b0000);
+  border-radius: 24px;
+  padding: 20px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(179,0,0,0.3);
+}
+.counter-serving h3 {
+  font-size: 18px;
+  opacity: 0.9;
+  margin-bottom: 15px;
+}
+.serving-number {
+  font-size: 64px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  line-height: 1;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+.serving-name {
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+/* Success Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: #1a1a1a;
+  border-radius: 32px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  border: 2px solid #b30000;
+  text-align: center;
+}
+.tracking-link {
+  background: #2a2a2a;
+  padding: 12px;
+  border-radius: 40px;
+  margin: 15px 0;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 12px;
+  color: #ff9999;
+}
+.qr-code {
+  background: white;
+  padding: 10px;
+  display: inline-block;
+  border-radius: 16px;
+  margin: 15px 0;
+}
+.share-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.share-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+.whatsapp-share {
+  background: #25D366;
+  color: white;
+}
+.sms-share {
+  background: #b30000;
+  color: white;
+}
+.copy-btn {
+  background: #ffaa00;
+  color: #1a1a1a;
+}
+.close-modal {
+  margin-top: 20px;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 40px;
+  width: 100%;
+  cursor: pointer;
+}
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-size: 14px;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+}
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 1rem;
+  margin-top: 30px;
+  font-size: 0.75rem;
+  color: #ff9999;
+  border-top: 1px solid rgba(179,0,0,0.3);
+  width: 100%;
+  max-width: 800px;
+}
+/* Animations */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+/* Responsive */
+@media (max-width: 700px) {
+  .kiosk-container {
+    grid-template-columns: 1fr;
+  }
+  .counter-tags {
+    flex-direction: column;
+  }
+  .counter-tag {
+    width: 100%;
+  }
+  .serving-number {
+    font-size: 48px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="kiosk-header">
+  <h1>Rands Smart Queue</h1>
+</div>
+
+<div class="kiosk-container">
+  <!-- Left Panel - Join Queue Form -->
+  <div class="join-panel">
+    <div class="form-group">
+      <label><i class="fas fa-phone-alt"></i> WhatsApp Number or SMS Number</label>
+      <input type="tel" id="whatsappNumber" placeholder="e.g., 073 955 0196" value="073 955 0196">
+    </div>
+
+    <div class="form-group">
+      <label>Select Counter</label>
+      <div class="counter-tags">
+        <span class="counter-tag selected" data-counter="booze">
+          <i class="fas fa-beer"></i> Rands Smart Counter
+        </span>
+        <span class="counter-tag" data-counter="butcher">
+          <i class="fas fa-utensils"></i> The Butcher Counter
+        </span>
+      </div>
+    </div>
+
+    <!-- Skip Queue Option -->
+    <div class="skip-option">
+      <div class="skip-info">
+        <h3>⚡ Skip the Queue</h3>
+        <p>Jump to the front of the line</p>
+      </div>
+      <div class="skip-price">R50</div>
+      <label class="skip-checkbox">
+        <input type="checkbox" id="skipQueue">
+        <span>Add skip</span>
+      </label>
+    </div>
+
+    <!-- Payment Methods (shown only when skip is selected) -->
+    <div id="paymentMethods" class="payment-methods">
+      <div class="payment-title">💳 PAYMENT METHOD</div>
+      <div class="payment-options">
+        <div class="payment-option" data-payment="1voucher"><i class="fas fa-ticket-alt"></i> 1Voucher</div>
+        <div class="payment-option" data-payment="wallet"><i class="fas fa-wallet"></i> Rands Wallet</div>
+      </div>
+      <div id="voucherContainer" style="display:none;">
+        <div class="voucher-input">
+          <input type="text" id="voucherCode" placeholder="Enter 1Voucher code">
+          <button class="apply-voucher" id="applyVoucherBtn">Apply</button>
+        </div>
+        <div id="voucherMessage" class="wallet-status"></div>
+      </div>
+      <div id="walletContainer" style="display:none;">
+        <div class="wallet-method-buttons">
+          <button id="walletScanBtn" class="wallet-method-btn"><i class="fas fa-qrcode"></i> Scan QR</button>
+          <button id="walletManualBtn" class="wallet-method-btn"><i class="fas fa-keyboard"></i> Enter details</button>
+        </div>
+        <div id="walletManualFields" style="display:none;" class="wallet-input-group">
+          <input type="text" id="walletAccountId" placeholder="Account ID (WhatsApp number)">
+          <input type="password" id="walletPin" maxlength="4" placeholder="PIN">
+          <div id="walletStatus" class="wallet-status"></div>
+        </div>
+        <div id="walletScanResult" style="display:none; font-size:12px; margin-top:5px; color:#10B981;"></div>
+        <div style="font-size:11px; margin-top:8px; color:#ff9999; text-align:center;">
+          🧪 Test wallet: ID <strong>+27761234567</strong> | PIN <strong>1234</strong> | Balance R5000
+        </div>
+      </div>
+    </div>
+
+    <button class="join-btn" id="joinBtn">
+      <i class="fas fa-ticket-alt"></i> Join Queue Now
+    </button>
+  </div>
+
+  <!-- Right Panel - Now Serving Both Counters -->
+  <div class="serving-panel">
+    <h2><i class="fas fa-bell"></i> NOW SERVING</h2>
+    <div id="boozeServing" class="counter-serving">
+      <h3><i class="fas fa-beer"></i> Rands Smart Counter</h3>
+      <div class="serving-number" id="boozeTicket">—</div>
+      <div class="serving-name" id="boozeName">—</div>
+    </div>
+    <div id="butcherServing" class="counter-serving">
+      <h3><i class="fas fa-utensils"></i> The Butcher Counter</h3>
+      <div class="serving-number" id="butcherTicket">—</div>
+      <div class="serving-name" id="butcherName">—</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Created by Mziwonke KaBuyaphi
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Tracking Modal -->
+<div id="trackingModal" class="modal">
+  <div class="modal-content">
+    <i class="fas fa-check-circle" style="font-size: 48px; color: #00a86b; margin-bottom: 15px;"></i>
+    <h3 style="color: #ff4d4d; margin-bottom: 10px;">Successfully Joined!</h3>
+    <p>Your ticket number: <strong id="modalTicketNumber" style="font-size: 24px; color: #ff4d4d;"></strong></p>
+    <p>Track your order anytime with this link:</p>
+    <div class="tracking-link" id="trackingLinkDisplay"></div>
+    <div class="qr-code" id="qrCodeDisplay"></div>
+    <div class="share-buttons">
+      <button class="share-btn whatsapp-share" id="shareWhatsAppTracking"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+      <button class="share-btn sms-share" id="shareSMSTracking"><i class="fas fa-sms"></i> SMS</button>
+      <button class="share-btn copy-btn" id="copyTrackingLink"><i class="fas fa-copy"></i> Copy</button>
+    </div>
+    <button class="close-modal" id="closeModalBtn">Close</button>
+  </div>
+</div>
+
+<script>
+  // ==================== QUEUE KEYS ====================
+  const QUEUE_KEYS = {
+    booze: 'rands_smart_queue',
+    butcher: 'butcher_shop_queue'
+  };
+
+  // ==================== WALLET FUNCTIONS (UNIFIED) ====================
+  function getWalletAccounts() {
+    return JSON.parse(localStorage.getItem('rands_wallet_accounts') || '[]');
+  }
+  function saveWalletAccounts(accounts) {
+    localStorage.setItem('rands_wallet_accounts', JSON.stringify(accounts));
+  }
+  function initWalletTestAccount() {
+    let accounts = getWalletAccounts();
+    const testId = "+27761234567";
+    const testExists = accounts.some(acc => acc.id === testId);
+    if (!testExists) {
+      accounts.push({
+        id: testId,
+        name: "Test User",
+        phone: testId,
+        balance: 5000,
+        pin: "1234",
+        cardNumber: "4839 2048 9921 4567",
+        cvv: "347",
+        expiry: "08/29",
+        profilePic: null,
+        cardGradient: "linear-gradient(145deg, #1E2A3A, #0F1722)",
+        tableTab: 0,
+        tableName: null
+      });
+      saveWalletAccounts(accounts);
+    }
+  }
+  initWalletTestAccount();
+
+  function verifyWallet(accountId, pin, amount) {
+    const accounts = getWalletAccounts();
+    const account = accounts.find(acc => acc.id === accountId);
+    if (!account) return { success: false, message: "Account not found" };
+    if (account.pin !== pin) return { success: false, message: "Invalid PIN" };
+    if (account.balance < amount) return { success: false, message: `Insufficient balance. Available: R${account.balance.toFixed(2)}` };
+    return { success: true, account, total: amount };
+  }
+  function deductWalletBalance(accountId, amount) {
+    let accounts = getWalletAccounts();
+    const accountIndex = accounts.findIndex(acc => acc.id === accountId);
+    if (accountIndex === -1) return false;
+    accounts[accountIndex].balance -= amount;
+    saveWalletAccounts(accounts);
+    return true;
+  }
+
+  // ==================== QUEUE HELPER ====================
+  function getQueue(counterKey) {
+    const key = QUEUE_KEYS[counterKey];
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  }
+  function saveQueue(counterKey, queue) {
+    const key = QUEUE_KEYS[counterKey];
+    localStorage.setItem(key, JSON.stringify(queue));
+  }
+
+  function generateTicketNumber(counterKey) {
+    const queue = getQueue(counterKey);
+    let prefix;
+    if (counterKey === 'booze') prefix = 'RS';
+    else prefix = 'B';
+    const nextNum = queue.length + 1;
+    return `${prefix}-${String(nextNum).padStart(3, '0')}`;
+  }
+
+  function addToQueue(counterKey, ticketNumber, customerInfo) {
+    const queue = getQueue(counterKey);
+    const newTicket = {
+      ticketNumber,
+      items: [],
+      timestamp: new Date().toISOString(),
+      status: 'waiting',
+      customerName: customerInfo.name,
+      whatsapp: customerInfo.whatsapp,
+      isSkip: customerInfo.isSkip,
+      walletId: customerInfo.walletId || null
+    };
+    if (customerInfo.isSkip) {
+      queue.unshift(newTicket);
+    } else {
+      queue.push(newTicket);
+    }
+    saveQueue(counterKey, queue);
+    return newTicket;
+  }
+
+  // ==================== UPDATE NOW SERVING DISPLAY ====================
+  function updateNowServing() {
+    const boozeQueue = getQueue('booze');
+    if (boozeQueue.length > 0) {
+      const current = boozeQueue[0];
+      document.getElementById('boozeTicket').textContent = current.ticketNumber;
+      document.getElementById('boozeName').textContent = current.customerName || 'Customer';
+    } else {
+      document.getElementById('boozeTicket').textContent = '—';
+      document.getElementById('boozeName').textContent = 'No customers';
+    }
+
+    const butcherQueue = getQueue('butcher');
+    if (butcherQueue.length > 0) {
+      const current = butcherQueue[0];
+      document.getElementById('butcherTicket').textContent = current.ticketNumber;
+      document.getElementById('butcherName').textContent = current.customerName || 'Customer';
+    } else {
+      document.getElementById('butcherTicket').textContent = '—';
+      document.getElementById('butcherName').textContent = 'No customers';
+    }
+  }
+
+  // ==================== UI HELPERS ====================
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ==================== PAYMENT LOGIC ====================
+  let selectedPayment = null;
+  let voucherApplied = false;
+  let voucherDiscount = 0;
+  let walletAccountId = "";
+  let walletPin = "";
+  let html5QrCode = null;
+
+  function resetPaymentUI() {
+    voucherApplied = false;
+    voucherDiscount = 0;
+    document.getElementById('voucherMessage').innerHTML = '';
+    document.getElementById('voucherCode').value = '';
+    document.getElementById('walletManualFields').style.display = 'none';
+    document.getElementById('walletScanResult').style.display = 'none';
+    document.getElementById('walletAccountId').value = '';
+    document.getElementById('walletPin').value = '';
+    walletAccountId = '';
+    walletPin = '';
+  }
+
+  function showPaymentMethods(show) {
+    const div = document.getElementById('paymentMethods');
+    if (show) {
+      div.classList.add('show');
+      resetPaymentUI();
+      document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+      document.querySelector('.payment-option').classList.add('selected');
+      selectedPayment = document.querySelector('.payment-option').getAttribute('data-payment');
+      togglePaymentContainer();
+    } else {
+      div.classList.remove('show');
+    }
+  }
+
+  function togglePaymentContainer() {
+    const voucherContainer = document.getElementById('voucherContainer');
+    const walletContainer = document.getElementById('walletContainer');
+    if (selectedPayment === '1voucher') {
+      voucherContainer.style.display = 'block';
+      walletContainer.style.display = 'none';
+    } else if (selectedPayment === 'wallet') {
+      voucherContainer.style.display = 'none';
+      walletContainer.style.display = 'block';
+    }
+  }
+
+  async function processPayment() {
+    if (!selectedPayment) {
+      showToast('Please select payment method');
+      return false;
+    }
+
+    if (selectedPayment === '1voucher') {
+      if (!voucherApplied) {
+        showToast('Please apply a valid voucher code');
+        return false;
+      }
+      return true;
+    } else if (selectedPayment === 'wallet') {
+      let accountId = walletAccountId;
+      let pin = walletPin;
+      if (document.getElementById('walletManualFields').style.display === 'block') {
+        accountId = document.getElementById('walletAccountId').value.trim();
+        pin = document.getElementById('walletPin').value.trim();
+      } else if (walletAccountId) {
+        pin = prompt("Enter your 4-digit PIN for account " + walletAccountId);
+        if (!pin) return false;
+      } else {
+        showToast('Please scan QR or enter account details');
+        return false;
+      }
+      if (!accountId || !pin) {
+        showToast('Please enter account ID and PIN');
+        return false;
+      }
+      const verification = verifyWallet(accountId, pin, 50);
+      if (!verification.success) {
+        showToast(verification.message);
+        return false;
+      }
+      const confirmPayment = confirm(`💰 Confirm Payment\n\nAccount: ${accountId}\nAmount: R50\nBalance after: R${(verification.account.balance - 50).toFixed(2)}\n\nDo you want to proceed?`);
+      if (!confirmPayment) {
+        showToast('Payment cancelled');
+        return false;
+      }
+      deductWalletBalance(accountId, 50);
+      walletAccountId = accountId;
+      return true;
+    }
+    return false;
+  }
+
+  // ==================== TRACKING MODAL ====================
+  let lastJoinedTicket = null;
+  let lastCounter = null;
+  let lastWhatsapp = null;
+  let lastWalletId = null;
+
+  function showTrackingModal(ticketNumber, counter, whatsapp, walletId) {
+    const modal = document.getElementById('trackingModal');
+    const trackingUrl = `${window.location.origin}${window.location.pathname.replace('kiosk.html', 'track.html')}?order=${ticketNumber}&counter=${counter}`;
+    document.getElementById('modalTicketNumber').innerText = ticketNumber;
+    document.getElementById('trackingLinkDisplay').innerText = trackingUrl;
+    const qrImg = document.createElement('img');
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(trackingUrl)}`;
+    qrImg.alt = "QR Code";
+    qrImg.style.width = "150px";
+    qrImg.style.height = "150px";
+    const qrContainer = document.getElementById('qrCodeDisplay');
+    qrContainer.innerHTML = '';
+    qrContainer.appendChild(qrImg);
+
+    lastJoinedTicket = ticketNumber;
+    lastCounter = counter;
+    lastWhatsapp = whatsapp;
+    lastWalletId = walletId;
+
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('trackingModal').style.display = 'none';
+  }
+
+  function shareTrackingViaWhatsApp() {
+    if (!lastJoinedTicket || !lastCounter) return;
+    const trackingUrl = `${window.location.origin}${window.location.pathname.replace('kiosk.html', 'track.html')}?order=${lastJoinedTicket}&counter=${lastCounter}`;
+    const message = `🍺 Your order ${lastJoinedTicket} at ${lastCounter === 'booze' ? 'Rands Smart Counter' : 'The Butcher Shop'}. Track here: ${trackingUrl}`;
+    if (lastWhatsapp) {
+      window.open(`https://wa.me/${lastWhatsapp.replace(/[^0-9+]/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    }
+  }
+
+  function shareTrackingViaSMS() {
+    if (!lastJoinedTicket || !lastCounter) return;
+    const trackingUrl = `${window.location.origin}${window.location.pathname.replace('kiosk.html', 'track.html')}?order=${lastJoinedTicket}&counter=${lastCounter}`;
+    const message = `Your order ${lastJoinedTicket} at ${lastCounter === 'booze' ? 'Rands Smart Counter' : 'The Butcher Shop'}. Track here: ${trackingUrl}`;
+    if (lastWhatsapp) {
+      window.open(`sms:${lastWhatsapp.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(message)}`, '_blank');
+    } else {
+      window.open(`sms:?body=${encodeURIComponent(message)}`, '_blank');
+    }
+  }
+
+  function copyTrackingLink() {
+    if (!lastJoinedTicket || !lastCounter) return;
+    const trackingUrl = `${window.location.origin}${window.location.pathname.replace('kiosk.html', 'track.html')}?order=${lastJoinedTicket}&counter=${lastCounter}`;
+    navigator.clipboard.writeText(trackingUrl).then(() => {
+      showToast('Tracking link copied to clipboard!');
+    }).catch(() => {
+      showToast('Failed to copy');
+    });
+  }
+
+  // ==================== MAIN JOIN LOGIC ====================
+  async function joinQueue() {
+    const whatsapp = document.getElementById('whatsappNumber').value.trim();
+    if (!whatsapp) {
+      showToast('Please enter your WhatsApp number');
+      return;
+    }
+
+    const selectedCounterTag = document.querySelector('.counter-tag.selected');
+    const counter = selectedCounterTag.getAttribute('data-counter');
+    const counterName = selectedCounterTag.textContent.trim().split(' ')[0];
+
+    const isSkip = document.getElementById('skipQueue').checked;
+    let walletId = null;
+
+    if (isSkip) {
+      if (!selectedPayment) {
+        showToast('Please select a payment method for skip queue');
+        return;
+      }
+      const paymentSuccess = await processPayment();
+      if (!paymentSuccess) {
+        showToast('Payment failed or cancelled');
+        return;
+      }
+      if (selectedPayment === 'wallet') {
+        walletId = walletAccountId;
+      }
+    }
+
+    const ticketNumber = generateTicketNumber(counter);
+    const customerInfo = {
+      name: `Customer ${ticketNumber}`,
+      whatsapp: whatsapp,
+      isSkip: isSkip,
+      walletId: walletId
+    };
+    addToQueue(counter, ticketNumber, customerInfo);
+
+    showTrackingModal(ticketNumber, counter, whatsapp, walletId);
+
+    updateNowServing();
+  }
+
+  // ==================== EVENT LISTENERS ====================
+  document.getElementById('skipQueue').addEventListener('change', (e) => {
+    showPaymentMethods(e.target.checked);
+    if (!e.target.checked) {
+      resetPaymentUI();
+    }
+  });
+
+  document.querySelectorAll('.payment-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selectedPayment = opt.getAttribute('data-payment');
+      togglePaymentContainer();
+    });
+  });
+
+  document.getElementById('applyVoucherBtn').addEventListener('click', () => {
+    const code = document.getElementById('voucherCode').value.trim();
+    const msgDiv = document.getElementById('voucherMessage');
+    if (code === 'RANDS50') {
+      voucherApplied = true;
+      voucherDiscount = 50;
+      msgDiv.innerHTML = '✓ R50 discount applied';
+      msgDiv.style.color = '#10B981';
+    } else {
+      voucherApplied = false;
+      msgDiv.innerHTML = '✗ Invalid code';
+      msgDiv.style.color = '#E31B23';
+    }
+  });
+
+  document.getElementById('walletScanBtn').addEventListener('click', () => {
+    const scannerModal = document.createElement('div');
+    scannerModal.className = 'scanner-modal';
+    scannerModal.innerHTML = `
+      <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; display:flex; align-items:center; justify-content:center;">
+        <div style="background:#1a1a1a; border-radius:32px; padding:20px; width:90%; max-width:400px; border:2px solid #b30000;">
+          <div id="qr-reader" style="width:100%;"></div>
+          <button id="closeScanner" style="margin-top:15px; background:#b30000; color:white; border:none; padding:10px; border-radius:40px; width:100%; cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(scannerModal);
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (decodedText) => {
+      html5QrCode.stop();
+      scannerModal.remove();
+      walletAccountId = decodedText;
+      document.getElementById('walletScanResult').innerHTML = `✅ Scanned: ${walletAccountId}`;
+      document.getElementById('walletScanResult').style.display = 'block';
+      document.getElementById('walletManualFields').style.display = 'none';
+    }, (error) => {});
+    scannerModal.querySelector('#closeScanner').addEventListener('click', () => {
+      html5QrCode.stop();
+      scannerModal.remove();
+    });
+  });
+
+  document.getElementById('walletManualBtn').addEventListener('click', () => {
+    document.getElementById('walletManualFields').style.display = 'block';
+    document.getElementById('walletScanResult').style.display = 'none';
+  });
+
+  document.getElementById('joinBtn').addEventListener('click', joinQueue);
+
+  document.querySelectorAll('.counter-tag').forEach(tag => {
+    tag.addEventListener('click', function() {
+      document.querySelectorAll('.counter-tag').forEach(t => t.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+
+  document.getElementById('shareWhatsAppTracking').addEventListener('click', shareTrackingViaWhatsApp);
+  document.getElementById('shareSMSTracking').addEventListener('click', shareTrackingViaSMS);
+  document.getElementById('copyTrackingLink').addEventListener('click', copyTrackingLink);
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  window.addEventListener('click', (e) => {
+    const modal = document.getElementById('trackingModal');
+    if (e.target === modal) closeModal();
+  });
+
+  updateNowServing();
+  setInterval(updateNowServing, 5000);
+</script>
+</body>
+</html>

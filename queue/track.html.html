@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rands Smart Counter - Track Your Order</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+body {
+  background: #0f0f0f;
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  padding-bottom: 100px;
+}
+.customer-header {
+  text-align: center;
+  padding: 20px 0 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #b30000;
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: #b30000;
+  border-radius: 32px;
+  margin-bottom: 12px;
+  font-size: 32px;
+  box-shadow: 0 6px 0 #6d0000;
+}
+h1 {
+  font-size: 28px;
+  color: #ff4d4d;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.subtitle {
+  color: #ff9999;
+  font-size: 14px;
+}
+/* Status Card */
+.status-card {
+  background: #1a1a1a;
+  border-radius: 28px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 2px solid #b30000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  text-align: center;
+}
+.ticket-display {
+  margin-bottom: 20px;
+}
+.ticket-label {
+  font-size: 14px;
+  color: #ff9999;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.ticket-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: #ff4d4d;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+.ticket-type {
+  display: inline-block;
+  padding: 6px 16px;
+  background: #b30000;
+  color: white;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+/* Ice Animation */
+.ice-animation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+  height: 40px;
+}
+.ice-cube {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #ff8c8c, #b30000);
+  border-radius: 4px;
+  animation: iceFloat 1.5s infinite ease-in-out;
+}
+.ice-cube:nth-child(2) { animation-delay: 0.3s; width: 25px; height: 25px; }
+.ice-cube:nth-child(3) { animation-delay: 0.6s; width: 18px; height: 18px; }
+@keyframes iceFloat {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-10px) rotate(180deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(360deg); opacity: 0.6; }
+}
+.ice-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(179,0,0,0.2);
+  padding: 10px 15px;
+  border-radius: 40px;
+  margin: 10px 0;
+  color: #ff4d4d;
+  font-weight: bold;
+}
+/* Progress Circle */
+.progress-container {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 25px;
+  position: relative;
+}
+.circular-progress {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.circular-bg {
+  fill: none;
+  stroke: #333;
+  stroke-width: 10;
+}
+.circular-bar {
+  fill: none;
+  stroke: #b30000;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+.progress-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.position-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: #ff4d4d;
+  margin-bottom: 5px;
+}
+.position-label {
+  font-size: 14px;
+  color: #ff9999;
+}
+/* Info Rows */
+.status-info {
+  margin-bottom: 25px;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}
+.info-label {
+  color: #ff9999;
+  font-size: 14px;
+}
+.info-value {
+  color: #ffffff;
+  font-weight: 600;
+}
+/* Queue Stats */
+.queue-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.stat-item {
+  background: #222;
+  border-radius: 20px;
+  padding: 15px;
+  text-align: center;
+  border: 1px solid #b30000;
+}
+.stat-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ff4d4d;
+  margin-bottom: 5px;
+}
+.stat-label {
+  font-size: 12px;
+  color: #ff9999;
+  text-transform: uppercase;
+}
+/* Ready Card */
+.ready-card {
+  background: linear-gradient(145deg, #b30000, #8b0000);
+  border-radius: 28px;
+  padding: 25px;
+  margin-bottom: 20px;
+  text-align: center;
+  display: none;
+  box-shadow: 0 10px 30px rgba(179,0,0,0.3);
+}
+.ready-card.show {
+  display: block;
+}
+.ready-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+.ready-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.ready-instructions {
+  background: rgba(0,0,0,0.2);
+  border-radius: 20px;
+  padding: 15px;
+  margin-top: 15px;
+  text-align: left;
+}
+.ready-instructions p {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* Order Details */
+.order-details {
+  background: #222;
+  border-radius: 20px;
+  padding: 15px;
+  margin-top: 20px;
+  text-align: left;
+  border: 1px solid #b30000;
+}
+.order-details h3 {
+  color: #ff4d4d;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+}
+.order-item:last-child {
+  border-bottom: none;
+}
+.order-item-name {
+  color: #ffffff;
+}
+.order-item-price {
+  color: #ff4d4d;
+  font-weight: 600;
+}
+/* Wallet Info */
+.wallet-info {
+  background: #2a2a2a;
+  border-radius: 24px;
+  padding: 15px;
+  margin-top: 15px;
+  text-align: center;
+  border: 1px solid #b30000;
+}
+.wallet-balance {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff4d4d;
+  margin: 5px 0;
+}
+/* Friend Section */
+.friend-section {
+  text-align: center;
+  padding: 20px;
+  background: #1a1a1a;
+  border-radius: 28px;
+  margin-bottom: 20px;
+  border: 1px solid #b30000;
+}
+.friend-title {
+  font-size: 16px;
+  color: #ff9999;
+  margin-bottom: 15px;
+}
+.friend-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+.friend-btn {
+  flex: 1;
+  max-width: 150px;
+  padding: 14px 20px;
+  border-radius: 40px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: white;
+}
+.friend-btn.whatsapp {
+  background: #25D366;
+}
+.friend-btn.whatsapp:hover {
+  background: #128C7E;
+  transform: scale(1.05);
+}
+.friend-btn.sms {
+  background: #b30000;
+}
+.friend-btn.sms:hover {
+  background: #ff4d4d;
+  transform: scale(1.05);
+}
+/* Action Buttons (fixed bottom) */
+.action-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  padding: 15px;
+  border-top: 2px solid #b30000;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+.action-btn {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  border-radius: 40px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.primary-btn {
+  background: #b30000;
+  color: white;
+}
+.primary-btn:hover {
+  background: #ff4d4d;
+  transform: translateY(-2px);
+}
+.secondary-btn {
+  background: #2a2a2a;
+  color: #ff4d4d;
+  border: 1px solid #b30000;
+}
+.secondary-btn:hover {
+  background: #3a3a3a;
+}
+/* Toast */
+.notification-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 20px;
+  right: 20px;
+  background: #333;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 50px;
+  text-align: center;
+  font-weight: bold;
+  z-index: 2000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+}
+.notification-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+/* Footer */
+.footer-credit {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  color: #ff9999;
+  font-size: 14px;
+  border-top: 1px solid #b30000;
+}
+/* Responsive */
+@media (max-width: 480px) {
+  .ticket-number { font-size: 40px; }
+  .progress-container { width: 150px; height: 150px; }
+  .position-number { font-size: 32px; }
+  .queue-stats { grid-template-columns: 1fr; }
+  .friend-buttons { flex-direction: column; align-items: center; }
+  .friend-btn { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="notification-toast" id="notificationToast">
+  <span id="toastMessage">🔔 Notification</span>
+</div>
+
+<main class="customer-status">
+  <header class="customer-header">
+    <div class="logo">🍺</div>
+    <h1 id="counter-title">Rands Smart Counter</h1>
+    <p class="subtitle" id="header-subtitle">Real-time order tracking</p>
+  </header>
+
+  <div class="ready-card" id="readyCard">
+    <div class="ready-icon">🎯</div>
+    <div class="ready-title">READY FOR COLLECTION!</div>
+    <div class="ready-message" id="readyMessage">Your order is ready at the counter</div>
+    <div class="ready-instructions">
+      <p>📍 <strong>Collection Point:</strong> <span id="collectionPoint">Rands Smart Counter</span></p>
+      <p>🔢 <strong>Please have ready:</strong> Order Number <span id="readyOrderNumber">—</span></p>
+      <p>⏱️ <strong>Please collect within:</strong> 5 minutes</p>
+      <p>⚠️ Order will be released if not collected in time</p>
+    </div>
+  </div>
+
+  <div class="status-card" id="statusCard">
+    <div class="ticket-display">
+      <div class="ticket-label">Your Order</div>
+      <div class="ticket-number" id="customer-ticket">—</div>
+      <div class="ticket-type" id="ticket-type-badge">⚡ PREMIUM QUEUE</div>
+    </div>
+
+    <div id="iceAnimationContainer" style="display: none;">
+      <div class="ice-animation"><div class="ice-cube"></div><div class="ice-cube"></div><div class="ice-cube"></div></div>
+    </div>
+
+    <div class="progress-container">
+      <svg class="circular-progress" viewBox="0 0 160 160">
+        <circle class="circular-bg" cx="80" cy="80" r="72"></circle>
+        <circle class="circular-bar" id="progress-bar" cx="80" cy="80" r="72" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="progress-content">
+        <div class="position-number" id="position-number">—</div>
+        <div class="position-label">position in queue</div>
+        <div class="position-subtitle" style="font-size: 12px; color: #ff9999; margin-top: 5px;" id="progress-percent">—</div>
+      </div>
+    </div>
+
+    <div class="status-info">
+      <div class="info-row"><div class="info-label">Estimated Wait Time</div><div class="info-value" id="wait-time">—</div></div>
+      <div class="info-row"><div class="info-label">Order Placed</div><div class="info-value" id="order-time">—</div></div>
+      <div class="info-row"><div class="info-label">Last Updated</div><div class="info-value" id="update-time">—</div></div>
+      <div class="info-row"><div class="info-label">Preparation Status</div><div class="info-value" id="status-text"><span id="status-icon">⏳</span> <span id="status-message">Waiting in queue</span></div></div>
+    </div>
+
+    <div id="iceStatusMessage" class="ice-message" style="display: none;">
+      <span class="ice-icon">🧊</span><span id="iceStatusText">Staff adding ice to your bucket...</span>
+    </div>
+
+    <!-- Wallet Info Section -->
+    <div id="walletInfo" class="wallet-info" style="display: none;">
+      <div><i class="fas fa-wallet"></i> Rands Wallet</div>
+      <div class="wallet-balance" id="walletBalance">R0.00</div>
+      <div style="font-size: 12px; color: #ff9999;" id="walletMessage"></div>
+    </div>
+
+    <div class="queue-stats">
+      <div class="stat-item"><div class="stat-number" id="orders-ahead">—</div><div class="stat-label">Orders Ahead</div></div>
+      <div class="stat-item"><div class="stat-number" id="total-orders">—</div><div class="stat-label">Total Orders</div></div>
+    </div>
+
+    <div class="order-details" id="orderDetails"></div>
+  </div>
+
+  <div class="friend-section">
+    <div class="friend-title">👥 Send a friend to collect</div>
+    <div class="friend-buttons">
+      <button class="friend-btn whatsapp" id="shareWhatsAppBtn"><span>📱</span> WhatsApp</button>
+      <button class="friend-btn sms" id="shareSMSBtn"><span>💬</span> SMS</button>
+    </div>
+  </div>
+</main>
+
+<div class="action-buttons">
+  <button class="action-btn secondary-btn" id="delayBtn"><span>⏱️</span> Delay 15min</button>
+  <button class="action-btn primary-btn" id="contactBtn"><span>💬</span> Contact Store</button>
+</div>
+
+<div class="footer-credit">Created by Mziwonke KaBuyaphi</div>
+
+<script>
+  // URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderId = urlParams.get('order');
+  const counterParam = urlParams.get('counter'); // 'booze' or 'butcher'
+
+  const QUEUE_KEYS = {
+    booze: 'rands_smart_queue',
+    butcher: 'butcher_shop_queue'
+  };
+  const queueKey = counterParam === 'butcher' ? QUEUE_KEYS.butcher : QUEUE_KEYS.booze;
+  const SERVICE_DURATION = 300; // seconds
+
+  let currentTicket = null;
+  let currentPosition = null;
+  let isReady = false;
+
+  // Wallet functions
+  function getWalletAccounts() {
+    return JSON.parse(localStorage.getItem('rands_wallet_accounts') || '[]');
+  }
+
+  function getQueue() {
+    return JSON.parse(localStorage.getItem(queueKey) || '[]');
+  }
+
+  function findTicket() {
+    if (!orderId) return null;
+    const queue = getQueue();
+    const index = queue.findIndex(t => t.ticketNumber === orderId);
+    if (index !== -1) {
+      return { index, ticket: queue[index] };
+    }
+    return null;
+  }
+
+  function updateWalletDisplay(walletId) {
+    const walletDiv = document.getElementById('walletInfo');
+    if (!walletId) {
+      walletDiv.style.display = 'none';
+      return;
+    }
+    const accounts = getWalletAccounts();
+    const account = accounts.find(acc => acc.id === walletId);
+    if (account) {
+      document.getElementById('walletBalance').innerText = `R${account.balance.toFixed(2)}`;
+      document.getElementById('walletMessage').innerText = account.tableName ? `Linked to table: ${account.tableName}` : '';
+      walletDiv.style.display = 'block';
+    } else {
+      walletDiv.style.display = 'none';
+    }
+  }
+
+  function updateFromQueue() {
+    const found = findTicket();
+    if (!found) {
+      document.getElementById('customer-ticket').textContent = orderId || '—';
+      document.getElementById('position-number').textContent = '—';
+      document.getElementById('wait-time').textContent = 'Order not found';
+      document.getElementById('status-message').textContent = 'Your order may have been collected or does not exist.';
+      return;
+    }
+
+    currentTicket = found.ticket;
+    currentPosition = found.index + 1;
+
+    const queueLength = getQueue().length;
+    const ahead = currentPosition - 1;
+    const estWaitMinutes = Math.ceil(ahead * (SERVICE_DURATION / 60));
+
+    // Update UI
+    document.getElementById('customer-ticket').textContent = currentTicket.ticketNumber;
+    document.getElementById('position-number').textContent = currentPosition;
+    document.getElementById('wait-time').textContent = estWaitMinutes > 0 ? `~${estWaitMinutes} minutes` : 'Now serving';
+    document.getElementById('orders-ahead').textContent = ahead;
+    document.getElementById('total-orders').textContent = queueLength;
+    document.getElementById('readyOrderNumber').textContent = currentTicket.ticketNumber;
+
+    // Progress circle
+    const progressPercent = Math.min(100, Math.floor(((queueLength - currentPosition) / queueLength) * 100));
+    const radius = 72;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (progressPercent / 100) * circumference;
+    const progressBar = document.getElementById('progress-bar');
+    progressBar.style.strokeDasharray = `${circumference}`;
+    progressBar.style.strokeDashoffset = offset;
+    document.getElementById('progress-percent').textContent = `${progressPercent}% complete`;
+
+    // Status
+    if (currentPosition === 1) {
+      isReady = true;
+      document.getElementById('readyCard').classList.add('show');
+      document.getElementById('statusCard').style.opacity = '0.5';
+      document.getElementById('status-icon').textContent = '🎯';
+      document.getElementById('status-message').textContent = 'NOW BEING SERVED';
+      document.getElementById('header-subtitle').textContent = '🎯 Now being served!';
+    } else {
+      document.getElementById('readyCard').classList.remove('show');
+      document.getElementById('statusCard').style.opacity = '1';
+      document.getElementById('status-icon').textContent = '⏱️';
+      document.getElementById('status-message').textContent = 'Waiting in queue';
+      document.getElementById('header-subtitle').textContent = 'Tracking your order';
+    }
+
+    // Ice animation
+    const iceAnim = document.getElementById('iceAnimationContainer');
+    const iceMsg = document.getElementById('iceStatusMessage');
+    if (currentPosition <= 3 && currentPosition > 1) {
+      iceAnim.style.display = 'block';
+      iceMsg.style.display = 'flex';
+      document.getElementById('iceStatusText').textContent = '🧊 Staff preparing your order...';
+    } else {
+      iceAnim.style.display = 'none';
+      iceMsg.style.display = 'none';
+    }
+
+    // Order time
+    if (currentTicket.timestamp) {
+      const orderDate = new Date(currentTicket.timestamp);
+      document.getElementById('order-time').textContent = orderDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+    document.getElementById('update-time').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    // Wallet display
+    if (currentTicket.walletId) {
+      updateWalletDisplay(currentTicket.walletId);
+    } else {
+      document.getElementById('walletInfo').style.display = 'none';
+    }
+  }
+
+  // Share functions
+  function shareViaWhatsApp() {
+    const message = `🍺 My order ${orderId} at ${counterParam === 'butcher' ? 'The Butcher Shop' : 'Rands Smart Counter'}. Track here: ${window.location.href}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    showToast('📱 Invitation sent to friend via WhatsApp', false);
+  }
+  function shareViaSMS() {
+    const message = `My order ${orderId} at ${counterParam === 'butcher' ? 'The Butcher Shop' : 'Rands Smart Counter'}. Track here: ${window.location.href}`;
+    window.open(`sms:?body=${encodeURIComponent(message)}`, '_blank');
+    showToast('💬 Invitation sent to friend via SMS', false);
+  }
+  function delayCollection() {
+    showToast('⏱️ Delay requested (store notified)', false);
+  }
+  function contactSupport() {
+    window.open('tel:+27123456789');
+    showToast('📞 Calling store...', false);
+  }
+
+  function showToast(message, isUrgent) {
+    const toast = document.getElementById('notificationToast');
+    document.getElementById('toastMessage').textContent = message;
+    toast.classList.add('show');
+    if (isUrgent) toast.style.background = '#27ae60';
+    else toast.style.background = '#333';
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  // Listen for storage changes (queue updates from dashboard)
+  window.addEventListener('storage', (e) => {
+    if (e.key === queueKey) {
+      updateFromQueue();
+    }
+  });
+
+  function init() {
+    if (!orderId) {
+      document.getElementById('customer-ticket').textContent = 'No order ID';
+      document.getElementById('status-message').textContent = 'Invalid tracking link.';
+      return;
+    }
+    if (counterParam === 'butcher') {
+      document.getElementById('counter-title').textContent = 'The Butcher Shop';
+      document.getElementById('collectionPoint').textContent = 'The Butcher Shop';
+      document.getElementById('header-subtitle').textContent = 'Meat collection tracking';
+      document.querySelector('.logo').innerHTML = '🥩';
+    }
+    updateFromQueue();
+    setInterval(updateFromQueue, 5000);
+  }
+
+  document.getElementById('shareWhatsAppBtn').addEventListener('click', shareViaWhatsApp);
+  document.getElementById('shareSMSBtn').addEventListener('click', shareViaSMS);
+  document.getElementById('delayBtn').addEventListener('click', delayCollection);
+  document.getElementById('contactBtn').addEventListener('click', contactSupport);
+
+  init();
+</script>
+</body>
+</html>
