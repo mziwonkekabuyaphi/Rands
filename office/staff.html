@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -109,177 +108,174 @@
         </div>
     </aside>
 
-```
-<div class="main-content">
-    <div class="top-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
-            <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
-        </div>
-        <div class="sync-status" :class="{ warning: syncWarning }">
-            <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
-            <span>{{ syncStatusText }}</span>
-        </div>
-        <div class="header-right">
-            <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
-            <div class="profile-dropdown" @click="logout">
-                <div class="avatar">{{ staffInitial }}</div>
-                <span style="font-size:0.85rem;">{{ staffName }}</span>
-                <i class="fas fa-sign-out-alt"></i>
+    <div class="main-content">
+        <div class="top-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+                <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
             </div>
-        </div>
-        <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen</button>
-        <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit</button>
-    </div>
-
-    <div class="dashboard-container">
-        <!-- DASHBOARD -->
-        <div v-if="currentSection === 'dashboard'">
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Today's Sales</div><div class="stat-number">R {{ todaySales }}</div></div>
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Queue Position</div><div class="stat-number">{{ queueCount }}</div></div>
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Pending Orders</div><div class="stat-number">{{ pendingOrdersCount }}</div></div>
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-qrcode"></i></div><div class="stat-title">Scanned Today</div><div class="stat-number">{{ scannedToday }}</div></div>
+            <div class="sync-status" :class="{ warning: syncWarning }">
+                <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
+                <span>{{ syncStatusText }}</span>
             </div>
-            <div class="section-header"><h2>Quick Actions</h2></div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                <button class="btn-primary" @click="currentSection = 'boxoffice'" v-if="isScreenAvailable('boxoffice')"><i class="fas fa-ticket-alt"></i> Box Office POS</button>
-                <button class="btn-primary" @click="currentSection = 'gatecontrol'" v-if="isScreenAvailable('gatecontrol')"><i class="fas fa-qrcode"></i> Gate Scanner</button>
-                <button class="btn-primary" @click="currentSection = 'butcher-pos'" v-if="isScreenAvailable('butcher-pos')"><i class="fas fa-utensils"></i> Butcher POS</button>
-                <button class="btn-primary" @click="currentSection = 'shisha-pos'" v-if="isScreenAvailable('shisha-pos')"><i class="fas fa-smoking"></i> Shisha POS</button>
-                <button class="btn-primary" @click="currentSection = 'shisha-admin'" v-if="isScreenAvailable('shisha-admin')"><i class="fas fa-cog"></i> Shisha Admin</button>
-                <button class="btn-primary" @click="currentSection = 'vvip'" v-if="isScreenAvailable('vvip')"><i class="fas fa-crown"></i> VVIP Concierge</button>
-            </div>
-        </div>
-
-        <!-- BOX OFFICE POS -->
-        <div v-if="currentSection === 'boxoffice' && isScreenAvailable('boxoffice')">
-            <div class="section-header"><h2><i class="fas fa-ticket-alt"></i> Box Office POS</h2></div>
-            <div class="scanner-area">
-                <div class="scanner-placeholder"><i class="fas fa-camera"></i></div>
-                <p style="color: white; margin-bottom: 16px;">Sell tickets or scan for entry</p>
-                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                    <input type="text" class="form-control" v-model="scanCode" placeholder="Enter ticket ID" style="max-width: 250px;">
-                    <button class="btn-primary" @click="sellTicket"><i class="fas fa-dollar-sign"></i> Sell Ticket</button>
-                    <button class="btn-outline" @click="validateTicket" style="background:white;"><i class="fas fa-check"></i> Validate Entry</button>
+            <div class="header-right">
+                <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
+                <div class="profile-dropdown" @click="logout">
+                    <div class="avatar">{{ staffInitial }}</div>
+                    <span style="font-size:0.85rem;">{{ staffName }}</span>
+                    <i class="fas fa-sign-out-alt"></i>
                 </div>
             </div>
-            <div class="section-header"><h2>Today's Ticket Sales</h2></div>
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead><tr><th>Ticket ID</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
-                    <tbody>
-                        <tr v-for="sale in ticketSales" :key="sale.id"><td>{{ sale.id }}</td><td>{{ sale.event }}</td><td>R{{ sale.amount }}</td><td>{{ sale.time }}</td></tr>
-                        <tr v-if="ticketSales.length === 0"><td colspan="4" style="text-align:center;">No sales today</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen</button>
+            <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit</button>
         </div>
 
-        <!-- GATE CONTROL -->
-        <div v-if="currentSection === 'gatecontrol' && isScreenAvailable('gatecontrol')">
-            <div class="section-header"><h2><i class="fas fa-qrcode"></i> Gate Scanner</h2></div>
-            <div class="scanner-area">
-                <div class="scanner-placeholder"><i class="fas fa-camera"></i></div>
-                <p style="color: white; margin-bottom: 16px;">Scan tickets for entry validation only</p>
-                <div style="display: flex; gap: 12px; justify-content: center;">
-                    <input type="text" class="form-control" v-model="scanCodeGate" placeholder="Scan or enter ticket ID" style="max-width: 300px;">
-                    <button class="btn-primary" @click="validateGateTicket"><i class="fas fa-check-circle"></i> Validate & Allow Entry</button>
+        <div class="dashboard-container">
+            <!-- DASHBOARD -->
+            <div v-if="currentSection === 'dashboard'">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Today's Sales</div><div class="stat-number">R {{ todaySales }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Queue Position</div><div class="stat-number">{{ queueCount }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Pending Orders</div><div class="stat-number">{{ pendingOrdersCount }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-qrcode"></i></div><div class="stat-title">Scanned Today</div><div class="stat-number">{{ scannedToday }}</div></div>
+                </div>
+                <div class="section-header"><h2>Quick Actions</h2></div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <button class="btn-primary" @click="currentSection = 'boxoffice'" v-if="isScreenAvailable('boxoffice')"><i class="fas fa-ticket-alt"></i> Box Office POS</button>
+                    <button class="btn-primary" @click="currentSection = 'gatecontrol'" v-if="isScreenAvailable('gatecontrol')"><i class="fas fa-qrcode"></i> Gate Scanner</button>
+                    <button class="btn-primary" @click="currentSection = 'butcher-pos'" v-if="isScreenAvailable('butcher-pos')"><i class="fas fa-utensils"></i> Butcher POS</button>
+                    <button class="btn-primary" @click="currentSection = 'shisha-pos'" v-if="isScreenAvailable('shisha-pos')"><i class="fas fa-smoking"></i> Shisha POS</button>
+                    <button class="btn-primary" @click="currentSection = 'shisha-admin'" v-if="isScreenAvailable('shisha-admin')"><i class="fas fa-cog"></i> Shisha Admin</button>
+                    <button class="btn-primary" @click="currentSection = 'vvip'" v-if="isScreenAvailable('vvip')"><i class="fas fa-crown"></i> VVIP Concierge</button>
                 </div>
             </div>
-            <div class="section-header"><h2>Recent Validations</h2></div>
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead><tr><th>Ticket ID</th><th>Status</th><th>Time</th></tr></thead>
-                    <tbody>
-                        <tr v-for="scan in gateScans" :key="scan.id"><td>{{ scan.id }}</td><td><span class="status-badge" :class="scan.valid ? 'status-valid' : 'status-invalid'">{{ scan.valid ? 'Entry Granted' : 'Invalid' }}</span></td><td>{{ scan.time }}</td></tr>
-                        <tr v-if="gateScans.length === 0"><td colspan="3" style="text-align:center;">No scans yet</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- BUTCHER POS -->
-        <div v-if="currentSection === 'butcher-pos' && isScreenAvailable('butcher-pos')">
-            <div class="section-header"><h2><i class="fas fa-utensils"></i> Butcher POS</h2></div>
-            <div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Current Order</div><div class="stat-number">R {{ butcherCartTotal }}</div></div></div>
-            <div class="section-header"><h2>Food Menu</h2></div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
-                <button v-for="item in butcherMenu" :key="item.id" class="btn-outline" style="padding: 12px;" @click="addToButcherCart(item)">{{ item.name }} - R{{ item.price }}</button>
+            <!-- BOX OFFICE POS -->
+            <div v-if="currentSection === 'boxoffice' && isScreenAvailable('boxoffice')">
+                <div class="section-header"><h2><i class="fas fa-ticket-alt"></i> Box Office POS</h2></div>
+                <div class="scanner-area">
+                    <div class="scanner-placeholder"><i class="fas fa-camera"></i></div>
+                    <p style="color: white; margin-bottom: 16px;">Sell tickets or scan for entry</p>
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <input type="text" class="form-control" v-model="scanCode" placeholder="Enter ticket ID" style="max-width: 250px;">
+                        <button class="btn-primary" @click="sellTicket"><i class="fas fa-dollar-sign"></i> Sell Ticket</button>
+                        <button class="btn-outline" @click="validateTicket" style="background:white;"><i class="fas fa-check"></i> Validate Entry</button>
+                    </div>
+                </div>
+                <div class="section-header"><h2>Today's Ticket Sales</h2></div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Ticket ID</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
+                        <tbody>
+                            <tr v-for="sale in ticketSales" :key="sale.id"><td>{{ sale.id }}</td><td>{{ sale.event }}</td><td>R{{ sale.amount }}</td><td>{{ sale.time }}</td></tr>
+                            <tr v-if="ticketSales.length === 0"><td colspan="4" style="text-align:center;">No sales today</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutButcher"><i class="fas fa-credit-card"></i> Complete Sale (R{{ butcherCartTotal }})</button></div>
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
-                    <tbody>
-                        <tr v-for="(item, idx) in butcherCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromButcherCart(idx)"></i></td></tr>
-                        <tr v-if="butcherCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- SHISHA POS -->
-        <div v-if="currentSection === 'shisha-pos' && isScreenAvailable('shisha-pos')">
-            <div class="section-header"><h2><i class="fas fa-smoking"></i> Shisha POS</h2></div>
-            <div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Current Order</div><div class="stat-number">R {{ shishaCartTotal }}</div></div></div>
-            <div class="section-header"><h2>Shisha Menu</h2></div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
-                <button v-for="item in shishaMenu" :key="item.id" class="btn-outline" style="padding: 12px;" @click="addToShishaCart(item)">{{ item.name }} - R{{ item.price }}</button>
+            <!-- GATE CONTROL -->
+            <div v-if="currentSection === 'gatecontrol' && isScreenAvailable('gatecontrol')">
+                <div class="section-header"><h2><i class="fas fa-qrcode"></i> Gate Scanner</h2></div>
+                <div class="scanner-area">
+                    <div class="scanner-placeholder"><i class="fas fa-camera"></i></div>
+                    <p style="color: white; margin-bottom: 16px;">Scan tickets for entry validation only</p>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <input type="text" class="form-control" v-model="scanCodeGate" placeholder="Scan or enter ticket ID" style="max-width: 300px;">
+                        <button class="btn-primary" @click="validateGateTicket"><i class="fas fa-check-circle"></i> Validate & Allow Entry</button>
+                    </div>
+                </div>
+                <div class="section-header"><h2>Recent Validations</h2></div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Ticket ID</th><th>Status</th><th>Time</th></tr></thead>
+                        <tbody>
+                            <tr v-for="scan in gateScans" :key="scan.id"><td>{{ scan.id }}</td><td><span class="status-badge" :class="scan.valid ? 'status-valid' : 'status-invalid'">{{ scan.valid ? 'Entry Granted' : 'Invalid' }}</span></td><td>{{ scan.time }}</td></tr>
+                            <tr v-if="gateScans.length === 0"><td colspan="3" style="text-align:center;">No scans yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutShisha"><i class="fas fa-credit-card"></i> Complete Sale (R{{ shishaCartTotal }})</button></div>
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
-                    <tbody>
-                        <tr v-for="(item, idx) in shishaCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromShishaCart(idx)"></i></td></tr>
-                        <tr v-if="shishaCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- SHISHA ADMIN -->
-        <div v-if="currentSection === 'shisha-admin' && isScreenAvailable('shisha-admin')">
-            <div class="section-header"><h2><i class="fas fa-cog"></i> Shisha Admin</h2><button class="btn-primary" @click="startShishaSession"><i class="fas fa-plus"></i> Start Session</button></div>
-            <div v-for="session in shishaSessions" :key="session.id" class="item-card">
-                <div><strong>Table {{ session.table }}</strong> - {{ session.customer }}<div>Started: {{ session.timeStart }}</div><div>Flavor: {{ session.flavor || 'Double Apple' }}</div></div>
-                <button class="btn-outline" @click="endShishaSession(session.id)">End Session</button>
+            <!-- BUTCHER POS -->
+            <div v-if="currentSection === 'butcher-pos' && isScreenAvailable('butcher-pos')">
+                <div class="section-header"><h2><i class="fas fa-utensils"></i> Butcher POS</h2></div>
+                <div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Current Order</div><div class="stat-number">R {{ butcherCartTotal }}</div></div></div>
+                <div class="section-header"><h2>Food Menu</h2></div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <button v-for="item in butcherMenu" :key="item.id" class="btn-outline" style="padding: 12px;" @click="addToButcherCart(item)">{{ item.name }} - R{{ item.price }}</button>
+                </div>
+                <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutButcher"><i class="fas fa-credit-card"></i> Complete Sale (R{{ butcherCartTotal }})</button></div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+                        <tbody>
+                            <tr v-for="(item, idx) in butcherCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromButcherCart(idx)"></i></td></tr>
+                            <tr v-if="butcherCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div v-if="shishaSessions.length === 0" style="padding: 40px; text-align: center; color: #94a3b8;">No active shisha sessions</div>
-        </div>
 
-        <!-- VVIP CONCIERGE -->
-        <div v-if="currentSection === 'vvip' && isScreenAvailable('vvip')">
-            <div class="section-header"><h2><i class="fas fa-crown"></i> VVIP Concierge</h2><button class="btn-primary" @click="addVvipItem"><i class="fas fa-plus"></i> Add Charge</button></div>
-            <div v-for="tab in vvipTabs" :key="tab.id" class="item-card">
-                <div><strong>{{ tab.customer }}</strong><div>Balance: R{{ tab.balance }} | Limit: R{{ tab.limit }}</div></div>
-                <div><button class="btn-outline" @click="closeTab(tab.id)">Close Tab</button><button class="btn-outline" style="margin-left:8px;" @click="addToTab(tab.id)">Add Item</button></div>
+            <!-- SHISHA POS -->
+            <div v-if="currentSection === 'shisha-pos' && isScreenAvailable('shisha-pos')">
+                <div class="section-header"><h2><i class="fas fa-smoking"></i> Shisha POS</h2></div>
+                <div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-title">Current Order</div><div class="stat-number">R {{ shishaCartTotal }}</div></div></div>
+                <div class="section-header"><h2>Shisha Menu</h2></div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <button v-for="item in shishaMenu" :key="item.id" class="btn-outline" style="padding: 12px;" @click="addToShishaCart(item)">{{ item.name }} - R{{ item.price }}</button>
+                </div>
+                <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutShisha"><i class="fas fa-credit-card"></i> Complete Sale (R{{ shishaCartTotal }})</button></div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+                        <tbody>
+                            <tr v-for="(item, idx) in shishaCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromShishaCart(idx)"></i></td></tr>
+                            <tr v-if="shishaCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SHISHA ADMIN -->
+            <div v-if="currentSection === 'shisha-admin' && isScreenAvailable('shisha-admin')">
+                <div class="section-header"><h2><i class="fas fa-cog"></i> Shisha Admin</h2><button class="btn-primary" @click="startShishaSession"><i class="fas fa-plus"></i> Start Session</button></div>
+                <div v-for="session in shishaSessions" :key="session.id" class="item-card">
+                    <div><strong>Table {{ session.table }}</strong> - {{ session.customer }}<div>Started: {{ session.timeStart }}</div><div>Flavor: {{ session.flavor || 'Double Apple' }}</div></div>
+                    <button class="btn-outline" @click="endShishaSession(session.id)">End Session</button>
+                </div>
+                <div v-if="shishaSessions.length === 0" style="padding: 40px; text-align: center; color: #94a3b8;">No active shisha sessions</div>
+            </div>
+
+            <!-- VVIP CONCIERGE -->
+            <div v-if="currentSection === 'vvip' && isScreenAvailable('vvip')">
+                <div class="section-header"><h2><i class="fas fa-crown"></i> VVIP Concierge</h2><button class="btn-primary" @click="addVvipItem"><i class="fas fa-plus"></i> Add Charge</button></div>
+                <div v-for="tab in vvipTabs" :key="tab.id" class="item-card">
+                    <div><strong>{{ tab.customer }}</strong><div>Balance: R{{ tab.balance }} | Limit: R{{ tab.limit }}</div></div>
+                    <div><button class="btn-outline" @click="closeTab(tab.id)">Close Tab</button><button class="btn-outline" style="margin-left:8px;" @click="addToTab(tab.id)">Add Item</button></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modals -->
-<div class="modal-mask" :class="{ active: showValidationModal }">
-    <div class="modal-container" style="text-align:center;">
-        <i class="fas" :class="validationResult.valid ? 'fa-check-circle' : 'fa-times-circle'" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: validationResult.valid ? '#10b981' : '#dc2626' }"></i>
-        <h3>{{ validationResult.valid ? 'Valid Ticket!' : 'Invalid Ticket' }}</h3>
-        <p style="margin: 16px 0;">{{ validationResult.message }}</p>
-        <button class="btn-primary" @click="showValidationModal = false">Close</button>
+    <!-- Modals -->
+    <div class="modal-mask" :class="{ active: showValidationModal }">
+        <div class="modal-container" style="text-align:center;">
+            <i class="fas" :class="validationResult.valid ? 'fa-check-circle' : 'fa-times-circle'" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: validationResult.valid ? '#10b981' : '#dc2626' }"></i>
+            <h3>{{ validationResult.valid ? 'Valid Ticket!' : 'Invalid Ticket' }}</h3>
+            <p style="margin: 16px 0;">{{ validationResult.message }}</p>
+            <button class="btn-primary" @click="showValidationModal = false">Close</button>
+        </div>
     </div>
-</div>
 
-<div class="modal-mask" :class="{ active: showInfoModal }">
-    <div class="modal-container" style="text-align:center;">
-        <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
-        <h3>{{ infoTitle }}</h3>
-        <p style="margin: 16px 0;">{{ infoMessage }}</p>
-        <button class="btn-primary" @click="showInfoModal = false">OK</button>
+    <div class="modal-mask" :class="{ active: showInfoModal }">
+        <div class="modal-container" style="text-align:center;">
+            <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
+            <h3>{{ infoTitle }}</h3>
+            <p style="margin: 16px 0;">{{ infoMessage }}</p>
+            <button class="btn-primary" @click="showInfoModal = false">OK</button>
+        </div>
     </div>
-</div>
-```
-
 </div>
 
 <script>
@@ -389,17 +385,9 @@
             },
             setupRealtimeSync() {
                 window.addEventListener('storage', (e) => {
-                    // Module changes from Super Admin
                     if (e.key === STORAGE_KEYS.TENANT_MODULES) {
                         this.syncing = true; this.syncStatusText = 'Updating...';
                         setTimeout(() => { this.loadModules(); this.syncing = false; this.syncStatusText = 'Live'; this.syncWarning = false; this.showAlert('Modules Updated', 'Available screens have been updated by your manager.', 'fas fa-sync-alt', '#10b981'); }, 500);
-                    }
-                    // Branding changes from Brand Studio or Admin settings
-                    if (e.key === `qless_tenant_branding_${this.tenantId}` && e.newValue) {
-                        const data = JSON.parse(e.newValue);
-                        this.tenantName = data.tenantName || this.tenantName;
-                        this.branding = data.branding || this.branding;
-                        this.applyBrandingToDOM();
                     }
                 });
                 this.syncInterval = setInterval(() => {
@@ -445,31 +433,7 @@
             },
             loadBranding() {
                 const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    this.tenantName = data.tenantName || this.tenantName;
-                    this.branding = data.branding || { primaryColor: '#E30613', secondaryColor: '#ffffff', logoUrl: '', sidebarStyle: 'dark' };
-                }
-                this.applyBrandingToDOM();
-            },
-            applyBrandingToDOM() {
-                const primary = this.branding.primaryColor || '#E30613';
-                const secondary = this.branding.secondaryColor || '#ffffff';
-                document.documentElement.style.setProperty('--primary-color', primary);
-                // Apply secondary color to top header
-                const header = document.querySelector('.top-header');
-                if (header && secondary) header.style.backgroundColor = secondary;
-                // Apply logo to sidebar tenant-logo area
-                const logoEl = document.querySelector('.tenant-logo');
-                if (logoEl) {
-                    if (this.branding.logoUrl) {
-                        logoEl.innerHTML = `<img src="${this.branding.logoUrl}" style="width:100%; height:100%; object-fit:contain; border-radius:8px; padding:2px;">`;
-                        logoEl.style.background = 'white';
-                    } else {
-                        logoEl.innerHTML = this.tenantInitial;
-                        logoEl.style.background = primary;
-                    }
-                }
+                if (saved) { const data = JSON.parse(saved); this.tenantName = data.tenantName || this.tenantName; this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' }; }
             },
             sellTicket() {
                 if (!this.scanCode) { this.showAlert('Missing Info', 'Please enter ticket ID', 'fas fa-exclamation-triangle', '#dc2626'); return; }
@@ -524,6 +488,5 @@
         beforeDestroy() { if (this.syncInterval) clearInterval(this.syncInterval); }
     });
 </script>
-
 </body>
 </html>

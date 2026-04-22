@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -106,34 +105,31 @@
             .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
         }
         @media (min-width: 769px) { .menu-toggle { display: none; } }
-
-```
-    /* Module card view - makes modules more visible */
-    .modules-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 16px;
-        margin-top: 20px;
-    }
-    .module-card-item {
-        background: white;
-        border-radius: 20px;
-        padding: 20px;
-        border: 1px solid #edf2f7;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: all 0.2s;
-    }
-    .module-card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .module-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-    .module-info p { font-size: 0.7rem; color: #64748b; }
-    .module-status { display: flex; align-items: center; gap: 12px; }
-    .module-badge-enabled { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-    .module-badge-disabled { background: #ef4444; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-</style>
-```
-
+        
+        /* Module card view - makes modules more visible */
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .module-card-item {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .module-card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .module-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .module-info p { font-size: 0.7rem; color: #64748b; }
+        .module-status { display: flex; align-items: center; gap: 12px; }
+        .module-badge-enabled { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+        .module-badge-disabled { background: #ef4444; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+    </style>
 </head>
 <body>
 <div id="app">
@@ -153,224 +149,198 @@
         </div>
     </aside>
 
-```
-<div class="main-content">
-    <div class="top-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
-            <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
-        </div>
-        <div class="sync-status" :class="{ warning: syncWarning }">
-            <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
-            <span>{{ syncStatusText }}</span>
-        </div>
-        <div class="header-right">
-            <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
-            <div class="profile-dropdown" @click="logout">
-                <div class="avatar">{{ adminInitial }}</div>
-                <span style="font-size:0.85rem;">{{ adminName }}</span>
-                <i class="fas fa-sign-out-alt"></i>
+    <div class="main-content">
+        <div class="top-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+                <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
             </div>
-        </div>
-        <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen</button>
-        <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit</button>
-    </div>
-
-    <div class="dashboard-container">
-        <div v-if="currentSection === 'dashboard'">
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Total Staff</div><div class="stat-number">{{ staffList.length }}</div></div>
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-check"></i></div><div class="stat-title">Active Staff</div><div class="stat-number">{{ activeStaffCount }}</div></div>
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-title">Tickets Sold</div><div class="stat-number">1,284</div></div>
-                <div class="stat-card"><div class="stat-icon"><i class="fas fa-rand-sign"></i></div><div class="stat-title">Revenue (MTD)</div><div class="stat-number">R 48,250</div></div>
+            <div class="sync-status" :class="{ warning: syncWarning }">
+                <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
+                <span>{{ syncStatusText }}</span>
             </div>
-            <div class="section-header">
-                <h2>Staff by Role</h2>
-                <button class="btn-outline" @click="currentSection = 'staff'">Manage Staff <i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th></tr></thead>
-                    <tbody>
-                        <tr v-for="staff in recentStaff" :key="staff.id">
-                            <td>{{ staff.name }}</td>
-                            <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
-                            <td>{{ staff.username }}</td>
-                            <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
-                        </tr>
-                        <tr v-if="recentStaff.length === 0"><td colspan="4" style="text-align:center; color:#999;">No staff members yet</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div v-if="currentSection === 'staff'">
-            <div class="section-header">
-                <h2><i class="fas fa-users"></i> Staff Management</h2>
-                <button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff</button>
-            </div>
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead>
-                        <tr><th>Name</th><th>Role</th><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="staff in staffList" :key="staff.id">
-                            <td><strong>{{ staff.name }}</strong></td>
-                            <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
-                            <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></td>
-                            <td><span class="credential-cell">••••••<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.password)"></i></span></td>
-                            <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
-                            <td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i><i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i></div></td>
-                        </tr>
-                        <tr v-if="staffList.length === 0"><td colspan="6" style="text-align:center; padding:40px;">No staff members. Click "Add Staff" to create one.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="settings-panel" style="margin-top: 20px;">
-                <h4 style="margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Role Permissions Guide</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; font-size: 0.75rem;">
-                    <div><span class="role-badge role-boxoffice">Box Office</span> - Ticket sales, entry scanning</div>
-                    <div><span class="role-badge role-hospitality">Hospitality</span> - Food & shisha orders (POS)</div>
-                    <div><span class="role-badge role-shishamaster">Shisha Master</span> - Manage shisha sessions</div>
-                    <div><span class="role-badge role-gatecontrol">Gate Control</span> - Entry scanning only</div>
-                    <div><span class="role-badge role-support">Support Staff</span> - View only, no operations</div>
-                    <div><span class="role-badge role-venuemanager">Venue Manager</span> - Full access to everything</div>
+            <div class="header-right">
+                <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
+                <div class="profile-dropdown" @click="logout">
+                    <div class="avatar">{{ adminInitial }}</div>
+                    <span style="font-size:0.85rem;">{{ adminName }}</span>
+                    <i class="fas fa-sign-out-alt"></i>
                 </div>
             </div>
+            <button class="fullscreen-btn-module" id="globalFullscreenBtn">🔲 Fullscreen</button>
+            <button class="exit-fullscreen-btn" id="exitFullscreenBtn">✕ Exit</button>
         </div>
 
-        <!-- MODULES SECTION - COMPLETELY REDONE FOR VISIBILITY -->
-        <div v-if="currentSection === 'modules'">
-            <div class="section-header">
-                <h2><i class="fas fa-puzzle-piece"></i> Available Modules</h2>
-                <div>
-                    <button class="btn-outline" @click="refreshModules" style="margin-right: 8px;"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <span style="font-size: 0.7rem; color: #64748b;">Configured by Super Admin</span>
+        <div class="dashboard-container">
+            <div v-if="currentSection === 'dashboard'">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Total Staff</div><div class="stat-number">{{ staffList.length }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-check"></i></div><div class="stat-title">Active Staff</div><div class="stat-number">{{ activeStaffCount }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-title">Tickets Sold</div><div class="stat-number">1,284</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-rand-sign"></i></div><div class="stat-title">Revenue (MTD)</div><div class="stat-number">R 48,250</div></div>
+                </div>
+                <div class="section-header">
+                    <h2>Staff by Role</h2>
+                    <button class="btn-outline" @click="currentSection = 'staff'">Manage Staff <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr v-for="staff in recentStaff" :key="staff.id">
+                                <td>{{ staff.name }}</td>
+                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
+                                <td>{{ staff.username }}</td>
+                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
+                            </tr>
+                            <tr v-if="recentStaff.length === 0"><td colspan="4" style="text-align:center; color:#999;">No staff members yet</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            
-            <!-- Debug info -->
-            <div style="background: #f0f9ff; border-radius: 16px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #E30613;">
-                <p style="font-size: 0.75rem; margin-bottom: 8px;"><i class="fas fa-info-circle"></i> <strong>Module Status:</strong> {{ tenantModules.length }} modules loaded from Super Admin</p>
-                <button class="btn-outline" @click="forceRefreshModules" style="font-size: 0.7rem; padding: 4px 12px;">🔄 Force Reload from Super Admin</button>
-            </div>
-            
-            <!-- Module Cards View - Much clearer than table -->
-            <div class="modules-container" v-if="tenantModules.length > 0">
-                <div v-for="module in tenantModules" :key="module.id" class="module-card-item">
-                    <div class="module-info">
-                        <h4><i :class="getModuleIcon(module.name)" style="color: #E30613; margin-right: 8px;"></i> {{ module.name }}</h4>
-                        <p>{{ getModuleDescription(module.name) }}</p>
-                    </div>
-                    <div class="module-status">
-                        <span :class="module.enabled ? 'module-badge-enabled' : 'module-badge-disabled'">
-                            {{ module.enabled ? 'ENABLED' : 'DISABLED' }}
-                        </span>
+
+            <div v-if="currentSection === 'staff'">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Staff Management</h2>
+                    <button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Name</th><th>Role</th><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="staff in staffList" :key="staff.id">
+                                <td><strong>{{ staff.name }}</strong></td>
+                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
+                                <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></td>
+                                <td><span class="credential-cell">••••••<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.password)"></i></span></td>
+                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
+                                <td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i><i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i></div></td>
+                            </tr>
+                            <tr v-if="staffList.length === 0"><td colspan="6" style="text-align:center; padding:40px;">No staff members. Click "Add Staff" to create one.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="settings-panel" style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Role Permissions Guide</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; font-size: 0.75rem;">
+                        <div><span class="role-badge role-boxoffice">Box Office</span> - Ticket sales, entry scanning</div>
+                        <div><span class="role-badge role-hospitality">Hospitality</span> - Food & shisha orders (POS)</div>
+                        <div><span class="role-badge role-shishamaster">Shisha Master</span> - Manage shisha sessions</div>
+                        <div><span class="role-badge role-gatecontrol">Gate Control</span> - Entry scanning only</div>
+                        <div><span class="role-badge role-support">Support Staff</span> - View only, no operations</div>
+                        <div><span class="role-badge role-venuemanager">Venue Manager</span> - Full access to everything</div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Fallback table view if cards don't work -->
-            <div class="table-wrapper" v-else>
-                <table class="data-table">
-                    <thead>
-                        <tr><th>Module Name</th><th>Status</th><th>Description</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="module in allModules" :key="module.id">
-                            <td><strong>{{ module.displayName }}</strong> <span v-if="module.isCustom" class="badge" style="background:#fef3c7; color:#d97706;">Custom</span></td>
-                            <td><span class="status-badge" :class="module.enabled ? 'status-active' : 'status-warning'">{{ module.enabled ? 'Enabled' : 'Disabled' }}</span></td>
-                            <td style="color:#64748b;">{{ module.description }}</td>
-                        </tr>
-                        <tr v-if="allModules.length === 0"><td colspan="3" style="text-align:center; padding:40px;">No modules found. Click "Force Reload" to sync with Super Admin.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <div v-if="currentSection === 'settings'">
-            <div class="section-header"><h2>Branding & Settings</h2></div>
-
-            <!-- Brand Studio CTA -->
-            <div style="background: linear-gradient(135deg, #fff0f0, #fff5f5); border-radius: 24px; padding: 24px; border: 1px solid #fecdd3; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                <div>
-                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;"><i class="fas fa-palette" style="color:#E30613;"></i> Brand Studio</h3>
-                    <p style="font-size: 0.8rem; color: #64748b;">Upload your logo, customize colors & sidebar style.<br>Changes reflect instantly on Staff dashboards.</p>
-                </div>
-                <a href="tenant-settings.html" style="background: #E30613; color: white; text-decoration: none; padding: 12px 24px; border-radius: 40px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;">
-                    <i class="fas fa-paint-brush"></i> Open Brand Studio
-                </a>
-            </div>
-
-            <div class="settings-panel">
-                <h4 style="margin-bottom: 16px; color: #1e293b;"><i class="fas fa-info-circle" style="color:#E30613;"></i> Current Branding</h4>
-                <div class="form-group"><label>Tenant Name</label><input class="form-control" v-model="tenantName" @blur="saveBranding"></div>
-                <div class="form-group"><label>Primary Color</label>
-                    <div class="color-preview">
-                        <input type="color" v-model="branding.primaryColor" class="form-control" style="width:80px; padding:4px;" @change="saveBranding">
-                        <div class="preview-box" :style="{ backgroundColor: branding.primaryColor }"></div>
-                        <span>{{ branding.primaryColor }}</span>
+            <!-- MODULES SECTION - COMPLETELY REDONE FOR VISIBILITY -->
+            <div v-if="currentSection === 'modules'">
+                <div class="section-header">
+                    <h2><i class="fas fa-puzzle-piece"></i> Available Modules</h2>
+                    <div>
+                        <button class="btn-outline" @click="refreshModules" style="margin-right: 8px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        <span style="font-size: 0.7rem; color: #64748b;">Configured by Super Admin</span>
                     </div>
                 </div>
-                <div v-if="branding.logoUrl" style="margin-bottom: 16px;">
-                    <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:8px;">Current Logo</label>
-                    <img :src="branding.logoUrl" style="height:48px; border-radius:10px; background:#f8fafc; padding:6px; border:1px solid #edf2f7;">
+                
+                <!-- Debug info -->
+                <div style="background: #f0f9ff; border-radius: 16px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #E30613;">
+                    <p style="font-size: 0.75rem; margin-bottom: 8px;"><i class="fas fa-info-circle"></i> <strong>Module Status:</strong> {{ tenantModules.length }} modules loaded from Super Admin</p>
+                    <button class="btn-outline" @click="forceRefreshModules" style="font-size: 0.7rem; padding: 4px 12px;">🔄 Force Reload from Super Admin</button>
                 </div>
-                <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:16px;"><i class="fas fa-lightbulb"></i> For full customization (logo upload, header color, sidebar style) use Brand Studio above.</p>
-                <button class="btn-primary" @click="saveBranding"><i class="fas fa-save"></i> Save Changes</button>
+                
+                <!-- Module Cards View - Much clearer than table -->
+                <div class="modules-container" v-if="tenantModules.length > 0">
+                    <div v-for="module in tenantModules" :key="module.id" class="module-card-item">
+                        <div class="module-info">
+                            <h4><i :class="getModuleIcon(module.name)" style="color: #E30613; margin-right: 8px;"></i> {{ module.name }}</h4>
+                            <p>{{ getModuleDescription(module.name) }}</p>
+                        </div>
+                        <div class="module-status">
+                            <span :class="module.enabled ? 'module-badge-enabled' : 'module-badge-disabled'">
+                                {{ module.enabled ? 'ENABLED' : 'DISABLED' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fallback table view if cards don't work -->
+                <div class="table-wrapper" v-else>
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Module Name</th><th>Status</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="module in allModules" :key="module.id">
+                                <td><strong>{{ module.displayName }}</strong> <span v-if="module.isCustom" class="badge" style="background:#fef3c7; color:#d97706;">Custom</span></td>
+                                <td><span class="status-badge" :class="module.enabled ? 'status-active' : 'status-warning'">{{ module.enabled ? 'Enabled' : 'Disabled' }}</span></td>
+                                <td style="color:#64748b;">{{ module.description }}</td>
+                            </tr>
+                            <tr v-if="allModules.length === 0"><td colspan="3" style="text-align:center; padding:40px;">No modules found. Click "Force Reload" to sync with Super Admin.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div v-if="currentSection === 'settings'">
+                <div class="section-header"><h2>Branding & Settings</h2></div>
+                <div class="settings-panel">
+                    <div class="form-group"><label>Tenant Name</label><input class="form-control" v-model="tenantName" @blur="saveBranding"></div>
+                    <div class="form-group"><label>Logo URL</label><input class="form-control" v-model="branding.logoUrl" placeholder="Logo URL"><div v-if="branding.logoUrl"><img :src="branding.logoUrl" style="height:40px; margin-top:8px;"></div></div>
+                    <div class="form-group"><label>Primary Color</label><div class="color-preview"><input type="color" v-model="branding.primaryColor" class="form-control" style="width:80px; padding:4px;" @change="saveBranding"><div class="preview-box" :style="{ backgroundColor: branding.primaryColor }"></div><span>{{ branding.primaryColor }}</span></div></div>
+                    <button class="btn-primary" @click="saveBranding">Save Changes</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Create/Edit Staff Modal -->
-<div class="modal-mask" :class="{ active: showStaffModal }">
-    <div class="modal-container">
-        <h3 style="margin-bottom: 20px;"><i class="fas fa-user-plus"></i> {{ isEditing ? 'Edit Staff' : 'Add New Staff' }}</h3>
-        <div class="form-group"><label>Full Name *</label><input class="form-control" v-model="staffForm.name" placeholder="e.g., John Doe"></div>
-        <div class="form-group"><label>Username *</label><input class="form-control" v-model="staffForm.username" placeholder="Login username (unique)"></div>
-        <div class="form-group"><label>Password *</label><input type="password" class="form-control" v-model="staffForm.password" placeholder="Login password (min 4 characters)"></div>
-        <div class="form-group">
-            <label>Role * - Determines what staff can access</label>
-            <select class="form-control" v-model="staffForm.role">
-                <option value="boxoffice">🎟️ Box Office - Ticket sales, entry scanning</option>
-                <option value="hospitality">🍽️ Hospitality - Food & shisha orders (POS)</option>
-                <option value="shishamaster">💨 Shisha Master - Manage shisha sessions, tables</option>
-                <option value="gatecontrol">🚪 Gate Control - Entry scanning only</option>
-                <option value="support">🧹 Support Staff - View only, no operations</option>
-                <option value="venuemanager">👔 Venue Manager - Full access to everything</option>
-            </select>
-        </div>
-        <div class="modal-buttons" style="display:flex; gap:12px; margin-top:20px;">
-            <button class="btn-outline" @click="closeStaffModal">Cancel</button>
-            <button class="btn-primary" @click="saveStaff">{{ isEditing ? 'Update' : 'Create' }}</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-mask" :class="{ active: showResetModal }">
-    <div class="modal-container">
-        <h3><i class="fas fa-key"></i> Reset Password</h3>
-        <p>New password for <strong>{{ resettingStaff?.name }}</strong></p>
-        <input type="password" class="form-control" v-model="newPassword" placeholder="New password (min 4 characters)" style="margin:16px 0;">
-        <div style="display:flex; gap:12px; margin-top:16px;">
-            <button class="btn-outline" @click="showResetModal = false">Cancel</button>
-            <button class="btn-primary" @click="confirmResetPassword">Reset</button>
+    <!-- Create/Edit Staff Modal -->
+    <div class="modal-mask" :class="{ active: showStaffModal }">
+        <div class="modal-container">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-user-plus"></i> {{ isEditing ? 'Edit Staff' : 'Add New Staff' }}</h3>
+            <div class="form-group"><label>Full Name *</label><input class="form-control" v-model="staffForm.name" placeholder="e.g., John Doe"></div>
+            <div class="form-group"><label>Username *</label><input class="form-control" v-model="staffForm.username" placeholder="Login username (unique)"></div>
+            <div class="form-group"><label>Password *</label><input type="password" class="form-control" v-model="staffForm.password" placeholder="Login password (min 4 characters)"></div>
+            <div class="form-group">
+                <label>Role * - Determines what staff can access</label>
+                <select class="form-control" v-model="staffForm.role">
+                    <option value="boxoffice">🎟️ Box Office - Ticket sales, entry scanning</option>
+                    <option value="hospitality">🍽️ Hospitality - Food & shisha orders (POS)</option>
+                    <option value="shishamaster">💨 Shisha Master - Manage shisha sessions, tables</option>
+                    <option value="gatecontrol">🚪 Gate Control - Entry scanning only</option>
+                    <option value="support">🧹 Support Staff - View only, no operations</option>
+                    <option value="venuemanager">👔 Venue Manager - Full access to everything</option>
+                </select>
+            </div>
+            <div class="modal-buttons" style="display:flex; gap:12px; margin-top:20px;">
+                <button class="btn-outline" @click="closeStaffModal">Cancel</button>
+                <button class="btn-primary" @click="saveStaff">{{ isEditing ? 'Update' : 'Create' }}</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="modal-mask" :class="{ active: showInfoModal }">
-    <div class="modal-container" style="text-align:center;">
-        <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
-        <h3>{{ infoTitle }}</h3>
-        <p style="margin: 16px 0; white-space: pre-line;">{{ infoMessage }}</p>
-        <button class="btn-primary" @click="showInfoModal = false">OK</button>
+    <div class="modal-mask" :class="{ active: showResetModal }">
+        <div class="modal-container">
+            <h3><i class="fas fa-key"></i> Reset Password</h3>
+            <p>New password for <strong>{{ resettingStaff?.name }}</strong></p>
+            <input type="password" class="form-control" v-model="newPassword" placeholder="New password (min 4 characters)" style="margin:16px 0;">
+            <div style="display:flex; gap:12px; margin-top:16px;">
+                <button class="btn-outline" @click="showResetModal = false">Cancel</button>
+                <button class="btn-primary" @click="confirmResetPassword">Reset</button>
+            </div>
+        </div>
     </div>
-</div>
-```
 
+    <div class="modal-mask" :class="{ active: showInfoModal }">
+        <div class="modal-container" style="text-align:center;">
+            <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
+            <h3>{{ infoTitle }}</h3>
+            <p style="margin: 16px 0; white-space: pre-line;">{{ infoMessage }}</p>
+            <button class="btn-primary" @click="showInfoModal = false">OK</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -481,8 +451,7 @@
             },
             
             setupRealtimeSync() {
-                window.addEventListener('storage', (e) => {
-                    // Listen for module changes from Super Admin
+                window.addEventListener('storage', (e) => { 
                     if (e.key === STORAGE_KEYS.TENANT_MODULES) { 
                         console.log('Module change detected from Super Admin!'); 
                         this.syncing = true; 
@@ -494,14 +463,7 @@
                             this.syncWarning = false; 
                             this.showAlert('Modules Updated', 'Super Admin has updated module settings. The module list has been refreshed.', 'fas fa-sync-alt', '#10b981'); 
                         }, 500); 
-                    }
-                    // Listen for branding changes from Brand Studio (tenant-settings.html)
-                    if (e.key === `qless_tenant_branding_${this.tenantId}` && e.newValue) {
-                        const data = JSON.parse(e.newValue);
-                        this.tenantName = data.tenantName || this.tenantName;
-                        this.branding = data.branding || this.branding;
-                        this.applyBrandingToDOM();
-                    }
+                    } 
                 });
                 this.syncInterval = setInterval(() => { 
                     this.syncing = true; 
@@ -544,49 +506,8 @@
                 this.forceRefreshModules();
             },
             
-            loadBranding() {
-                const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    this.tenantName = data.tenantName || this.tenantName;
-                    this.branding = data.branding || { primaryColor: '#E30613', secondaryColor: '#ffffff', logoUrl: '', sidebarStyle: 'dark' };
-                }
-                this.applyBrandingToDOM();
-            },
-            applyBrandingToDOM() {
-                // Apply primary color CSS variable
-                document.documentElement.style.setProperty('--primary-color', this.branding.primaryColor || '#E30613');
-                // Apply secondary color to top header
-                if (this.branding.secondaryColor) {
-                    const header = document.querySelector('.top-header');
-                    if (header) header.style.backgroundColor = this.branding.secondaryColor;
-                }
-                // Apply sidebar color
-                const sidebar = document.querySelector('.sidebar');
-                if (sidebar && this.branding.primaryColor) {
-                    // Update sidebar active item color via style
-                    document.documentElement.style.setProperty('--brand-primary', this.branding.primaryColor);
-                }
-                // Apply logo to sidebar header
-                const logoEl = document.querySelector('.tenant-logo');
-                if (logoEl && this.branding.logoUrl) {
-                    logoEl.innerHTML = `<img src="${this.branding.logoUrl}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
-                } else if (logoEl) {
-                    logoEl.innerHTML = this.tenantInitial;
-                }
-            },
-            saveBranding() {
-                const data = { tenantName: this.tenantName, branding: this.branding };
-                localStorage.setItem(`qless_tenant_branding_${this.tenantId}`, JSON.stringify(data));
-                // Notify other open tabs (staff.html, tenant-settings.html)
-                window.dispatchEvent(new StorageEvent('storage', { key: `qless_tenant_branding_${this.tenantId}`, newValue: JSON.stringify(data) }));
-                const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
-                const tenant = tenants.find(t => t.id === this.tenantId);
-                if (tenant) tenant.businessName = this.tenantName;
-                localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants));
-                this.applyBrandingToDOM();
-                this.showAlert('Saved', 'Branding saved! Staff dashboards will reflect changes.', 'fas fa-check-circle', '#10b981');
-            },
+            loadBranding() { const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`); if (saved) { const data = JSON.parse(saved); this.tenantName = data.tenantName || this.tenantName; this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' }; } },
+            saveBranding() { const data = { tenantName: this.tenantName, branding: this.branding }; localStorage.setItem(`qless_tenant_branding_${this.tenantId}`, JSON.stringify(data)); const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]'); const tenant = tenants.find(t => t.id === this.tenantId); if (tenant) tenant.businessName = this.tenantName; localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants)); this.showAlert('Saved', 'Branding saved successfully!', 'fas fa-check-circle', '#10b981'); },
             openCreateStaffModal() { this.isEditing = false; this.editingStaffId = null; this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' }; this.showStaffModal = true; },
             editStaff(staff) { this.isEditing = true; this.editingStaffId = staff.id; this.staffForm = { name: staff.name, username: staff.username, password: staff.password, role: staff.role }; this.showStaffModal = true; },
             saveStaff() {
@@ -618,6 +539,5 @@
         beforeDestroy() { if (this.syncInterval) clearInterval(this.syncInterval); }
     });
 </script>
-
 </body>
 </html>

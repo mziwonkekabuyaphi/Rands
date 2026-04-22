@@ -1,570 +1,806 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Rands Brand Studio | Tenant Customization</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+        }
 
-```
-    body { background: #f5f7fb; min-height: 100vh; display: flex; flex-direction: column; }
+        /* Mobile-first approach */
+        body {
+            background: #f5f7fb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    /* ===== SIDEBAR ===== */
-    .sidebar-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); z-index: 998; backdrop-filter: blur(2px); }
-    .sidebar-overlay.active { display: block; }
+        /* ========= SIDEBAR - Mobile responsive with drawer behavior ========= */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
 
-    .app-sidebar {
-        position: fixed; left: -280px; top:0; bottom:0; width: 280px;
-        background: var(--primary-color, #E30613); color: white;
-        transition: left 0.3s cubic-bezier(0.2,0.9,0.4,1.1);
-        z-index: 999; display: flex; flex-direction: column;
-        box-shadow: 2px 0 20px rgba(0,0,0,0.15); overflow-y: auto;
-    }
-    .app-sidebar.mobile-open { left: 0; }
+        .app-sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: var(--primary-color, #b91c1c);
+            color: white;
+            transition: left 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.15);
+            overflow-y: auto;
+        }
 
-    .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 12px; }
-    .sidebar-logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .sidebar-logo-img { height: 38px; width: auto; max-width: 100px; object-fit: contain; border-radius: 8px; background: white; padding: 4px; display: none; }
-    .business-name-side { font-weight: 700; font-size: 1.1rem; word-break: break-word; }
-    .sidebar-role-tag { font-size: 0.65rem; background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; display: inline-block; margin-top: 4px; }
+        .app-sidebar.mobile-open {
+            left: 0;
+        }
 
-    .nav-menu { list-style: none; padding: 0 12px; flex: 1; }
-    .nav-item { margin-bottom: 4px; border-radius: 12px; }
-    .nav-item a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; color: rgba(255,255,255,0.85); text-decoration: none; border-radius: 12px; font-weight: 500; font-size: 0.9rem; transition: 0.2s; }
-    .nav-item.active a { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
-    .nav-item a:hover { background: rgba(255,255,255,0.15); }
-    .nav-item a i { width: 20px; font-size: 1rem; }
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 20px;
+        }
 
-    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.15); }
-    .logout-btn { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.7); font-size: 0.85rem; cursor: pointer; padding: 10px 14px; border-radius: 10px; transition: 0.2s; }
-    .logout-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .business-name-side {
+            font-weight: 700;
+            font-size: 1.2rem;
+            white-space: normal;
+            word-break: break-word;
+        }
 
-    /* ===== MAIN CONTENT ===== */
-    .main-content { flex: 1; display: flex; flex-direction: column; width: 100%; }
+        .nav-menu {
+            list-style: none;
+            padding: 0 16px;
+            flex: 1;
+        }
 
-    .dashboard-header {
-        background: var(--secondary-color, #ffffff);
-        padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; border-bottom: 1px solid #e9eef3;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.05); position: sticky; top:0; z-index: 100;
-    }
-    .menu-toggle { background: rgba(0,0,0,0.06); border: none; font-size: 1.4rem; cursor: pointer; padding: 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; transition: 0.2s; }
-    .menu-toggle:hover { background: rgba(0,0,0,0.12); }
+        .nav-item {
+            margin-bottom: 8px;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
 
-    .logo-area { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-    .header-logo-img { height: 36px; width: auto; max-width: 110px; object-fit: contain; display: none; }
-    .business-name-header { font-size: 1rem; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
 
-    .header-actions { display: flex; gap: 8px; align-items: center; }
-    .live-badge { background: #dcfce7; color: #16a34a; border-radius: 40px; padding: 5px 12px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
-    .back-btn { background: #f1f5f9; border: none; padding: 8px 16px; border-radius: 30px; font-size: 0.8rem; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-    .back-btn:hover { background: #e2e8f0; }
+        .nav-item.active a {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+        }
 
-    /* ===== SETTINGS ===== */
-    .settings-container { padding: 20px; width: 100%; max-width: 100%; }
+        .nav-item a:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
-    .card { background: white; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); padding: 24px; margin-bottom: 20px; border: 1px solid #edf2f7; }
-    .card-title { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
-    .card-subtitle { color: #64748b; font-size: 0.85rem; margin-bottom: 24px; }
+        /* Main content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
 
-    .form-grid { display: flex; flex-direction: column; gap: 20px; }
+        /* Mobile header with hamburger */
+        .dashboard-header {
+            background: var(--secondary-color, #ffffff);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid #e9eef3;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-    .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-group label { font-weight: 600; color: #334155; font-size: 0.82rem; letter-spacing: 0.3px; }
-    .form-group input, .form-group select { padding: 12px 16px; border-radius: 40px; border: 1px solid #e2e8f0; font-size: 0.9rem; font-family: inherit; transition: 0.2s; background: white; width: 100%; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color, #E30613); box-shadow: 0 0 0 3px rgba(227,6,19,0.1); }
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: rgba(0,0,0,0.05);
+            transition: 0.2s;
+        }
 
-    .color-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    input[type="color"] { width: 56px; height: 44px; padding: 4px; cursor: pointer; border-radius: 12px !important; }
-    .color-swatch { width: 44px; height: 44px; border-radius: 12px; border: 1px solid #e2e8f0; flex-shrink: 0; }
-    .color-label { font-size: 0.8rem; color: #64748b; }
+        .menu-toggle:hover {
+            background: rgba(0,0,0,0.1);
+        }
 
-    .logo-preview-area { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: #f8fafc; padding: 14px; border-radius: 20px; margin-top: 8px; }
-    .logo-img-preview { max-height: 55px; max-width: 130px; border-radius: 10px; background: white; padding: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); object-fit: contain; display: none; }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
 
-    .action-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
-    .btn-save { background: var(--primary-color, #E30613); color: white; border: none; padding: 14px 28px; border-radius: 40px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
-    .btn-save:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(227,6,19,0.25); }
-    .btn-reset { background: transparent; border: 1.5px solid #e2e8f0; color: #64748b; padding: 12px 24px; border-radius: 40px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
-    .btn-reset:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .tenant-logo {
+            height: 40px;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+        }
 
-    .success-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 14px 28px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; transition: transform 0.4s cubic-bezier(0.2,0.9,0.4,1.1); pointer-events: none; }
-    .success-toast.show { transform: translateX(-50%) translateY(0); }
+        .business-name-header {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-    /* Preview card */
-    .preview-card { background: #f1f5f9; border-radius: 20px; padding: 20px; margin-top: 16px; }
-    .preview-header-demo { padding: 14px 16px; border-radius: 14px; margin-bottom: 14px; border-left: 5px solid var(--primary-color, #E30613); display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.85rem; }
-    .preview-sidebar-demo { width: 100%; height: 8px; border-radius: 20px; margin-bottom: 14px; }
-    .demo-btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .demo-btn { padding: 10px 20px; border-radius: 30px; border: none; font-weight: 600; font-size: 0.8rem; cursor: default; }
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
 
-    /* Close btn mobile */
-    .close-sidebar-mobile { display: none; text-align: right; padding: 14px 16px; font-size: 1.5rem; cursor: pointer; }
-    @media (max-width: 767px) { .close-sidebar-mobile { display: block; } }
+        /* Settings Container - Mobile friendly */
+        .settings-container {
+            padding: 16px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
 
-    /* Tablet/Desktop */
-    @media (min-width: 768px) {
-        body { flex-direction: row; }
-        .sidebar-overlay { display: none !important; }
-        .app-sidebar { position: relative; left: 0 !important; width: 260px; transition: none; }
-        .menu-toggle { display: none; }
-        .settings-container { padding: 32px; max-width: 1100px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
-        .action-buttons { flex-direction: row; justify-content: flex-end; }
-        .btn-save, .btn-reset { width: auto; min-width: 160px; }
-    }
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
 
-    body.sidebar-compact .app-sidebar { width: 72px; }
-    body.sidebar-compact .business-name-side,
-    body.sidebar-compact .nav-item a span:not(.icon-only),
-    body.sidebar-compact .sidebar-role-tag,
-    body.sidebar-compact .sidebar-footer .logout-label { display: none; }
-</style>
-```
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+        }
 
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+        }
+
+        input, select {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid #cbd5e1;
+            font-size: 1rem;
+            transition: 0.2s;
+            background: white;
+            width: 100%;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color, #b91c1c);
+            box-shadow: 0 0 0 3px rgba(185,28,28,0.15);
+        }
+
+        .color-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        input[type="color"] {
+            width: 60px;
+            height: 48px;
+            padding: 4px;
+            cursor: pointer;
+        }
+        .color-preview {
+            width: 48px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .logo-preview {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+
+        .logo-img-preview {
+            max-height: 60px;
+            max-width: 130px;
+            border-radius: 12px;
+            background: white;
+            padding: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            object-fit: contain;
+        }
+
+        button {
+            background: var(--primary-color, #b91c1c);
+            border: none;
+            padding: 14px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        button.btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--primary-color, #b91c1c);
+            color: var(--primary-color, #b91c1c);
+        }
+
+        button.btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .live-badge {
+            background: #fef9c3;
+            border-radius: 40px;
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .preview-card {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .preview-header-demo {
+            background: var(--secondary-color, #fff);
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .demo-buttons button {
+            width: auto;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+
+        /* Tablet and desktop improvements */
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+            }
+            .sidebar-overlay {
+                display: none !important;
+            }
+            .app-sidebar {
+                position: relative;
+                left: 0 !important;
+                width: 260px;
+                transition: none;
+            }
+            .menu-toggle {
+                display: none;
+            }
+            .settings-container {
+                padding: 28px;
+                max-width: 1200px;
+            }
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 28px;
+            }
+            .action-buttons {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+            .action-buttons button {
+                width: auto;
+                min-width: 160px;
+            }
+            button {
+                width: auto;
+            }
+            .business-name-header {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Compact mode support */
+        body.sidebar-compact .app-sidebar {
+            width: 80px;
+        }
+        body.sidebar-compact .business-name-side,
+        body.sidebar-compact .nav-item span:not(.icon-only) {
+            display: none;
+        }
+        
+        /* Mobile improvements for small devices */
+        @media (max-width: 480px) {
+            .card {
+                padding: 16px;
+            }
+            .business-name-header {
+                max-width: 140px;
+                font-size: 0.9rem;
+            }
+            .tenant-logo {
+                max-height: 32px;
+            }
+            .live-badge {
+                font-size: 0.65rem;
+            }
+        }
+        .icon-only {
+            font-size: 1.3rem;
+        }
+        .close-sidebar-mobile {
+            display: none;
+        }
+        @media (max-width: 767px) {
+            .close-sidebar-mobile {
+                display: block;
+                text-align: right;
+                padding: 12px 16px;
+                font-size: 1.6rem;
+                cursor: pointer;
+            }
+        }
+    </style>
 </head>
 <body id="appRoot">
 
+<!-- Mobile overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- SIDEBAR -->
-
 <aside class="app-sidebar" id="mainSidebar">
-    <div class="close-sidebar-mobile" id="closeSidebarBtn">✕</div>
+    <div class="close-sidebar-mobile" id="closeSidebarBtn" style="cursor:pointer; text-align:right; padding:16px;">✕</div>
     <div class="sidebar-header">
-        <div class="sidebar-logo-area">
-            <img id="sidebarLogoImg" class="sidebar-logo-img" alt="logo">
-            <div>
-                <div class="business-name-side" id="sidebarBusinessName">Loading...</div>
-                <span class="sidebar-role-tag"><i class="fas fa-user-tie"></i> Tenant Admin</span>
-            </div>
-        </div>
+        <div class="business-name-side" id="sidebarBusinessName">Rands Butchery</div>
     </div>
     <ul class="nav-menu">
-        <li class="nav-item"><a href="admin.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
-        <li class="nav-item"><a href="admin.html"><i class="fas fa-users"></i> <span>Staff Management</span></a></li>
-        <li class="nav-item"><a href="admin.html"><i class="fas fa-puzzle-piece"></i> <span>Modules</span></a></li>
-        <li class="nav-item active"><a href="tenant-settings.html"><i class="fas fa-palette"></i> <span>Brand Studio</span></a></li>
-        <li class="nav-item"><a href="admin.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+        <li class="nav-item active"><a href="#"><span class="icon-only">🏠</span> <span>Dashboard</span></a></li>
+        <li class="nav-item"><a href="#"><span class="icon-only">⚙️</span> <span>Settings</span></a></li>
+        <li class="nav-item"><a href="#"><span class="icon-only">👥</span> <span>Staff</span></a></li>
+        <li class="nav-item"><a href="#"><span class="icon-only">📊</span> <span>Reports</span></a></li>
+        <li class="nav-item"><a href="#"><span class="icon-only">🎨</span> <span>Brand Studio</span></a></li>
     </ul>
-    <div class="sidebar-footer">
-        <div class="logout-btn" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="logout-label">Logout</span>
-        </div>
-    </div>
 </aside>
 
-<!-- MAIN CONTENT -->
-
 <div class="main-content">
+    <!-- HEADER with hamburger menu -->
     <header class="dashboard-header" id="dynamicHeader">
         <button class="menu-toggle" id="menuToggleBtn" aria-label="Menu">☰</button>
         <div class="logo-area">
-            <img id="headerLogoImg" class="header-logo-img" alt="Logo">
-            <span id="headerBusinessName" class="business-name-header">Brand Studio</span>
+            <img id="headerLogoImg" class="tenant-logo" src="" alt="Logo" style="display: none;">
+            <span id="headerBusinessName" class="business-name-header">Rands Butchery</span>
         </div>
         <div class="header-actions">
-            <span class="live-badge"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Live Preview</span>
-            <button class="back-btn" onclick="window.location.href='admin.html'">
-                <i class="fas fa-arrow-left"></i> Back
-            </button>
+            <span class="live-badge">📱 Live</span>
+            <span>👤 Admin</span>
         </div>
     </header>
 
-```
-<div class="settings-container">
-
-    <!-- BRAND STUDIO CARD -->
-    <div class="card">
-        <div class="card-title">🎨 Brand Studio</div>
-        <div class="card-subtitle">Customize your logo, colors & sidebar — changes apply instantly to Admin & Staff dashboards</div>
-
-        <div class="form-grid">
-            <div class="form-group">
-                <label><i class="fas fa-building"></i> Business Name</label>
-                <input type="text" id="businessNameInput" placeholder="e.g., Rands Premium Meats">
-            </div>
-
-            <div class="form-group">
-                <label><i class="fas fa-palette"></i> Primary Color — Sidebar & Buttons</label>
-                <div class="color-row">
-                    <input type="color" id="primaryColorPicker" value="#E30613">
-                    <span id="primaryColorSwatch" class="color-swatch" style="background:#E30613;"></span>
-                    <span class="color-label">Used on sidebar, buttons, accents</span>
+    <div class="settings-container">
+        <div class="card">
+            <h2>🎨 Brand Studio</h2>
+            <p style="color: #475569; margin-bottom: 20px; font-size: 0.9rem;">Customize logo, colors & sidebar — live preview on mobile & desktop</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>🏢 Business Name</label>
+                    <input type="text" id="businessNameInput" placeholder="e.g., Rands Premium Meats">
+                </div>
+                
+                <div class="form-group">
+                    <label>🎨 Primary Color (Sidebar, buttons)</label>
+                    <div class="color-row">
+                        <input type="color" id="primaryColorPicker" value="#b91c1c">
+                        <span id="primaryColorHex" class="color-preview" style="background: #b91c1c;"></span>
+                        <span style="font-size:13px; color:#475569;">Sidebar + buttons</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>🎨 Secondary Color (Header)</label>
+                    <div class="color-row">
+                        <input type="color" id="secondaryColorPicker" value="#ffffff">
+                        <span id="secondaryColorHex" class="color-preview" style="background: #ffffff; border:1px solid #ccc;"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>📁 Sidebar Style</label>
+                    <select id="sidebarStyleSelect">
+                        <option value="dark">Dark (Rich primary)</option>
+                        <option value="light">Light (Bright primary)</option>
+                        <option value="compact">Compact (Collapsed on desktop)</option>
+                    </select>
+                    <small style="color:#64748b;">On mobile, sidebar is always drawer style</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>🖼️ Upload Logo (PNG/JPG/SVG)</label>
+                    <input type="file" id="logoUploader" accept="image/png, image/jpeg, image/svg+xml, image/webp">
+                    <div class="logo-preview" id="logoPreviewArea">
+                        <img id="liveLogoPreview" class="logo-img-preview" alt="logo preview" style="max-height: 55px;">
+                        <span style="font-size:12px;">Instant preview</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label><i class="fas fa-fill-drip"></i> Secondary Color — Header Background</label>
-                <div class="color-row">
-                    <input type="color" id="secondaryColorPicker" value="#ffffff">
-                    <span id="secondaryColorSwatch" class="color-swatch" style="background:#ffffff; border:1px solid #e2e8f0;"></span>
-                    <span class="color-label">Used on top header bar</span>
-                </div>
+            <div class="action-buttons">
+                <button id="resetThemeBtn" class="btn-outline">♻️ Reset to Default</button>
+                <button id="saveSettingsBtn">💾 Save Branding</button>
             </div>
-
-            <div class="form-group">
-                <label><i class="fas fa-columns"></i> Sidebar Style</label>
-                <select id="sidebarStyleSelect">
-                    <option value="dark">Dark (Rich primary color)</option>
-                    <option value="light">Light (Bright with primary accents)</option>
-                    <option value="compact">Compact (Icon-only on desktop)</option>
-                </select>
-                <small style="color:#94a3b8; font-size:0.75rem;">On mobile, sidebar is always a drawer</small>
-            </div>
-
-            <div class="form-group">
-                <label><i class="fas fa-image"></i> Upload Logo (PNG / JPG / SVG)</label>
-                <input type="file" id="logoUploader" accept="image/png, image/jpeg, image/svg+xml, image/webp" style="border-radius:12px; padding:10px 14px;">
-                <div class="logo-preview-area" id="logoPreviewArea">
-                    <img id="liveLogoPreview" class="logo-img-preview" alt="logo preview">
-                    <span style="font-size:0.75rem; color:#94a3b8;">Instant preview above</span>
-                </div>
-            </div>
+            <p style="margin-top: 16px; font-size:12px; color:#475569; text-align:center;">✅ Changes reflect across Tenant Admin, Staff & Kiosk UI</p>
         </div>
 
-        <div class="action-buttons">
-            <button class="btn-reset" id="resetThemeBtn"><i class="fas fa-undo"></i> Reset to Default</button>
-            <button class="btn-save" id="saveSettingsBtn"><i class="fas fa-save"></i> Save Branding</button>
-        </div>
-        <p style="margin-top:16px; font-size:0.72rem; color:#94a3b8; text-align:center;">
-            <i class="fas fa-check-circle" style="color:#10b981;"></i> Saved changes reflect instantly on Admin & Staff dashboards
-        </p>
-    </div>
-
-    <!-- LIVE PREVIEW CARD -->
-    <div class="card">
-        <div class="card-title">✨ Live Preview</div>
-        <div class="card-subtitle">See how your branding looks across dashboards</div>
-        <div class="preview-card">
-            <div class="preview-sidebar-demo" id="previewSidebarBar" style="background: #E30613;"></div>
-            <div class="preview-header-demo" id="previewHeaderDemo" style="background:#ffffff;">
-                <i class="fas fa-store"></i>
-                <span id="previewBusinessName">Your Business Name</span>
+        <!-- Live preview card -->
+        <div class="card">
+            <h3>✨ Real-time preview (mobile optimized)</h3>
+            <div class="preview-card">
+                <div class="preview-header-demo">
+                    <strong>Header</strong> — uses secondary color + logo
+                </div>
+                <div class="demo-buttons">
+                    <button style="background: var(--primary-color);">Primary action</button>
+                    <button style="background: var(--secondary-color); color:#1e293b; border:1px solid #cbd5e1;">Secondary</button>
+                </div>
+                <p style="margin-top: 12px; font-size: 12px;">Sidebar reflects primary color + selected style</p>
             </div>
-            <div class="demo-btn-row">
-                <button class="demo-btn" id="previewPrimaryBtn" style="background:#E30613; color:white;">Primary Button</button>
-                <button class="demo-btn" style="background:#f1f5f9; color:#1e293b;">Secondary</button>
-                <button class="demo-btn" style="background:#10b981; color:white;">Success</button>
-            </div>
-            <p style="margin-top:14px; font-size:0.72rem; color:#94a3b8;">Sidebar color bar + header + buttons all reflect your chosen colors</p>
         </div>
     </div>
-
-</div>
-```
-
 </div>
 
-<!-- Toast -->
-
-<div class="success-toast" id="successToast">
-    <i class="fas fa-check-circle"></i>
-    <span id="toastMessage">Branding saved!</span>
-</div>
-
+<!-- Theme Engine JS -->
 <script>
-(function() {
-    // =============================================
-    // AUTH CHECK — must be logged in as tenant admin
-    // =============================================
-    const isLoggedIn = sessionStorage.getItem('qless_logged_in');
-    const userRole   = sessionStorage.getItem('qless_user_role');
-    const tenantId   = parseInt(sessionStorage.getItem('qless_tenant_id'));
-    const tenantName = sessionStorage.getItem('qless_tenant_name') || 'My Venue';
-
-    if (!isLoggedIn || userRole !== 'tenant_administrator' || !tenantId) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // =============================================
-    // STORAGE KEY — matches admin.html & staff.html
-    // =============================================
-    const BRANDING_KEY = `qless_tenant_branding_${tenantId}`;
-
-    // =============================================
-    // LOAD existing branding from shared key
-    // =============================================
-    function loadBranding() {
-        const raw = localStorage.getItem(BRANDING_KEY);
-        if (raw) {
-            const data = JSON.parse(raw);
+    // tenant settings core with live preview + mobile drawer
+    (function() {
+        // Tenant context - in real multi-role system, this is dynamic from auth
+        let currentTenantId = localStorage.getItem('currentTenantId') || 'tenant_rand_001';
+        if (!localStorage.getItem('currentTenantId')) {
+            localStorage.setItem('currentTenantId', 'tenant_rand_001');
+        }
+        
+        // Helper functions
+        function loadTenantSettings(tenantId) {
+            const stored = localStorage.getItem(`tenantSettings_${tenantId}`);
+            if (stored) {
+                return JSON.parse(stored);
+            }
             return {
-                businessName:   data.tenantName          || tenantName,
-                primaryColor:   data.branding?.primaryColor   || '#E30613',
-                secondaryColor: data.branding?.secondaryColor || '#ffffff',
-                sidebarStyle:   data.branding?.sidebarStyle   || 'dark',
-                logo:           data.branding?.logoUrl        || ''
+                tenantId: tenantId,
+                businessName: "Rands Butchery",
+                logo: "",
+                primaryColor: "#b91c1c",
+                secondaryColor: "#ffffff",
+                sidebarStyle: "dark"
             };
         }
-        return {
-            businessName:   tenantName,
-            primaryColor:   '#E30613',
-            secondaryColor: '#ffffff',
-            sidebarStyle:   'dark',
-            logo:           ''
-        };
-    }
-
-    // =============================================
-    // SAVE branding — in format admin.html & staff.html expect
-    // =============================================
-    function saveBranding(settings) {
-        const payload = {
-            tenantName: settings.businessName,
-            branding: {
-                primaryColor:   settings.primaryColor,
-                secondaryColor: settings.secondaryColor,
-                sidebarStyle:   settings.sidebarStyle,
-                logoUrl:        settings.logo
+        
+        function saveTenantSettings(settings) {
+            localStorage.setItem(`tenantSettings_${settings.tenantId}`, JSON.stringify(settings));
+            window.dispatchEvent(new CustomEvent('tenantSettingsChanged', { detail: settings }));
+            applyThemeManually(settings);
+        }
+        
+        // Manual theme application
+        function applyThemeManually(settings) {
+            document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
+            document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor);
+            
+            const sidebar = document.getElementById('mainSidebar');
+            if (sidebar) {
+                sidebar.style.background = settings.primaryColor;
+                // handle style classes for desktop compact
+                if (settings.sidebarStyle === 'compact' && window.innerWidth >= 768) {
+                    document.body.classList.add('sidebar-compact');
+                } else {
+                    document.body.classList.remove('sidebar-compact');
+                }
+                if (settings.sidebarStyle === 'light') {
+                    sidebar.style.color = '#1e293b';
+                } else {
+                    sidebar.style.color = 'white';
+                }
             }
-        };
-        localStorage.setItem(BRANDING_KEY, JSON.stringify(payload));
-
-        // Dispatch storage event so OTHER open tabs (admin.html / staff.html) update immediately
-        window.dispatchEvent(new StorageEvent('storage', {
-            key:      BRANDING_KEY,
-            newValue: JSON.stringify(payload)
-        }));
-    }
-
-    // =============================================
-    // APPLY theme to THIS page (live preview)
-    // =============================================
-    function applyTheme(settings) {
-        document.documentElement.style.setProperty('--primary-color',   settings.primaryColor);
-        document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor);
-
+            
+            const header = document.getElementById('dynamicHeader');
+            if (header) header.style.backgroundColor = settings.secondaryColor;
+            
+            // Update business names
+            const sidebarBusiness = document.getElementById('sidebarBusinessName');
+            const headerBusiness = document.getElementById('headerBusinessName');
+            if (sidebarBusiness) sidebarBusiness.innerText = settings.businessName;
+            if (headerBusiness) headerBusiness.innerText = settings.businessName;
+            
+            // Logo handling
+            const headerLogo = document.getElementById('headerLogoImg');
+            if (settings.logo && settings.logo.trim() !== "") {
+                headerLogo.src = settings.logo;
+                headerLogo.style.display = 'block';
+            } else {
+                headerLogo.style.display = 'none';
+            }
+        }
+        
+        let currentSettings = loadTenantSettings(currentTenantId);
+        
+        // DOM elements
+        const businessInput = document.getElementById('businessNameInput');
+        const primaryPicker = document.getElementById('primaryColorPicker');
+        const secondaryPicker = document.getElementById('secondaryColorPicker');
+        const sidebarSelect = document.getElementById('sidebarStyleSelect');
+        const logoUpload = document.getElementById('logoUploader');
+        const liveLogoPreview = document.getElementById('liveLogoPreview');
+        const primaryHexSpan = document.getElementById('primaryColorHex');
+        const secondaryHexSpan = document.getElementById('secondaryColorHex');
+        
+        function updateFormFromSettings(settings) {
+            businessInput.value = settings.businessName;
+            primaryPicker.value = settings.primaryColor;
+            secondaryPicker.value = settings.secondaryColor;
+            sidebarSelect.value = settings.sidebarStyle;
+            if (primaryHexSpan) primaryHexSpan.style.backgroundColor = settings.primaryColor;
+            if (secondaryHexSpan) secondaryHexSpan.style.backgroundColor = settings.secondaryColor;
+            if (settings.logo && settings.logo !== "") {
+                liveLogoPreview.src = settings.logo;
+                liveLogoPreview.style.display = 'block';
+            } else {
+                liveLogoPreview.style.display = 'none';
+                liveLogoPreview.src = "";
+            }
+            applyThemeManually(settings);
+        }
+        
+        function syncLivePreview() {
+            const previewSettings = {
+                ...currentSettings,
+                businessName: businessInput.value,
+                primaryColor: primaryPicker.value,
+                secondaryColor: secondaryPicker.value,
+                sidebarStyle: sidebarSelect.value,
+                logo: currentSettings.logo || ""
+            };
+            applyThemeManually(previewSettings);
+            if (primaryHexSpan) primaryHexSpan.style.backgroundColor = previewSettings.primaryColor;
+            if (secondaryHexSpan) secondaryHexSpan.style.backgroundColor = previewSettings.secondaryColor;
+        }
+        
+        businessInput.addEventListener('input', syncLivePreview);
+        primaryPicker.addEventListener('input', syncLivePreview);
+        secondaryPicker.addEventListener('input', syncLivePreview);
+        sidebarSelect.addEventListener('change', syncLivePreview);
+        
+        // Logo upload with base64
+        logoUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const base64 = ev.target.result;
+                    liveLogoPreview.src = base64;
+                    liveLogoPreview.style.display = 'block';
+                    currentSettings.logo = base64;
+                    syncLivePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Save
+        document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+            const updated = {
+                tenantId: currentTenantId,
+                businessName: businessInput.value,
+                primaryColor: primaryPicker.value,
+                secondaryColor: secondaryPicker.value,
+                sidebarStyle: sidebarSelect.value,
+                logo: currentSettings.logo || ""
+            };
+            saveTenantSettings(updated);
+            currentSettings = updated;
+            alert('✅ Branding saved! Staff & Kiosk dashboards will reflect changes instantly.');
+        });
+        
+        // Reset
+        document.getElementById('resetThemeBtn').addEventListener('click', () => {
+            const defaultSettings = {
+                tenantId: currentTenantId,
+                businessName: "Rands Butchery",
+                logo: "",
+                primaryColor: "#b91c1c",
+                secondaryColor: "#ffffff",
+                sidebarStyle: "dark"
+            };
+            saveTenantSettings(defaultSettings);
+            currentSettings = defaultSettings;
+            updateFormFromSettings(defaultSettings);
+            logoUpload.value = "";
+            liveLogoPreview.src = "";
+            liveLogoPreview.style.display = 'none';
+            alert('Theme reset to Rands signature red + white.');
+        });
+        
+        // Mobile drawer logic
+        const menuToggle = document.getElementById('menuToggleBtn');
         const sidebar = document.getElementById('mainSidebar');
-        if (sidebar) {
-            sidebar.style.background = settings.primaryColor;
-            sidebar.style.color = 'white';
-            if (settings.sidebarStyle === 'compact' && window.innerWidth >= 768) {
-                document.body.classList.add('sidebar-compact');
+        const overlay = document.getElementById('sidebarOverlay');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        
+        function closeDrawer() {
+            if (sidebar) sidebar.classList.remove('mobile-open');
+            if (overlay) overlay.classList.remove('active');
+        }
+        
+        function openDrawer() {
+            if (sidebar) sidebar.classList.add('mobile-open');
+            if (overlay) overlay.classList.add('active');
+        }
+        
+        if (menuToggle && window.innerWidth < 768) {
+            menuToggle.addEventListener('click', openDrawer);
+        }
+        if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+        
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                closeDrawer();
+                if (sidebar) sidebar.classList.remove('mobile-open');
+                if (currentSettings.sidebarStyle === 'compact') {
+                    document.body.classList.add('sidebar-compact');
+                } else {
+                    document.body.classList.remove('sidebar-compact');
+                }
             } else {
                 document.body.classList.remove('sidebar-compact');
+                closeDrawer();
             }
-        }
-
-        const header = document.getElementById('dynamicHeader');
-        if (header) header.style.backgroundColor = settings.secondaryColor;
-
-        // Sidebar business name
-        const sbn = document.getElementById('sidebarBusinessName');
-        if (sbn) sbn.innerText = settings.businessName;
-
-        // Header business name
-        const hbn = document.getElementById('headerBusinessName');
-        if (hbn) hbn.innerText = settings.businessName + ' — Brand Studio';
-
-        // Logo — sidebar
-        const sidebarLogo = document.getElementById('sidebarLogoImg');
-        if (sidebarLogo) {
-            if (settings.logo) { sidebarLogo.src = settings.logo; sidebarLogo.style.display = 'block'; }
-            else { sidebarLogo.style.display = 'none'; }
-        }
-
-        // Logo — header
-        const headerLogo = document.getElementById('headerLogoImg');
-        if (headerLogo) {
-            if (settings.logo) { headerLogo.src = settings.logo; headerLogo.style.display = 'block'; }
-            else { headerLogo.style.display = 'none'; }
-        }
-
-        // Preview card
-        const previewBar = document.getElementById('previewSidebarBar');
-        if (previewBar) previewBar.style.background = settings.primaryColor;
-
-        const previewHeader = document.getElementById('previewHeaderDemo');
-        if (previewHeader) previewHeader.style.background = settings.secondaryColor;
-
-        const previewBtn = document.getElementById('previewPrimaryBtn');
-        if (previewBtn) previewBtn.style.background = settings.primaryColor;
-
-        const previewName = document.getElementById('previewBusinessName');
-        if (previewName) previewName.innerText = settings.businessName || 'Your Business Name';
-    }
-
-    // =============================================
-    // DOM REFS
-    // =============================================
-    const businessInput     = document.getElementById('businessNameInput');
-    const primaryPicker     = document.getElementById('primaryColorPicker');
-    const secondaryPicker   = document.getElementById('secondaryColorPicker');
-    const sidebarSelect     = document.getElementById('sidebarStyleSelect');
-    const logoUpload        = document.getElementById('logoUploader');
-    const liveLogoPreview   = document.getElementById('liveLogoPreview');
-    const primarySwatch     = document.getElementById('primaryColorSwatch');
-    const secondarySwatch   = document.getElementById('secondaryColorSwatch');
-
-    let currentSettings = loadBranding();
-
-    // =============================================
-    // POPULATE FORM from loaded settings
-    // =============================================
-    function populateForm(s) {
-        businessInput.value     = s.businessName;
-        primaryPicker.value     = s.primaryColor;
-        secondaryPicker.value   = s.secondaryColor;
-        sidebarSelect.value     = s.sidebarStyle;
-        if (primarySwatch)   primarySwatch.style.background   = s.primaryColor;
-        if (secondarySwatch) secondarySwatch.style.background = s.secondaryColor;
-        if (s.logo) {
-            liveLogoPreview.src = s.logo;
-            liveLogoPreview.style.display = 'block';
-        } else {
-            liveLogoPreview.style.display = 'none';
-            liveLogoPreview.src = '';
-        }
-        applyTheme(s);
-    }
-
-    // =============================================
-    // LIVE PREVIEW on input changes
-    // =============================================
-    function syncPreview() {
-        const preview = {
-            ...currentSettings,
-            businessName:   businessInput.value   || tenantName,
-            primaryColor:   primaryPicker.value,
-            secondaryColor: secondaryPicker.value,
-            sidebarStyle:   sidebarSelect.value
-        };
-        if (primarySwatch)   primarySwatch.style.background   = preview.primaryColor;
-        if (secondarySwatch) secondarySwatch.style.background = preview.secondaryColor;
-        applyTheme(preview);
-    }
-
-    businessInput.addEventListener('input',   syncPreview);
-    primaryPicker.addEventListener('input',   syncPreview);
-    secondaryPicker.addEventListener('input', syncPreview);
-    sidebarSelect.addEventListener('change',  syncPreview);
-
-    // =============================================
-    // LOGO UPLOAD
-    // =============================================
-    logoUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            const base64 = ev.target.result;
-            liveLogoPreview.src = base64;
-            liveLogoPreview.style.display = 'block';
-            currentSettings.logo = base64;
-            syncPreview();
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // =============================================
-    // TOAST helper
-    // =============================================
-    function showToast(msg, color = '#10b981') {
-        const toast = document.getElementById('successToast');
-        document.getElementById('toastMessage').innerText = msg;
-        toast.style.background = color;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-
-    // =============================================
-    // SAVE button
-    // =============================================
-    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-        const updated = {
-            businessName:   businessInput.value.trim() || tenantName,
-            primaryColor:   primaryPicker.value,
-            secondaryColor: secondaryPicker.value,
-            sidebarStyle:   sidebarSelect.value,
-            logo:           currentSettings.logo || ''
-        };
-        saveBranding(updated);
-        currentSettings = updated;
-        applyTheme(updated);
-        showToast('✅ Branding saved! Admin & Staff dashboards updated.');
-    });
-
-    // =============================================
-    // RESET button
-    // =============================================
-    document.getElementById('resetThemeBtn').addEventListener('click', () => {
-        if (!confirm('Reset branding to defaults?')) return;
-        const defaults = {
-            businessName:   tenantName,
-            primaryColor:   '#E30613',
-            secondaryColor: '#ffffff',
-            sidebarStyle:   'dark',
-            logo:           ''
-        };
-        saveBranding(defaults);
-        currentSettings = defaults;
-        logoUpload.value = '';
-        populateForm(defaults);
-        showToast('Theme reset to defaults.', '#64748b');
-    });
-
-    // =============================================
-    // LOGOUT
-    // =============================================
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    });
-
-    // =============================================
-    // MOBILE DRAWER
-    // =============================================
-    const menuToggle    = document.getElementById('menuToggleBtn');
-    const sidebar       = document.getElementById('mainSidebar');
-    const overlay       = document.getElementById('sidebarOverlay');
-    const closeBtn      = document.getElementById('closeSidebarBtn');
-
-    function openDrawer()  { sidebar.classList.add('mobile-open');    overlay.classList.add('active'); }
-    function closeDrawer() { sidebar.classList.remove('mobile-open'); overlay.classList.remove('active'); }
-
-    menuToggle.addEventListener('click', openDrawer);
-    closeBtn.addEventListener('click',   closeDrawer);
-    overlay.addEventListener('click',    closeDrawer);
-
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 768) closeDrawer();
-        syncPreview();
-    });
-
-    // =============================================
-    // CROSS-TAB SYNC — if admin.html saves branding, reflect here
-    // =============================================
-    window.addEventListener('storage', function(e) {
-        if (e.key === BRANDING_KEY && e.newValue) {
-            try {
-                const data    = JSON.parse(e.newValue);
-                const updated = {
-                    businessName:   data.tenantName,
-                    primaryColor:   data.branding?.primaryColor   || '#E30613',
-                    secondaryColor: data.branding?.secondaryColor || '#ffffff',
-                    sidebarStyle:   data.branding?.sidebarStyle   || 'dark',
-                    logo:           data.branding?.logoUrl        || ''
-                };
-                currentSettings = updated;
-                populateForm(updated);
-            } catch(err) {}
-        }
-    });
-
-    // =============================================
-    // INIT
-    // =============================================
-    populateForm(currentSettings);
-
-})();
+            syncLivePreview();
+        });
+        
+        // storage sync cross-tab
+        window.addEventListener('storage', function(e) {
+            if (e.key && e.key.startsWith('tenantSettings_')) {
+                const newRaw = e.newValue;
+                if (newRaw) {
+                    try {
+                        const newSet = JSON.parse(newRaw);
+                        if (newSet.tenantId === currentTenantId) {
+                            currentSettings = newSet;
+                            updateFormFromSettings(newSet);
+                        }
+                    } catch(err) {}
+                }
+            }
+        });
+        
+        window.addEventListener('tenantSettingsChanged', (e) => {
+            if (e.detail && e.detail.tenantId === currentTenantId) {
+                currentSettings = e.detail;
+                updateFormFromSettings(currentSettings);
+            }
+        });
+        
+        updateFormFromSettings(currentSettings);
+    })();
 </script>
-
+<script>
+    // Global theme engine (theme.js) to support staff/kiosk dashboards
+    (function themeEngine() {
+        window.applyTenantTheme = function(settings) {
+            if(!settings) return;
+            document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
+            document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor);
+            const sidebarElem = document.querySelector('.app-sidebar');
+            if(sidebarElem) sidebarElem.style.background = settings.primaryColor;
+            const headerElem = document.querySelector('.dashboard-header');
+            if(headerElem) headerElem.style.backgroundColor = settings.secondaryColor;
+            const businessElements = document.querySelectorAll('.business-name-header, .business-name-side');
+            businessElements.forEach(el => { if(el) el.innerText = settings.businessName; });
+            const logoImg = document.querySelector('#headerLogoImg, .tenant-logo');
+            if(logoImg && settings.logo && settings.logo !== "") {
+                logoImg.src = settings.logo;
+                logoImg.style.display = 'block';
+            } else if(logoImg) logoImg.style.display = 'none';
+        };
+        
+        window.loadAndApplyTenantTheme = function(tenantId) {
+            const raw = localStorage.getItem(`tenantSettings_${tenantId}`);
+            if(raw) {
+                const settings = JSON.parse(raw);
+                window.applyTenantTheme(settings);
+            } else {
+                document.documentElement.style.setProperty('--primary-color', '#b91c1c');
+                document.documentElement.style.setProperty('--secondary-color', '#ffffff');
+            }
+        };
+        const tenant = localStorage.getItem('currentTenantId') || 'tenant_rand_001';
+        window.loadAndApplyTenantTheme(tenant);
+    })();
+</script>
 </body>
 </html>
