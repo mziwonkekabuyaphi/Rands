@@ -1,849 +1,211 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#030d16" />
-  <title>QLess — Sign In</title>
-  <link rel="stylesheet" href="login.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Wallet | Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: #f4f6fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
+        .app-container { max-width: 500px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 40px; box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08); overflow: hidden; position: relative; }
+        .app-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eff3f8; }
+        .logo { height: 45px; width: auto; max-width: 180px; object-fit: contain; border-radius: 12px; }
+        .login-container { padding: 40px 20px; text-align: center; }
+        .circular-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E30613, #b0020e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px -5px rgba(227,6,19,0.4);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .circular-logo:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(227,6,19,0.5);
+        }
+        .circular-logo img {
+            width: 70%;
+            height: auto;
+            object-fit: contain;
+        }
+        .input-field {
+            background: #f8fafd;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 60px;
+            width: 100%;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .whatsapp-login-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .whatsapp-login-btn:active { transform: scale(0.98); }
+        .toast-msg { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #1e2a3a; color: white; padding: 10px 16px; border-radius: 60px; text-align: center; z-index: 3500; display: none; font-size: 0.8rem; }
+        .toast-msg.show { display: block; }
+    </style>
 </head>
 <body>
-
-  <!-- Background orbs -->
-
-  <div class="bg-orb bg-orb--1" aria-hidden="true"></div>
-  <div class="bg-orb bg-orb--2" aria-hidden="true"></div>
-  <div class="bg-orb bg-orb--3" aria-hidden="true"></div>
-
-  <!-- Toast -->
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <main class="login-wrapper" role="main">
-    <div class="login-card">
-      <div class="views-container">
-
-```
-    <!-- ══════════════════════════════════════════════════════
-         VIEW 1 — LOGIN
-    ══════════════════════════════════════════════════════ -->
-    <div id="view-login" class="view active">
-
-      <!-- Logo -->
-      <div class="logo-section">
-        <div class="logo-badge"><span id="logo-char">Q</span></div>
-        <div id="logo-sub" class="logo-sub">QLESS</div>
-        <h1 class="logo-title">Welcome to QLess</h1>
-        <p class="logo-subtitle">Sign in to continue</p>
-        <span id="tenant-label" class="tenant-label"></span>
-      </div>
-
-      <!-- Error -->
-      <div id="login-error" class="error-banner" role="alert" aria-live="assertive">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4M8 10.5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <span id="login-error-text">Invalid phone number or password.</span>
-      </div>
-
-      <!-- Login Form -->
-      <form id="login-form" class="login-form" novalidate autocomplete="on">
-        <!-- Phone -->
-        <div>
-          <label class="field-label" for="login-phone">Phone Number</label>
-          <div class="phone-group">
-            <select class="country-select" id="country-code" aria-label="Country code">
-              <option value="+27">🇿🇦 +27</option>
-              <option value="+1">🇺🇸 +1</option>
-              <option value="+44">🇬🇧 +44</option>
-              <option value="+234">🇳🇬 +234</option>
-              <option value="+254">🇰🇪 +254</option>
-              <option value="+233">🇬🇭 +233</option>
-              <option value="+91">🇮🇳 +91</option>
-            </select>
-            <div class="input-wrapper">
-              <input type="tel" id="login-phone" class="input-field" placeholder="0695814877"
-                autocomplete="tel-national" inputmode="tel" maxlength="15" required />
-              <span class="input-icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 2h2.5l1 3L5 6.5c.9 1.8 2.2 3.1 4 4l1.5-1.5 3 1V12.5C13 13.3 12.3 14 11.5 14 5.7 14 2 10.3 2 4.5 2 3.7 2.7 3 3.5 3L3 2Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div>
-          <label class="field-label" for="login-password">Password</label>
-          <div class="input-wrapper">
-            <input type="password" id="login-password" class="input-field"
-              placeholder="Enter your password" autocomplete="current-password" required />
-            <button type="button" class="toggle-password" id="toggle-pwd-login" aria-label="Show password">
-              <svg id="eye-on" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M1.5 9S4 3.75 9 3.75 16.5 9 16.5 9 14 14.25 9 14.25 1.5 9 1.5 9Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                <circle cx="9" cy="9" r="2.25" stroke="currentColor" stroke-width="1.3"/>
-              </svg>
-              <svg id="eye-off" width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:none">
-                <path d="M2 2l14 14M7.9 7.9A2.25 2.25 0 0 0 11.1 11.1M5.4 5.4C3.5 6.6 2 9 2 9s2.5 5.25 7 5.25c1.5 0 2.9-.5 4-1.3M9 3.75c4.4.2 7.5 5.25 7.5 5.25-.7 1.2-1.7 2.3-2.9 3.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Remember + Forgot -->
-        <div class="form-row">
-          <label class="remember-label">
-            <input type="checkbox" class="remember-checkbox" id="remember-me" />
-            Remember me
-          </label>
-          <a href="#" class="forgot-link" id="forgot-link">Forgot Password?</a>
-        </div>
-
-        <!-- Sign In btn -->
-        <button type="submit" class="btn-primary" id="login-btn">
-          <div class="spinner" id="login-spinner"></div>
-          <span id="login-btn-label">Sign In</span>
-        </button>
-
-        <!-- OTP -->
-        <div class="otp-toggle">or&nbsp;<button type="button" id="otp-mode-btn">Sign in with OTP</button></div>
-
-        <!-- Divider + Guest -->
-        <div class="divider">or</div>
-        <button type="button" class="btn-ghost" id="guest-btn">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          Continue as Guest
-        </button>
-
-        <!-- Create Account -->
-        <div class="create-account-row">
-          New customer? <a id="go-register" href="#">Create an Account</a>
-        </div>
-      </form>
-
-      <!-- OTP panel -->
-      <div id="otp-panel" class="otp-panel" aria-hidden="true">
-        <p class="otp-hint">Enter the 6-digit OTP sent to<br/><strong id="otp-phone-display"></strong></p>
-        <div>
-          <label class="field-label" for="otp-input">One-Time Password</label>
-          <div class="input-wrapper">
-            <input type="text" id="otp-input" class="input-field" placeholder="• • • • • •"
-              inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" />
-          </div>
-        </div>
-        <button type="button" class="btn-primary" id="verify-otp-btn">
-          <div class="spinner" id="otp-spinner"></div>
-          <span id="verify-label">Verify OTP</span>
-        </button>
-        <div class="otp-toggle"><button type="button" id="back-to-pwd-btn">← Back to Password</button></div>
-      </div>
-
-    </div><!-- /view-login -->
-
-
-    <!-- ══════════════════════════════════════════════════════
-         VIEW 2 — REGISTER STEP 1: Phone + Password
-    ══════════════════════════════════════════════════════ -->
-    <div id="view-reg-1" class="view">
-
-      <!-- Step bar -->
-      <div class="step-progress">
-        <div class="step-dot active"></div>
-        <div class="step-dot"></div>
-        <div class="step-dot"></div>
-        <div class="step-dot"></div>
-        <span class="step-label">Step 1 of 3</span>
-      </div>
-
-      <button class="back-btn" id="reg1-back">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Back to Sign In
-      </button>
-
-      <div class="reg-header">
-        <div class="reg-title">Create <span>Account</span></div>
-        <div class="reg-subtitle">For customers only · Admins are pre-registered</div>
-      </div>
-
-      <!-- Error -->
-      <div id="reg1-error" class="error-banner" role="alert">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4M8 10.5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <span id="reg1-error-text"></span>
-      </div>
-
-      <div class="reg-form">
-        <!-- Phone -->
-        <div>
-          <label class="field-label" for="reg-phone">Phone Number</label>
-          <div class="phone-group">
-            <select class="country-select" id="reg-country" aria-label="Country code">
-              <option value="+27">🇿🇦 +27</option>
-              <option value="+1">🇺🇸 +1</option>
-              <option value="+44">🇬🇧 +44</option>
-              <option value="+234">🇳🇬 +234</option>
-              <option value="+254">🇰🇪 +254</option>
-              <option value="+233">🇬🇭 +233</option>
-              <option value="+91">🇮🇳 +91</option>
-            </select>
-            <div class="input-wrapper">
-              <input type="tel" id="reg-phone" class="input-field" placeholder="0712345678"
-                autocomplete="tel-national" inputmode="tel" maxlength="15" />
-              <span class="input-icon">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 2h2.5l1 3L5 6.5c.9 1.8 2.2 3.1 4 4l1.5-1.5 3 1V12.5C13 13.3 12.3 14 11.5 14 5.7 14 2 10.3 2 4.5 2 3.7 2.7 3 3.5 3L3 2Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div>
-          <label class="field-label" for="reg-password">Create Password</label>
-          <div class="input-wrapper">
-            <input type="password" id="reg-password" class="input-field"
-              placeholder="Min. 6 characters" autocomplete="new-password" />
-            <button type="button" class="toggle-password" id="toggle-reg-pwd" aria-label="Show password">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M1.5 9S4 3.75 9 3.75 16.5 9 16.5 9 14 14.25 9 14.25 1.5 9 1.5 9Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                <circle cx="9" cy="9" r="2.25" stroke="currentColor" stroke-width="1.3"/>
-              </svg>
-            </button>
-          </div>
-          <div class="strength-bar-wrap"><div class="strength-bar" id="strength-bar"></div></div>
-          <div class="strength-hint" id="strength-hint"></div>
-        </div>
-
-        <!-- Confirm Password -->
-        <div>
-          <label class="field-label" for="reg-confirm">Confirm Password</label>
-          <div class="input-wrapper">
-            <input type="password" id="reg-confirm" class="input-field"
-              placeholder="Re-enter password" autocomplete="new-password" />
-          </div>
-        </div>
-
-        <button type="button" class="btn-primary" id="reg1-next">
-          <div class="spinner" id="reg1-spinner"></div>
-          <span>Continue</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-    </div><!-- /view-reg-1 -->
-
-
-    <!-- ══════════════════════════════════════════════════════
-         VIEW 3 — REGISTER STEP 2: Full Name
-    ══════════════════════════════════════════════════════ -->
-    <div id="view-reg-2" class="view">
-
-      <div class="step-progress">
-        <div class="step-dot done"></div>
-        <div class="step-dot active"></div>
-        <div class="step-dot"></div>
-        <div class="step-dot"></div>
-        <span class="step-label">Step 2 of 3</span>
-      </div>
-
-      <button class="back-btn" id="reg2-back">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Back
-      </button>
-
-      <div class="reg-header">
-        <div class="reg-title">Your <span>Name</span></div>
-        <div class="reg-subtitle">How should we address you?</div>
-      </div>
-
-      <!-- Error -->
-      <div id="reg2-error" class="error-banner" role="alert">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4M8 10.5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <span id="reg2-error-text"></span>
-      </div>
-
-      <div class="reg-form">
-        <div>
-          <label class="field-label" for="reg-name">Full Name</label>
-          <div class="input-wrapper">
-            <input type="text" id="reg-name" class="input-field"
-              placeholder="e.g. Amara Nkosi" autocomplete="name" />
-            <span class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            </span>
-          </div>
-        </div>
-
-        <button type="button" class="btn-primary" id="reg2-next">
-          Continue
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-    </div><!-- /view-reg-2 -->
-
-
-    <!-- ══════════════════════════════════════════════════════
-         VIEW 4 — REGISTER STEP 3: Selfie
-    ══════════════════════════════════════════════════════ -->
-    <div id="view-reg-3" class="view">
-
-      <div class="step-progress">
-        <div class="step-dot done"></div>
-        <div class="step-dot done"></div>
-        <div class="step-dot active"></div>
-        <div class="step-dot"></div>
-        <span class="step-label">Step 3 of 3</span>
-      </div>
-
-      <button class="back-btn" id="reg3-back">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Back
-      </button>
-
-      <div class="reg-header">
-        <div class="reg-title">Take a <span>Selfie</span></div>
-        <div class="reg-subtitle" id="selfie-subtitle">Let's verify your identity — smile! 😊</div>
-      </div>
-
-      <div class="selfie-area">
-
-        <!-- Camera ring -->
-        <div class="camera-ring" id="camera-ring">
-          <div class="scan-ring"></div>
-          <div class="camera-placeholder" id="cam-placeholder">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <rect x="4" y="10" width="32" height="24" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <circle cx="20" cy="22" r="7" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M14 10l2-4h8l2 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="31" cy="15" r="2" fill="currentColor"/>
-            </svg>
-            <span>Camera preview</span>
-          </div>
-          <video id="camera-video" autoplay playsinline muted></video>
-          <canvas id="camera-canvas"></canvas>
-        </div>
-
-        <!-- Selfie preview (after capture) -->
-        <img id="selfie-preview" class="selfie-thumb" alt="Your selfie" />
-
-        <!-- Camera error -->
-        <div class="camera-error" id="camera-error">
-          📷 Camera access denied or unavailable.<br/>You can skip this step and add a photo later.
-        </div>
-
-        <!-- Actions -->
-        <div class="camera-actions" id="cam-actions-start">
-          <button type="button" class="btn-camera primary-cam" id="start-camera-btn">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="4.5" width="15" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M6 4.5l1-2h4l1 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Open Camera
-          </button>
-        </div>
-
-        <!-- Actions after camera open -->
-        <div class="camera-actions" id="cam-actions-live" style="display:none">
-          <button type="button" class="btn-camera secondary-cam" id="cancel-camera-btn">Cancel</button>
-          <button type="button" class="btn-camera primary-cam" id="capture-btn">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9" r="3" fill="currentColor"/></svg>
-            Capture
-          </button>
-        </div>
-
-        <!-- Actions after capture -->
-        <div class="camera-actions" id="cam-actions-retake" style="display:none">
-          <button type="button" class="btn-camera secondary-cam" id="retake-btn">Retake</button>
-          <button type="button" class="btn-camera primary-cam" id="use-photo-btn">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9l5 5L15 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Use Photo
-          </button>
-        </div>
-
-        <div class="selfie-skip" id="selfie-skip-btn">
-          <span>Skip for now</span> — you can add a photo later
-        </div>
-
-      </div>
-
-      <!-- Final submit -->
-      <button type="button" class="btn-primary" id="reg-submit-btn" style="margin-top:20px;display:none">
-        <div class="spinner" id="reg-submit-spinner"></div>
-        <span id="reg-submit-label">Create My Account</span>
-      </button>
-
-    </div><!-- /view-reg-3 -->
-
-
-    <!-- ══════════════════════════════════════════════════════
-         VIEW 5 — SUCCESS
-    ══════════════════════════════════════════════════════ -->
-    <div id="view-success" class="view">
-      <div class="success-view">
-        <img id="success-selfie" class="success-selfie" alt="Your selfie" />
-        <div class="success-icon">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><path d="M7 18l8 8L29 10" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="success-name">Welcome, <span id="success-name-text"></span>!</div>
-        <div class="success-sub">Your QLess account has been created.<br/>Taking you to your dashboard…</div>
-        <div class="spinner visible" style="border-color:rgba(0,198,162,.2);border-top-color:var(--color-primary);margin-top:8px;"></div>
-      </div>
-    </div><!-- /view-success -->
-
-  </div><!-- /views-container -->
-</div><!-- /login-card -->
-
-<!-- Demo badge (only on login view, outside card for spacing) -->
-<div class="demo-badge" id="demo-badge">
-  <div class="demo-badge-title">Demo Accounts — tap to fill</div>
-  <div class="demo-rows">
-    <div class="demo-row" data-phone="0695814877" data-pass="1234" role="button" tabindex="0">
-      <span class="demo-role-tag tag-super">Super</span>
-      <span class="demo-phone">0695814877</span>
-      <span class="demo-tap">tap ↑</span>
+<div class="app-container">
+    <div class="app-header">
+        <div class="logo"></div>
     </div>
-    <div class="demo-row" data-phone="0810000000" data-pass="1234" role="button" tabindex="0">
-      <span class="demo-role-tag tag-tenant">Tenant</span>
-      <span class="demo-phone">0810000000</span>
-      <span class="demo-tap">tap ↑</span>
+    <div class="login-container">
+        <div class="circular-logo">
+            <img src="images/rands-logo2.png" alt="Rands Wallet" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'67\' font-size=\'45\' text-anchor=\'middle\' fill=\'white\' font-family=\'Arial\'%3ER%3C/text%3E%3C/svg%3E'">
+        </div>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="margin-top: 20px;">Rands Wallet</h2>
+            <p style="color: #64748b;">Your phone number is your account ID</p>
+        </div>
+        <div id="loginForm">
+            <input type="tel" id="loginWhatsapp" class="input-field" placeholder="Phone Number (e.g., 0635713652)" style="margin-bottom: 15px;">
+            <input type="password" id="loginPin" class="input-field" placeholder="4-digit PIN" maxlength="4" style="margin-bottom: 15px;">
+            <button class="whatsapp-login-btn" id="loginBtn"><i class="fab fa-whatsapp"></i> Login</button>
+            <p style="text-align: center; margin: 15px 0; color: #64748b;">or</p>
+            <button class="whatsapp-login-btn" id="showSignupBtn" style="background: #E30613;"><i class="fas fa-user-plus"></i> Create New Account</button>
+        </div>
     </div>
-    <div class="demo-row" data-phone="0820000000" data-pass="1234" role="button" tabindex="0">
-      <span class="demo-role-tag tag-staff">Staff</span>
-      <span class="demo-phone">0820000000</span>
-      <span class="demo-tap">tap ↑</span>
-    </div>
-    <div class="demo-row" data-phone="0635713652" data-pass="1234" role="button" tabindex="0">
-      <span class="demo-role-tag tag-customer">Customer</span>
-      <span class="demo-phone">0635713652</span>
-      <span class="demo-tap">tap ↑</span>
-    </div>
-  </div>
 </div>
+<div id="globalToast" class="toast-msg"></div>
 
-<footer class="login-footer">
-  &copy; 2025 QLess Platform &nbsp;·&nbsp;
-  <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a>
-</footer>
-```
+<script>
+    // Storage keys
+    const ACCOUNTS_KEY = 'rands_accounts_v2';
+    let accounts = [];
+    let currentAccountId = null;
 
-  </main>
-
-  <script src="auth.js"></script>
-
-  <script src="roleRouter.js"></script>
-
-  <script>
-  (function () {
-    // ── Helpers ───────────────────────────────────────────────────────────────
-    let toastTimer;
-    function showToast(msg, dur = 2800) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('show'), dur);
+    // Helper functions
+    function showToastMsg(msg) { 
+        let t = document.getElementById('globalToast'); 
+        t.innerText = msg; 
+        t.classList.add('show'); 
+        setTimeout(() => t.classList.remove('show'), 2000); 
+    }
+    
+    function saveAccounts() { 
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); 
+    }
+    
+    function loadAccounts() { 
+        const stored = localStorage.getItem(ACCOUNTS_KEY); 
+        if (stored) {
+            accounts = JSON.parse(stored);
+        } else { 
+            // Default account: Mziwonke KaBuyaphi with PIN 1989
+            accounts = [{ 
+                id: "0635713652", 
+                name: "Mziwonke KaBuyaphi", 
+                phone: "0635713652", 
+                balance: 5000, 
+                cardNumber: "4532 1234 5678 9012", 
+                cvv: "123", 
+                expiry: "12/28", 
+                pin: "1989", 
+                status: "Active", 
+                cardTheme: "card-theme-1", 
+                selfie: null, 
+                verified: true 
+            }]; 
+            saveAccounts(); 
+        } 
     }
 
-    function showError(bannerId, textId, msg) {
-      const b = document.getElementById(bannerId);
-      const s = document.getElementById(textId);
-      s.textContent = msg;
-      b.classList.add('visible');
-      b.style.animation = 'none';
-      b.offsetHeight;
-      b.style.animation = '';
-    }
-
-    function hideError(bannerId) {
-      document.getElementById(bannerId).classList.remove('visible');
-    }
-
-    // ── View switching ────────────────────────────────────────────────────────
-    let currentView = 'view-login';
-
-    function showView(id, back = false) {
-      document.getElementById(currentView).classList.remove('active', 'slide-back');
-      const next = document.getElementById(id);
-      next.classList.remove('slide-back');
-      if (back) next.classList.add('slide-back');
-      next.classList.add('active');
-      currentView = id;
-
-      // Show/hide demo badge (only on login view)
-      document.getElementById('demo-badge').style.display =
-        id === 'view-login' ? '' : 'none';
-    }
-
-    // ── Init ──────────────────────────────────────────────────────────────────
-    (function init() {
-      const theme = detectTenant();
-      applyTenantBranding(theme);
-
-      const remembered = getRememberedPhone();
-      if (remembered) {
-        document.getElementById('login-phone').value = remembered;
-        document.getElementById('remember-me').checked = true;
-      }
-
-      const existing = getCurrentUser();
-      if (existing) redirectByRole(existing);
-    })();
-
-    // ── Password visibility toggle ────────────────────────────────────────────
-    function setupToggle(btnId, inputId, eyeOnId, eyeOffId) {
-      const btn = document.getElementById(btnId);
-      const inp = document.getElementById(inputId);
-      if (!btn) return;
-      btn.addEventListener('click', () => {
-        const show = inp.type === 'password';
-        inp.type = show ? 'text' : 'password';
-        if (eyeOnId)  document.getElementById(eyeOnId).style.display  = show ? 'none' : 'block';
-        if (eyeOffId) document.getElementById(eyeOffId).style.display = show ? 'block' : 'none';
-      });
-    }
-
-    setupToggle('toggle-pwd-login', 'login-password', 'eye-on', 'eye-off');
-
-    // For reg password toggle (single eye icon, flip aria-label only)
-    document.getElementById('toggle-reg-pwd').addEventListener('click', function() {
-      const inp = document.getElementById('reg-password');
-      inp.type = inp.type === 'password' ? 'text' : 'password';
-    });
-
-    // ── Password strength ─────────────────────────────────────────────────────
-    document.getElementById('reg-password').addEventListener('input', function() {
-      const val = this.value;
-      const bar = document.getElementById('strength-bar');
-      const hint = document.getElementById('strength-hint');
-      let score = 0;
-      if (val.length >= 6)  score++;
-      if (val.length >= 10) score++;
-      if (/[A-Z]/.test(val)) score++;
-      if (/[0-9]/.test(val)) score++;
-      if (/[^A-Za-z0-9]/.test(val)) score++;
-
-      const configs = [
-        { w:'0%',   color:'transparent',  label:'' },
-        { w:'25%',  color:'#FF5F7E',      label:'Weak' },
-        { w:'50%',  color:'#FFB400',      label:'Fair' },
-        { w:'75%',  color:'#00C6A2',      label:'Good' },
-        { w:'100%', color:'#00F5CA',      label:'Strong 💪' },
-      ];
-      const c = configs[Math.min(score, 4)];
-      bar.style.width = c.w;
-      bar.style.background = c.color;
-      hint.textContent = c.label;
-      hint.style.color = c.color;
-    });
-
-    // ── LOGIN FORM ─────────────────────────────────────────────────────────────
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      hideError('login-error');
-
-      const phone    = document.getElementById('login-phone').value.trim();
-      const password = document.getElementById('login-password').value;
-      const remember = document.getElementById('remember-me').checked;
-
-      const errs = validateLoginInputs(phone, password);
-      if (errs.length) { showError('login-error', 'login-error-text', errs[0]); return; }
-
-      const btn = document.getElementById('login-btn');
-      btn.disabled = true;
-      document.getElementById('login-spinner').classList.add('visible');
-      document.getElementById('login-btn-label').textContent = 'Signing in…';
-
-      const result = await attemptLogin(phone, password, remember);
-
-      btn.disabled = false;
-      document.getElementById('login-spinner').classList.remove('visible');
-      document.getElementById('login-btn-label').textContent = 'Sign In';
-
-      if (result.success) {
-        showToast(`✓ Welcome, ${result.user.name}!`);
-        setTimeout(() => redirectByRole(result.user), 700);
-      } else {
-        showError('login-error', 'login-error-text', result.error);
-      }
-    });
-
-    document.getElementById('forgot-link').addEventListener('click', e => {
-      e.preventDefault();
-      showToast('🔒 Password reset coming soon.');
-    });
-
-    document.getElementById('guest-btn').addEventListener('click', () => {
-      showToast('👤 Continuing as guest…');
-      setTimeout(continueAsGuest, 700);
-    });
-
-    // ── OTP ───────────────────────────────────────────────────────────────────
-    document.getElementById('otp-mode-btn').addEventListener('click', async () => {
-      const phone = document.getElementById('login-phone').value.trim();
-      if (!phone || phone.length < 7) {
-        showError('login-error', 'login-error-text', 'Enter your phone number first.');
-        return;
-      }
-      hideError('login-error');
-      document.getElementById('login-form').style.display = 'none';
-      const panel = document.getElementById('otp-panel');
-      panel.style.display = 'flex';
-      panel.setAttribute('aria-hidden', 'false');
-      document.getElementById('otp-phone-display').textContent = phone;
-      document.getElementById('otp-input').focus();
-      await requestOTP(phone);
-      showToast('📱 OTP sent (demo: any 6 digits)');
-    });
-
-    document.getElementById('back-to-pwd-btn').addEventListener('click', () => {
-      document.getElementById('otp-panel').style.display = 'none';
-      document.getElementById('login-form').style.display = 'flex';
-    });
-
-    document.getElementById('verify-otp-btn').addEventListener('click', async () => {
-      const phone = document.getElementById('login-phone').value.trim();
-      const otp   = document.getElementById('otp-input').value.trim();
-      if (!/^\d{6}$/.test(otp)) { showToast('⚠ Enter a 6-digit OTP.'); return; }
-
-      document.getElementById('verify-otp-btn').disabled = true;
-      document.getElementById('otp-spinner').classList.add('visible');
-      document.getElementById('verify-label').textContent = 'Verifying…';
-
-      const result = await verifyOTP(phone, otp);
-
-      document.getElementById('verify-otp-btn').disabled = false;
-      document.getElementById('otp-spinner').classList.remove('visible');
-      document.getElementById('verify-label').textContent = 'Verify OTP';
-
-      if (result.success && result.user) {
-        showToast(`✓ Welcome, ${result.user.name}!`);
-        setTimeout(() => redirectByRole(result.user), 700);
-      } else {
-        showToast('❌ Invalid OTP.');
-      }
-    });
-
-    // ── Demo rows ─────────────────────────────────────────────────────────────
-    document.querySelectorAll('.demo-row').forEach(row => {
-      const fill = () => {
-        document.getElementById('login-phone').value    = row.dataset.phone;
-        document.getElementById('login-password').value = row.dataset.pass;
-        hideError('login-error');
-        showToast('✏ Credentials filled — tap Sign In');
-      };
-      row.addEventListener('click', fill);
-      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fill(); } });
-    });
-
-    // ── NAV: Go to registration ───────────────────────────────────────────────
-    document.getElementById('go-register').addEventListener('click', e => {
-      e.preventDefault();
-      showView('view-reg-1');
-    });
-
-    // ── REGISTRATION — State ──────────────────────────────────────────────────
-    const regState = { phone: '', password: '', name: '', selfie: null };
-
-    // ── REG STEP 1 ────────────────────────────────────────────────────────────
-    document.getElementById('reg1-back').addEventListener('click', () => showView('view-login', true));
-
-    document.getElementById('reg1-next').addEventListener('click', async () => {
-      hideError('reg1-error');
-      const phone   = document.getElementById('reg-phone').value.trim();
-      const pass    = document.getElementById('reg-password').value;
-      const confirm = document.getElementById('reg-confirm').value;
-
-      const errs1 = validateRegistrationStep1(phone);
-      if (errs1.length) { showError('reg1-error', 'reg1-error-text', errs1[0]); return; }
-
-      // Check phone not already taken
-      const btn = document.getElementById('reg1-next');
-      btn.disabled = true;
-      document.getElementById('reg1-spinner').classList.add('visible');
-
-      await delay(400);
-
-      btn.disabled = false;
-      document.getElementById('reg1-spinner').classList.remove('visible');
-
-      if (isPhoneRegistered(phone)) {
-        showError('reg1-error', 'reg1-error-text', 'This phone number is already registered. Try signing in.');
-        return;
-      }
-
-      const errs2 = validateRegistrationStep2(pass, confirm);
-      if (errs2.length) { showError('reg1-error', 'reg1-error-text', errs2[0]); return; }
-
-      regState.phone    = phone;
-      regState.password = pass;
-      showView('view-reg-2');
-    });
-
-    // ── REG STEP 2 ────────────────────────────────────────────────────────────
-    document.getElementById('reg2-back').addEventListener('click', () => showView('view-reg-1', true));
-
-    document.getElementById('reg2-next').addEventListener('click', () => {
-      hideError('reg2-error');
-      const name = document.getElementById('reg-name').value.trim();
-      const errs = validateRegistrationStep3(name);
-      if (errs.length) { showError('reg2-error', 'reg2-error-text', errs[0]); return; }
-      regState.name = name;
-      showView('view-reg-3');
-    });
-
-    // ── REG STEP 3 — Camera / Selfie ─────────────────────────────────────────
-    document.getElementById('reg3-back').addEventListener('click', () => {
-      stopCamera();
-      showView('view-reg-2', true);
-    });
-
-    let mediaStream = null;
-
-    function stopCamera() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(t => t.stop());
-        mediaStream = null;
-      }
-      document.getElementById('camera-video').srcObject = null;
-      document.getElementById('camera-ring').classList.remove('scanning');
-    }
-
-    document.getElementById('start-camera-btn').addEventListener('click', async () => {
-      const ring    = document.getElementById('camera-ring');
-      const video   = document.getElementById('camera-video');
-      const camErr  = document.getElementById('camera-error');
-      const placeholder = document.getElementById('cam-placeholder');
-
-      camErr.classList.remove('visible');
-
-      ring.classList.add('scanning');
-
-      try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 640 } },
-          audio: false,
-        });
-        video.srcObject = mediaStream;
-
-        placeholder.style.display = 'none';
-        document.getElementById('cam-actions-start').style.display = 'none';
-        document.getElementById('cam-actions-live').style.display  = 'flex';
-        document.getElementById('reg-submit-btn').style.display    = 'none';
-        ring.classList.remove('scanning');
-      } catch (err) {
-        ring.classList.remove('scanning');
-        camErr.classList.add('visible');
-        // Show skip & submit even if camera fails
-        document.getElementById('cam-actions-start').style.display = 'none';
-        document.getElementById('reg-submit-btn').style.display    = 'flex';
-        console.warn('Camera error:', err);
-      }
-    });
-
-    document.getElementById('cancel-camera-btn').addEventListener('click', () => {
-      stopCamera();
-      document.getElementById('cam-placeholder').style.display   = 'flex';
-      document.getElementById('cam-actions-start').style.display = 'flex';
-      document.getElementById('cam-actions-live').style.display  = 'none';
-    });
-
-    document.getElementById('capture-btn').addEventListener('click', () => {
-      const video  = document.getElementById('camera-video');
-      const canvas = document.getElementById('camera-canvas');
-      const size   = 640;
-      canvas.width  = size;
-      canvas.height = size;
-
-      const ctx = canvas.getContext('2d');
-      // Mirror the image (selfie camera)
-      ctx.translate(size, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, 0, 0, size, size);
-
-      const dataURL = canvas.toDataURL('image/jpeg', 0.85);
-      regState.selfie = dataURL;
-
-      // Show preview
-      const preview = document.getElementById('selfie-preview');
-      preview.src = dataURL;
-      preview.classList.add('visible');
-
-      // Hide video, show retake actions
-      video.style.display = 'none';
-      stopCamera();
-      document.getElementById('cam-actions-live').style.display   = 'none';
-      document.getElementById('cam-actions-retake').style.display = 'flex';
-      document.getElementById('camera-ring').classList.add('has-preview');
-      document.getElementById('cam-placeholder').style.display    = 'none';
-    });
-
-    document.getElementById('retake-btn').addEventListener('click', () => {
-      regState.selfie = null;
-      const preview = document.getElementById('selfie-preview');
-      preview.src = '';
-      preview.classList.remove('visible');
-      document.getElementById('camera-video').style.display = 'block';
-      document.getElementById('cam-actions-retake').style.display = 'none';
-      document.getElementById('cam-actions-start').style.display  = 'flex';
-      document.getElementById('camera-ring').classList.remove('has-preview');
-      document.getElementById('cam-placeholder').style.display    = 'flex';
-      document.getElementById('reg-submit-btn').style.display     = 'none';
-    });
-
-    document.getElementById('use-photo-btn').addEventListener('click', () => {
-      document.getElementById('cam-actions-retake').style.display = 'none';
-      document.getElementById('selfie-skip-btn').style.display    = 'none';
-      document.getElementById('reg-submit-btn').style.display     = 'flex';
-      document.getElementById('selfie-subtitle').textContent      = 'Looking good! Tap below to finish.';
-    });
-
-    document.getElementById('selfie-skip-btn').addEventListener('click', () => {
-      regState.selfie = null;
-      stopCamera();
-      document.getElementById('cam-actions-live').style.display   = 'none';
-      document.getElementById('cam-actions-retake').style.display = 'none';
-      document.getElementById('cam-actions-start').style.display  = 'none';
-      document.getElementById('reg-submit-btn').style.display     = 'flex';
-      document.getElementById('selfie-subtitle').textContent      = 'No problem — you can add one later.';
-    });
-
-    // ── Final submit ──────────────────────────────────────────────────────────
-    document.getElementById('reg-submit-btn').addEventListener('click', async () => {
-      const btn = document.getElementById('reg-submit-btn');
-      btn.disabled = true;
-      document.getElementById('reg-submit-spinner').classList.add('visible');
-      document.getElementById('reg-submit-label').textContent = 'Creating account…';
-
-      const result = await registerCustomer(
-        regState.phone,
-        regState.password,
-        regState.name,
-        regState.selfie
-      );
-
-      btn.disabled = false;
-      document.getElementById('reg-submit-spinner').classList.remove('visible');
-      document.getElementById('reg-submit-label').textContent = 'Create My Account';
-
-      if (result.success) {
-        // Populate success view
-        document.getElementById('success-name-text').textContent = result.user.name;
-
-        const successSelfie = document.getElementById('success-selfie');
-        if (regState.selfie) {
-          successSelfie.src = regState.selfie;
-          successSelfie.classList.add('visible');
-        } else {
-          // Show the checkmark icon instead
-          document.querySelector('#view-success .success-icon').style.display = 'flex';
+    // Account functions
+    function login(phoneNumber, pin) {
+        let cleanNumber = phoneNumber.trim();
+        const account = accounts.find(a => a.id === cleanNumber);
+        if (!account) { 
+            showToastMsg("Account not found. Please create an account first."); 
+            return false; 
         }
+        if (account.pin !== pin) { 
+            showToastMsg("Incorrect PIN"); 
+            return false; 
+        }
+        if (account.status === "Blocked") { 
+            showToastMsg("Account blocked. Contact support."); 
+            return false; 
+        }
+        currentAccountId = account.id;
+        localStorage.setItem('rands_current_account', currentAccountId);
+        showToastMsg(`Welcome back, ${account.name.split(' ')[0]}!`);
+        return true;
+    }
+    
+    function redirectToWallet() {
+        window.location.href = 'wallet.html';
+    }
+    
+    function redirectToRegister() {
+        window.location.href = 'register.html';
+    }
 
-        showView('view-success');
-
-        // Redirect after short delay
-        setTimeout(() => redirectByRole(result.user), 2400);
-      } else {
-        showToast('❌ ' + (result.error || 'Registration failed. Try again.'));
-        showView('view-reg-1', true);
-      }
-    });
-
-  })();
-  </script>
-
+    // Initialize
+    function init() {
+        loadAccounts();
+        
+        // Check if already logged in
+        let saved = localStorage.getItem('rands_current_account');
+        if (saved && accounts.find(a => a.id === saved)) {
+            currentAccountId = saved;
+            redirectToWallet();
+            return;
+        }
+        
+        // Login button
+        document.getElementById("loginBtn")?.addEventListener("click", () => {
+            if(login(document.getElementById("loginWhatsapp").value, document.getElementById("loginPin").value)) {
+                redirectToWallet();
+            }
+        });
+        
+        // Create New Account button - redirect to register.html
+        document.getElementById("showSignupBtn")?.addEventListener("click", () => { 
+            redirectToRegister();
+        });
+        
+        // Enter key support for login
+        const loginPinInput = document.getElementById("loginPin");
+        if (loginPinInput) {
+            loginPinInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    document.getElementById("loginBtn").click();
+                }
+            });
+        }
+        
+        const loginPhoneInput = document.getElementById("loginWhatsapp");
+        if (loginPhoneInput) {
+            loginPhoneInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    document.getElementById("loginBtn").click();
+                }
+            });
+        }
+    }
+    
+    init();
+</script>
 </body>
 </html>
