@@ -89,7 +89,6 @@
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; color: #1e293b; }
         .toast-notification { position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; z-index: 1100; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease; cursor: pointer; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
-        .custom-badge { background: #fef3c7; color: #d97706; font-size: 0.6rem; padding: 2px 6px; border-radius: 12px; margin-left: 8px; }
         .sync-status { display: flex; align-items: center; gap: 6px; background: #f0fdf4; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
         .fullscreen-active .sidebar, .fullscreen-active .top-header .profile-dropdown span { display: none !important; }
         .fullscreen-active .top-header { justify-content: flex-start !important; gap: 20px !important; position: fixed; top: 0; left: 0; right: 0; z-index: 10001; }
@@ -159,7 +158,7 @@
                 <div class="modules-grid" v-if="selectedTenant"><div class="module-card" v-for="module in currentTenantModules" :key="module.id"><div class="module-info"><h4><i :class="module.icon" style="margin-right:8px; color:#E30613;"></i> {{ module.name }}<span v-if="module.isCustom" class="custom-badge"><i class="fas fa-magic"></i> Custom</span></h4><p>{{ module.description }}</p></div><label class="toggle-switch"><input type="checkbox" v-model="module.enabled" @change="confirmModuleToggle(module)"><span class="toggle-slider"></span></label></div></div><div v-else class="settings-panel" style="text-align:center; padding:40px;"><i class="fas fa-building" style="font-size:48px; color:#cbd5e1; margin-bottom:12px; display:block;"></i><p>Select a tenant from the dropdown above to configure their modules</p></div>
             </div>
 
-            <!-- MODULE BILLING SECTION -->
+            <!-- MODULE BILLING SECTION - NEW ADDITION -->
             <div v-if="currentSection === 'module-billing'">
                 <div class="section-header">
                     <h2><i class="fas fa-credit-card"></i> Module Billing & Per‑Tenant Toggles</h2>
@@ -188,7 +187,7 @@
                             <div class="module-info">
                                 <h4><i :class="module.icon" style="color:#E30613;"></i> {{ module.name }}
                                     <span v-if="module.isCustom" class="custom-badge"><i class="fas fa-magic"></i> Custom</span>
-                                    <span class="pricing-badge">{{ module.pricingTier }}</span>
+                                    <span class="pricing-badge">{{ module.pricingTier || 'Standard' }}</span>
                                 </h4>
                                 <p>{{ module.description }}</p>
                             </div>
@@ -198,8 +197,8 @@
                             </label>
                         </div>
                         <div class="billing-section">
-                            <div class="billing-line"><span>Monthly Base</span><span>${{ module.basePrice }}</span></div>
-                            <div class="billing-line" v-if="module.perUnitFee"><span>{{ module.perUnitLabel }}</span><span>${{ module.perUnitFee }}</span></div>
+                            <div class="billing-line"><span>Monthly Base</span><span>${{ module.basePrice || 0 }}</span></div>
+                            <div class="billing-line" v-if="module.perUnitFee && module.perUnitFee > 0"><span>{{ module.perUnitLabel || 'Per Use' }}</span><span>${{ module.perUnitFee }}</span></div>
                             <div class="billing-total">
                                 <span>Estimated Monthly</span>
                                 <span><strong>${{ module.currentTotal.toFixed(2) }}</strong></span>
@@ -228,10 +227,12 @@
     <!-- MODALS -->
     <div class="modal-mask" :class="{ active: showConfirmModal }"><div class="modal-container"><div class="modal-icon"><i class="fas fa-question-circle" style="color: #f59e0b;"></i></div><h3 style="margin-bottom:12px;">Confirm {{ pendingModuleAction === 'enable' ? 'Activation' : 'Deactivation' }}</h3><p style="margin-bottom:8px; color:#475569;">Are you sure you want to <strong>{{ pendingModuleAction === 'enable' ? 'ENABLE' : 'DISABLE' }}</strong> <strong style="color:#E30613;">{{ pendingModuleName }}</strong>?</p><p style="font-size:0.75rem; color:#64748b;">{{ pendingModuleAction === 'enable' ? 'This will make the module visible to the tenant admin and staff.' : 'This will hide the module from the tenant admin and staff dashboards.' }}</p><div class="modal-buttons"><button class="btn-outline" @click="cancelModuleToggle">Cancel</button><button class="btn-primary" @click="confirmModuleToggleSave">Confirm</button></div></div></div>
     
+    <!-- BILLING CONFIRMATION MODAL - NEW ADDITION -->
     <div class="modal-mask" :class="{ active: showBillingConfirmModal }"><div class="modal-container"><div class="modal-icon"><i class="fas fa-question-circle" style="color: #f59e0b;"></i></div><h3 style="margin-bottom:12px;">Confirm {{ billingPendingAction === 'enable' ? 'Activation' : 'Deactivation' }}</h3><p>Are you sure you want to <strong>{{ billingPendingAction === 'enable' ? 'ENABLE' : 'DISABLE' }}</strong> <strong style="color:#E30613;">{{ billingPendingModuleName }}</strong>?</p><p style="font-size:0.75rem; color:#64748b; margin-top:8px;">{{ billingPendingAction === 'enable' ? 'Module will appear on tenant & staff dashboards.' : 'Module will be hidden from tenant & staff.' }}</p><div class="modal-buttons"><button class="btn-outline" @click="cancelBillingModuleToggle">Cancel</button><button class="btn-primary" @click="confirmBillingModuleToggleSave">Confirm</button></div></div></div>
 
     <div class="modal-mask" :class="{ active: showCreateModuleModal }"><div class="modal-container" style="text-align:left;"><h3 style="margin-bottom:20px;"><i class="fas fa-magic"></i> Create Custom Module</h3><div class="form-group"><label>Module Name *</label><input class="form-control" v-model="newModule.name" placeholder="e.g., Digital Wallet, Loyalty Points"></div><div class="form-group"><label>Description</label><input class="form-control" v-model="newModule.description" placeholder="What does this module do?"></div><div class="form-group"><label>Icon (Font Awesome)</label><input class="form-control" v-model="newModule.icon" placeholder="e.g., fas fa-wallet, fas fa-gift"></div><p style="font-size:0.7rem; color:#64748b; margin-bottom:16px;"><i class="fas fa-info-circle"></i> Tip: Find icons at fontawesome.com</p><div style="display:flex; gap:12px; margin-top:20px;"><button class="btn-outline" @click="showCreateModuleModal = false">Cancel</button><button class="btn-primary" @click="createCustomModule">Create Module</button></div></div></div>
 
+    <!-- BILLING CREATE MODULE MODAL - NEW ADDITION -->
     <div class="modal-mask" :class="{ active: showBillingCreateModal }"><div class="modal-container" style="text-align:left;"><h3 style="margin-bottom:20px;"><i class="fas fa-magic"></i> Add Custom Module with Pricing</h3><div class="form-group"><label>Module Name *</label><input class="form-control" v-model="billingNewModule.name" placeholder="e.g., Digital Wallet, Loyalty Points"></div><div class="form-group"><label>Description</label><input class="form-control" v-model="billingNewModule.description" placeholder="What does this module do?"></div><div class="form-group"><label>Icon (Font Awesome)</label><input class="form-control" v-model="billingNewModule.icon" placeholder="e.g., fas fa-wallet, fas fa-gift"></div><div class="form-group"><label>Monthly Base Price ($)</label><input type="number" class="form-control" v-model="billingNewModule.basePrice" placeholder="0"></div><div class="form-group"><label>Per-Unit Fee ($) - Optional</label><input type="number" class="form-control" v-model="billingNewModule.perUnitFee" placeholder="0.00"></div><div class="form-group"><label>Per-Unit Label</label><input class="form-control" v-model="billingNewModule.perUnitLabel" placeholder="e.g., Per Transaction, Per User"></div><p style="font-size:0.7rem; color:#64748b; margin-bottom:16px;"><i class="fas fa-info-circle"></i> Tip: Find icons at fontawesome.com</p><div class="modal-buttons"><button class="btn-outline" @click="showBillingCreateModal = false">Cancel</button><button class="btn-primary" @click="createBillingCustomModule">Create Module</button></div></div></div>
 
     <div class="modal-mask" :class="{ active: showTenantModal }"><div class="modal-container" style="text-align:left;"><h3 style="margin-bottom:20px;"><i class="fas fa-building"></i> Create New Tenant</h3><div class="form-group"><label>Business Name *</label><input class="form-control" v-model="newTenant.businessName"></div><div class="form-group"><label>Owner Name *</label><input class="form-control" v-model="newTenant.ownerName"></div><div class="form-group"><label>Phone *</label><input class="form-control" v-model="newTenant.phone"></div><div class="form-group"><label>Username *</label><input class="form-control" v-model="newTenant.username"></div><div class="form-group"><label>Password *</label><input type="password" class="form-control" v-model="newTenant.password"></div><div style="display:flex; gap:12px; margin-top:20px;"><button class="btn-outline" @click="showTenantModal = false">Cancel</button><button class="btn-primary" @click="createTenant">Create Tenant</button></div></div></div>
@@ -262,9 +263,15 @@
             showTenantModal: false, showViewModal: false, showResetModal: false, showCreateModuleModal: false, viewingTenant: null, resettingTenant: null, newPassword: '',
             newTenant: { businessName: '', ownerName: '', phone: '', username: '', password: '' }, newModule: { name: '', description: '', icon: 'fas fa-plug' },
             customModulesList: [], systemSettings: { systemName: 'Rands Venue OS', logoUrl: '', primaryColor: '#E30613', secondaryColor: '#9f0110', currency: 'ZAR', dateFormat: 'DD/MM/YYYY' },
-            navItems: [{ id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' }, { id: 'tenants', label: 'Tenants', icon: 'fas fa-building' }, { id: 'modules', label: 'Modules', icon: 'fas fa-puzzle-piece' }, { id: 'module-billing', label: 'Module Billing', icon: 'fas fa-credit-card' }, { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }],
+            navItems: [
+                { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
+                { id: 'tenants', label: 'Tenants', icon: 'fas fa-building' },
+                { id: 'modules', label: 'Modules', icon: 'fas fa-puzzle-piece' },
+                { id: 'module-billing', label: 'Module Billing', icon: 'fas fa-credit-card' },
+                { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
+            ],
             showConfirmModal: false, pendingModule: null, pendingModuleAction: null, pendingModuleName: '', pendingOriginalState: false, showToast: false, toastMessage: '', toastTimeout: null,
-            // Billing specific data
+            // Billing specific data - NEW ADDITION
             billingSelectedTenantId: null, showBillingConfirmModal: false, billingPendingModule: null, billingPendingAction: null, billingPendingModuleName: '', billingPendingOriginalState: false,
             showBillingCreateModal: false, billingNewModule: { name: '', description: '', icon: 'fas fa-plug', basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use' }
         },
@@ -283,14 +290,14 @@
                 }
                 return this.tenantModules[this.selectedTenantId];
             },
-            // Billing computed properties
+            // Billing computed properties - NEW ADDITION
             billingSelectedTenant() { return this.tenants.find(t => t.id === this.billingSelectedTenantId); },
             billingModulesWithTotals() {
                 if (!this.billingSelectedTenantId) return [];
                 let modules = this.tenantModules[this.billingSelectedTenantId] || [];
                 const usageMap = { 1: 4230, 2: 1280, 3: 340, 4: 480, 5: 720, 6: 120 };
                 return modules.map(mod => {
-                    let total = mod.enabled ? mod.basePrice : 0;
+                    let total = mod.enabled ? (mod.basePrice || 0) : 0;
                     if (mod.enabled && mod.perUnitFee && mod.perUnitFee > 0) {
                         let usageCount = usageMap[mod.id] || 150;
                         total += usageCount * mod.perUnitFee;
@@ -309,7 +316,7 @@
                 let total = 0;
                 modules.forEach(mod => {
                     if (mod.enabled) {
-                        total += mod.basePrice;
+                        total += mod.basePrice || 0;
                         if (mod.perUnitFee && mod.perUnitFee > 0) {
                             let usageCount = usageMap[mod.id] || 150;
                             total += usageCount * mod.perUnitFee;
@@ -339,18 +346,8 @@
             saveCustomModules() { localStorage.setItem(STORAGE_KEYS.CUSTOM_MODULES, JSON.stringify(this.customModulesList)); this.triggerSync(); },
             openCreateTenantModal() { this.newTenant = { businessName: '', ownerName: '', phone: '', username: '', password: '' }; this.showTenantModal = true; },
             openCreateModuleModal() { this.newModule = { name: '', description: '', icon: 'fas fa-plug' }; this.showCreateModuleModal = true; },
+            // Billing methods - NEW ADDITION
             openBillingModuleModal() { this.billingNewModule = { name: '', description: '', icon: 'fas fa-plug', basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use' }; this.showBillingCreateModal = true; },
-            createCustomModule() {
-                if (!this.newModule.name) { this.showSuccessToast('❌ Module name is required'); return; }
-                const exists = this.customModulesList.some(m => m.name.toLowerCase() === this.newModule.name.toLowerCase());
-                if (exists) { this.showSuccessToast('❌ A module with this name already exists'); return; }
-                const newId = 100 + this.customModulesList.length + 1;
-                const newCustomModule = { id: newId, name: this.newModule.name, description: this.newModule.description || 'Custom module created by Super Admin', icon: this.newModule.icon || 'fas fa-plug', isCustom: true, createdAt: new Date().toISOString(), basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use', pricingTier: 'Custom' };
-                this.customModulesList.push(newCustomModule); this.saveCustomModules();
-                Object.keys(this.tenantModules).forEach(tenantId => { if (this.tenantModules[tenantId] && !this.tenantModules[tenantId].some(m => m.id === newId)) { this.tenantModules[tenantId].push({ id: newId, name: newCustomModule.name, description: newCustomModule.description, icon: newCustomModule.icon, isCustom: true, enabled: false, basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use', pricingTier: 'Custom' }); } });
-                this.saveModules(); if (this.selectedTenantId) { this.loadTenantModules(); }
-                this.showCreateModuleModal = false; this.showSuccessToast(`✅ Custom module "${this.newModule.name}" created!`);
-            },
             createBillingCustomModule() {
                 if (!this.billingNewModule.name) { this.showSuccessToast('❌ Module name is required'); return; }
                 const exists = this.customModulesList.some(m => m.name.toLowerCase() === this.billingNewModule.name.toLowerCase());
@@ -372,44 +369,6 @@
                 this.saveModules();
                 this.showBillingCreateModal = false;
                 this.showSuccessToast(`✅ Custom module "${this.billingNewModule.name}" created with pricing!`);
-            },
-            createTenant() {
-                if (!this.newTenant.businessName || !this.newTenant.ownerName || !this.newTenant.username || !this.newTenant.password) { alert('Please fill all required fields'); return; }
-                if (this.newTenant.password.length < 4) { alert('Password must be at least 4 characters'); return; }
-                const newId = this.tenants.length > 0 ? Math.max(...this.tenants.map(t => t.id)) + 1 : 1;
-                const allModulesForTenant = [...BASE_MODULES]; this.customModulesList.forEach(custom => { allModulesForTenant.push({ id: custom.id, name: custom.name, description: custom.description, icon: custom.icon, isCustom: true, enabled: false, basePrice: custom.basePrice || 29, perUnitFee: custom.perUnitFee || 0, perUnitLabel: custom.perUnitLabel || 'Per Use', pricingTier: 'Custom' }); });
-                const newTenantObj = { id: newId, businessName: this.newTenant.businessName, ownerName: this.newTenant.ownerName, phone: this.newTenant.phone || 'N/A', username: this.newTenant.username, password: this.newTenant.password, status: 'Active' };
-                this.tenants.push(newTenantObj); this.tenantModules[newId] = allModulesForTenant.map(m => ({ ...m, enabled: false }));
-                this.saveTenants(); this.saveModules(); this.showTenantModal = false; this.showSuccessToast(`Tenant "${this.newTenant.businessName}" created!`);
-            },
-            deleteTenant(tenant) {
-                if (!confirm(`⚠️ PERMANENT DELETE - Type "${tenant.businessName}" to confirm:`)) return;
-                const confirmText = prompt(`Type "${tenant.businessName}" to confirm:`);
-                if (confirmText !== tenant.businessName) { this.showSuccessToast('Deletion cancelled'); return; }
-                const tenantIndex = this.tenants.findIndex(t => t.id === tenant.id); if (tenantIndex !== -1) { this.tenants.splice(tenantIndex, 1); }
-                const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(allStaff.filter(s => s.tenantId !== tenant.id)));
-                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}'); delete allModules[tenant.id]; localStorage.setItem(STORAGE_KEYS.TENANT_MODULES, JSON.stringify(allModules)); this.tenantModules = allModules;
-                localStorage.removeItem(`qless_tenant_branding_${tenant.id}`);
-                if (this.selectedTenantId === tenant.id) { this.selectedTenantId = this.tenants.length > 0 ? this.tenants[0].id : null; if (this.selectedTenantId) { this.loadTenantModules(); } }
-                if (this.billingSelectedTenantId === tenant.id) { this.billingSelectedTenantId = this.tenants.length > 0 ? this.tenants[0].id : null; }
-                this.saveTenants(); this.showSuccessToast(`✅ "${tenant.businessName}" deleted`);
-            },
-            suspendTenant(id) { const tenant = this.tenants.find(t => t.id === id); if (tenant) { tenant.status = 'Suspended'; this.saveTenants(); this.showSuccessToast(`${tenant.businessName} suspended`); } },
-            activateTenant(id) { const tenant = this.tenants.find(t => t.id === id); if (tenant) { tenant.status = 'Active'; this.saveTenants(); this.showSuccessToast(`${tenant.businessName} activated`); } },
-            viewTenant(tenant) { this.viewingTenant = tenant; this.showViewModal = true; },
-            resetTenantPassword(tenant) { this.resettingTenant = tenant; this.newPassword = ''; this.showResetModal = true; },
-            confirmResetPassword() { if (!this.newPassword || this.newPassword.length < 4) { alert('Password must be at least 4 characters'); return; } if (this.resettingTenant) { this.resettingTenant.password = this.newPassword; this.saveTenants(); this.showSuccessToast(`Password reset for ${this.resettingTenant.businessName}: ${this.newPassword}`); this.showResetModal = false; this.resettingTenant = null; } },
-            loadTenantModules() { this.$forceUpdate(); },
-            loadBillingModules() { this.$forceUpdate(); },
-            confirmModuleToggle(module) { this.pendingModule = module; this.pendingModuleName = module.name; this.pendingModuleAction = module.enabled ? 'enable' : 'disable'; this.pendingOriginalState = !module.enabled; this.showConfirmModal = true; },
-            cancelModuleToggle() { if (this.pendingModule) { this.pendingModule.enabled = this.pendingOriginalState; } this.showConfirmModal = false; this.pendingModule = null; },
-            confirmModuleToggleSave() {
-                const tenantId = this.selectedTenantId; if (!tenantId || !this.pendingModule) { this.showConfirmModal = false; return; }
-                const index = this.tenantModules[tenantId].findIndex(m => m.id === this.pendingModule.id);
-                if (index !== -1) { this.tenantModules[tenantId][index].enabled = this.pendingModule.enabled; }
-                this.saveModules(); const tenant = this.tenants.find(t => t.id === tenantId);
-                this.showSuccessToast(`${tenant?.businessName}: ${this.pendingModule.name} is now ${this.pendingModule.enabled ? 'ENABLED' : 'DISABLED'}`);
-                this.showConfirmModal = false; this.pendingModule = null;
             },
             confirmBillingModuleToggle(module) {
                 this.billingPendingModule = module;
@@ -445,9 +404,59 @@
                         }
                     });
                     this.saveModules();
-                    if (this.billingSelectedTenantId) this.loadBillingModules();
+                    if (this.billingSelectedTenantId) this.$forceUpdate();
                     this.showSuccessToast(`🗑️ "${module.name}" deleted from all tenants`);
                 }
+            },
+            loadBillingModules() { this.$forceUpdate(); },
+            // END Billing methods
+            createCustomModule() {
+                if (!this.newModule.name) { this.showSuccessToast('❌ Module name is required'); return; }
+                const exists = this.customModulesList.some(m => m.name.toLowerCase() === this.newModule.name.toLowerCase());
+                if (exists) { this.showSuccessToast('❌ A module with this name already exists'); return; }
+                const newId = 100 + this.customModulesList.length + 1;
+                const newCustomModule = { id: newId, name: this.newModule.name, description: this.newModule.description || 'Custom module created by Super Admin', icon: this.newModule.icon || 'fas fa-plug', isCustom: true, createdAt: new Date().toISOString(), basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use', pricingTier: 'Custom' };
+                this.customModulesList.push(newCustomModule); this.saveCustomModules();
+                Object.keys(this.tenantModules).forEach(tenantId => { if (this.tenantModules[tenantId] && !this.tenantModules[tenantId].some(m => m.id === newId)) { this.tenantModules[tenantId].push({ id: newId, name: newCustomModule.name, description: newCustomModule.description, icon: newCustomModule.icon, isCustom: true, enabled: false, basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use', pricingTier: 'Custom' }); } });
+                this.saveModules(); if (this.selectedTenantId) { this.loadTenantModules(); }
+                this.showCreateModuleModal = false; this.showSuccessToast(`✅ Custom module "${this.newModule.name}" created!`);
+            },
+            createTenant() {
+                if (!this.newTenant.businessName || !this.newTenant.ownerName || !this.newTenant.username || !this.newTenant.password) { alert('Please fill all required fields'); return; }
+                if (this.newTenant.password.length < 4) { alert('Password must be at least 4 characters'); return; }
+                const newId = this.tenants.length > 0 ? Math.max(...this.tenants.map(t => t.id)) + 1 : 1;
+                const allModulesForTenant = [...BASE_MODULES]; this.customModulesList.forEach(custom => { allModulesForTenant.push({ id: custom.id, name: custom.name, description: custom.description, icon: custom.icon, isCustom: true, enabled: false, basePrice: custom.basePrice || 29, perUnitFee: custom.perUnitFee || 0, perUnitLabel: custom.perUnitLabel || 'Per Use', pricingTier: 'Custom' }); });
+                const newTenantObj = { id: newId, businessName: this.newTenant.businessName, ownerName: this.newTenant.ownerName, phone: this.newTenant.phone || 'N/A', username: this.newTenant.username, password: this.newTenant.password, status: 'Active' };
+                this.tenants.push(newTenantObj); this.tenantModules[newId] = allModulesForTenant.map(m => ({ ...m, enabled: false }));
+                this.saveTenants(); this.saveModules(); this.showTenantModal = false; this.showSuccessToast(`Tenant "${this.newTenant.businessName}" created!`);
+            },
+            deleteTenant(tenant) {
+                if (!confirm(`⚠️ PERMANENT DELETE - Type "${tenant.businessName}" to confirm:`)) return;
+                const confirmText = prompt(`Type "${tenant.businessName}" to confirm:`);
+                if (confirmText !== tenant.businessName) { this.showSuccessToast('Deletion cancelled'); return; }
+                const tenantIndex = this.tenants.findIndex(t => t.id === tenant.id); if (tenantIndex !== -1) { this.tenants.splice(tenantIndex, 1); }
+                const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(allStaff.filter(s => s.tenantId !== tenant.id)));
+                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}'); delete allModules[tenant.id]; localStorage.setItem(STORAGE_KEYS.TENANT_MODULES, JSON.stringify(allModules)); this.tenantModules = allModules;
+                localStorage.removeItem(`qless_tenant_branding_${tenant.id}`);
+                if (this.selectedTenantId === tenant.id) { this.selectedTenantId = this.tenants.length > 0 ? this.tenants[0].id : null; if (this.selectedTenantId) { this.loadTenantModules(); } }
+                if (this.billingSelectedTenantId === tenant.id) { this.billingSelectedTenantId = this.tenants.length > 0 ? this.tenants[0].id : null; }
+                this.saveTenants(); this.showSuccessToast(`✅ "${tenant.businessName}" deleted`);
+            },
+            suspendTenant(id) { const tenant = this.tenants.find(t => t.id === id); if (tenant) { tenant.status = 'Suspended'; this.saveTenants(); this.showSuccessToast(`${tenant.businessName} suspended`); } },
+            activateTenant(id) { const tenant = this.tenants.find(t => t.id === id); if (tenant) { tenant.status = 'Active'; this.saveTenants(); this.showSuccessToast(`${tenant.businessName} activated`); } },
+            viewTenant(tenant) { this.viewingTenant = tenant; this.showViewModal = true; },
+            resetTenantPassword(tenant) { this.resettingTenant = tenant; this.newPassword = ''; this.showResetModal = true; },
+            confirmResetPassword() { if (!this.newPassword || this.newPassword.length < 4) { alert('Password must be at least 4 characters'); return; } if (this.resettingTenant) { this.resettingTenant.password = this.newPassword; this.saveTenants(); this.showSuccessToast(`Password reset for ${this.resettingTenant.businessName}: ${this.newPassword}`); this.showResetModal = false; this.resettingTenant = null; } },
+            loadTenantModules() { this.$forceUpdate(); },
+            confirmModuleToggle(module) { this.pendingModule = module; this.pendingModuleName = module.name; this.pendingModuleAction = module.enabled ? 'enable' : 'disable'; this.pendingOriginalState = !module.enabled; this.showConfirmModal = true; },
+            cancelModuleToggle() { if (this.pendingModule) { this.pendingModule.enabled = this.pendingOriginalState; } this.showConfirmModal = false; this.pendingModule = null; },
+            confirmModuleToggleSave() {
+                const tenantId = this.selectedTenantId; if (!tenantId || !this.pendingModule) { this.showConfirmModal = false; return; }
+                const index = this.tenantModules[tenantId].findIndex(m => m.id === this.pendingModule.id);
+                if (index !== -1) { this.tenantModules[tenantId][index].enabled = this.pendingModule.enabled; }
+                this.saveModules(); const tenant = this.tenants.find(t => t.id === tenantId);
+                this.showSuccessToast(`${tenant?.businessName}: ${this.pendingModule.name} is now ${this.pendingModule.enabled ? 'ENABLED' : 'DISABLED'}`);
+                this.showConfirmModal = false; this.pendingModule = null;
             },
             saveBranding() { this.saveSystemSettings(); this.showSuccessToast(`Branding saved!`); },
             saveSystemConfig() { this.saveSystemSettings(); this.showSuccessToast('System configuration saved!'); },
