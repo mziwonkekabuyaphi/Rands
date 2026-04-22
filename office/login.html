@@ -264,10 +264,16 @@
                 const usernameInput = document.getElementById('loginWhatsapp');
                 if (selectedRole === 'super_administrator') {
                     usernameInput.placeholder = 'Username: Super';
+                    usernameInput.value = 'Super';
+                    document.getElementById('loginPin').value = '1989';
                 } else if (selectedRole === 'tenant_admin') {
                     usernameInput.placeholder = 'Tenant username (e.g., skyline_admin)';
+                    usernameInput.value = '';
+                    document.getElementById('loginPin').value = '';
                 } else {
                     usernameInput.placeholder = 'Staff username';
+                    usernameInput.value = '';
+                    document.getElementById('loginPin').value = '';
                 }
                 
                 updateTenantDropdown();
@@ -300,7 +306,6 @@
         const tenant = tenants.find(t => t.username === username && t.password === password);
         
         if (tenant && tenant.status === 'Active') {
-            // If tenantId is provided and matches, or just use found tenant
             const selectedTenantId = tenantId || tenant.id;
             const selectedTenant = tenants.find(t => t.id == selectedTenantId);
             
@@ -413,7 +418,7 @@
         return false;
     }
     
-    // Redirect based on role
+    // Redirect based on role - UPDATED to match your file names
     function redirectToDashboard() {
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) {
@@ -422,12 +427,11 @@
         }
         
         if (user.role === 'super_administrator') {
-            // Redirect to module billing page or super admin dashboard
-            window.location.href = 'module-billing.html';
+            window.location.href = 'super-admin.html';
         } else if (user.role === 'tenant_admin') {
-            window.location.href = 'tenant-dashboard.html';
+            window.location.href = 'admin.html';
         } else if (user.role === 'staff') {
-            window.location.href = 'staff-dashboard.html';
+            window.location.href = 'staff.html';
         } else {
             window.location.href = 'home.html';
         }
@@ -454,6 +458,7 @@
                 if (tenant) {
                     userData.businessName = tenant.businessName;
                     userData.username = tenant.username;
+                    userData.name = tenant.ownerName;
                 }
             } else if (userRole === 'staff') {
                 userData.tenantId = sessionStorage.getItem('qless_tenant_id');
@@ -484,11 +489,9 @@
             return;
         }
         
-        // Set default credentials based on role
+        // Set default credentials for Super Admin
         const usernameInput = document.getElementById('loginWhatsapp');
         const passwordInput = document.getElementById('loginPin');
-        
-        // Pre-fill for demo convenience
         usernameInput.value = 'Super';
         passwordInput.value = '1989';
         
