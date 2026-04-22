@@ -158,7 +158,7 @@
                 <div class="modules-grid" v-if="selectedTenant"><div class="module-card" v-for="module in currentTenantModules" :key="module.id"><div class="module-info"><h4><i :class="module.icon" style="margin-right:8px; color:#E30613;"></i> {{ module.name }}<span v-if="module.isCustom" class="custom-badge"><i class="fas fa-magic"></i> Custom</span></h4><p>{{ module.description }}</p></div><label class="toggle-switch"><input type="checkbox" v-model="module.enabled" @change="confirmModuleToggle(module)"><span class="toggle-slider"></span></label></div></div><div v-else class="settings-panel" style="text-align:center; padding:40px;"><i class="fas fa-building" style="font-size:48px; color:#cbd5e1; margin-bottom:12px; display:block;"></i><p>Select a tenant from the dropdown above to configure their modules</p></div>
             </div>
 
-            <!-- MODULE BILLING SECTION - NEW ADDITION -->
+            <!-- MODULE BILLING SECTION -->
             <div v-if="currentSection === 'module-billing'">
                 <div class="section-header">
                     <h2><i class="fas fa-credit-card"></i> Module Billing & Per‑Tenant Toggles</h2>
@@ -172,13 +172,13 @@
                     </select>
                     <div style="margin:0; padding:8px 20px; background:#f1f5f9; border-radius:40px;">
                         <span><i class="fas fa-chart-line"></i> Active Modules: <strong>{{ billingActiveModulesCount }}</strong></span>
-                        <span style="margin-left:20px;"><i class="fas fa-dollar-sign"></i> Monthly Bill: <strong>${{ billingCurrentTotalBill.toFixed(2) }}</strong></span>
+                        <span style="margin-left:20px;"><i class="fas fa-rand-sign"></i> Monthly Bill: <strong>R{{ billingCurrentTotalBill.toFixed(2) }}</strong></span>
                     </div>
                 </div>
 
                 <div class="total-billing-summary">
                     <div class="total-label"><i class="fas fa-receipt"></i> {{ billingSelectedTenant ? billingSelectedTenant.businessName : 'Tenant' }} · Monthly Recurring Revenue</div>
-                    <div class="total-amount">${{ billingCurrentTotalBill.toFixed(2) }}</div>
+                    <div class="total-amount">R{{ billingCurrentTotalBill.toFixed(2) }}</div>
                 </div>
 
                 <div class="modules-grid" v-if="billingSelectedTenant">
@@ -197,11 +197,11 @@
                             </label>
                         </div>
                         <div class="billing-section">
-                            <div class="billing-line"><span>Monthly Base</span><span>${{ module.basePrice || 0 }}</span></div>
-                            <div class="billing-line" v-if="module.perUnitFee && module.perUnitFee > 0"><span>{{ module.perUnitLabel || 'Per Use' }}</span><span>${{ module.perUnitFee }}</span></div>
+                            <div class="billing-line"><span>Base Fee</span><span>R{{ module.basePrice || 0 }}</span></div>
+                            <div class="billing-line" v-if="module.perUnitFee && module.perUnitFee > 0"><span>{{ module.perUnitLabel || 'Per Use' }}</span><span>R{{ module.perUnitFee }}</span></div>
                             <div class="billing-total">
                                 <span>Estimated Monthly</span>
-                                <span><strong>${{ module.currentTotal.toFixed(2) }}</strong></span>
+                                <span><strong>R{{ module.currentTotal.toFixed(2) }}</strong></span>
                             </div>
                         </div>
                         <div class="module-actions" v-if="module.isCustom">
@@ -227,13 +227,11 @@
     <!-- MODALS -->
     <div class="modal-mask" :class="{ active: showConfirmModal }"><div class="modal-container"><div class="modal-icon"><i class="fas fa-question-circle" style="color: #f59e0b;"></i></div><h3 style="margin-bottom:12px;">Confirm {{ pendingModuleAction === 'enable' ? 'Activation' : 'Deactivation' }}</h3><p style="margin-bottom:8px; color:#475569;">Are you sure you want to <strong>{{ pendingModuleAction === 'enable' ? 'ENABLE' : 'DISABLE' }}</strong> <strong style="color:#E30613;">{{ pendingModuleName }}</strong>?</p><p style="font-size:0.75rem; color:#64748b;">{{ pendingModuleAction === 'enable' ? 'This will make the module visible to the tenant admin and staff.' : 'This will hide the module from the tenant admin and staff dashboards.' }}</p><div class="modal-buttons"><button class="btn-outline" @click="cancelModuleToggle">Cancel</button><button class="btn-primary" @click="confirmModuleToggleSave">Confirm</button></div></div></div>
     
-    <!-- BILLING CONFIRMATION MODAL - NEW ADDITION -->
     <div class="modal-mask" :class="{ active: showBillingConfirmModal }"><div class="modal-container"><div class="modal-icon"><i class="fas fa-question-circle" style="color: #f59e0b;"></i></div><h3 style="margin-bottom:12px;">Confirm {{ billingPendingAction === 'enable' ? 'Activation' : 'Deactivation' }}</h3><p>Are you sure you want to <strong>{{ billingPendingAction === 'enable' ? 'ENABLE' : 'DISABLE' }}</strong> <strong style="color:#E30613;">{{ billingPendingModuleName }}</strong>?</p><p style="font-size:0.75rem; color:#64748b; margin-top:8px;">{{ billingPendingAction === 'enable' ? 'Module will appear on tenant & staff dashboards.' : 'Module will be hidden from tenant & staff.' }}</p><div class="modal-buttons"><button class="btn-outline" @click="cancelBillingModuleToggle">Cancel</button><button class="btn-primary" @click="confirmBillingModuleToggleSave">Confirm</button></div></div></div>
 
     <div class="modal-mask" :class="{ active: showCreateModuleModal }"><div class="modal-container" style="text-align:left;"><h3 style="margin-bottom:20px;"><i class="fas fa-magic"></i> Create Custom Module</h3><div class="form-group"><label>Module Name *</label><input class="form-control" v-model="newModule.name" placeholder="e.g., Digital Wallet, Loyalty Points"></div><div class="form-group"><label>Description</label><input class="form-control" v-model="newModule.description" placeholder="What does this module do?"></div><div class="form-group"><label>Icon (Font Awesome)</label><input class="form-control" v-model="newModule.icon" placeholder="e.g., fas fa-wallet, fas fa-gift"></div><p style="font-size:0.7rem; color:#64748b; margin-bottom:16px;"><i class="fas fa-info-circle"></i> Tip: Find icons at fontawesome.com</p><div style="display:flex; gap:12px; margin-top:20px;"><button class="btn-outline" @click="showCreateModuleModal = false">Cancel</button><button class="btn-primary" @click="createCustomModule">Create Module</button></div></div></div>
 
-    <!-- BILLING CREATE MODULE MODAL - NEW ADDITION -->
-    <div class="modal-mask" :class="{ active: showBillingCreateModal }"><div class="modal-container" style="text-align:left;"><h3 style="margin-bottom:20px;"><i class="fas fa-magic"></i> Add Custom Module with Pricing</h3><div class="form-group"><label>Module Name *</label><input class="form-control" v-model="billingNewModule.name" placeholder="e.g., Digital Wallet, Loyalty Points"></div><div class="form-group"><label>Description</label><input class="form-control" v-model="billingNewModule.description" placeholder="What does this module do?"></div><div class="form-group"><label>Icon (Font Awesome)</label><input class="form-control" v-model="billingNewModule.icon" placeholder="e.g., fas fa-wallet, fas fa-gift"></div><div class="form-group"><label>Monthly Base Price ($)</label><input type="number" class="form-control" v-model="billingNewModule.basePrice" placeholder="0"></div><div class="form-group"><label>Per-Unit Fee ($) - Optional</label><input type="number" class="form-control" v-model="billingNewModule.perUnitFee" placeholder="0.00"></div><div class="form-group"><label>Per-Unit Label</label><input class="form-control" v-model="billingNewModule.perUnitLabel" placeholder="e.g., Per Transaction, Per User"></div><p style="font-size:0.7rem; color:#64748b; margin-bottom:16px;"><i class="fas fa-info-circle"></i> Tip: Find icons at fontawesome.com</p><div class="modal-buttons"><button class="btn-outline" @click="showBillingCreateModal = false">Cancel</button><button class="btn-primary" @click="createBillingCustomModule">Create Module</button></div></div></div>
+    <div class="modal-mask" :class="{ active: showBillingCreateModal }"><div class="modal-container" style="text-align:left;"><h3 style="margin-bottom:20px;"><i class="fas fa-magic"></i> Add Custom Module with Pricing</h3><div class="form-group"><label>Module Name *</label><input class="form-control" v-model="billingNewModule.name" placeholder="e.g., Digital Wallet, Loyalty Points"></div><div class="form-group"><label>Description</label><input class="form-control" v-model="billingNewModule.description" placeholder="What does this module do?"></div><div class="form-group"><label>Icon (Font Awesome)</label><input class="form-control" v-model="billingNewModule.icon" placeholder="e.g., fas fa-wallet, fas fa-gift"></div><div class="form-group"><label>Base Price (R)</label><input type="number" class="form-control" v-model="billingNewModule.basePrice" placeholder="0"></div><div class="form-group"><label>Per-Unit Fee (R) - Optional</label><input type="number" class="form-control" v-model="billingNewModule.perUnitFee" placeholder="0.00"></div><div class="form-group"><label>Per-Unit Label</label><input class="form-control" v-model="billingNewModule.perUnitLabel" placeholder="e.g., Per Transaction, Per User"></div><p style="font-size:0.7rem; color:#64748b; margin-bottom:16px;"><i class="fas fa-info-circle"></i> Tip: Find icons at fontawesome.com</p><div class="modal-buttons"><button class="btn-outline" @click="showBillingCreateModal = false">Cancel</button><button class="btn-primary" @click="createBillingCustomModule">Create Module</button></div></div></div>
 
     <div class="modal-mask" :class="{ active: showTenantModal }"><div class="modal-container" style="text-align:left;"><h3 style="margin-bottom:20px;"><i class="fas fa-building"></i> Create New Tenant</h3><div class="form-group"><label>Business Name *</label><input class="form-control" v-model="newTenant.businessName"></div><div class="form-group"><label>Owner Name *</label><input class="form-control" v-model="newTenant.ownerName"></div><div class="form-group"><label>Phone *</label><input class="form-control" v-model="newTenant.phone"></div><div class="form-group"><label>Username *</label><input class="form-control" v-model="newTenant.username"></div><div class="form-group"><label>Password *</label><input type="password" class="form-control" v-model="newTenant.password"></div><div style="display:flex; gap:12px; margin-top:20px;"><button class="btn-outline" @click="showTenantModal = false">Cancel</button><button class="btn-primary" @click="createTenant">Create Tenant</button></div></div></div>
 
@@ -248,12 +246,13 @@
     const STORAGE_KEYS = { TENANTS: 'qless_tenants', STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules', SYSTEM_SETTINGS: 'qless_system_settings', CUSTOM_MODULES: 'qless_custom_modules' };
     
     const BASE_MODULES = [
-        { id: 1, name: 'Tickets', description: 'Event ticketing & reservations', icon: 'fas fa-ticket-alt', isCustom: false, basePrice: 49, perUnitFee: 0.05, perUnitLabel: 'Per Scan', pricingTier: 'Tier 1' },
-        { id: 2, name: 'Queue Management', description: 'Smart virtual queuing system', icon: 'fas fa-hourglass-half', isCustom: false, basePrice: 79, perUnitFee: 0.08, perUnitLabel: 'Per Check-in', pricingTier: 'Tier 2' },
-        { id: 3, name: 'Self-Serve Kiosk', description: 'Food & beverage ordering kiosk', icon: 'fas fa-clipboard-list', isCustom: false, basePrice: 39, perUnitFee: 0.15, perUnitLabel: 'Per Session', pricingTier: 'Tier 1' },
-        { id: 4, name: 'Virtual Booze Lockers', description: 'Secure bottle storage', icon: 'fas fa-lock', isCustom: false, basePrice: 99, perUnitFee: 0.30, perUnitLabel: 'Per Rental', pricingTier: 'Tier 2' },
-        { id: 5, name: 'Shisha System', description: 'Hookah management', icon: 'fas fa-smoking', isCustom: false, basePrice: 79, perUnitFee: 0.50, perUnitLabel: 'Per Session', pricingTier: 'Tier 2' },
-        { id: 6, name: 'VVIP Management', description: 'Exclusive VIP accounts & tabs', icon: 'fas fa-crown', isCustom: false, basePrice: 149, perUnitFee: null, perUnitLabel: null, pricingTier: 'Tier 3' }
+        { id: 1, name: 'Tickets', description: 'Event ticketing & reservations (R20/R10/R8 tiered)', icon: 'fas fa-ticket-alt', isCustom: false, basePrice: 10, perUnitFee: 0, perUnitLabel: 'Per Ticket (avg)', pricingTier: 'Pay as you go' },
+        { id: 2, name: 'Queue Management', description: 'Smart virtual queuing (R3/R2/R1 tiered)', icon: 'fas fa-hourglass-half', isCustom: false, basePrice: 2, perUnitFee: 0, perUnitLabel: 'Per Queue (avg)', pricingTier: 'Pay as you go' },
+        { id: 3, name: 'Ordering', description: 'Kiosk, wallet & WhatsApp orders (R10/R8/R6 tiered)', icon: 'fas fa-utensils', isCustom: false, basePrice: 8, perUnitFee: 0, perUnitLabel: 'Per Order (avg)', pricingTier: 'Pay as you go' },
+        { id: 4, name: 'Virtual Booze Lockers', description: 'Secure bottle storage', icon: 'fas fa-lock', isCustom: false, basePrice: 1, perUnitFee: 0, perUnitLabel: 'Per Locker', pricingTier: 'Pay as you go' },
+        { id: 5, name: 'Shisha System', description: 'Hookah management', icon: 'fas fa-smoking', isCustom: false, basePrice: 5, perUnitFee: 0, perUnitLabel: 'Per Session', pricingTier: 'Pay as you go' },
+        { id: 6, name: 'VVIP Management', description: 'Exclusive VIP accounts (3% per transaction)', icon: 'fas fa-crown', isCustom: false, basePrice: 0, perUnitFee: 3, perUnitLabel: '3% of Transaction', pricingTier: 'Percentage' },
+        { id: 7, name: 'Staff Management', description: 'Staff payroll & management', icon: 'fas fa-users', isCustom: false, basePrice: 10, perUnitFee: 0, perUnitLabel: 'Per Staff Member', pricingTier: 'Monthly' }
     ];
 
     new Vue({
@@ -271,7 +270,6 @@
                 { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
             ],
             showConfirmModal: false, pendingModule: null, pendingModuleAction: null, pendingModuleName: '', pendingOriginalState: false, showToast: false, toastMessage: '', toastTimeout: null,
-            // Billing specific data - NEW ADDITION
             billingSelectedTenantId: null, showBillingConfirmModal: false, billingPendingModule: null, billingPendingAction: null, billingPendingModuleName: '', billingPendingOriginalState: false,
             showBillingCreateModal: false, billingNewModule: { name: '', description: '', icon: 'fas fa-plug', basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use' }
         },
@@ -290,17 +288,20 @@
                 }
                 return this.tenantModules[this.selectedTenantId];
             },
-            // Billing computed properties - NEW ADDITION
             billingSelectedTenant() { return this.tenants.find(t => t.id === this.billingSelectedTenantId); },
             billingModulesWithTotals() {
                 if (!this.billingSelectedTenantId) return [];
                 let modules = this.tenantModules[this.billingSelectedTenantId] || [];
-                const usageMap = { 1: 4230, 2: 1280, 3: 340, 4: 480, 5: 720, 6: 120 };
+                const usageMap = { 1: 5000, 2: 800, 3: 1200, 4: 200, 5: 300, 6: 500, 7: 50 };
                 return modules.map(mod => {
                     let total = mod.enabled ? (mod.basePrice || 0) : 0;
                     if (mod.enabled && mod.perUnitFee && mod.perUnitFee > 0) {
                         let usageCount = usageMap[mod.id] || 150;
-                        total += usageCount * mod.perUnitFee;
+                        if (mod.id === 6) {
+                            total = usageCount * (mod.perUnitFee / 100) * 100;
+                        } else {
+                            total += usageCount * mod.perUnitFee;
+                        }
                     }
                     return { ...mod, currentTotal: total };
                 });
@@ -312,14 +313,18 @@
             billingCurrentTotalBill() {
                 if (!this.billingSelectedTenantId) return 0;
                 const modules = this.tenantModules[this.billingSelectedTenantId] || [];
-                const usageMap = { 1: 4230, 2: 1280, 3: 340, 4: 480, 5: 720, 6: 120 };
+                const usageMap = { 1: 5000, 2: 800, 3: 1200, 4: 200, 5: 300, 6: 500, 7: 50 };
                 let total = 0;
                 modules.forEach(mod => {
                     if (mod.enabled) {
                         total += mod.basePrice || 0;
                         if (mod.perUnitFee && mod.perUnitFee > 0) {
                             let usageCount = usageMap[mod.id] || 150;
-                            total += usageCount * mod.perUnitFee;
+                            if (mod.id === 6) {
+                                total += usageCount * (mod.perUnitFee / 100) * 100;
+                            } else {
+                                total += usageCount * mod.perUnitFee;
+                            }
                         }
                     }
                 });
@@ -346,7 +351,6 @@
             saveCustomModules() { localStorage.setItem(STORAGE_KEYS.CUSTOM_MODULES, JSON.stringify(this.customModulesList)); this.triggerSync(); },
             openCreateTenantModal() { this.newTenant = { businessName: '', ownerName: '', phone: '', username: '', password: '' }; this.showTenantModal = true; },
             openCreateModuleModal() { this.newModule = { name: '', description: '', icon: 'fas fa-plug' }; this.showCreateModuleModal = true; },
-            // Billing methods - NEW ADDITION
             openBillingModuleModal() { this.billingNewModule = { name: '', description: '', icon: 'fas fa-plug', basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use' }; this.showBillingCreateModal = true; },
             createBillingCustomModule() {
                 if (!this.billingNewModule.name) { this.showSuccessToast('❌ Module name is required'); return; }
@@ -409,7 +413,6 @@
                 }
             },
             loadBillingModules() { this.$forceUpdate(); },
-            // END Billing methods
             createCustomModule() {
                 if (!this.newModule.name) { this.showSuccessToast('❌ Module name is required'); return; }
                 const exists = this.customModulesList.some(m => m.name.toLowerCase() === this.newModule.name.toLowerCase());
