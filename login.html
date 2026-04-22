@@ -89,6 +89,8 @@
 </div>
 <div id="globalToast" class="toast-msg"></div>
 
+<script src="roleRouter.js"></script>
+
 <script>
     // Storage keys
     const ACCOUNTS_KEY = 'rands_accounts_v2';
@@ -125,7 +127,8 @@
                 status: "Active", 
                 cardTheme: "card-theme-1", 
                 selfie: null, 
-                verified: true 
+                verified: true,
+                role: "customer"  // Added role for routing
             }]; 
             saveAccounts(); 
         } 
@@ -149,12 +152,28 @@
         }
         currentAccountId = account.id;
         localStorage.setItem('rands_current_account', currentAccountId);
+        
+        // Save user to localStorage for roleRouter.js
+        const userForRouter = {
+            id: account.id,
+            name: account.name,
+            phone: account.phone,
+            role: account.role || "customer"
+        };
+        localStorage.setItem('user', JSON.stringify(userForRouter));
+        
         showToastMsg(`Welcome back, ${account.name.split(' ')[0]}!`);
         return true;
     }
     
     function redirectToWallet() {
-        window.location.href = 'wallet.html';
+        // Use roleRouter.js to redirect
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && typeof redirectByRole === 'function') {
+            redirectByRole(user);
+        } else {
+            window.location.href = 'home.html';
+        }
     }
     
     function redirectToRegister() {
@@ -169,6 +188,14 @@
         let saved = localStorage.getItem('rands_current_account');
         if (saved && accounts.find(a => a.id === saved)) {
             currentAccountId = saved;
+            const account = accounts.find(a => a.id === saved);
+            const userForRouter = {
+                id: account.id,
+                name: account.name,
+                phone: account.phone,
+                role: account.role || "customer"
+            };
+            localStorage.setItem('user', JSON.stringify(userForRouter));
             redirectToWallet();
             return;
         }

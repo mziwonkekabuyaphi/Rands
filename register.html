@@ -712,7 +712,7 @@
         <div class="success-card" id="successCard">
             <div class="success-icon"><i class="fas fa-check"></i></div>
             <h2 style="color:#0b1a2f;">Passport ready!</h2>
-            <p style="color:#E30613;">Redirecting to wallet...</p>
+            <p style="color:#E30613;">Redirecting to your dashboard...</p>
         </div>
     </div>
 
@@ -723,6 +723,8 @@
     <div class="terms">By continuing, you agree to Rands <a href="#">Terms</a> & <a href="#">Privacy</a></div>
 </div>
 <div class="toast" id="toast"></div>
+
+<script src="roleRouter.js"></script>
 
 <script>
     let currentStep = 1;
@@ -925,7 +927,8 @@
             cardNumber: newAccount.cardNumber, 
             phone: accountId, 
             profilePic: profilePicBase64, 
-            createdAt: new Date().toISOString() 
+            createdAt: new Date().toISOString(),
+            role: "customer"  // Added role for routing
         };
         localStorage.setItem('rands_bands', JSON.stringify(existing));
         
@@ -949,7 +952,26 @@
         // Set current logged in account
         localStorage.setItem('rands_current_account', accountId);
         
+        // Save user for roleRouter.js
+        const userForRouter = {
+            id: accountId,
+            name: fullName,
+            phone: accountId,
+            role: "customer"
+        };
+        localStorage.setItem('user', JSON.stringify(userForRouter));
+        
         return true;
+    }
+
+    function redirectToDashboard() {
+        // Use roleRouter.js to redirect
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && typeof redirectByRole === 'function') {
+            redirectByRole(user);
+        } else {
+            window.location.href = 'home.html';
+        }
     }
 
     function createAccount() {
@@ -975,7 +997,7 @@
             showToast('Passport created successfully!', 'success');
             
             setTimeout(() => { 
-                window.location.href = 'wallet.html'; 
+                redirectToDashboard();
             }, 1500);
             
         } catch (error) { 
@@ -1003,7 +1025,7 @@
         } else if (currentStep === 3) { 
             createAccount(); 
         } else if (currentStep === 4) { 
-            window.location.href = 'wallet.html'; 
+            redirectToDashboard();
         }
     };
     
@@ -1042,10 +1064,6 @@
     window.onload = () => { 
         updateSteps(); 
         resetPinPad(); 
-        
-        // Set default demo values for testing (optional - remove in production)
-        // document.getElementById('fullName').value = 'Mzonke Buyaphi';
-        // document.getElementById('whatsappNumber').value = '+27635713652';
     };
 </script>
 </body>
