@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>QLess · Revenue Intelligence | Super Admin Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #fefefe; color: #1e293b; overflow-x: hidden; }
+        /* RED & WHITE THEME */
+        .dashboard-container { max-width: 1600px; margin: 0 auto; padding: 1.5rem 2rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #E30613; }
+        .logo-area h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #1e293b, #E30613); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .sync-status { display: flex; align-items: center; gap: 8px; background: #fff0f0; padding: 0.5rem 1rem; border-radius: 40px; font-size: 0.75rem; border: 1px solid #E30613; color: #E30613; font-weight: 500; }
+        .sync-status.live { background: #E30613; color: white; border: none; }
+        /* KPI cards - white background with red accents */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .kpi-card { background: white; border-radius: 1.5rem; padding: 1.25rem 1.5rem; border: 1px solid #f1f5f9; transition: all 0.2s ease; position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #E30613; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -12px rgba(227,6,19,0.2); border-color: #E30613; }
+        .kpi-icon { font-size: 2rem; color: #E30613; margin-bottom: 0.75rem; }
+        .kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: #64748b; }
+        .kpi-value { font-size: 1.8rem; font-weight: 800; margin-top: 0.25rem; color: #0f172a; }
+        /* section titles */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1.25rem 0; flex-wrap: wrap; gap: 1rem; }
+        .section-title { font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 10px; color: #0f172a; }
+        .section-title i { color: #E30613; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .chart-card { background: white; border-radius: 1.5rem; padding: 1.25rem; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; color: #1e293b; border-left: 3px solid #E30613; padding-left: 10px; }
+        canvas { max-height: 300px; width: 100% !important; }
+        /* tables */
+        .table-wrapper { overflow-x: auto; border-radius: 1.5rem; border: 1px solid #f1f5f9; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .tenant-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .tenant-table th { text-align: left; padding: 1rem 1.2rem; background: #fef2f2; color: #1e293b; font-weight: 700; border-bottom: 2px solid #E30613; }
+        .tenant-table td { padding: 1rem 1.2rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .tenant-table tr { transition: all 0.2s; cursor: pointer; }
+        .tenant-table tr:hover { background: #fff5f5; }
+        .module-badge { display: inline-block; width: 10px; height: 10px; border-radius: 10px; margin-right: 6px; }
+        .module-badge.enabled { background: #E30613; box-shadow: 0 0 2px #E30613; }
+        .module-badge.disabled { background: #cbd5e1; }
+        /* detail panel */
+        .detail-panel { background: white; border-radius: 1.5rem; border: 1px solid #f1f5f9; margin-top: 1.5rem; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .detail-header { background: #fef2f2; padding: 1.2rem 1.8rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .detail-body { padding: 1.5rem 1.8rem; }
+        .revenue-modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .module-card { background: #ffffff; border-radius: 1rem; padding: 1rem; border: 1px solid #f1f5f9; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .module-card:hover { border-color: #E30613; box-shadow: 0 4px 12px rgba(227,6,19,0.08); }
+        .module-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .module-value { font-size: 1.3rem; font-weight: 700; margin-top: 0.3rem; color: #0f172a; }
+        .split-row { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-bottom: 1px dashed #f1f5f9; }
+        .btn-outline { background: transparent; border: 1px solid #E30613; padding: 0.5rem 1rem; border-radius: 40px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; color: #E30613; font-weight: 500; }
+        .btn-outline:hover { background: #E30613; color: white; }
+        .btn-primary { background: #E30613; border: none; padding: 0.5rem 1.2rem; border-radius: 40px; font-weight: 600; font-size: 0.75rem; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-primary:hover { background: #b0050f; transform: scale(0.98); }
+        .filter-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+        .date-input { background: white; border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 40px; color: #1e293b; font-size: 0.75rem; }
+        .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: #fefefe; border-radius: 1rem; }
+        footer { margin-top: 2rem; text-align: center; font-size: 0.7rem; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 1.5rem; }
+        @media (max-width: 768px) { .dashboard-container { padding: 1rem; } .charts-grid { grid-template-columns: 1fr; } .kpi-value { font-size: 1.3rem; } }
+        
+        /* NEW: Module viewer card (dynamic from super admin) */
+        .module-viewer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .module-viewer-card { background: white; border-radius: 1rem; border: 1px solid #f1f5f9; overflow: hidden; transition: 0.2s; }
+        .module-viewer-card:hover { border-color: #E30613; box-shadow: 0 4px 12px rgba(227,6,19,0.05); }
+        .module-viewer-header { background: #fef2f2; padding: 0.75rem 1rem; font-weight: 700; display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; color: #E30613; }
+        .module-viewer-body { padding: 0.75rem 1rem; }
+        .tenant-module-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f8fafc; font-size: 0.8rem; }
+        .tenant-module-row:last-child { border-bottom: none; }
+        .module-status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 8px; margin-right: 6px; }
+        .status-enabled { background: #E30613; }
+        .status-disabled { background: #cbd5e1; }
+        .badge-custom { background: #fff0f0; color: #E30613; font-size: 0.6rem; padding: 2px 8px; border-radius: 30px; margin-left: 6px; font-weight: 500; }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="header">
+        <div class="logo-area">
+            <h1>QLess · Revenue Intelligence</h1>
+            <p style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">Super Admin · full module sync + live custom modules</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <div class="sync-status live" id="syncStatus"><i class="fas fa-circle" style="font-size: 0.5rem;"></i><span>Synced with Super Admin</span></div>
+            <button class="btn-outline" onclick="refreshAllData()"><i class="fas fa-sync-alt"></i> Sync Now</button>
+        </div>
+    </div>
+
+    <div class="kpi-grid" id="kpiContainer"></div>
+
+    <div class="charts-grid">
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-chart-bar"></i> Revenue by Tenant (Platform vs Tenant)</div><canvas id="tenantRevenueChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-chart-pie"></i> Global Platform vs Tenant Share</div><canvas id="revenueShareChart"></canvas></div>
+    </div>
+
+    <div class="section-header">
+        <div class="section-title"><i class="fas fa-store"></i><span>Tenant Performance · Live from Super Admin</span></div>
+        <div class="filter-bar">
+            <select id="moduleFilter" class="date-input" onchange="filterByModule()">
+                <option value="all">All Modules</option><option value="queue">Queue Revenue</option><option value="orders">Orders Revenue</option>
+                <option value="tickets">Tickets Revenue</option><option value="vvip">VVIP Revenue</option>
+            </select>
+            <input type="date" id="startDate" class="date-input"><input type="date" id="endDate" class="date-input">
+            <button class="btn-outline" onclick="applyDateFilter()"><i class="fas fa-calendar-alt"></i> Apply</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="tenant-table"><thead><tr><th>Tenant</th><th>Status</th><th>Active Modules</th><th>Total Revenue</th><th>Platform (QLess)</th><th>Tenant Earnings</th><th>Transactions</th><th>Growth</th></tr></thead><tbody id="tenantTableBody"></tbody></table>
+    </div>
+
+    <!-- NEW: DYNAMIC MODULE VIEWER (reads from super admin + custom modules) -->
+    <div class="section-header" style="margin-top: 2rem;">
+        <div class="section-title"><i class="fas fa-puzzle-piece"></i><span>Live Module Configuration (from Super Admin)</span></div>
+        <span style="font-size: 0.7rem; background: #fef2f2; padding: 0.2rem 0.8rem; border-radius: 40px; color:#E30613;"><i class="fas fa-sync-alt"></i> auto-syncs with tenant modules</span>
+    </div>
+    <div id="moduleViewerContainer" class="module-viewer-grid"></div>
+
+    <div id="detailPanelContainer"><div class="empty-state"><i class="fas fa-hand-pointer" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; color:#E30613;"></i><p>Click any tenant row → full breakdown, fees & live module sync</p></div></div>
+    <footer><i class="fas fa-charging-station"></i> QLess Monetization · Queue (R2 fixed, platform keeps 100%) · Orders (2% fee) · Tickets (R1.5 fixed) · VVIP (3% fee)</footer>
+</div>
+
+<script>
+    // ======================= STORAGE KEYS (matching super-admin.html) =======================
+    const STORAGE_KEYS = {
+        TENANTS: 'qless_tenants',
+        STAFF: 'qless_staff',
+        TENANT_MODULES: 'qless_tenant_modules',
+        TRANSACTIONS: 'qless_transactions',
+        SYSTEM_SETTINGS: 'qless_system_settings'
+    };
+
+    const REVENUE_RULES = {
+        queue: { type: 'fixed', fee: 2, platformKeepsAll: true },
+        orders: { type: 'percentage', fee: 0.02 },
+        tickets: { type: 'fixed', fee: 1.5 },
+        vvip: { type: 'percentage', fee: 0.03 }
+    };
+
+    // Global state
+    let tenants = [];
+    let tenantModules = {};
+    let transactions = [];
+    let charts = {};
+    let currentDateRange = { startDate: new Date(), endDate: new Date() };
+    let currentModuleFilter = 'all';
+
+    function calculatePlatformFee(category, amount) {
+        const rule = REVENUE_RULES[category];
+        if (!rule) return 0;
+        if (rule.type === 'fixed') return rule.fee;
+        if (rule.type === 'percentage') return amount * rule.fee;
+        return 0;
+    }
+
+    // ========== LOAD DATA FROM SUPER ADMIN (full sync) ==========
+    function loadSuperAdminData() {
+        const tenantsStr = localStorage.getItem(STORAGE_KEYS.TENANTS);
+        if (tenantsStr) {
+            tenants = JSON.parse(tenantsStr);
+        } else {
+            tenants = [
+                { id: 1, businessName: "Rands Lounge", ownerName: "Thabo Nkosi", status: "Active", username: "rands_admin", password: "rands123", phone: "0821112233" },
+                { id: 2, businessName: "Club A", ownerName: "Lerato Dlamini", status: "Active", username: "clubA_admin", password: "clubA456", phone: "0834455667" },
+                { id: 3, businessName: "Summit Venue", ownerName: "Sipho Mbele", status: "Active", username: "summit_admin", password: "summit789", phone: "0719988776" }
+            ];
+            localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants));
+        }
+
+        const modulesStr = localStorage.getItem(STORAGE_KEYS.TENANT_MODULES);
+        if (modulesStr) {
+            tenantModules = JSON.parse(modulesStr);
+        } else {
+            tenantModules = {};
+            tenants.forEach(tenant => {
+                tenantModules[tenant.id] = [
+                    { id: 1, name: 'Tickets', enabled: true, description: 'Event ticketing', isCustom: false },
+                    { id: 2, name: 'Queue Management', enabled: true, description: 'Smart queuing', isCustom: false },
+                    { id: 3, name: 'Ordering', enabled: true, description: 'Food ordering', isCustom: false },
+                    { id: 4, name: 'Virtual Booze Lockers', enabled: false, description: 'Lockers', isCustom: false },
+                    { id: 5, name: 'Shisha System', enabled: true, description: 'Hookah', isCustom: false },
+                    { id: 6, name: 'VVIP Management', enabled: true, description: 'VIP accounts', isCustom: false }
+                ];
+            });
+            localStorage.setItem(STORAGE_KEYS.TENANT_MODULES, JSON.stringify(tenantModules));
+        }
+
+        const transactionsStr = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
+        if (transactionsStr) {
+            transactions = JSON.parse(transactionsStr);
+        } else {
+            generateFullTransactionHistory();
+        }
+    }
+
+    function generateFullTransactionHistory() {
+        transactions = [];
+        const now = new Date();
+        tenants.forEach(tenant => {
+            const modules = tenantModules[tenant.id] || [];
+            const isModuleEnabled = (moduleName) => {
+                const mod = modules.find(m => m.name === moduleName);
+                return mod ? mod.enabled : false;
+            };
+            const possibleCategories = [];
+            if (isModuleEnabled('Queue Management')) possibleCategories.push('queue');
+            if (isModuleEnabled('Ordering')) possibleCategories.push('orders');
+            if (isModuleEnabled('Tickets')) possibleCategories.push('tickets');
+            if (isModuleEnabled('VVIP Management')) possibleCategories.push('vvip');
+            if (possibleCategories.length === 0) possibleCategories.push('orders');
+            
+            const txCount = 160 + Math.floor(Math.random() * 140);
+            for (let i = 0; i < txCount; i++) {
+                const category = possibleCategories[Math.floor(Math.random() * possibleCategories.length)];
+                let amount = 0;
+                switch(category) {
+                    case 'queue': amount = 2; break;
+                    case 'orders': amount = 30 + Math.floor(Math.random() * 470); break;
+                    case 'tickets': amount = 25 + Math.floor(Math.random() * 130); break;
+                    case 'vvip': amount = 200 + Math.floor(Math.random() * 2000); break;
+                    default: amount = 50;
+                }
+                const platformFee = calculatePlatformFee(category, amount);
+                const daysAgo = Math.floor(Math.random() * 120);
+                const createdAt = new Date(now);
+                createdAt.setDate(createdAt.getDate() - daysAgo);
+                transactions.push({
+                    id: Date.now() + i + tenant.id + Math.random(),
+                    tenant_id: tenant.id,
+                    transaction_type: category,
+                    amount: amount,
+                    platform_fee: platformFee,
+                    tenant_revenue: amount - platformFee,
+                    status: 'completed',
+                    created_at: createdAt.toISOString(),
+                    user_id: `usr_${Math.floor(Math.random() * 80)}`
+                });
+            }
+        });
+        localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+    }
+
+    function getTenantRevenueSummary(tenantId, startDate, endDate) {
+        const filtered = transactions.filter(t => t.tenant_id === tenantId && t.status === 'completed' && new Date(t.created_at) >= startDate && new Date(t.created_at) <= endDate);
+        const summary = {
+            totalRevenue: 0, platformEarnings: 0, tenantEarnings: 0, transactionCount: filtered.length,
+            categories: { queue: { revenue: 0, platform: 0, tenant: 0, count: 0 }, orders: { revenue: 0, platform: 0, tenant: 0, count: 0 }, tickets: { revenue: 0, platform: 0, tenant: 0, count: 0 }, vvip: { revenue: 0, platform: 0, tenant: 0, count: 0 } },
+            dailyRevenue: {}
+        };
+        filtered.forEach(t => {
+            summary.totalRevenue += t.amount;
+            summary.platformEarnings += t.platform_fee;
+            summary.tenantEarnings += t.tenant_revenue;
+            const cat = t.transaction_type;
+            if (summary.categories[cat]) {
+                summary.categories[cat].revenue += t.amount;
+                summary.categories[cat].platform += t.platform_fee;
+                summary.categories[cat].tenant += t.tenant_revenue;
+                summary.categories[cat].count++;
+            }
+            const dateKey = new Date(t.created_at).toISOString().split('T')[0];
+            if (!summary.dailyRevenue[dateKey]) summary.dailyRevenue[dateKey] = { revenue: 0, platform: 0, tenant: 0 };
+            summary.dailyRevenue[dateKey].revenue += t.amount;
+            summary.dailyRevenue[dateKey].platform += t.platform_fee;
+            summary.dailyRevenue[dateKey].tenant += t.tenant_revenue;
+        });
+        return summary;
+    }
+
+    function getAllTenantsSummary() {
+        const summaries = tenants.map(tenant => {
+            const revenue = getTenantRevenueSummary(tenant.id, currentDateRange.startDate, currentDateRange.endDate);
+            const modulesList = tenantModules[tenant.id] || [];
+            const activeModulesCount = modulesList.filter(m => m.enabled).length;
+            const durationMs = currentDateRange.endDate - currentDateRange.startDate;
+            const prevStart = new Date(currentDateRange.startDate.getTime() - durationMs);
+            const prevEnd = new Date(currentDateRange.startDate);
+            const prevRevenue = getTenantRevenueSummary(tenant.id, prevStart, prevEnd);
+            const growth = prevRevenue.totalRevenue > 0 ? ((revenue.totalRevenue - prevRevenue.totalRevenue) / prevRevenue.totalRevenue) * 100 : (revenue.totalRevenue > 0 ? 100 : 0);
+            return {
+                id: tenant.id, name: tenant.businessName, status: tenant.status,
+                activeModules: activeModulesCount, totalModules: modulesList.length,
+                totalRevenue: revenue.totalRevenue, platformEarnings: revenue.platformEarnings,
+                tenantEarnings: revenue.tenantEarnings, transactionCount: revenue.transactionCount,
+                growth: growth, categories: revenue.categories, dailyRevenue: revenue.dailyRevenue,
+                modulesConfig: modulesList
+            };
+        }).filter(tenant => {
+            if (currentModuleFilter === 'all') return true;
+            const hasRevenue = tenant.categories[currentModuleFilter]?.revenue > 0;
+            const moduleEnabled = tenant.modulesConfig.some(m => {
+                if (currentModuleFilter === 'queue') return m.name === 'Queue Management' && m.enabled;
+                if (currentModuleFilter === 'orders') return m.name === 'Ordering' && m.enabled;
+                if (currentModuleFilter === 'tickets') return m.name === 'Tickets' && m.enabled;
+                if (currentModuleFilter === 'vvip') return m.name === 'VVIP Management' && m.enabled;
+                return false;
+            });
+            return hasRevenue && moduleEnabled;
+        });
+        return summaries;
+    }
+
+    // RENDER UI
+    function renderKPIs() {
+        const all = getAllTenantsSummary();
+        const totalPlatform = all.reduce((s,t) => s + t.platformEarnings, 0);
+        const totalTenant = all.reduce((s,t) => s + t.tenantEarnings, 0);
+        const totalTx = all.reduce((s,t) => s + t.transactionCount, 0);
+        const activeTenants = all.filter(t => t.transactionCount > 0).length;
+        const kpis = [
+            { label: "Platform Revenue (QLess)", value: `R ${totalPlatform.toFixed(2)}`, icon: "fa-chart-line" },
+            { label: "Tenant Revenue (Businesses)", value: `R ${totalTenant.toFixed(2)}`, icon: "fa-building" },
+            { label: "Total Transactions", value: totalTx.toLocaleString(), icon: "fa-exchange-alt" },
+            { label: "Active Tenants", value: activeTenants, icon: "fa-store" }
+        ];
+        document.getElementById('kpiContainer').innerHTML = kpis.map(k => `<div class="kpi-card"><div class="kpi-icon"><i class="fas ${k.icon}"></i></div><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div></div>`).join('');
+    }
+
+    function renderTenantTable() {
+        const summaries = getAllTenantsSummary();
+        const tbody = document.getElementById('tenantTableBody');
+        if (!summaries.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:2rem;">No tenants match filters / module restrictions</td></tr>'; return; }
+        tbody.innerHTML = summaries.map(tenant => {
+            const growthCls = tenant.growth >= 0 ? '#10b981' : '#E30613';
+            const growthIcon = tenant.growth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+            const modulesList = tenant.modulesConfig || [];
+            const moduleBadges = modulesList.slice(0, 4).map(m => `<span class="module-badge ${m.enabled ? 'enabled' : 'disabled'}" title="${m.name}: ${m.enabled ? 'ON' : 'OFF'}"></span>`).join('');
+            return `<tr onclick="showTenantDetail(${tenant.id})"><td><strong>${tenant.name}</strong></td>
+                    <td><span style="background:${tenant.status === 'Active' ? '#E3061310' : '#f1f5f9'};color:${tenant.status === 'Active' ? '#E30613' : '#64748b'};padding:4px 12px;border-radius:40px;font-size:0.7rem;font-weight:500;">${tenant.status}</span></td>
+                    <td>${moduleBadges} <span style="font-size:0.7rem;">${tenant.activeModules}/${tenant.totalModules}</span></td>
+                    <td><strong>R ${tenant.totalRevenue.toFixed(2)}</strong></td>
+                    <td style="color:#E30613; font-weight:600;">R ${tenant.platformEarnings.toFixed(2)}</td>
+                    <td style="color:#10b981; font-weight:600;">R ${tenant.tenantEarnings.toFixed(2)}</td>
+                    <td>${tenant.transactionCount.toLocaleString()}</td>
+                    <td style="color:${growthCls};"><i class="fas ${growthIcon}"></i> ${Math.abs(tenant.growth).toFixed(1)}%</td>
+                </tr>`;
+        }).join('');
+    }
+
+    // NEW: dynamic module viewer – reads all modules per tenant from super admin
+    function renderModuleViewer() {
+        if (!tenants.length) return;
+        const allModuleNamesSet = new Set();
+        tenants.forEach(tenant => {
+            const mods = tenantModules[tenant.id] || [];
+            mods.forEach(m => allModuleNamesSet.add(m.name));
+        });
+        const allModuleNames = Array.from(allModuleNamesSet);
+        const container = document.getElementById('moduleViewerContainer');
+        if (!container) return;
+        container.innerHTML = allModuleNames.map(moduleName => {
+            const tenantRows = tenants.map(tenant => {
+                const mods = tenantModules[tenant.id] || [];
+                const module = mods.find(m => m.name === moduleName);
+                const isEnabled = module ? module.enabled : false;
+                const isCustom = module ? module.isCustom : false;
+                return `<div class="tenant-module-row">
+                            <span><span class="module-status-indicator ${isEnabled ? 'status-enabled' : 'status-disabled'}"></span> ${tenant.businessName}</span>
+                            <span style="font-size:0.7rem; font-weight:500;">${isEnabled ? '<span style="color:#E30613;">● Enabled</span>' : '<span style="color:#94a3b8;">○ Disabled</span>'}</span>
+                        </div>`;
+            }).join('');
+            return `<div class="module-viewer-card">
+                        <div class="module-viewer-header">
+                            <span><i class="fas fa-cube"></i> ${moduleName}</span>
+                            ${moduleName.includes('Custom') ? '<span class="badge-custom"><i class="fas fa-magic"></i> custom</span>' : ''}
+                        </div>
+                        <div class="module-viewer-body">${tenantRows}</div>
+                    </div>`;
+        }).join('');
+        if (allModuleNames.length === 0) container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No modules configured in Super Admin. Create modules first.</div>';
+    }
+
+    function renderCharts() {
+        const summaries = getAllTenantsSummary();
+        const ctxBar = document.getElementById('tenantRevenueChart').getContext('2d');
+        if (charts.tenantRevenue) charts.tenantRevenue.destroy();
+        charts.tenantRevenue = new Chart(ctxBar, {
+            type: 'bar', data: { labels: summaries.map(t => t.name.split(' ')[0]), datasets: [
+                { label: 'Platform Revenue (QLess)', data: summaries.map(t => t.platformEarnings), backgroundColor: '#E30613', borderRadius: 8 },
+                { label: 'Tenant Revenue', data: summaries.map(t => t.tenantEarnings), backgroundColor: '#10b981', borderRadius: 8 }
+            ]}, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top', labels: { color: '#1e293b' } } }, scales: { y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' } }, x: { ticks: { color: '#64748b' } } } }
+        });
+        const totalPlatform = summaries.reduce((s,t)=>s+t.platformEarnings,0);
+        const totalTenant = summaries.reduce((s,t)=>s+t.tenantEarnings,0);
+        const ctxPie = document.getElementById('revenueShareChart').getContext('2d');
+        if (charts.revenueShare) charts.revenueShare.destroy();
+        charts.revenueShare = new Chart(ctxPie, { type: 'doughnut', data: { labels: ['QLess Platform', 'Tenants'], datasets: [{ data: [totalPlatform, totalTenant], backgroundColor: ['#E30613', '#10b981'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#1e293b' } } } } });
+    }
+
+    function showTenantDetail(tenantId) {
+        const tenant = tenants.find(t => t.id === tenantId);
+        const revenue = getTenantRevenueSummary(tenantId, currentDateRange.startDate, currentDateRange.endDate);
+        const modulesCfg = tenantModules[tenantId] || [];
+        const categoriesMeta = [
+            { key: 'queue', name: 'Queue Revenue', icon: 'fa-hourglass-half', rule: 'R2 fixed · platform keeps 100%', moduleMatch: 'Queue Management' },
+            { key: 'orders', name: 'Orders Revenue', icon: 'fa-utensils', rule: '2% platform fee', moduleMatch: 'Ordering' },
+            { key: 'tickets', name: 'Tickets Revenue', icon: 'fa-ticket-alt', rule: 'R1.5 per ticket', moduleMatch: 'Tickets' },
+            { key: 'vvip', name: 'VVIP Revenue', icon: 'fa-crown', rule: '3% platform fee', moduleMatch: 'VVIP Management' }
+        ];
+        const modulesHtml = categoriesMeta.map(cat => {
+            const data = revenue.categories[cat.key];
+            const moduleEnabled = modulesCfg.some(m => m.name === cat.moduleMatch && m.enabled);
+            if ((!moduleEnabled && data.revenue === 0) && currentModuleFilter !== 'all' && currentModuleFilter !== cat.key) return '';
+            if (!moduleEnabled && data.revenue === 0 && currentModuleFilter === 'all') return '';
+            return `<div class="module-card"><div class="module-label"><i class="fas ${cat.icon}"></i> ${cat.name} <span style="font-size:0.6rem;color:#64748b;">${cat.rule}</span></div>
+                    <div class="module-value">R ${data.revenue.toFixed(2)}</div><div style="font-size:0.7rem;margin-top:6px;"><span style="color:#E30613;">Platform: R ${data.platform.toFixed(2)}</span> · <span style="color:#10b981;">Tenant: R ${data.tenant.toFixed(2)}</span></div>
+                    <div style="font-size:0.65rem;color:#64748b;">${data.count} transactions</div></div>`;
+        }).filter(x => x);
+        const container = document.getElementById('detailPanelContainer');
+        container.innerHTML = `<div class="detail-panel"><div class="detail-header"><div><i class="fas fa-chart-pie" style="color:#E30613;"></i> <strong style="font-size:1.1rem;">${tenant.businessName} · Revenue analysis (module-aware)</strong></div><button class="btn-outline" onclick="closeTenantDetail()"><i class="fas fa-times"></i> Close</button></div>
+        <div class="detail-body"><div class="revenue-modules">${modulesHtml.length ? modulesHtml.join('') : '<div style="grid-column:1/-1;text-align:center;padding:2rem;">No revenue for selected filters or modules disabled</div>'}</div>
+        <div style="background:#fef2f2; border-radius:1rem; padding:1rem; margin-top:1rem;"><div class="split-row"><span><strong>TOTAL REVENUE</strong></span><span style="font-size:1.5rem;font-weight:800;">R ${revenue.totalRevenue.toFixed(2)}</span></div>
+        <div class="split-row"><span>Platform Fees (QLess)</span><span style="color:#E30613;font-weight:600;">R ${revenue.platformEarnings.toFixed(2)}</span></div>
+        <div class="split-row"><span>Tenant Net Earnings</span><span style="color:#10b981;font-weight:600;">R ${revenue.tenantEarnings.toFixed(2)}</span></div>
+        <div class="split-row"><span>Transactions</span><span>${revenue.transactionCount.toLocaleString()}</span></div></div></div></div>`;
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeTenantDetail() {
+        document.getElementById('detailPanelContainer').innerHTML = `<div class="empty-state"><i class="fas fa-hand-pointer" style="font-size:2.5rem;margin-bottom:1rem;opacity:0.5;color:#E30613;"></i><p>Click any tenant row → full breakdown, fees & live module sync</p></div>`;
+    }
+
+    function filterByModule() { currentModuleFilter = document.getElementById('moduleFilter').value; refreshAllData(); }
+    function applyDateFilter() {
+        const startInput = document.getElementById('startDate').value, endInput = document.getElementById('endDate').value;
+        if (startInput) currentDateRange.startDate = new Date(startInput);
+        if (endInput) currentDateRange.endDate = new Date(endInput);
+        refreshAllData();
+    }
+    function refreshAllData() { loadSuperAdminData(); renderKPIs(); renderTenantTable(); renderCharts(); renderModuleViewer(); const statusDiv = document.getElementById('syncStatus'); statusDiv.innerHTML = '<i class="fas fa-check-circle"></i><span>Synced with Super Admin</span>'; setTimeout(() => { statusDiv.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;"></i><span>Live</span>'; }, 1200); }
+
+    function setDefaultDates() {
+        const end = new Date();
+        const start = new Date(); start.setDate(start.getDate() - 30);
+        currentDateRange = { startDate: start, endDate: end };
+        document.getElementById('startDate').value = start.toISOString().split('T')[0];
+        document.getElementById('endDate').value = end.toISOString().split('T')[0];
+    }
+    setDefaultDates();
+    loadSuperAdminData();
+    refreshAllData();
+</script>
+</body>
+</html>
