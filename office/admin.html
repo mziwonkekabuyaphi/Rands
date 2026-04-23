@@ -465,7 +465,7 @@
                             <td>{{ formatTime(shift.login_time) }}</td>
                             <td>{{ shift.logout_time ? formatTime(shift.logout_time) : 'Active' }}</td>
                             <td>{{ shift.hours_worked ? shift.hours_worked.toFixed(1) + 'h' : '-' }}</td>
-                            <td>{{ shift.station_at_login || '-' }}</td>
+                            <tr>{{ shift.station_at_login || '-' }}</td>
                         </tr>
                         <tr v-if="staffShiftHistory.length === 0"><td colspan="5" style="text-align:center;">No shift history found</td></tr>
                     </tbody>
@@ -553,6 +553,7 @@
                 const moduleMap = { 
                     'Tickets': { displayName: 'Tickets & Events', description: 'Event ticketing and QR code scanning' }, 
                     'Queue Management': { displayName: 'Queue System', description: 'Virtual queuing' }, 
+                    'Ordering Module': { displayName: 'Orders', description: 'Food ordering system (Kiosk, Wallet & WhatsApp)' }, 
                     'Self-Serve Kiosk': { displayName: 'Orders', description: 'Food ordering system' }, 
                     'Virtual Booze Lockers': { displayName: 'Lockers', description: 'Secure bottle storage' }, 
                     'Shisha System': { displayName: 'Shisha', description: 'Hookah management' }, 
@@ -577,12 +578,14 @@
                 }
             },
             
-            // Session validation with heartbeat - FIXED: accepts both 'tenant' and 'tenant_administrator'
+            // FIXED: Session validation - now accepts 'tenant', 'tenant_administrator', and 'tenant_admin'
             validateSession() {
                 const isLoggedIn = sessionStorage.getItem('qless_logged_in');
                 const role = sessionStorage.getItem('qless_user_role');
                 const tenantId = sessionStorage.getItem('qless_tenant_id');
                 const sessionExpiry = sessionStorage.getItem('qless_session_expiry');
+                
+                console.log('Session check - Role:', role, 'Tenant ID:', tenantId); // Debug log
                 
                 if (!isLoggedIn || isLoggedIn !== 'true') {
                     this.sessionValid = false;
@@ -591,10 +594,11 @@
                     return false;
                 }
                 
-                // FIXED: Accept both 'tenant' AND 'tenant_administrator' roles
-                if (role !== 'tenant' && role !== 'tenant_administrator') {
+                // FIXED: Accept ALL tenant-related roles: 'tenant', 'tenant_administrator', 'tenant_admin'
+                const validTenantRoles = ['tenant', 'tenant_administrator', 'tenant_admin'];
+                if (!validTenantRoles.includes(role)) {
                     this.sessionValid = false;
-                    this.showAlert('Access Denied', 'You do not have permission to access this page. Tenant access required.', 'fas fa-exclamation-triangle', '#dc2626');
+                    this.showAlert('Access Denied', 'You do not have permission to access this page. Tenant access required. Your role: ' + role, 'fas fa-exclamation-triangle', '#dc2626');
                     setTimeout(() => { window.location.href = 'login.html'; }, 2000);
                     return false;
                 }
@@ -631,11 +635,27 @@
             },
             
             getModuleIcon(moduleName) {
-                const icons = { 'Tickets': 'fas fa-ticket-alt', 'Queue Management': 'fas fa-hourglass-half', 'Self-Serve Kiosk': 'fas fa-clipboard-list', 'Virtual Booze Lockers': 'fas fa-lock', 'Shisha System': 'fas fa-smoking', 'VVIP Management': 'fas fa-crown' };
+                const icons = { 
+                    'Tickets': 'fas fa-ticket-alt', 
+                    'Queue Management': 'fas fa-hourglass-half', 
+                    'Ordering Module': 'fas fa-clipboard-list',
+                    'Self-Serve Kiosk': 'fas fa-clipboard-list', 
+                    'Virtual Booze Lockers': 'fas fa-lock', 
+                    'Shisha System': 'fas fa-smoking', 
+                    'VVIP Management': 'fas fa-crown' 
+                };
                 return icons[moduleName] || 'fas fa-puzzle-piece';
             },
             getModuleDescription(moduleName) {
-                const descriptions = { 'Tickets': 'Event ticketing and QR code scanning', 'Queue Management': 'Smart virtual queuing system', 'Self-Serve Kiosk': 'Food & beverage ordering system', 'Virtual Booze Lockers': 'Secure bottle storage management', 'Shisha System': 'Hookah session management', 'VVIP Management': 'Exclusive VIP accounts & tabs' };
+                const descriptions = { 
+                    'Tickets': 'Event ticketing and QR code scanning', 
+                    'Queue Management': 'Smart virtual queuing system', 
+                    'Ordering Module': 'Food & beverage ordering via Kiosk, Wallet & WhatsApp',
+                    'Self-Serve Kiosk': 'Food & beverage ordering system', 
+                    'Virtual Booze Lockers': 'Secure bottle storage management', 
+                    'Shisha System': 'Hookah session management', 
+                    'VVIP Management': 'Exclusive VIP accounts & tabs' 
+                };
                 return descriptions[moduleName] || 'Custom module configured by Super Admin';
             },
             getRoleDisplay(role) {
@@ -654,10 +674,24 @@
             calculateDuration(loginTime) { const start = new Date(loginTime); const now = new Date(); const diff = Math.floor((now - start) / (1000 * 60)); const hours = Math.floor(diff / 60); const mins = diff % 60; return `${hours}h ${mins}m`; },
             
             refreshModules() { this.loadModules(); this.showAlert('Modules Refreshed', 'Module list has been updated from Super Admin settings.', 'fas fa-sync-alt', '#10b981'); },
+            
+            // FIXED: Force refresh modules from Super Admin data - now correctly reads module names including 'Ordering Module'
             forceRefreshModules() {
                 const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
-                if (allModules[this.tenantId] && allModules[this.tenantId].length > 0) { this.tenantModules = allModules[this.tenantId]; }
-                else { this.tenantModules = [ { id: 1, name: 'Tickets', enabled: true }, { id: 2, name: 'Queue Management', enabled: true }, { id: 3, name: 'Self-Serve Kiosk', enabled: false }, { id: 4, name: 'Virtual Booze Lockers', enabled: true }, { id: 5, name: 'Shisha System', enabled: false }, { id: 6, name: 'VVIP Management', enabled: true } ]; }
+                if (allModules[this.tenantId] && allModules[this.tenantId].length > 0) { 
+                    this.tenantModules = allModules[this.tenantId];
+                    console.log('Modules loaded from Super Admin:', this.tenantModules);
+                } else { 
+                    // Fallback modules if none exist
+                    this.tenantModules = [ 
+                        { id: 1, name: 'Tickets', enabled: true, description: 'Event ticketing' }, 
+                        { id: 2, name: 'Queue Management', enabled: true, description: 'Smart queuing' }, 
+                        { id: 3, name: 'Ordering Module', enabled: false, description: 'Orders via Kiosk, Wallet & WhatsApp' }, 
+                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, description: 'Secure storage' }, 
+                        { id: 5, name: 'Shisha System', enabled: false, description: 'Hookah management' }, 
+                        { id: 6, name: 'VVIP Management', enabled: true, description: 'VIP accounts' } 
+                    ]; 
+                }
                 this.$forceUpdate();
             },
             
@@ -740,6 +774,8 @@
                 const tenantId = sessionStorage.getItem('qless_tenant_id');
                 const tenantName = sessionStorage.getItem('qless_tenant_name');
                 const adminUser = sessionStorage.getItem('qless_user_name');
+                
+                console.log('Loading tenant data - ID:', tenantId, 'Name:', tenantName); // Debug log
                 
                 if (!tenantId) { 
                     this.showAlert('Session Error', 'No tenant session found. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626'); 
