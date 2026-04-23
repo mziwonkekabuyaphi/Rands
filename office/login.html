@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Rands Wallet | Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: #f4f6fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
+        .app-container { max-width: 500px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 40px; box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08); overflow: hidden; position: relative; }
+        .app-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eff3f8; }
+        .logo { height: 45px; width: auto; max-width: 180px; object-fit: contain; border-radius: 12px; }
+        .login-container { padding: 40px 20px; text-align: center; }
+        .circular-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E30613, #b0020e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px -5px rgba(227,6,19,0.4);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .circular-logo:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(227,6,19,0.5);
+        }
+        .circular-logo img {
+            width: 70%;
+            height: auto;
+            object-fit: contain;
+        }
+        .input-field {
+            background: #f8fafd;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 60px;
+            width: 100%;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .whatsapp-login-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .whatsapp-login-btn:active { transform: scale(0.98); }
+        .toast-msg { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #1e2a3a; color: white; padding: 10px 16px; border-radius: 60px; text-align: center; z-index: 3500; display: none; font-size: 0.8rem; }
+        .toast-msg.show { display: block; }
+        .role-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 60px;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            background: transparent;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #64748b;
+        }
+        .role-btn.active {
+            background: white;
+            color: #E30613;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .role-btn.super.active { background: linear-gradient(135deg, #E30613, #9f0110); color: white; }
+        .role-btn.tenant.active { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; }
+        .role-btn.staff.active { background: linear-gradient(135deg, #4a5568, #718096); color: white; }
+        .tenant-dropdown {
+            background: #f8fafd;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 60px;
+            width: 100%;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .tenant-dropdown.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="app-header">
+        <div class="logo"></div>
+    </div>
+    <div class="login-container">
+        <div class="circular-logo">
+            <img src="images/rands-logo2.png" alt="Rands Wallet" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'67\' font-size=\'45\' text-anchor=\'middle\' fill=\'white\' font-family=\'Arial\'%3ER%3C/text%3E%3C/svg%3E'">
+        </div>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="margin-top: 20px;">Rands Venue OS</h2>
+            <p style="color: #64748b;">Super Admin · Tenant Admin · Staff</p>
+        </div>
+
+```
+    <!-- Role Selector -->
+    <div class="role-selector" id="roleSelector">
+        <button class="role-btn super active" data-role="super_administrator">👑 Super Admin</button>
+        <button class="role-btn tenant" data-role="tenant_admin">🏢 Tenant Admin</button>
+        <button class="role-btn staff" data-role="staff">👥 Staff</button>
+    </div>
+    
+    <!-- Tenant Dropdown (for Tenant Admin and Staff) -->
+    <select id="tenantDropdown" class="tenant-dropdown">
+        <option value="">Select Venue</option>
+    </select>
+    
+    <div id="loginForm">
+        <input type="text" id="loginWhatsapp" class="input-field" placeholder="Username / Phone Number" style="margin-bottom: 15px;">
+        <input type="password" id="loginPin" class="input-field" placeholder="Password / PIN" style="margin-bottom: 15px;">
+        <button class="whatsapp-login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
+        <p style="text-align: center; margin: 15px 0; color: #64748b; font-size: 0.75rem;">Demo: Super / 1989 | Tenant: use tenant credentials | Staff: use staff credentials</p>
+    </div>
+</div>
+```
+
+</div>
+<div id="globalToast" class="toast-msg"></div>
+
+<script>
+    // Storage keys
+    const ACCOUNTS_KEY = 'rands_accounts_v2';
+    const TENANTS_KEY = 'qless_tenants';
+    const STAFF_KEY = 'qless_staff';
+    
+    let accounts = [];
+    let currentAccountId = null;
+    let selectedRole = 'super_administrator';
+    let tenantsList = [];
+    let staffList = [];
+
+    function showToastMsg(msg) { 
+        let t = document.getElementById('globalToast'); 
+        t.innerText = msg; 
+        t.classList.add('show'); 
+        setTimeout(() => t.classList.remove('show'), 2500); 
+    }
+    
+    function saveAccounts() { 
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); 
+    }
+    
+    // Load tenants from Super Admin storage
+    function loadTenants() {
+        const stored = localStorage.getItem(TENANTS_KEY);
+        if (stored) {
+            tenantsList = JSON.parse(stored);
+        } else {
+            // Default demo tenants
+            tenantsList = [
+                { id: 1, businessName: 'Skyline Lounge', ownerName: 'Thabo Nkosi', username: 'skyline_admin', password: 'skyline123', status: 'Active', phone: '0821112233' },
+                { id: 2, businessName: 'Cape Tavern', ownerName: 'Lerato Dlamini', username: 'capetavern', password: 'tavern456', status: 'Active', phone: '0834455667' },
+                { id: 3, businessName: 'Gold Reef Venue', ownerName: 'Sipho Mbele', username: 'goldreef', password: 'reef789', status: 'Active', phone: '0719988776' }
+            ];
+            localStorage.setItem(TENANTS_KEY, JSON.stringify(tenantsList));
+        }
+        return tenantsList;
+    }
+    
+    // Load staff from storage
+    function loadStaff() {
+        const stored = localStorage.getItem(STAFF_KEY);
+        if (stored) {
+            staffList = JSON.parse(stored);
+        } else {
+            // Default demo staff
+            staffList = [
+                { id: 1, tenantId: 1, name: 'John Doe', username: 'john_skyline', password: 'staff123', role: 'bartender', status: 'Active' },
+                { id: 2, tenantId: 2, name: 'Jane Smith', username: 'jane_cape', password: 'staff456', role: 'manager', status: 'Active' },
+                { id: 3, tenantId: 3, name: 'Mike Johnson', username: 'mike_gold', password: 'staff789', role: 'security', status: 'Active' }
+            ];
+            localStorage.setItem(STAFF_KEY, JSON.stringify(staffList));
+        }
+        return staffList;
+    }
+    
+    function loadAccounts() { 
+        const stored = localStorage.getItem(ACCOUNTS_KEY); 
+        if (stored) {
+            accounts = JSON.parse(stored);
+        } else { 
+            // Default account with Super Admin access
+            accounts = [{ 
+                id: "super_admin",
+                phone: "super_admin",
+                name: "Super Administrator",
+                balance: 0,
+                pin: "1989",
+                status: "Active",
+                role: "super_administrator"
+            }]; 
+            saveAccounts(); 
+        } 
+    }
+    
+    // Update tenant dropdown based on role
+    function updateTenantDropdown() {
+        const dropdown = document.getElementById('tenantDropdown');
+        const tenants = loadTenants();
+        
+        if (!dropdown) return;
+        
+        if (selectedRole === 'tenant_admin' || selectedRole === 'staff') {
+            dropdown.classList.add('show');
+            dropdown.innerHTML = '<option value="">Select Venue</option>';
+            
+            tenants.forEach(tenant => {
+                if (tenant.status === 'Active') {
+                    const option = document.createElement('option');
+                    option.value = tenant.id;
+                    option.textContent = `${tenant.businessName} (${tenant.ownerName})`;
+                    dropdown.appendChild(option);
+                }
+            });
+        } else {
+            dropdown.classList.remove('show');
+        }
+    }
+    
+    // Role button handler
+    function initRoleSelector() {
+        const buttons = document.querySelectorAll('.role-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                buttons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedRole = this.getAttribute('data-role');
+                
+                // Update visual styling
+                if (selectedRole === 'super_administrator') {
+                    this.classList.add('super');
+                } else if (selectedRole === 'tenant_admin') {
+                    this.classList.add('tenant');
+                } else {
+                    this.classList.add('staff');
+                }
+                
+                // Update placeholder
+                const usernameInput = document.getElementById('loginWhatsapp');
+                if (selectedRole === 'super_administrator') {
+                    usernameInput.placeholder = 'Username: Super';
+                    usernameInput.value = 'Super';
+                    document.getElementById('loginPin').value = '1989';
+                } else if (selectedRole === 'tenant_admin') {
+                    usernameInput.placeholder = 'Tenant username (e.g., skyline_admin)';
+                    usernameInput.value = '';
+                    document.getElementById('loginPin').value = '';
+                } else {
+                    usernameInput.placeholder = 'Staff username';
+                    usernameInput.value = '';
+                    document.getElementById('loginPin').value = '';
+                }
+                
+                updateTenantDropdown();
+            });
+        });
+    }
+    
+    // Super Admin login
+    function loginSuperAdmin(username, password) {
+        if (username === 'Super' && password === '1989') {
+            const userData = {
+                id: 'super_admin_001',
+                name: 'Super Administrator',
+                username: 'Super',
+                role: 'super_administrator',
+                permissions: 'all'
+            };
+            localStorage.setItem('user', JSON.stringify(userData));
+            sessionStorage.setItem('qless_logged_in', 'true');
+            sessionStorage.setItem('qless_user_role', 'super_administrator');
+            sessionStorage.setItem('qless_user_name', 'Super Admin');
+            return true;
+        }
+        return false;
+    }
+    
+    // Tenant Admin login
+    function loginTenantAdmin(username, password, tenantId) {
+        const tenants = loadTenants();
+        const tenant = tenants.find(t => t.username === username && t.password === password);
+        
+        if (tenant && tenant.status === 'Active') {
+            const selectedTenantId = tenantId || tenant.id;
+            const selectedTenant = tenants.find(t => t.id == selectedTenantId);
+            
+            if (selectedTenant && selectedTenant.id == tenant.id) {
+                const userData = {
+                    id: tenant.id,
+                    name: tenant.ownerName,
+                    username: tenant.username,
+                    businessName: tenant.businessName,
+                    role: 'tenant_admin',
+                    tenantId: tenant.id
+                };
+                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('currentTenantId', tenant.id);
+                localStorage.setItem('currentTenant', JSON.stringify(tenant));
+                sessionStorage.setItem('qless_logged_in', 'true');
+                sessionStorage.setItem('qless_user_role', 'tenant_admin');
+                sessionStorage.setItem('qless_user_name', tenant.ownerName);
+                sessionStorage.setItem('qless_tenant_id', tenant.id);
+                sessionStorage.setItem('qless_tenant_name', tenant.businessName);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // Staff login
+    function loginStaff(username, password, tenantId) {
+        const staff = loadStaff();
+        const staffMember = staff.find(s => s.username === username && s.password === password);
+        
+        if (staffMember && staffMember.status === 'Active') {
+            const tenants = loadTenants();
+            const selectedTenantId = tenantId || staffMember.tenantId;
+            const tenant = tenants.find(t => t.id == selectedTenantId);
+            
+            if (tenant && tenant.status === 'Active' && staffMember.tenantId == selectedTenantId) {
+                const userData = {
+                    id: staffMember.id,
+                    name: staffMember.name,
+                    username: staffMember.username,
+                    role: 'staff',
+                    tenantId: tenant.id,
+                    businessName: tenant.businessName,
+                    staffRole: staffMember.role
+                };
+                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('currentTenantId', tenant.id);
+                localStorage.setItem('currentTenant', JSON.stringify(tenant));
+                sessionStorage.setItem('qless_logged_in', 'true');
+                sessionStorage.setItem('qless_user_role', 'staff');
+                sessionStorage.setItem('qless_user_name', staffMember.name);
+                sessionStorage.setItem('qless_tenant_id', tenant.id);
+                sessionStorage.setItem('qless_tenant_name', tenant.businessName);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // Main login function
+    function login(username, password) {
+        const usernameTrimmed = username.trim();
+        const passwordTrimmed = password.trim();
+        
+        if (selectedRole === 'super_administrator') {
+            if (loginSuperAdmin(usernameTrimmed, passwordTrimmed)) {
+                showToastMsg("Welcome Super Admin!");
+                return true;
+            } else {
+                showToastMsg("Invalid Super Admin credentials. Use: Super / 1989");
+                return false;
+            }
+        } 
+        else if (selectedRole === 'tenant_admin') {
+            const tenantSelect = document.getElementById('tenantDropdown');
+            const selectedTenantId = tenantSelect.value;
+            
+            if (!selectedTenantId) {
+                showToastMsg("Please select a venue");
+                return false;
+            }
+            
+            if (loginTenantAdmin(usernameTrimmed, passwordTrimmed, parseInt(selectedTenantId))) {
+                const tenant = loadTenants().find(t => t.id == selectedTenantId);
+                showToastMsg(`Welcome ${tenant?.businessName} Admin!`);
+                return true;
+            } else {
+                showToastMsg("Invalid tenant credentials. Check username/password");
+                return false;
+            }
+        } 
+        else if (selectedRole === 'staff') {
+            const tenantSelect = document.getElementById('tenantDropdown');
+            const selectedTenantId = tenantSelect.value;
+            
+            if (!selectedTenantId) {
+                showToastMsg("Please select a venue");
+                return false;
+            }
+            
+            if (loginStaff(usernameTrimmed, passwordTrimmed, parseInt(selectedTenantId))) {
+                const tenant = loadTenants().find(t => t.id == selectedTenantId);
+                showToastMsg(`Welcome staff member at ${tenant?.businessName}!`);
+                return true;
+            } else {
+                showToastMsg("Invalid staff credentials. Contact your admin");
+                return false;
+            }
+        }
+        
+        return false;
+    }
+    
+    // Redirect based on role - UPDATED to match your file names
+    function redirectToDashboard() {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (user.role === 'super_administrator') {
+            window.location.href = 'super-admin.html';
+        } else if (user.role === 'tenant_admin') {
+            window.location.href = 'admin.html';
+        } else if (user.role === 'staff') {
+            window.location.href = 'staff.html';
+        } else {
+            window.location.href = 'home.html';
+        }
+    }
+    
+    // Check if already logged in
+    function checkExistingSession() {
+        const isLoggedIn = sessionStorage.getItem('qless_logged_in');
+        const userRole = sessionStorage.getItem('qless_user_role');
+        
+        if (isLoggedIn === 'true' && userRole) {
+            let userData = {
+                role: userRole,
+                name: sessionStorage.getItem('qless_user_name')
+            };
+            
+            if (userRole === 'super_administrator') {
+                userData.id = 'super_admin_001';
+                userData.username = 'Super';
+            } else if (userRole === 'tenant_admin') {
+                userData.tenantId = sessionStorage.getItem('qless_tenant_id');
+                const tenants = loadTenants();
+                const tenant = tenants.find(t => t.id == userData.tenantId);
+                if (tenant) {
+                    userData.businessName = tenant.businessName;
+                    userData.username = tenant.username;
+                    userData.name = tenant.ownerName;
+                }
+            } else if (userRole === 'staff') {
+                userData.tenantId = sessionStorage.getItem('qless_tenant_id');
+                const tenants = loadTenants();
+                const tenant = tenants.find(t => t.id == userData.tenantId);
+                if (tenant) {
+                    userData.businessName = tenant.businessName;
+                }
+            }
+            
+            localStorage.setItem('user', JSON.stringify(userData));
+            redirectToDashboard();
+            return true;
+        }
+        return false;
+    }
+    
+    // Initialize everything
+    function init() {
+        loadAccounts();
+        loadTenants();
+        loadStaff();
+        initRoleSelector();
+        updateTenantDropdown();
+        
+        // Check existing session
+        if (checkExistingSession()) {
+            return;
+        }
+        
+        // Set default credentials for Super Admin
+        const usernameInput = document.getElementById('loginWhatsapp');
+        const passwordInput = document.getElementById('loginPin');
+        usernameInput.value = 'Super';
+        passwordInput.value = '1989';
+        
+        // Login button handler
+        document.getElementById("loginBtn")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            const username = document.getElementById("loginWhatsapp").value;
+            const password = document.getElementById("loginPin").value;
+            
+            if (login(username, password)) {
+                redirectToDashboard();
+            }
+        });
+        
+        // Enter key support
+        const pinInput = document.getElementById("loginPin");
+        if (pinInput) {
+            pinInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    document.getElementById("loginBtn").click();
+                }
+            });
+        }
+        
+        const userInput = document.getElementById("loginWhatsapp");
+        if (userInput) {
+            userInput.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    document.getElementById("loginBtn").click();
+                }
+            });
+        }
+        
+        // When tenant dropdown changes, update placeholder hints
+        const tenantDropdown = document.getElementById('tenantDropdown');
+        if (tenantDropdown) {
+            tenantDropdown.addEventListener('change', function() {
+                const selectedId = this.value;
+                if (selectedId && selectedRole === 'tenant_admin') {
+                    const tenants = loadTenants();
+                    const tenant = tenants.find(t => t.id == selectedId);
+                    if (tenant) {
+                        const usernameHint = document.getElementById('loginWhatsapp');
+                        usernameHint.placeholder = `Username: ${tenant.username}`;
+                    }
+                }
+            });
+        }
+    }
+    
+    init();
+</script>
+
+</body>
+</html>
