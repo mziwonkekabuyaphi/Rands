@@ -241,11 +241,11 @@
                                 <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
                                 <td>{{ staff.username }}</td>
                                 <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
-                                <td>{{ (staff.today_hours || 0).toFixed(1) }}h</td>
-                            </tr>
-                            <tr v-if="recentStaff.length === 0"><td colspan="5" style="text-align:center; color:#999;">No staff members yet</td></tr>
+                                <td>{{ (staff.today_hours || 0).toFixed(1) }}h</span></span></span></span>
+                            </span></span></span></tr>
+                            <tr v-if="recentStaff.length === 0"><td colspan="5" style="text-align:center; color:#999;">No staff members yet</span></span></span></tr>
                         </tbody>
-                    </table>
+                    </span></span></span></table>
                 </div>
             </div>
 
@@ -262,17 +262,17 @@
                         </thead>
                         <tbody>
                             <tr v-for="staff in staffList" :key="staff.id">
-                                <td><strong>{{ staff.name }}</strong></td>
-                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
-                                <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></td>
-                                <td><span class="credential-cell">••••••<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.password)"></i></span></td>
-                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
-                                <td><strong>{{ (staff.today_hours || 0).toFixed(1) }}h</strong></td>
-                                <td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i><i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i></div></td>
-                            </tr>
-                            <tr v-if="staffList.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members. Click "Add Staff" to create one.</td></tr>
+                                <td><strong>{{ staff.name }}</strong></span></span></span></span>
+                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
+                                <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></span></span></span>
+                                <td><span class="credential-cell">••••••<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.password)"></i></span></span></span></span>
+                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></span></span></span>
+                                <td><strong>{{ (staff.today_hours || 0).toFixed(1) }}h</strong></span></span></span></span>
+                                <td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i><i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i></div></span></span></span></span>
+                            </span></span></span></tr>
+                            <tr v-if="staffList.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members. Click "Add Staff" to create one.</span></span></span></tr>
                         </tbody>
-                    </table>
+                    </span></span></span></table>
                 </div>
                 <div class="settings-panel" style="margin-top: 20px;">
                     <h4 style="margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Role Permissions Guide</h4>
@@ -343,17 +343,17 @@
                         </thead>
                         <tbody>
                             <tr v-for="staff in filteredStaffAttendance" :key="staff.id">
-                                <td><strong>{{ staff.name }}</strong></td>
-                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
-                                <td><span class="status-badge" :class="staff.isOnShift ? 'status-on-duty' : 'status-off-duty'">{{ staff.isOnShift ? 'On Duty' : 'Off Duty' }}</span></td>
-                                <td><strong>{{ (staff.today_hours || 0).toFixed(1) }}h</strong></td>
-                                <td>{{ (staff.week_hours || 0).toFixed(1) }}h</td>
-                                <td>{{ (staff.month_hours || 0).toFixed(1) }}h</td>
-                                <td><div class="action-icons"><i class="fas fa-history" @click="viewStaffShiftHistory(staff)" title="View History" style="cursor:pointer;"></i><i class="fas fa-sign-out-alt" v-if="staff.isOnShift" @click="forceLogoutByStaffId(staff.id)" style="cursor:pointer; color:#dc2626;" title="Force Logout"></i></div></td>
-                            </tr>
-                            <tr v-if="filteredStaffAttendance.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members found</td></tr>
+                                <td><strong>{{ staff.name }}</strong></span></span></span></span>
+                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
+                                <td><span class="status-badge" :class="staff.isOnShift ? 'status-on-duty' : 'status-off-duty'">{{ staff.isOnShift ? 'On Duty' : 'Off Duty' }}</span></span></span></span>
+                                <td><strong>{{ (staff.today_hours || 0).toFixed(1) }}h</strong></span></span></span></span>
+                                <td>{{ (staff.week_hours || 0).toFixed(1) }}h</span></span></span></span>
+                                <td>{{ (staff.month_hours || 0).toFixed(1) }}h</span></span></span></span>
+                                <td><div class="action-icons"><i class="fas fa-history" @click="viewStaffShiftHistory(staff)" title="View History" style="cursor:pointer;"></i><i class="fas fa-sign-out-alt" v-if="staff.isOnShift" @click="forceLogoutByStaffId(staff.id)" style="cursor:pointer; color:#dc2626;" title="Force Logout"></i></div></span></span></span></span>
+                            </span></span></span></tr>
+                            <tr v-if="filteredStaffAttendance.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members found</span></span></span></tr>
                         </tbody>
-                    </table>
+                    </span></span></span></table>
                 </div>
             </div>
 
@@ -391,13 +391,13 @@
                         <thead><tr><th>Module Name</th><th>Status</th><th>Description</th></tr></thead>
                         <tbody>
                             <tr v-for="module in allModules" :key="module.id">
-                                <td><strong>{{ module.displayName }}</strong> <span v-if="module.isCustom" class="badge" style="background:#fef3c7; color:#d97706;">Custom</span></td>
-                                <td><span class="status-badge" :class="module.enabled ? 'status-active' : 'status-warning'">{{ module.enabled ? 'Enabled' : 'Disabled' }}</span></td>
-                                <td style="color:#64748b;">{{ module.description }}</td>
-                            </tr>
-                            <tr v-if="allModules.length === 0"><td colspan="3" style="text-align:center; padding:40px;">No modules found. Click "Force Reload" to sync with Super Admin.</td></tr>
+                                <td><strong>{{ module.displayName }}</strong> <span v-if="module.isCustom" class="badge" style="background:#fef3c7; color:#d97706;">Custom</span></span></span></td>
+                                <td><span class="status-badge" :class="module.enabled ? 'status-active' : 'status-warning'">{{ module.enabled ? 'Enabled' : 'Disabled' }}</span></span></span></td>
+                                <td style="color:#64748b;">{{ module.description }}</span></span></td>
+                            </span></span></tr>
+                            <tr v-if="allModules.length === 0"><td colspan="3" style="text-align:center; padding:40px;">No modules found. Click "Force Reload" to sync with Super Admin.</span></span></tr>
                         </tbody>
-                    </table>
+                    </span></span></table>
                 </div>
             </div>
 
@@ -461,15 +461,15 @@
                     <thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th><th>Station</th></tr></thead>
                     <tbody>
                         <tr v-for="shift in staffShiftHistory" :key="shift.shift_id">
-                            <td>{{ formatDate(shift.login_time) }}</td>
-                            <td>{{ formatTime(shift.login_time) }}</td>
-                            <td>{{ shift.logout_time ? formatTime(shift.logout_time) : 'Active' }}</td>
-                            <td>{{ shift.hours_worked ? shift.hours_worked.toFixed(1) + 'h' : '-' }}</td>
-                            <tr>{{ shift.station_at_login || '-' }}</td>
-                        </tr>
-                        <tr v-if="staffShiftHistory.length === 0"><td colspan="5" style="text-align:center;">No shift history found</td></tr>
+                            <td>{{ formatDate(shift.login_time) }}</span></span></td>
+                            <td>{{ formatTime(shift.login_time) }}</span></span></td>
+                            <td>{{ shift.logout_time ? formatTime(shift.logout_time) : 'Active' }}</span></span></td>
+                            <td>{{ shift.hours_worked ? shift.hours_worked.toFixed(1) + 'h' : '-' }}</span></span></td>
+                            <td>{{ shift.station_at_login || '-' }}</span></span></td>
+                        </span></span></tr>
+                        <tr v-if="staffShiftHistory.length === 0"><td colspan="5" style="text-align:center;">No shift history found</span></span></tr>
                     </tbody>
-                </table>
+                </span></span></table>
             </div>
             <div class="modal-buttons" style="margin-top: 20px;">
                 <button class="btn-primary" @click="showShiftHistoryModal = false">Close</button>
@@ -578,14 +578,45 @@
                 }
             },
             
-            // FIXED: Session validation - now accepts 'tenant', 'tenant_administrator', and 'tenant_admin'
+            // ========== TEMPORARILY DISABLED FOR DEVELOPMENT ==========
+            // Session validation - COMMENTED OUT for easier development
+            // To re-enable login, uncomment the code below
             validateSession() {
+                // === DEVELOPMENT MODE: Skip all session checks ===
+                // For production, uncomment the original validation below
+                console.log('⚠️ DEVELOPMENT MODE: Session validation bypassed');
+                this.sessionValid = true;
+                
+                // Set default tenant ID for development if not exists
+                if (!sessionStorage.getItem('qless_tenant_id')) {
+                    // Try to get first tenant from storage or use default
+                    const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
+                    if (tenants.length > 0) {
+                        sessionStorage.setItem('qless_tenant_id', tenants[0].id);
+                        sessionStorage.setItem('qless_tenant_name', tenants[0].businessName);
+                        sessionStorage.setItem('qless_user_name', 'Dev Admin');
+                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
+                        sessionStorage.setItem('qless_logged_in', 'true');
+                        console.log('✅ Development session created with tenant:', tenants[0].businessName);
+                    } else {
+                        // Create a fallback demo tenant
+                        sessionStorage.setItem('qless_tenant_id', '1');
+                        sessionStorage.setItem('qless_tenant_name', 'Demo Venue');
+                        sessionStorage.setItem('qless_user_name', 'Demo Admin');
+                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
+                        sessionStorage.setItem('qless_logged_in', 'true');
+                        console.log('✅ Demo development session created');
+                    }
+                }
+                return true;
+                
+                /* ===== ORIGINAL SESSION CODE - UNCOMMENT FOR PRODUCTION =====
                 const isLoggedIn = sessionStorage.getItem('qless_logged_in');
                 const role = sessionStorage.getItem('qless_user_role');
                 const tenantId = sessionStorage.getItem('qless_tenant_id');
                 const sessionExpiry = sessionStorage.getItem('qless_session_expiry');
                 
-                console.log('Session check - Role:', role, 'Tenant ID:', tenantId); // Debug log
+                console.log('Session check - Role:', role, 'Tenant ID:', tenantId);
                 
                 if (!isLoggedIn || isLoggedIn !== 'true') {
                     this.sessionValid = false;
@@ -594,7 +625,6 @@
                     return false;
                 }
                 
-                // FIXED: Accept ALL tenant-related roles: 'tenant', 'tenant_administrator', 'tenant_admin'
                 const validTenantRoles = ['tenant', 'tenant_administrator', 'tenant_admin'];
                 if (!validTenantRoles.includes(role)) {
                     this.sessionValid = false;
@@ -613,25 +643,27 @@
                 
                 this.sessionValid = true;
                 return true;
+                ===== END ORIGINAL SESSION CODE ===== */
             },
             
             startSessionHeartbeat() {
-                // Refresh session expiry on activity
+                // DEVELOPMENT: Skip heartbeat to avoid redirects
+                console.log('⚠️ DEVELOPMENT: Session heartbeat disabled');
+                return;
+                
+                /* Original heartbeat - uncomment for production
                 const refreshSession = () => {
                     const expiry = new Date();
-                    expiry.setHours(expiry.getHours() + 2); // 2 hour session
+                    expiry.setHours(expiry.getHours() + 2);
                     sessionStorage.setItem('qless_session_expiry', expiry.toISOString());
                     sessionStorage.setItem('qless_last_activity', new Date().toISOString());
                 };
-                
-                // Refresh on user activity
                 const events = ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'];
                 events.forEach(event => {
                     window.addEventListener(event, refreshSession);
                 });
-                
-                // Initial session expiry
                 refreshSession();
+                */
             },
             
             getModuleIcon(moduleName) {
@@ -675,14 +707,12 @@
             
             refreshModules() { this.loadModules(); this.showAlert('Modules Refreshed', 'Module list has been updated from Super Admin settings.', 'fas fa-sync-alt', '#10b981'); },
             
-            // FIXED: Force refresh modules from Super Admin data - now correctly reads module names including 'Ordering Module'
             forceRefreshModules() {
                 const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
                 if (allModules[this.tenantId] && allModules[this.tenantId].length > 0) { 
                     this.tenantModules = allModules[this.tenantId];
                     console.log('Modules loaded from Super Admin:', this.tenantModules);
                 } else { 
-                    // Fallback modules if none exist
                     this.tenantModules = [ 
                         { id: 1, name: 'Tickets', enabled: true, description: 'Event ticketing' }, 
                         { id: 2, name: 'Queue Management', enabled: true, description: 'Smart queuing' }, 
@@ -768,23 +798,39 @@
             },
             
             loadTenantData() {
-                // First validate session
-                if (!this.validateSession()) return;
+                // DEVELOPMENT: Auto-set session data if missing
+                if (!sessionStorage.getItem('qless_tenant_id')) {
+                    const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
+                    if (tenants.length > 0) {
+                        sessionStorage.setItem('qless_tenant_id', tenants[0].id);
+                        sessionStorage.setItem('qless_tenant_name', tenants[0].businessName);
+                        sessionStorage.setItem('qless_user_name', 'Dev Admin');
+                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
+                        sessionStorage.setItem('qless_logged_in', 'true');
+                    }
+                }
+                
+                // Skip validation in dev mode
+                // if (!this.validateSession()) return;
+                this.validateSession(); // Will return true in dev mode
                 
                 const tenantId = sessionStorage.getItem('qless_tenant_id');
                 const tenantName = sessionStorage.getItem('qless_tenant_name');
                 const adminUser = sessionStorage.getItem('qless_user_name');
                 
-                console.log('Loading tenant data - ID:', tenantId, 'Name:', tenantName); // Debug log
+                console.log('Loading tenant data - ID:', tenantId, 'Name:', tenantName);
                 
                 if (!tenantId) { 
-                    this.showAlert('Session Error', 'No tenant session found. Please log in again.', 'fas fa-exclamation-triangle', '#dc2626'); 
-                    setTimeout(() => { window.location.href = 'login.html'; }, 2000); 
-                    return; 
+                    // In dev mode, create fallback
+                    console.warn('No tenant ID found, using fallback');
+                    this.tenantId = 1;
+                    this.tenantName = 'Demo Venue';
+                    this.adminName = 'Demo Admin';
+                } else {
+                    this.tenantId = parseInt(tenantId); 
+                    this.tenantName = tenantName || 'Venue'; 
+                    this.adminName = adminUser || 'Administrator';
                 }
-                this.tenantId = parseInt(tenantId); 
-                this.tenantName = tenantName || 'Venue'; 
-                this.adminName = adminUser || 'Administrator';
                 this.loadStaff(); 
                 this.forceRefreshModules(); 
                 this.loadBranding(); 
@@ -820,12 +866,11 @@
             }
         },
         mounted() {
-            // Start session heartbeat first
-            this.startSessionHeartbeat();
+            // DEVELOPMENT: Skip heartbeat for easier work
+            // this.startSessionHeartbeat();
+            console.log('⚠️ DEVELOPMENT MODE: Running without login requirements');
             
-            // Validate session before loading
-            if (!this.validateSession()) return;
-            
+            // Load data directly in dev mode
             this.loadTenantData(); 
             this.setupRealtimeSync();
             

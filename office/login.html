@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -120,29 +119,26 @@
             <h2 style="margin-top: 20px;">Rands Venue OS</h2>
             <p style="color: #64748b;">Super Admin · Tenant Admin · Staff</p>
         </div>
-
-```
-    <!-- Role Selector -->
-    <div class="role-selector" id="roleSelector">
-        <button class="role-btn super active" data-role="super_administrator">👑 Super Admin</button>
-        <button class="role-btn tenant" data-role="tenant_admin">🏢 Tenant Admin</button>
-        <button class="role-btn staff" data-role="staff">👥 Staff</button>
+        
+        <!-- Role Selector -->
+        <div class="role-selector" id="roleSelector">
+            <button class="role-btn super active" data-role="super_administrator">👑 Super Admin</button>
+            <button class="role-btn tenant" data-role="tenant_admin">🏢 Tenant Admin</button>
+            <button class="role-btn staff" data-role="staff">👥 Staff</button>
+        </div>
+        
+        <!-- Tenant Dropdown (for Tenant Admin and Staff) -->
+        <select id="tenantDropdown" class="tenant-dropdown">
+            <option value="">Select Venue</option>
+        </select>
+        
+        <div id="loginForm">
+            <input type="text" id="loginWhatsapp" class="input-field" placeholder="Username / Phone Number" style="margin-bottom: 15px;">
+            <input type="password" id="loginPin" class="input-field" placeholder="Password / PIN" style="margin-bottom: 15px;">
+            <button class="whatsapp-login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
+            <p style="text-align: center; margin: 15px 0; color: #64748b; font-size: 0.75rem;">Demo: Super / 1989 | Tenant: use tenant credentials | Staff: use staff credentials</p>
+        </div>
     </div>
-    
-    <!-- Tenant Dropdown (for Tenant Admin and Staff) -->
-    <select id="tenantDropdown" class="tenant-dropdown">
-        <option value="">Select Venue</option>
-    </select>
-    
-    <div id="loginForm">
-        <input type="text" id="loginWhatsapp" class="input-field" placeholder="Username / Phone Number" style="margin-bottom: 15px;">
-        <input type="password" id="loginPin" class="input-field" placeholder="Password / PIN" style="margin-bottom: 15px;">
-        <button class="whatsapp-login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
-        <p style="text-align: center; margin: 15px 0; color: #64748b; font-size: 0.75rem;">Demo: Super / 1989 | Tenant: use tenant credentials | Staff: use staff credentials</p>
-    </div>
-</div>
-```
-
 </div>
 <div id="globalToast" class="toast-msg"></div>
 
@@ -313,7 +309,7 @@
             const selectedTenantId = tenantId || tenant.id;
             const selectedTenant = tenants.find(t => t.id == selectedTenantId);
             
-            if (selectedTenant && selectedTenant.id == tenant.id) {
+            if (selectedTenant && selectedTenant.id === tenant.id) {
                 const userData = {
                     id: tenant.id,
                     name: tenant.ownerName,
@@ -329,7 +325,6 @@
                 sessionStorage.setItem('qless_user_role', 'tenant_admin');
                 sessionStorage.setItem('qless_user_name', tenant.ownerName);
                 sessionStorage.setItem('qless_tenant_id', tenant.id);
-                sessionStorage.setItem('qless_tenant_name', tenant.businessName);
                 return true;
             }
         }
@@ -363,7 +358,6 @@
                 sessionStorage.setItem('qless_user_role', 'staff');
                 sessionStorage.setItem('qless_user_name', staffMember.name);
                 sessionStorage.setItem('qless_tenant_id', tenant.id);
-                sessionStorage.setItem('qless_tenant_name', tenant.businessName);
                 return true;
             }
         }
@@ -550,6 +544,5 @@
     
     init();
 </script>
-
 </body>
 </html>
