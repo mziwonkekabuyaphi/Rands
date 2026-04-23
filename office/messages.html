@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>QLess | Messages</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fb; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: #ffffff; border-right: 1px solid #edf2f7; overflow-y: auto; }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #eff3f8; }
+        .sidebar-header h2 { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg, #E30613, #9f0110); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; color: #4a5568; cursor: pointer; transition: 0.2s; }
+        .nav-item:hover { background: #fff0f0; color: #E30613; }
+        .nav-item.active { background: #E30613; color: white; }
+        .badge { background: #E30613; color: white; border-radius: 20px; padding: 2px 8px; font-size: 0.65rem; margin-left: auto; }
+        .main-content { margin-left: 280px; padding: 28px 32px; }
+        .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; margin: -28px -32px 28px -32px; padding: 14px 32px; }
+        .messages-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; height: calc(100vh - 120px); }
+        .messages-list { background: white; border-radius: 20px; border: 1px solid #edf2f7; overflow-y: auto; }
+        .message-item { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
+        .message-item:hover { background: #fff0f0; }
+        .message-item.unread { background: #fef2f2; }
+        .message-item.active { background: #fff0f0; border-left: 3px solid #E30613; }
+        .message-subject { font-weight: 600; margin-bottom: 4px; }
+        .message-preview { font-size: 0.75rem; color: #64748b; }
+        .message-date { font-size: 0.7rem; color: #94a3b8; margin-top: 4px; }
+        .message-detail { background: white; border-radius: 20px; border: 1px solid #edf2f7; padding: 24px; overflow-y: auto; }
+        .announcement-badge { background: #E30613; color: white; padding: 2px 8px; border-radius: 20px; font-size: 0.6rem; margin-left: 8px; }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } .messages-grid { grid-template-columns: 1fr; height: auto; } .messages-list { max-height: 300px; } }
+        .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
+        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
+        <div class="sidebar-header"><h2>QLess Systems</h2><p>Sales Agent Portal</p></div>
+        <div class="nav-item" @click="navigateTo('sales-dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+        <div class="nav-item" @click="navigateTo('leads')"><i class="fas fa-users"></i> Leads</div>
+        <div class="nav-item" @click="navigateTo('clients')"><i class="fas fa-store"></i> My Clients</div>
+        <div class="nav-item" @click="navigateTo('earnings')"><i class="fas fa-chart-line"></i> Earnings</div>
+        <div class="nav-item" @click="navigateTo('payouts')"><i class="fas fa-credit-card"></i> Payouts</div>
+        <div class="nav-item active"><i class="fas fa-envelope"></i> Messages<span class="badge" v-if="unreadCount > 0">{{ unreadCount }}</span></div>
+    </aside>
+    <div class="main-content">
+        <div class="top-header">
+            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+            <h3>Messages</h3>
+            <button class="btn-primary" @click="markAllRead"><i class="fas fa-check-double"></i> Mark all read</button>
+        </div>
+        
+        <div class="messages-grid">
+            <div class="messages-list">
+                <div v-for="msg in myMessages" :key="msg.id" class="message-item" :class="{ unread: !msg.read, active: selectedMessage?.id === msg.id }" @click="selectMessage(msg)">
+                    <div class="message-subject">{{ msg.subject }}<span v-if="msg.isAnnouncement" class="announcement-badge">Announcement</span></div>
+                    <div class="message-preview">{{ msg.message.substring(0, 60) }}...</div>
+                    <div class="message-date">{{ msg.date }}</div>
+                </div>
+                <div v-if="myMessages.length === 0" style="padding: 40px; text-align: center; color: #94a3b8;">No messages yet</div>
+            </div>
+            <div class="message-detail" v-if="selectedMessage">
+                <div><h3>{{ selectedMessage.subject }}</h3><div style="margin-top: 8px; color:#64748b;"><i class="fas fa-user-circle"></i> From: {{ selectedMessage.sender || 'Admin' }} | {{ selectedMessage.date }}</div><hr style="margin: 16px 0;"><div class="message-body">{{ selectedMessage.message }}</div></div>
+            </div>
+            <div class="message-detail" v-else style="display: flex; align-items: center; justify-content: center; color: #94a3b8;"><div><i class="fas fa-envelope-open-text" style="font-size: 48px; margin-bottom: 16px;"></i><br>Select a message to read</div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
+    
+    function loadMessages() {
+        const stored = localStorage.getItem('qless_messages');
+        const allMessages = stored ? JSON.parse(stored) : [];
+        // Filter messages for this agent (all messages or just those where recipient is this agent or 'all')
+        return allMessages.filter(m => m.recipient === 'all' || m.recipient === agentId || m.recipient === String(agentId));
+    }
+    
+    function saveMessages(messages) {
+        // Merge with existing to preserve other agents' messages
+        const stored = localStorage.getItem('qless_messages');
+        let allMessages = stored ? JSON.parse(stored) : [];
+        // Remove old entries for this agent's personal messages (keep announcements)
+        allMessages = allMessages.filter(m => !(m.recipient !== 'all' && (m.recipient === agentId || m.recipient === String(agentId))));
+        allMessages.push(...messages);
+        localStorage.setItem('qless_messages', JSON.stringify(allMessages));
+        window.dispatchEvent(new StorageEvent('storage', { key: 'qless_messages' }));
+    }
+    
+    new Vue({
+        el: '#app',
+        data: {
+            sidebarOpen: false,
+            messages: [],
+            selectedMessage: null
+        },
+        computed: {
+            myMessages() { return this.messages.sort((a,b) => b.id - a.id); },
+            unreadCount() { return this.messages.filter(m => !m.read).length; }
+        },
+        methods: {
+            navigateTo(page) { window.location.href = page + '.html'; },
+            selectMessage(msg) {
+                this.selectedMessage = msg;
+                if (!msg.read) {
+                    msg.read = true;
+                    saveMessages(this.messages);
+                }
+            },
+            markAllRead() {
+                this.messages.forEach(m => m.read = true);
+                saveMessages(this.messages);
+                this.$forceUpdate();
+            },
+            refresh() {
+                this.messages = loadMessages();
+            }
+        },
+        mounted() {
+            this.refresh();
+            window.addEventListener('storage', () => this.refresh());
+            window.addEventListener('resize', () => { if (window.innerWidth > 768) this.sidebarOpen = false; });
+        }
+    });
+</script>
+</body>
+</html>
