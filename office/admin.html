@@ -100,23 +100,9 @@
         .role-support { background: #e0e7ff; color: #4f46e5; }
         .role-venuemanager { background: #fef3c7; color: #d97706; }
         
-        /* Workforce specific styles */
-        .modules-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-        .module-card-item {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #edf2f7;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-        }
+        /* Staff Module specific styles */
+        .modules-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .module-card-item { background: white; border-radius: 20px; padding: 20px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
         .module-card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .module-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
         .module-info p { font-size: 0.7rem; color: #64748b; }
@@ -124,21 +110,21 @@
         .module-badge-enabled { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
         .module-badge-disabled { background: #ef4444; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
         
-        /* Active staff card */
-        .active-staff-card {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border-left: 4px solid #10b981;
-        }
-        .force-logout-btn {
-            background: #dc2626;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
+        /* Tabs for Staff Module */
+        .tabs-container { display: flex; gap: 8px; border-bottom: 1px solid #e2e8f0; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab-button { padding: 10px 20px; background: transparent; border: none; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; border-radius: 12px 12px 0 0; }
+        .tab-button:hover { color: #E30613; background: #fff0f0; }
+        .tab-button.active { color: #E30613; border-bottom: 3px solid #E30613; background: transparent; }
+        
+        .active-staff-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #10b981; }
+        .force-logout-btn { background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; }
         .force-logout-btn:hover { background: #b91c1c; }
+        
+        .session-status { display: flex; align-items: center; gap: 6px; background: #e6f7e6; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
+        .session-status.warning { background: #fee2e2; color: #E30613; }
+        .staff-avatar-small { width: 32px; height: 32px; background: #E30613; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.8rem; }
+        .staff-stat-card { background: #f8fafc; border-radius: 16px; padding: 12px; text-align: center; }
+        .staff-stat-number { font-size: 1.5rem; font-weight: 800; color: #E30613; }
         
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 260px; }
@@ -150,10 +136,6 @@
             .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
         }
         @media (min-width: 769px) { .menu-toggle { display: none; } }
-        
-        /* Session heartbeat indicator */
-        .session-status { display: flex; align-items: center; gap: 6px; background: #e6f7e6; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
-        .session-status.warning { background: #fee2e2; color: #E30613; }
     </style>
 </head>
 <body>
@@ -167,13 +149,14 @@
             </div>
         </div>
         <div class="nav-menu">
-            <!-- Core Navigation Items -->
+            <!-- Core Navigation Items - REMOVED duplicate Staff Management -->
             <div v-for="item in coreNavItems" :key="item.id" class="nav-item" :class="{ active: currentSection === item.id }" @click="handleNavClick(item)">
                 <i :class="item.icon"></i>
                 <span>{{ item.label }}</span>
             </div>
             
             <!-- Dynamic Module Navigation - Only shows ENABLED modules from Super Admin -->
+            <!-- Staff Management Module appears here when enabled by Super Admin - SINGLE UNIFIED ENTRY -->
             <div class="nav-divider" v-if="enabledModulesList.length > 0"></div>
             <div class="nav-section-title" v-if="enabledModulesList.length > 0"><i class="fas fa-puzzle-piece"></i> ACTIVE MODULES</div>
             <div v-for="module in enabledModulesList" :key="'module_' + module.id" class="nav-item" :class="{ active: currentSection === 'module_' + module.id }" @click="goToModuleSection(module)">
@@ -230,7 +213,6 @@
                 <!-- Currently Active Staff (Real-time) -->
                 <div class="section-header">
                     <h2><i class="fas fa-circle" style="color: #10b981; font-size: 0.7rem;"></i> Staff Currently On Shift ({{ activeShiftsList.length }})</h2>
-                    <button class="btn-outline" @click="currentSection = 'workforce'">View All Workforce <i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="modules-container" v-if="activeShiftsList.length > 0">
                     <div v-for="shift in activeShiftsList.slice(0, 4)" :key="shift.shift_id" class="module-card-item active-staff-card">
@@ -248,149 +230,174 @@
                 </div>
                 
                 <div class="section-header">
-                    <h2>Staff by Role</h2>
-                    <button class="btn-outline" @click="currentSection = 'staff'">Manage Staff <i class="fas fa-arrow-right"></i></button>
+                    <h2>Recent Staff Activity</h2>
                 </div>
                 <div class="table-wrapper">
                     <table class="data-table">
-                        <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th><th>Today's Hours</th></tr></thead>
+                        <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Today's Hours</th></tr></thead>
                         <tbody>
                             <tr v-for="staff in recentStaff" :key="staff.id">
-                                <td>{{ staff.name }}</td>
-                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
-                                <td>{{ staff.username }}</td>
-                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
-                                <td>{{ (staff.today_hours || 0).toFixed(1) }}h</span></span></span></span>
-                            </span></span></span></tr>
-                            <tr v-if="recentStaff.length === 0"><td colspan="5" style="text-align:center; color:#999;">No staff members yet</span></span></span></tr>
+                                <td>{{ staff.name }}</span></span></span></td>
+                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></td>
+                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></span></span></td>
+                                <td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</span></span></span></td>
+                            </span></span></tr>
+                            <tr v-if="recentStaff.length === 0"><td colspan="4" style="text-align:center; color:#999;">No staff members yet</span></span></tr>
                         </tbody>
-                    </span></span></span></table>
+                    </span></span></table>
                 </div>
             </div>
 
-            <!-- STAFF MANAGEMENT SECTION -->
-            <div v-if="currentSection === 'staff'">
+            <!-- UNIFIED STAFF MANAGEMENT MODULE - When enabled by Super Admin -->
+            <div v-for="module in enabledModulesList" :key="'content_' + module.id" v-if="currentSection === 'module_' + module.id && module.name === 'Staff Management'">
                 <div class="section-header">
-                    <h2><i class="fas fa-users"></i> Staff Management</h2>
-                    <button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff</button>
-                </div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Name</th><th>Role</th><th>Username</th><th>Password</th><th>Status</th><th>Today's Hours</th><th>Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="staff in staffList" :key="staff.id">
-                                <td><strong>{{ staff.name }}</strong></span></span></span></span>
-                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
-                                <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></span></span></span>
-                                <td><span class="credential-cell">••••••<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.password)"></i></span></span></span></span>
-                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></span></span></span>
-                                <td><strong>{{ (staff.today_hours || 0).toFixed(1) }}h</strong></span></span></span></span>
-                                <td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i><i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i></div></span></span></span></span>
-                            </span></span></span><tr>
-                            <tr v-if="staffList.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members. Click "Add Staff" to create one.</span></span></span></tr>
-                        </tbody>
-                    </span></span></span></table>
-                </div>
-                <div class="settings-panel" style="margin-top: 20px;">
-                    <h4 style="margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Role Permissions Guide</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; font-size: 0.75rem;">
-                        <div><span class="role-badge role-boxoffice">Box Office</span> - Ticket sales, entry scanning</div>
-                        <div><span class="role-badge role-hospitality">Hospitality</span> - Food & shisha orders (POS)</div>
-                        <div><span class="role-badge role-shishamaster">Shisha Master</span> - Manage shisha sessions</div>
-                        <div><span class="role-badge role-gatecontrol">Gate Control</span> - Entry scanning only</div>
-                        <div><span class="role-badge role-support">Support Staff</span> - View only, no operations</div>
-                        <div><span class="role-badge role-venuemanager">Venue Manager</span> - Full access to everything</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- WORKFORCE MANAGEMENT SECTION -->
-            <div v-if="currentSection === 'workforce'">
-                <div class="section-header">
-                    <h2><i class="fas fa-clock"></i> Workforce Management</h2>
-                    <button class="btn-primary" @click="exportAttendanceReport"><i class="fas fa-download"></i> Export Report</button>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div class="stat-title">Currently On Shift</div><div class="stat-number">{{ activeShiftsList.length }}</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-hourglass-half"></i></div><div class="stat-title">Total Hours Today</div><div class="stat-number">{{ totalHoursToday.toFixed(1) }}h</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Avg Hours/Staff</div><div class="stat-number">{{ avgHoursPerStaff.toFixed(1) }}h</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-week"></i></div><div class="stat-title">Week Total Hours</div><div class="stat-number">{{ totalWeekHours.toFixed(1) }}h</div></div>
-                </div>
-                
-                <div class="tenant-selector" style="display: flex; gap: 12px; background: white; border-radius: 24px; padding: 16px 20px; margin-bottom: 24px; flex-wrap: wrap;">
-                    <select v-model="attendanceFilter.role" class="tenant-dropdown" style="padding: 8px 16px;" @change="filterAttendance">
-                        <option value="">All Roles</option>
-                        <option value="boxoffice">Box Office</option>
-                        <option value="hospitality">Hospitality</option>
-                        <option value="shishamaster">Shisha Master</option>
-                        <option value="gatecontrol">Gate Control</option>
-                        <option value="venuemanager">Venue Manager</option>
-                    </select>
-                    <input type="date" v-model="attendanceFilter.date" class="form-control" style="width: auto;" @change="filterAttendance">
-                    <button class="btn-outline" @click="clearFilters"><i class="fas fa-eraser"></i> Clear Filters</button>
-                </div>
-                
-                <div class="section-header">
-                    <h2><i class="fas fa-circle" style="color: #10b981; font-size: 0.7rem;"></i> Active Shifts ({{ activeShiftsList.length }})</h2>
-                </div>
-                <div class="modules-container" v-if="activeShiftsList.length > 0">
-                    <div v-for="shift in activeShiftsList" :key="shift.shift_id" class="module-card-item active-staff-card">
-                        <div class="module-info">
-                            <h4><i class="fas fa-user-circle"></i> {{ shift.staff_name }}</h4>
-                            <p><i class="fas fa-clock"></i> Started: {{ formatDateTime(shift.login_time) }}</p>
-                            <p><i class="fas fa-hourglass-half"></i> Duration: {{ calculateDuration(shift.login_time) }}</p>
-                            <p><i class="fas fa-tag"></i> Role: {{ getRoleDisplay(shift.staff_role) }}</p>
-                        </div>
-                        <button class="force-logout-btn" @click="forceLogout(shift)"><i class="fas fa-sign-out-alt"></i> Force Logout</button>
-                    </div>
-                </div>
-                <div v-else class="settings-panel" style="text-align:center; padding:40px;">
-                    <i class="fas fa-user-clock" style="font-size:48px; color:#cbd5e1;"></i>
-                    <p style="margin-top:12px;">No staff currently on shift</p>
-                </div>
-                
-                <div class="section-header" style="margin-top: 32px;">
-                    <h2>Staff Attendance History</h2>
-                </div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Name</th><th>Role</th><th>Status</th><th>Today's Hours</th><th>Week Hours</th><th>Month Hours</th><th>Actions</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="staff in filteredStaffAttendance" :key="staff.id">
-                                <td><strong>{{ staff.name }}</strong></span></span></span></span>
-                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
-                                <td><span class="status-badge" :class="staff.isOnShift ? 'status-on-duty' : 'status-off-duty'">{{ staff.isOnShift ? 'On Duty' : 'Off Duty' }}</span></span></span></span>
-                                <td><strong>{{ (staff.today_hours || 0).toFixed(1) }}h</strong></span></span></span></span>
-                                <td>{{ (staff.week_hours || 0).toFixed(1) }}h</span></span></span></span>
-                                <td>{{ (staff.month_hours || 0).toFixed(1) }}h</span></span></span></span>
-                                <td><div class="action-icons"><i class="fas fa-history" @click="viewStaffShiftHistory(staff)" title="View History" style="cursor:pointer;"></i><i class="fas fa-sign-out-alt" v-if="staff.isOnShift" @click="forceLogoutByStaffId(staff.id)" style="cursor:pointer; color:#dc2626;" title="Force Logout"></i></div></span></span></span></span>
-                            </span></span></span></tr>
-                            <tr v-if="filteredStaffAttendance.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members found</span></span></span></tr>
-                        </tbody>
-                    </span></span></span></table>
-                </div>
-            </div>
-
-            <!-- DYNAMIC MODULE SECTIONS - Rendered when a module is clicked -->
-            <div v-for="module in enabledModulesList" :key="'content_' + module.id" v-if="currentSection === 'module_' + module.id">
-                <div class="section-header">
-                    <h2><i :class="getModuleIcon(module.name)"></i> {{ getModuleDisplayName(module.name) }}</h2>
+                    <h2><i class="fas fa-users"></i> {{ getModuleDisplayName(module.name) }}</h2>
                     <button class="btn-outline" @click="currentSection = 'dashboard'"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
                 </div>
-                <div class="settings-panel" style="text-align:center; padding:60px;">
-                    <i :class="getModuleIcon(module.name)" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
-                    <h3 style="margin-bottom:12px;">{{ getModuleDisplayName(module.name) }}</h3>
-                    <p style="color:#64748b;">This module is active and ready to use.</p>
-                    <p style="font-size:0.75rem; color:#94a3b8; margin-top:12px;">Module configured by Super Admin</p>
+                
+                <!-- Tabs for Staff Management -->
+                <div class="tabs-container">
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'accounts' }" @click="staffModuleTab = 'accounts'"><i class="fas fa-id-card"></i> Staff Accounts</button>
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'attendance' }" @click="staffModuleTab = 'attendance'"><i class="fas fa-clock"></i> Attendance</button>
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'activity' }" @click="staffModuleTab = 'activity'"><i class="fas fa-chart-line"></i> Activity Logs</button>
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'reports' }" @click="staffModuleTab = 'reports'"><i class="fas fa-file-alt"></i> Reports</button>
+                </div>
+                
+                <!-- TAB 1: STAFF ACCOUNTS -->
+                <div v-if="staffModuleTab === 'accounts'">
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                        <button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff Member</button>
+                    </div>
+                    
+                    <div class="stats-grid" style="margin-bottom: 24px;">
+                        <div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.length }}</div><div>Total Staff</div></div>
+                        <div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Active').length }}</div><div>Active</div></div>
+                        <div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Inactive').length }}</div><div>Inactive</div></div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th><th>Today's Hours</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="staff in staffList" :key="staff.id">
+                                    <td><strong>{{ staff.name }}</strong></span></span></span></span>
+                                    <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
+                                    <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></span></span></span>
+                                    <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></span></span></span>
+                                    <td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</span></span></span></span>
+                                    <td><div class="action-icons">
+                                        <i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i>
+                                        <i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i>
+                                        <i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i>
+                                        <i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i>
+                                        <i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i>
+                                    </div></span></span></span></span>
+                                </span></span></tr>
+                                <tr v-if="staffList.length === 0"><td colspan="6" style="text-align:center; padding:40px;">No staff members. Click "Add Staff Member" to create one.</span></span></tr>
+                            </tbody>
+                        </span></span></table>
+                    </div>
+                    
+                    <div class="settings-panel" style="margin-top: 24px;">
+                        <h4 style="margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Role Permissions Guide</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; font-size: 0.75rem;">
+                            <div><span class="role-badge role-boxoffice">Box Office</span> - Ticket sales, entry scanning</div>
+                            <div><span class="role-badge role-hospitality">Hospitality</span> - Food & shisha orders (POS)</div>
+                            <div><span class="role-badge role-shishamaster">Shisha Master</span> - Manage shisha sessions</div>
+                            <div><span class="role-badge role-gatecontrol">Gate Control</span> - Entry scanning only</div>
+                            <div><span class="role-badge role-support">Support Staff</span> - View only, no operations</div>
+                            <div><span class="role-badge role-venuemanager">Venue Manager</span> - Full access to everything</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TAB 2: ATTENDANCE TRACKING -->
+                <div v-if="staffModuleTab === 'attendance'">
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div class="stat-title">Currently On Shift</div><div class="stat-number">{{ activeShiftsList.length }}</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-hourglass-half"></i></div><div class="stat-title">Total Hours Today</div><div class="stat-number">{{ totalHoursToday.toFixed(1) }}h</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Avg Hours/Staff</div><div class="stat-number">{{ avgHoursPerStaff.toFixed(1) }}h</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-week"></i></div><div class="stat-title">Week Total Hours</div><div class="stat-number">{{ totalWeekHours.toFixed(1) }}h</div></div>
+                    </div>
+                    
+                    <div class="section-header">
+                        <h3><i class="fas fa-circle" style="color: #10b981; font-size: 0.7rem;"></i> Currently Active Shifts ({{ activeShiftsList.length }})</h3>
+                    </div>
+                    <div class="modules-container" v-if="activeShiftsList.length > 0">
+                        <div v-for="shift in activeShiftsList" :key="shift.shift_id" class="module-card-item active-staff-card">
+                            <div class="module-info">
+                                <h4><i class="fas fa-user-circle"></i> {{ shift.staff_name }}</h4>
+                                <p><i class="fas fa-clock"></i> Started: {{ formatDateTime(shift.login_time) }}</p>
+                                <p><i class="fas fa-hourglass-half"></i> Duration: {{ calculateDuration(shift.login_time) }}</p>
+                                <p><i class="fas fa-tag"></i> Role: {{ getRoleDisplay(shift.staff_role) }}</p>
+                            </div>
+                            <button class="force-logout-btn" @click="forceLogout(shift)"><i class="fas fa-sign-out-alt"></i> Force Logout</button>
+                        </div>
+                    </div>
+                    <div v-else class="settings-panel" style="text-align:center; padding:40px;">
+                        <i class="fas fa-user-clock" style="font-size:48px; color:#cbd5e1;"></i>
+                        <p style="margin-top:12px;">No staff currently on shift</p>
+                    </div>
+                    
+                    <div class="section-header" style="margin-top: 32px;">
+                        <h3>Attendance History</h3>
+                        <div style="display: flex; gap: 12px;">
+                            <select v-model="attendanceFilter.role" class="tenant-dropdown" style="padding: 8px 16px; border-radius: 40px; border: 1px solid #e2e8f0;" @change="filterAttendance">
+                                <option value="">All Roles</option>
+                                <option value="boxoffice">Box Office</option>
+                                <option value="hospitality">Hospitality</option>
+                                <option value="shishamaster">Shisha Master</option>
+                                <option value="gatecontrol">Gate Control</option>
+                                <option value="venuemanager">Venue Manager</option>
+                            </select>
+                            <button class="btn-outline" @click="exportAttendanceReport"><i class="fas fa-download"></i> Export Report</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Name</th><th>Role</th><th>Status</th><th>Today's Hours</th><th>Week Hours</th><th>Month Hours</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="staff in filteredStaffAttendance" :key="staff.id">
+                                    <td><strong>{{ staff.name }}</strong></span></span></span></span>
+                                    <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
+                                    <td><span class="status-badge" :class="staff.isOnShift ? 'status-on-duty' : 'status-off-duty'">{{ staff.isOnShift ? 'On Duty' : 'Off Duty' }}</span></span></span></span>
+                                    <td><strong>{{ staff.today_hours.toFixed(1) }}h</strong></span></span></span></span>
+                                    <td>{{ staff.week_hours.toFixed(1) }}h</span></span></span></span>
+                                    <td>{{ staff.month_hours.toFixed(1) }}h</span></span></span></span>
+                                    <td><div class="action-icons"><i class="fas fa-history" @click="viewStaffShiftHistory(staff)" title="View History" style="cursor:pointer;"></i></div></span></span></span></span>
+                                </span></span></tr>
+                                <tr v-if="filteredStaffAttendance.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members found</span></span></tr>
+                            </tbody>
+                        </span></span></table>
+                    </div>
+                </div>
+                
+                <!-- TAB 3: ACTIVITY LOGS -->
+                <div v-if="staffModuleTab === 'activity'">
+                    <div class="settings-panel" style="text-align:center; padding:60px;">
+                        <i class="fas fa-chart-line" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
+                        <h3 style="margin-bottom:12px;">Activity Tracking</h3>
+                        <p style="color:#64748b;">Staff activity logs (sales, orders, scans) will appear here in real-time.</p>
+                        <p style="font-size:0.75rem; color:#94a3b8; margin-top:12px;">Coming soon: Track actions per staff member</p>
+                    </div>
+                </div>
+                
+                <!-- TAB 4: REPORTS -->
+                <div v-if="staffModuleTab === 'reports'">
+                    <div class="settings-panel" style="text-align:center; padding:60px;">
+                        <i class="fas fa-file-alt" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
+                        <h3 style="margin-bottom:12px;">Staff Reports</h3>
+                        <p style="color:#64748b;">Generate reports on staff performance, attendance, and payroll.</p>
+                        <button class="btn-primary" style="margin-top:16px;" @click="exportAttendanceReport"><i class="fas fa-download"></i> Export Attendance Report</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- MODULES LIST SECTION (Original - keep for reference) -->
+            <!-- MODULES LIST SECTION (All Modules view) -->
             <div v-if="currentSection === 'modules_list'">
                 <div class="section-header">
                     <h2><i class="fas fa-puzzle-piece"></i> Available Modules</h2>
@@ -402,7 +409,7 @@
                 
                 <div style="background: #f0f9ff; border-radius: 16px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #E30613;">
                     <p style="font-size: 0.75rem; margin-bottom: 8px;"><i class="fas fa-info-circle"></i> <strong>Module Status:</strong> {{ tenantModules.length }} modules loaded from Super Admin</p>
-                    <button class="btn-outline" @click="forceRefreshModules" style="font-size: 0.7rem; padding: 4px 12px;">🔄 Force Reload from Super Admin</button>
+                    <p style="font-size: 0.7rem; color: #64748b;"><i class="fas fa-lightbulb"></i> <strong>Staff Management</strong> appears in sidebar only when enabled by Super Admin</p>
                 </div>
                 
                 <div class="modules-container" v-if="tenantModules.length > 0">
@@ -417,6 +424,24 @@
                             </span>
                         </div>
                     </div>
+                </div>
+                <div v-else class="settings-panel" style="text-align:center; padding:40px;">
+                    <i class="fas fa-puzzle-piece" style="font-size:48px; color:#cbd5e1;"></i>
+                    <p style="margin-top:12px;">No modules configured yet. Contact your Super Admin.</p>
+                </div>
+            </div>
+
+            <!-- Fallback for other module types (non-Staff Management) -->
+            <div v-for="module in enabledModulesList" :key="'fallback_' + module.id" v-if="currentSection === 'module_' + module.id && module.name !== 'Staff Management'">
+                <div class="section-header">
+                    <h2><i :class="getModuleIcon(module.name)"></i> {{ getModuleDisplayName(module.name) }}</h2>
+                    <button class="btn-outline" @click="currentSection = 'dashboard'"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                </div>
+                <div class="settings-panel" style="text-align:center; padding:60px;">
+                    <i :class="getModuleIcon(module.name)" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
+                    <h3 style="margin-bottom:12px;">{{ getModuleDisplayName(module.name) }}</h3>
+                    <p style="color:#64748b;">This module is active and ready to use.</p>
+                    <p style="font-size:0.75rem; color:#94a3b8; margin-top:12px;">Module configured by Super Admin</p>
                 </div>
             </div>
 
@@ -433,7 +458,7 @@
         </div>
     </div>
 
-    <!-- All Modals stay the same... -->
+    <!-- All Modals -->
     <div class="modal-mask" :class="{ active: showStaffModal }">
         <div class="modal-container">
             <h3 style="margin-bottom: 20px;"><i class="fas fa-user-plus"></i> {{ isEditing ? 'Edit Staff' : 'Add New Staff' }}</h3>
@@ -486,7 +511,7 @@
                         </span></span></tr>
                         <tr v-if="staffShiftHistory.length === 0"><td colspan="5" style="text-align:center;">No shift history found</span></span></tr>
                     </tbody>
-                </span></span></table>
+                </span></span></td>
             </div>
             <div class="modal-buttons" style="margin-top: 20px;">
                 <button class="btn-primary" @click="showShiftHistoryModal = false">Close</button>
@@ -517,15 +542,14 @@
             infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
             selectedStaff: null, staffShiftHistory: [],
             sessionValid: true,
-            // Core navigation items (always visible)
+            // Core navigation items - REMOVED duplicate Staff Management (now only appears when module enabled)
             coreNavItems: [
                 { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
-                { id: 'staff', label: 'Staff Management', icon: 'fas fa-users' },
-                { id: 'workforce', label: 'Workforce', icon: 'fas fa-clock' },
                 { id: 'modules_list', label: 'All Modules', icon: 'fas fa-puzzle-piece' }
             ],
             syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null, sessionHeartbeat: null,
-            shifts: [], attendanceFilter: { role: '', date: '' }, totalHoursToday: 0, totalWeekHours: 0, avgHoursPerStaff: 0
+            shifts: [], attendanceFilter: { role: '', date: '' }, totalHoursToday: 0, totalWeekHours: 0, avgHoursPerStaff: 0,
+            staffModuleTab: 'accounts'  // Tab state for Staff Management module
         },
         computed: {
             tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
@@ -533,13 +557,11 @@
             activeStaffCount() { return this.staffList.filter(s => s.status === 'Active').length; },
             recentStaff() { return this.staffList.slice(0, 5); },
             currentSectionTitle() { 
-                // Check if it's a module section
                 if (this.currentSection.startsWith('module_')) {
                     const moduleId = this.currentSection.replace('module_', '');
                     const module = this.enabledModulesList.find(m => m.id == moduleId);
-                    return module ? getModuleDisplayName(module.name) : 'Module';
+                    return module ? this.getModuleDisplayName(module.name) : 'Module';
                 }
-                // Core sections
                 const coreItem = this.coreNavItems.find(i => i.id === this.currentSection);
                 if (coreItem) return coreItem.label;
                 if (this.currentSection === 'settings') return 'Settings';
@@ -555,7 +577,7 @@
             },
             staffOnShiftCount() { return this.activeShiftsList.length; },
             
-            // NEW: Get only enabled modules for sidebar navigation
+            // Get ONLY enabled modules for sidebar navigation
             enabledModulesList() {
                 return this.tenantModules.filter(m => m.enabled === true);
             },
@@ -582,25 +604,13 @@
                     const isOnShift = staffShifts.some(s => s.status === 'active');
                     return { ...staff, today_hours: todayHours, week_hours: weekHours, month_hours: monthHours, isOnShift };
                 });
-            },
-            allModules() {
-                const moduleMap = { 
-                    'Tickets': { displayName: 'Tickets & Events', description: 'Event ticketing and QR code scanning' }, 
-                    'Queue Management': { displayName: 'Queue System', description: 'Virtual queuing' }, 
-                    'Ordering Module': { displayName: 'Orders', description: 'Food ordering system (Kiosk, Wallet & WhatsApp)' }, 
-                    'Self-Serve Kiosk': { displayName: 'Orders', description: 'Food ordering system' }, 
-                    'Virtual Booze Lockers': { displayName: 'Lockers', description: 'Secure bottle storage' }, 
-                    'Shisha System': { displayName: 'Shisha', description: 'Hookah management' }, 
-                    'VVIP Management': { displayName: 'VVIP Tabs', description: 'Exclusive VIP accounts' } 
-                };
-                return this.tenantModules.map(m => ({ 
-                    id: m.id, name: m.name, displayName: moduleMap[m.name]?.displayName || m.name, 
-                    description: m.description || moduleMap[m.name]?.description || 'Custom module', 
-                    enabled: m.enabled, isCustom: m.isCustom || false 
-                }));
             }
         },
         methods: {
+            getStaffTodayHours(staffId) {
+                const staffData = this.filteredStaffAttendance.find(s => s.id === staffId);
+                return staffData ? staffData.today_hours : 0;
+            },
             closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
             
             handleNavClick(item) {
@@ -608,9 +618,12 @@
                 this.closeSidebar();
             },
             
-            // NEW: Navigate to module section
             goToModuleSection(module) {
                 this.currentSection = 'module_' + module.id;
+                // Reset tab when opening Staff Management module
+                if (module.name === 'Staff Management') {
+                    this.staffModuleTab = 'accounts';
+                }
                 this.closeSidebar();
             },
             
@@ -622,40 +635,10 @@
                     'Self-Serve Kiosk': 'Orders',
                     'Virtual Booze Lockers': 'Lockers',
                     'Shisha System': 'Shisha',
-                    'VVIP Management': 'VVIP'
+                    'VVIP Management': 'VVIP',
+                    'Staff Management': 'Staff Management'
                 };
                 return names[moduleName] || moduleName;
-            },
-            
-            // Session validation - DEVELOPMENT MODE (bypasses login)
-            validateSession() {
-                console.log('⚠️ DEVELOPMENT MODE: Session validation bypassed');
-                this.sessionValid = true;
-                
-                if (!sessionStorage.getItem('qless_tenant_id')) {
-                    const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
-                    if (tenants.length > 0) {
-                        sessionStorage.setItem('qless_tenant_id', tenants[0].id);
-                        sessionStorage.setItem('qless_tenant_name', tenants[0].businessName);
-                        sessionStorage.setItem('qless_user_name', 'Dev Admin');
-                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
-                        sessionStorage.setItem('qless_logged_in', 'true');
-                        console.log('✅ Development session created with tenant:', tenants[0].businessName);
-                    } else {
-                        sessionStorage.setItem('qless_tenant_id', '1');
-                        sessionStorage.setItem('qless_tenant_name', 'Demo Venue');
-                        sessionStorage.setItem('qless_user_name', 'Demo Admin');
-                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
-                        sessionStorage.setItem('qless_logged_in', 'true');
-                        console.log('✅ Demo development session created');
-                    }
-                }
-                return true;
-            },
-            
-            startSessionHeartbeat() {
-                console.log('⚠️ DEVELOPMENT: Session heartbeat disabled');
-                return;
             },
             
             getModuleIcon(moduleName) {
@@ -666,7 +649,8 @@
                     'Self-Serve Kiosk': 'fas fa-clipboard-list', 
                     'Virtual Booze Lockers': 'fas fa-lock', 
                     'Shisha System': 'fas fa-smoking', 
-                    'VVIP Management': 'fas fa-crown' 
+                    'VVIP Management': 'fas fa-crown',
+                    'Staff Management': 'fas fa-users'
                 };
                 return icons[moduleName] || 'fas fa-puzzle-piece';
             },
@@ -678,7 +662,8 @@
                     'Self-Serve Kiosk': 'Food & beverage ordering system', 
                     'Virtual Booze Lockers': 'Secure bottle storage management', 
                     'Shisha System': 'Hookah session management', 
-                    'VVIP Management': 'Exclusive VIP accounts & tabs' 
+                    'VVIP Management': 'Exclusive VIP accounts & tabs',
+                    'Staff Management': 'Complete staff management with attendance tracking'
                 };
                 return descriptions[moduleName] || 'Custom module configured by Super Admin';
             },
@@ -711,7 +696,8 @@
                         { id: 3, name: 'Ordering Module', enabled: false, description: 'Orders via Kiosk, Wallet & WhatsApp' }, 
                         { id: 4, name: 'Virtual Booze Lockers', enabled: true, description: 'Secure storage' }, 
                         { id: 5, name: 'Shisha System', enabled: false, description: 'Hookah management' }, 
-                        { id: 6, name: 'VVIP Management', enabled: true, description: 'VIP accounts' } 
+                        { id: 6, name: 'VVIP Management', enabled: true, description: 'VIP accounts' },
+                        { id: 7, name: 'Staff Management', enabled: true, description: 'Staff & attendance management' }
                     ]; 
                 }
                 this.$forceUpdate();
@@ -789,7 +775,10 @@
                 this.syncInterval = setInterval(() => { this.syncing = true; this.syncStatusText = 'Checking...'; const oldModules = JSON.stringify(this.tenantModules); this.forceRefreshModules(); if (JSON.stringify(this.tenantModules) !== oldModules) { this.syncWarning = true; this.syncStatusText = 'Update Available'; } else { this.syncStatusText = 'Live'; this.syncWarning = false; } this.syncing = false; }, 30000);
             },
             
-            loadTenantData() {
+            validateSession() {
+                console.log('⚠️ DEVELOPMENT MODE: Session validation bypassed');
+                this.sessionValid = true;
+                
                 if (!sessionStorage.getItem('qless_tenant_id')) {
                     const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
                     if (tenants.length > 0) {
@@ -798,9 +787,20 @@
                         sessionStorage.setItem('qless_user_name', 'Dev Admin');
                         sessionStorage.setItem('qless_user_role', 'tenant_administrator');
                         sessionStorage.setItem('qless_logged_in', 'true');
+                        console.log('✅ Development session created with tenant:', tenants[0].businessName);
+                    } else {
+                        sessionStorage.setItem('qless_tenant_id', '1');
+                        sessionStorage.setItem('qless_tenant_name', 'Demo Venue');
+                        sessionStorage.setItem('qless_user_name', 'Demo Admin');
+                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
+                        sessionStorage.setItem('qless_logged_in', 'true');
+                        console.log('✅ Demo development session created');
                     }
                 }
-                
+                return true;
+            },
+            
+            loadTenantData() {
                 this.validateSession();
                 
                 const tenantId = sessionStorage.getItem('qless_tenant_id');
@@ -854,7 +854,8 @@
         },
         mounted() {
             console.log('⚠️ DEVELOPMENT MODE: Running without login requirements');
-            console.log('✅ Enabled modules will appear in sidebar navigation');
+            console.log('✅ Staff Management appears in sidebar ONLY when enabled by Super Admin');
+            console.log('✅ Duplicate Staff Management tab has been REMOVED');
             
             this.loadTenantData(); 
             this.setupRealtimeSync();
