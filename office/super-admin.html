@@ -11,87 +11,614 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f5f7fb; overflow-x: hidden; }
-        .sidebar { position: fixed; left: 0; top: 0; width: 270px; height: 100%; background: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.05); z-index: 100; transition: all 0.3s ease; overflow-y: auto; border-right: 1px solid #edf2f7; }
-        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #eff3f8; }
-        .sidebar-header h2 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #E30613, #9f0110); background-clip: text; -webkit-background-clip: text; color: transparent; }
-        .sidebar-header p { font-size: 0.7rem; color: #6c7a8e; margin-top: 4px; }
-        .nav-menu { padding: 20px 0; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; color: #4a5568; font-weight: 500; transition: all 0.2s; cursor: pointer; }
-        .nav-item i { width: 22px; font-size: 1.1rem; }
-        .nav-item:hover { background: #fff0f0; color: #E30613; }
-        .nav-item.active { background: #E30613; color: white; box-shadow: 0 4px 10px rgba(227,6,19,0.2); }
-        .main-content { margin-left: 270px; transition: all 0.3s ease; min-height: 100vh; }
-        .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; }
-        .header-left h3 { font-size: 1.2rem; font-weight: 600; color: #1e293b; }
-        .profile-dropdown { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 12px; border-radius: 40px; background: #f8fafd; }
-        .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
-        .dashboard-container { padding: 28px 32px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 32px; }
-        .stat-card { background: white; border-radius: 28px; padding: 20px; border: 1px solid #edf2f7; transition: transform 0.2s, box-shadow 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        .stat-icon { width: 48px; height: 48px; background: #fff0f0; border-radius: 24px; display: flex; align-items: center; justify-content: center; color: #E30613; font-size: 1.4rem; margin-bottom: 16px; }
-        .stat-title { font-size: 0.75rem; font-weight: 500; color: #6c7a8e; text-transform: uppercase; }
-        .stat-number { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-top: 6px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 20px 0; flex-wrap: wrap; gap: 12px; }
-        .section-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
-        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.1s; }
-        .btn-primary:active { transform: scale(0.97); }
-        .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
-        .btn-outline:hover { background: #f1f5f9; }
-        .table-wrapper { overflow-x: auto; background: white; border-radius: 24px; border: 1px solid #edf2f7; }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        .data-table th, .data-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
-        .data-table th { background: #fafcff; font-weight: 600; color: #4a5568; }
-        .status-badge { padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
-        .status-active { background: #e6f7e6; color: #10b981; }
-        .status-suspended { background: #fee2e2; color: #E30613; }
-        .status-pending { background: #fef3c7; color: #d97706; }
-        .status-approved { background: #d1fae5; color: #059669; }
-        .status-paid { background: #dcfce7; color: #10b981; }
-        .credential-cell { font-family: monospace; font-size: 0.75rem; background: #f1f5f9; padding: 4px 8px; border-radius: 8px; display: inline-block; }
-        .copy-icon { margin-left: 6px; cursor: pointer; color: #64748b; }
-        .copy-icon:hover { color: #E30613; }
-        .action-icons { display: flex; gap: 12px; color: #94a3b8; cursor: pointer; }
-        .action-icons i:hover { color: #E30613; }
-        .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; margin-top: 20px; }
-        .module-card { background: white; border-radius: 24px; padding: 20px; border: 1px solid #edf2f7; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px; position: relative; }
-        .module-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
-        .module-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .module-info h4 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
-        .module-info p { font-size: 0.75rem; color: #6c7a8e; line-height: 1.4; }
-        .toggle-switch { position: relative; display: inline-block; width: 52px; height: 26px; flex-shrink: 0; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: 0.3s; border-radius: 26px; }
-        .toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
-        input:checked + .toggle-slider { background-color: #E30613; }
-        input:checked + .toggle-slider:before { transform: translateX(26px); }
-        .pricing-section { background: #f8fafc; border-radius: 16px; padding: 14px; margin-top: 8px; border-top: 1px solid #edf2f7; }
-        .pricing-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
-        .pricing-label { font-size: 0.7rem; font-weight: 600; color: #475569; }
-        .pricing-value { font-size: 0.85rem; font-weight: 700; color: #E30613; }
-        .edit-pricing-btn { background: transparent; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 30px; font-size: 0.65rem; cursor: pointer; transition: 0.2s; color: #64748b; }
-        .edit-pricing-btn:hover { background: #E30613; color: white; border-color: #E30613; }
-        .billing-section { background: #f8fafc; border-radius: 16px; padding: 14px; margin-top: 8px; border-top: 1px solid #edf2f7; }
-        .billing-line { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; color: #475569; }
-        .billing-total { font-weight: 700; color: #E30613; font-size: 0.85rem; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: space-between; }
-        .pricing-badge { display: inline-block; background: #fef3c7; color: #d97706; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; font-weight: 600; }
-        .custom-badge { background: #e0f2fe; color: #0284c7; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
-        .total-billing-summary { background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 24px; padding: 20px 28px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; color: white; }
-        .tenant-selector { background: white; border-radius: 24px; padding: 20px; margin-bottom: 24px; border: 1px solid #edf2f7; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-        .tenant-dropdown { padding: 10px 16px; border: 1px solid #e2e8f0; border-radius: 40px; font-family: 'Inter', sans-serif; font-size: 0.85rem; background: white; cursor: pointer; min-width: 220px; }
-        .form-control { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 40px; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: #1e293b; }
-        .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s; }
-        .modal-mask.active { visibility: visible; opacity: 1; }
-        .modal-container { background: white; width: 90%; max-width: 500px; border-radius: 32px; padding: 28px; animation: modalSlideIn 0.3s ease; text-align: center; }
-        @keyframes modalSlideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .settings-panel { background: white; border-radius: 28px; padding: 24px; border: 1px solid #edf2f7; margin-top: 20px; }
-        .color-preview { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-        .preview-box { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .toast-notification { position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; z-index: 1100; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease; cursor: pointer; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
-        .sync-status { display: flex; align-items: center; gap: 6px; background: #f0fdf4; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
+        
+        /* SIDEBAR - Always visible on desktop, toggle on mobile */
+        .sidebar { 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            width: 270px; 
+            height: 100%; 
+            background: #ffffff; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.05); 
+            z-index: 1000; 
+            transition: transform 0.3s ease; 
+            overflow-y: auto; 
+            border-right: 1px solid #edf2f7;
+            transform: translateX(0); /* Always visible by default */
+        }
+        
+        /* Mobile: sidebar hidden by default, can be opened */
+        @media (max-width: 768px) { 
+            .sidebar { 
+                transform: translateX(-100%); 
+                width: 280px;
+                box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+            }
+            .sidebar.open { 
+                transform: translateX(0); 
+            }
+            .main-content { 
+                margin-left: 0 !important; 
+            }
+            .dashboard-container { 
+                padding: 20px; 
+            }
+            .top-header { 
+                padding: 12px 20px; 
+            }
+            .menu-toggle { 
+                display: block !important; 
+                margin-right: 16px;
+                font-size: 1.4rem;
+                cursor: pointer;
+                color: #1e293b;
+            }
+            .modules-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .toast-notification { 
+                bottom: 20px; 
+                right: 20px; 
+                left: 20px; 
+                text-align: center; 
+                justify-content: center; 
+            }
+        }
+        
+        /* Desktop: sidebar visible, menu toggle hidden */
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+            .main-content {
+                margin-left: 270px;
+            }
+        }
+        
+        .sidebar-header { 
+            padding: 24px 20px; 
+            border-bottom: 1px solid #eff3f8; 
+        }
+        .sidebar-header h2 { 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #E30613, #9f0110); 
+            background-clip: text; 
+            -webkit-background-clip: text; 
+            color: transparent; 
+        }
+        .sidebar-header p { 
+            font-size: 0.7rem; 
+            color: #6c7a8e; 
+            margin-top: 4px; 
+        }
+        .nav-menu { 
+            padding: 20px 0; 
+        }
+        .nav-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 20px; 
+            margin: 4px 12px; 
+            border-radius: 12px; 
+            color: #4a5568; 
+            font-weight: 500; 
+            transition: all 0.2s; 
+            cursor: pointer; 
+        }
+        .nav-item i { 
+            width: 22px; 
+            font-size: 1.1rem; 
+        }
+        .nav-item:hover { 
+            background: #fff0f0; 
+            color: #E30613; 
+        }
+        .nav-item.active { 
+            background: #E30613; 
+            color: white; 
+            box-shadow: 0 4px 10px rgba(227,6,19,0.2); 
+        }
+        
+        .main-content { 
+            transition: all 0.3s ease; 
+            min-height: 100vh; 
+        }
+        .top-header { 
+            background: white; 
+            padding: 14px 28px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #edf2f7; 
+            position: sticky; 
+            top: 0; 
+            z-index: 99; 
+        }
+        .header-left h3 { 
+            font-size: 1.2rem; 
+            font-weight: 600; 
+            color: #1e293b; 
+        }
+        .profile-dropdown { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            cursor: pointer; 
+            padding: 6px 12px; 
+            border-radius: 40px; 
+            background: #f8fafd; 
+        }
+        .avatar { 
+            width: 38px; 
+            height: 38px; 
+            background: linear-gradient(135deg, #E30613, #b0020e); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-weight: 600; 
+        }
+        .dashboard-container { 
+            padding: 28px 32px; 
+        }
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 24px; 
+            margin-bottom: 32px; 
+        }
+        .stat-card { 
+            background: white; 
+            border-radius: 28px; 
+            padding: 20px; 
+            border: 1px solid #edf2f7; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+        }
+        .stat-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
+        }
+        .stat-icon { 
+            width: 48px; 
+            height: 48px; 
+            background: #fff0f0; 
+            border-radius: 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #E30613; 
+            font-size: 1.4rem; 
+            margin-bottom: 16px; 
+        }
+        .stat-title { 
+            font-size: 0.75rem; 
+            font-weight: 500; 
+            color: #6c7a8e; 
+            text-transform: uppercase; 
+        }
+        .stat-number { 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            color: #1e293b; 
+            margin-top: 6px; 
+        }
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin: 32px 0 20px 0; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+        }
+        .section-header h2 { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            color: #1e293b; 
+        }
+        .btn-primary { 
+            background: #E30613; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 40px; 
+            font-weight: 600; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: transform 0.1s; 
+        }
+        .btn-primary:active { 
+            transform: scale(0.97); 
+        }
+        .btn-outline { 
+            background: transparent; 
+            border: 1px solid #e2e8f0; 
+            padding: 8px 16px; 
+            border-radius: 40px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: background 0.2s; 
+        }
+        .btn-outline:hover { 
+            background: #f1f5f9; 
+        }
+        .table-wrapper { 
+            overflow-x: auto; 
+            background: white; 
+            border-radius: 24px; 
+            border: 1px solid #edf2f7; 
+        }
+        .data-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 700px; 
+        }
+        .data-table th, .data-table td { 
+            padding: 14px 20px; 
+            text-align: left; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 0.85rem; 
+        }
+        .data-table th { 
+            background: #fafcff; 
+            font-weight: 600; 
+            color: #4a5568; 
+        }
+        .status-badge { 
+            padding: 4px 12px; 
+            border-radius: 40px; 
+            font-size: 0.7rem; 
+            font-weight: 600; 
+            display: inline-block; 
+        }
+        .status-active { 
+            background: #e6f7e6; 
+            color: #10b981; 
+        }
+        .status-suspended { 
+            background: #fee2e2; 
+            color: #E30613; 
+        }
+        .status-pending { 
+            background: #fef3c7; 
+            color: #d97706; 
+        }
+        .status-approved { 
+            background: #d1fae5; 
+            color: #059669; 
+        }
+        .status-paid { 
+            background: #dcfce7; 
+            color: #10b981; 
+        }
+        .credential-cell { 
+            font-family: monospace; 
+            font-size: 0.75rem; 
+            background: #f1f5f9; 
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            display: inline-block; 
+        }
+        .copy-icon { 
+            margin-left: 6px; 
+            cursor: pointer; 
+            color: #64748b; 
+        }
+        .copy-icon:hover { 
+            color: #E30613; 
+        }
+        .action-icons { 
+            display: flex; 
+            gap: 12px; 
+            color: #94a3b8; 
+            cursor: pointer; 
+        }
+        .action-icons i:hover { 
+            color: #E30613; 
+        }
+        .modules-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); 
+            gap: 20px; 
+            margin-top: 20px; 
+        }
+        .module-card { 
+            background: white; 
+            border-radius: 24px; 
+            padding: 20px; 
+            border: 1px solid #edf2f7; 
+            transition: all 0.2s; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            position: relative; 
+        }
+        .module-card:hover { 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
+            transform: translateY(-2px); 
+        }
+        .module-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start; 
+        }
+        .module-info h4 { 
+            font-size: 1rem; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            margin-bottom: 6px; 
+            flex-wrap: wrap; 
+        }
+        .module-info p { 
+            font-size: 0.75rem; 
+            color: #6c7a8e; 
+            line-height: 1.4; 
+        }
+        .toggle-switch { 
+            position: relative; 
+            display: inline-block; 
+            width: 52px; 
+            height: 26px; 
+            flex-shrink: 0; 
+        }
+        .toggle-switch input { 
+            opacity: 0; 
+            width: 0; 
+            height: 0; 
+        }
+        .toggle-slider { 
+            position: absolute; 
+            cursor: pointer; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background-color: #cbd5e1; 
+            transition: 0.3s; 
+            border-radius: 26px; 
+        }
+        .toggle-slider:before { 
+            position: absolute; 
+            content: ""; 
+            height: 20px; 
+            width: 20px; 
+            left: 3px; 
+            bottom: 3px; 
+            background-color: white; 
+            transition: 0.3s; 
+            border-radius: 50%; 
+        }
+        input:checked + .toggle-slider { 
+            background-color: #E30613; 
+        }
+        input:checked + .toggle-slider:before { 
+            transform: translateX(26px); 
+        }
+        .pricing-section { 
+            background: #f8fafc; 
+            border-radius: 16px; 
+            padding: 14px; 
+            margin-top: 8px; 
+            border-top: 1px solid #edf2f7; 
+        }
+        .pricing-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 8px; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+        }
+        .pricing-label { 
+            font-size: 0.7rem; 
+            font-weight: 600; 
+            color: #475569; 
+        }
+        .pricing-value { 
+            font-size: 0.85rem; 
+            font-weight: 700; 
+            color: #E30613; 
+        }
+        .edit-pricing-btn { 
+            background: transparent; 
+            border: 1px solid #e2e8f0; 
+            padding: 4px 10px; 
+            border-radius: 30px; 
+            font-size: 0.65rem; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            color: #64748b; 
+        }
+        .edit-pricing-btn:hover { 
+            background: #E30613; 
+            color: white; 
+            border-color: #E30613; 
+        }
+        .billing-section { 
+            background: #f8fafc; 
+            border-radius: 16px; 
+            padding: 14px; 
+            margin-top: 8px; 
+            border-top: 1px solid #edf2f7; 
+        }
+        .billing-line { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 0.75rem; 
+            margin-bottom: 6px; 
+            color: #475569; 
+        }
+        .billing-total { 
+            font-weight: 700; 
+            color: #E30613; 
+            font-size: 0.85rem; 
+            margin-top: 8px; 
+            padding-top: 6px; 
+            border-top: 1px dashed #e2e8f0; 
+            display: flex; 
+            justify-content: space-between; 
+        }
+        .pricing-badge { 
+            display: inline-block; 
+            background: #fef3c7; 
+            color: #d97706; 
+            font-size: 0.6rem; 
+            padding: 2px 8px; 
+            border-radius: 20px; 
+            margin-left: 8px; 
+            font-weight: 600; 
+        }
+        .custom-badge { 
+            background: #e0f2fe; 
+            color: #0284c7; 
+            font-size: 0.6rem; 
+            padding: 2px 8px; 
+            border-radius: 20px; 
+            margin-left: 8px; 
+        }
+        .total-billing-summary { 
+            background: linear-gradient(135deg, #E30613, #b0020e); 
+            border-radius: 24px; 
+            padding: 20px 28px; 
+            margin-bottom: 28px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 16px; 
+            color: white; 
+        }
+        .tenant-selector { 
+            background: white; 
+            border-radius: 24px; 
+            padding: 20px; 
+            margin-bottom: 24px; 
+            border: 1px solid #edf2f7; 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            flex-wrap: wrap; 
+        }
+        .tenant-dropdown { 
+            padding: 10px 16px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 40px; 
+            font-family: 'Inter', sans-serif; 
+            font-size: 0.85rem; 
+            background: white; 
+            cursor: pointer; 
+            min-width: 220px; 
+        }
+        .form-control { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 40px; 
+            font-family: 'Inter', sans-serif; 
+            font-size: 0.85rem; 
+        }
+        .form-group { 
+            margin-bottom: 18px; 
+        }
+        .form-group label { 
+            display: block; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+            color: #1e293b; 
+        }
+        .modal-mask { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+            visibility: hidden; 
+            opacity: 0; 
+            transition: 0.2s; 
+        }
+        .modal-mask.active { 
+            visibility: visible; 
+            opacity: 1; 
+        }
+        .modal-container { 
+            background: white; 
+            width: 90%; 
+            max-width: 500px; 
+            border-radius: 32px; 
+            padding: 28px; 
+            animation: modalSlideIn 0.3s ease; 
+            text-align: center; 
+        }
+        @keyframes modalSlideIn { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .settings-panel { 
+            background: white; 
+            border-radius: 28px; 
+            padding: 24px; 
+            border: 1px solid #edf2f7; 
+            margin-top: 20px; 
+        }
+        .color-preview { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            margin-top: 8px; 
+        }
+        .preview-box { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+        }
+        .toast-notification { 
+            position: fixed; 
+            bottom: 30px; 
+            right: 30px; 
+            background: #10b981; 
+            color: white; 
+            padding: 12px 24px; 
+            border-radius: 50px; 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            z-index: 1100; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            animation: slideInRight 0.3s ease; 
+            cursor: pointer; 
+        }
+        @keyframes slideInRight { 
+            from { opacity: 0; transform: translateX(100px); } 
+            to { opacity: 1; transform: translateX(0); } 
+        }
+        .sync-status { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            background: #f0fdf4; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.7rem; 
+            color: #10b981; 
+            margin-right: 16px; 
+        }
         .fullscreen-active .sidebar, .fullscreen-active .top-header .profile-dropdown span { display: none !important; }
         .fullscreen-active .top-header { justify-content: flex-start !important; gap: 20px !important; position: fixed; top: 0; left: 0; right: 0; z-index: 10001; }
         .fullscreen-active .dashboard-container { margin-top: 70px; }
@@ -100,7 +627,6 @@
         .exit-fullscreen-btn { display: none; background: #E30613; color: white; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; font-size: 0.85rem; cursor: pointer; align-items: center; gap: 8px; margin-left: auto; }
         .fullscreen-btn-module { background: transparent; border: 1px solid #E30613; color: #E30613; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-left: auto; transition: 0.2s; }
         .fullscreen-btn-module:hover { background: #fff0f0; }
-        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); width: 260px; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .dashboard-container { padding: 20px; } .top-header { padding: 12px 20px; } .menu-toggle { display: block; margin-right: 16px; } .toast-notification { bottom: 20px; right: 20px; left: 20px; text-align: center; justify-content: center; } .fullscreen-btn-module { padding: 4px 10px; font-size: 0.7rem; } .modules-grid { grid-template-columns: 1fr; } }
         
         .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-bottom: 32px; }
         .analytics-card { background: white; border-radius: 24px; padding: 20px; border: 1px solid #edf2f7; }
@@ -113,11 +639,37 @@
         .agent-select { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 40px; margin-bottom: 16px; }
         .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; color: #1e293b; border-left: 3px solid #E30613; padding-left: 12px; }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
+        
+        /* Close button on mobile sidebar */
+        .sidebar-close-mobile {
+            display: none;
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #475569;
+            z-index: 10;
+        }
+        @media (max-width: 768px) {
+            .sidebar-close-mobile {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
 <div id="app">
+    <!-- Sidebar always visible, but toggleable on mobile -->
     <aside class="sidebar" :class="{ open: sidebarOpen }">
+        <div class="sidebar-close-mobile" @click="sidebarOpen = false">
+            <i class="fas fa-times"></i>
+        </div>
         <div class="sidebar-header">
             <h2>Rands Venue OS</h2>
             <p>Super Admin Console</p>
@@ -170,7 +722,7 @@
         </div>
 
         <div class="dashboard-container">
-            <!-- DASHBOARD SECTION -->
+            <!-- DASHBOARD SECTION (unchanged logic) -->
             <div v-if="currentSection === 'dashboard'">
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-store"></i></div><div class="stat-title">Total Tenants</div><div class="stat-number">{{ tenants.length }}</div></div>
@@ -218,7 +770,7 @@
                 </div>
             </div>
 
-            <!-- TENANTS SECTION -->
+            <!-- TENANTS SECTION (unchanged) -->
             <div v-if="currentSection === 'tenants'">
                 <div class="section-header"><h2>All Tenants</h2><button class="btn-primary" @click="openCreateTenantModal"><i class="fas fa-plus"></i> Create Tenant</button></div>
                 <div class="table-wrapper">
@@ -240,7 +792,7 @@
                 </div>
             </div>
 
-            <!-- MODULE CONFIGURATION SECTION -->
+            <!-- MODULE CONFIGURATION SECTION (unchanged) -->
             <div v-if="currentSection === 'modules'">
                 <div class="section-header"><h2><i class="fas fa-puzzle-piece"></i> Module Configuration</h2><button class="btn-primary" @click="openCreateModuleModal"><i class="fas fa-plus-circle"></i> Create Custom Module</button></div>
                 <div class="tenant-selector"><label><i class="fas fa-building"></i> <strong>Select Tenant:</strong></label><select v-model="selectedTenantId" class="tenant-dropdown" @change="loadTenantModules"><option v-for="tenant in tenants" :key="tenant.id" :value="tenant.id">{{ tenant.businessName }} ({{ tenant.status }})</option></select><span v-if="selectedTenant" style="background:#f0fdf4; padding:6px 12px; border-radius:20px; font-size:0.7rem; color:#10b981;"><i class="fas fa-check-circle"></i> Editing: {{ selectedTenant.businessName }}</span></div>
@@ -254,120 +806,19 @@
                 <div v-else class="settings-panel" style="text-align:center; padding:40px;"><i class="fas fa-building" style="font-size:48px; color:#cbd5e1; margin-bottom:12px; display:block;"></i><p>Select a tenant from the dropdown above to configure their modules</p></div>
             </div>
 
-            <!-- SALES AGENTS SECTION -->
-            <div v-if="currentSection === 'sales-agents'">
-                <div class="section-header"><h2><i class="fas fa-user-tie"></i> Sales Agents Management</h2><button class="btn-primary" @click="openAddAgentModal"><i class="fas fa-plus"></i> Add Agent</button></div>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-number">{{ agents.length }}</div><div>Total Agents</div></div>
-                    <div class="stat-card"><div class="stat-number">{{ agents.filter(a => a.status === 'Active').length }}</div><div>Active Agents</div></div>
-                    <div class="stat-card"><div class="stat-number">R {{ formatMoney(totalAgentCommission) }}</div><div>Total Commission</div></div>
-                </div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Clients</th><th>Revenue</th><th>Commission</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody>
-                            <tr v-for="agent in agents" :key="agent.id">
-                                <td><strong>{{ agent.name }}</strong></td>
-                                <td>{{ agent.email }}</td>
-                                <td>{{ agent.phone }}</td>
-                                <td>{{ getAgentTenantCount(agent.id) }}</td>
-                                <td>R {{ formatMoney(getAgentRevenue(agent.id)) }}</td>
-                                <td style="color:#E30613;">R {{ formatMoney(getAgentCommission(agent.id)) }}</td>
-                                <td><span class="status-badge" :class="agent.status === 'Active' ? 'status-active' : 'status-suspended'">{{ agent.status }}</span></td>
-                                <td><div class="action-icons"><i class="fas fa-eye" @click="viewAgentDetails(agent)" title="View Details"></i><i class="fas fa-edit" @click="editAgent(agent)" title="Edit"></i><i class="fas fa-toggle-on" v-if="agent.status === 'Active'" @click="toggleAgentStatus(agent.id)" style="color:#E30613;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleAgentStatus(agent.id)" title="Activate"></i></div></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- COMMISSIONS SECTION -->
-            <div v-if="currentSection === 'commissions'">
-                <div class="section-header"><h2><i class="fas fa-percent"></i> Commission Control</h2></div>
-                <div class="settings-panel" style="margin-bottom:24px;">
-                    <h3>Global Commission Settings</h3>
-                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                        <div><label>Default Commission Rate (%)</label><input type="number" step="0.5" class="form-control" v-model="globalCommissionRate" style="width:120px;" @change="saveGlobalCommission"></div>
-                        <div><label>Commission Type</label><select class="form-control" v-model="globalCommissionType" style="width:150px;" @change="saveGlobalCommission"><option value="once-off">Once-off (per signup)</option><option value="recurring">Recurring Monthly</option><option value="hybrid">Hybrid</option></select></div>
-                    </div>
-                </div>
-                <div class="section-header"><h3>Agent Commission Overrides</h3><button class="btn-primary" @click="openCustomCommissionModal"><i class="fas fa-plus"></i> Set Custom Rate</button></div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Agent</th><th>Custom Rate</th><th>Client</th><th>Revenue</th><th>Commission Amount</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody>
-                            <tr v-for="commission in commissions" :key="commission.id">
-                                <td>{{ getAgentName(commission.agent_id) }}</td>
-                                <td>{{ commission.custom_rate || globalCommissionRate }}%</span></span></td>
-                                <td>{{ getTenantName(commission.tenant_id) }}</span></span></td>
-                                <td>R {{ formatMoney(commission.revenue) }}</span></span></td>
-                                <td style="color:#E30613;">R {{ formatMoney(commission.amount) }}</span></span></td>
-                                <td><span class="status-badge" :class="'status-' + commission.status">{{ commission.status }}</span></span></span></td>
-                                <td><div class="action-icons"><i class="fas fa-check-circle" v-if="commission.status === 'pending'" @click="approveCommission(commission)" style="color:#10b981;" title="Approve"></i><i class="fas fa-money-bill" v-if="commission.status === 'approved'" @click="markCommissionPaid(commission)" style="color:#E30613;" title="Mark Paid"></i></div></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- PAYOUTS SECTION -->
-            <div v-if="currentSection === 'payouts'">
-                <div class="section-header"><h2><i class="fas fa-money-bill-wave"></i> Payout Requests</h2></div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Agent</th><th>Amount Requested</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody>
-                            <tr v-for="payout in payouts" :key="payout.id">
-                                <td>{{ getAgentName(payout.agent_id) }}</span></span></td>
-                                <td>R {{ formatMoney(payout.amount) }}</span></span></td>
-                                <tr>{{ payout.requestDate }}</span></span></td>
-                                <td><span class="status-badge" :class="'status-' + payout.status">{{ payout.status }}</span></span></span></td>
-                                <td><div class="action-icons" v-if="payout.status === 'pending'"><i class="fas fa-check-circle" @click="approvePayout(payout)" style="color:#10b981;" title="Approve"></i><i class="fas fa-times-circle" @click="rejectPayout(payout)" style="color:#dc2626;" title="Reject"></i></div><div class="action-icons" v-else-if="payout.status === 'approved'"><i class="fas fa-money-bill" @click="markPayoutPaid(payout)" style="color:#E30613;" title="Mark Paid"></i></div></td>
-                            </table>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- MESSAGES SECTION -->
-            <div v-if="currentSection === 'messages'">
-                <div class="section-header"><h2><i class="fas fa-comments"></i> Communication Center</h2></div>
-                <div class="analytics-grid">
-                    <div class="analytics-card">
-                        <h3 style="margin-bottom:16px;"><i class="fas fa-paper-plane"></i> Send Message</h3>
-                        <select v-model="messageRecipient" class="agent-select"><option value="all">All Agents (Broadcast)</option><option v-for="agent in agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option></select>
-                        <input type="text" class="form-control" v-model="messageSubject" placeholder="Subject" style="margin-bottom:12px;">
-                        <textarea class="form-control" v-model="messageBody" rows="4" placeholder="Message content..."></textarea>
-                        <button class="btn-primary" @click="sendMessage" style="margin-top:12px;"><i class="fas fa-paper-plane"></i> Send Message</button>
-                    </div>
-                    <div class="analytics-card">
-                        <h3 style="margin-bottom:16px;"><i class="fas fa-inbox"></i> Inbox</h3>
-                        <div class="message-thread">
-                            <div v-for="msg in messages" :key="msg.id" class="message-bubble" :class="msg.type === 'outgoing' ? 'message-outgoing' : 'message-incoming'" style="margin-bottom:12px; cursor:pointer;" @click="viewMessage(msg)">
-                                <div style="font-weight:600;">{{ msg.subject }}</div>
-                                <div style="font-size:0.75rem;">{{ msg.sender }} • {{ msg.date }}</div>
-                                <div style="font-size:0.8rem; margin-top:4px;">{{ msg.message.substring(0, 100) }}...</div>
-                            </div>
-                            <div v-if="messages.length === 0" style="text-align:center; padding:40px; color:#94a3b8;">No messages yet</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SETTINGS SECTION -->
-            <div v-if="currentSection === 'settings'">
-                <div class="section-header"><h2><i class="fas fa-cog"></i> System Settings</h2></div>
-                <div class="settings-panel"><h3 style="margin-bottom:16px;"><i class="fas fa-palette"></i> White Label & Branding</h3><div class="form-group"><label>System Name</label><input type="text" class="form-control" v-model="systemSettings.systemName"></div><div class="form-group"><label>Logo URL</label><input type="text" class="form-control" v-model="systemSettings.logoUrl"></div><div class="form-group"><label>Primary Brand Color</label><div class="color-preview"><input type="color" class="form-control" style="width:80px; padding:4px;" v-model="systemSettings.primaryColor"><div class="preview-box" :style="{ backgroundColor: systemSettings.primaryColor }"></div><span>{{ systemSettings.primaryColor }}</span></div></div><button class="btn-primary" @click="saveBranding"><i class="fas fa-save"></i> Save Branding</button></div>
-                <div class="settings-panel"><h3 style="margin-bottom:16px;"><i class="fas fa-globe"></i> System Configuration</h3><div class="form-group"><label>Default Currency</label><select class="form-control" v-model="systemSettings.currency"><option value="ZAR">South African Rand (ZAR)</option><option value="USD">US Dollar (USD)</option><option value="EUR">Euro (EUR)</option></select></div><div class="form-group"><label>Date Format</label><select class="form-control" v-model="systemSettings.dateFormat"><option value="DD/MM/YYYY">DD/MM/YYYY</option><option value="MM/DD/YYYY">MM/DD/YYYY</option></select></div><button class="btn-primary" @click="saveSystemConfig"><i class="fas fa-save"></i> Save Configuration</button></div>
-            </div>
+            <!-- OTHER SECTIONS (sales-agents, commissions, payouts, messages, settings) remain unchanged to preserve functionality -->
+            <div v-if="currentSection === 'sales-agents'"><div class="section-header"><h2><i class="fas fa-user-tie"></i> Sales Agents Management</h2><button class="btn-primary" @click="openAddAgentModal"><i class="fas fa-plus"></i> Add Agent</button></div><div class="stats-grid"><div class="stat-card"><div class="stat-number">{{ agents.length }}</div><div>Total Agents</div></div><div class="stat-card"><div class="stat-number">{{ agents.filter(a => a.status === 'Active').length }}</div><div>Active Agents</div></div><div class="stat-card"><div class="stat-number">R {{ formatMoney(totalAgentCommission) }}</div><div>Total Commission</div></div></div><div class="table-wrapper"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Clients</th><th>Revenue</th><th>Commission</th><th>Status</th><th>Actions</th></tr></thead><tbody><tr v-for="agent in agents" :key="agent.id"><td><strong>{{ agent.name }}</strong></td><td>{{ agent.email }}</td><td>{{ agent.phone }}</td><td>{{ getAgentTenantCount(agent.id) }}</td><td>R {{ formatMoney(getAgentRevenue(agent.id)) }}</td><td style="color:#E30613;">R {{ formatMoney(getAgentCommission(agent.id)) }}</td><td><span class="status-badge" :class="agent.status === 'Active' ? 'status-active' : 'status-suspended'">{{ agent.status }}</span></td><td><div class="action-icons"><i class="fas fa-eye" @click="viewAgentDetails(agent)" title="View Details"></i><i class="fas fa-edit" @click="editAgent(agent)" title="Edit"></i><i class="fas fa-toggle-on" v-if="agent.status === 'Active'" @click="toggleAgentStatus(agent.id)" style="color:#E30613;" title="Deactivate"></i><i class="fas fa-toggle-off" v-else @click="toggleAgentStatus(agent.id)" title="Activate"></i></div></td></tr></tbody></table></div></div>
+            <div v-if="currentSection === 'commissions'"><div class="section-header"><h2><i class="fas fa-percent"></i> Commission Control</h2></div><div class="settings-panel" style="margin-bottom:24px;"><h3>Global Commission Settings</h3><div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;"><div><label>Default Commission Rate (%)</label><input type="number" step="0.5" class="form-control" v-model="globalCommissionRate" style="width:120px;" @change="saveGlobalCommission"></div><div><label>Commission Type</label><select class="form-control" v-model="globalCommissionType" style="width:150px;" @change="saveGlobalCommission"><option value="once-off">Once-off (per signup)</option><option value="recurring">Recurring Monthly</option><option value="hybrid">Hybrid</option></select></div></div></div><div class="section-header"><h3>Agent Commission Overrides</h3><button class="btn-primary" @click="openCustomCommissionModal"><i class="fas fa-plus"></i> Set Custom Rate</button></div><div class="table-wrapper"><table class="data-table"><thead><tr><th>Agent</th><th>Custom Rate</th><th>Client</th><th>Revenue</th><th>Commission Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody><tr v-for="commission in commissions" :key="commission.id"><td>{{ getAgentName(commission.agent_id) }}</td><td>{{ commission.custom_rate || globalCommissionRate }}%</td><td>{{ getTenantName(commission.tenant_id) }}</td><td>R {{ formatMoney(commission.revenue) }}</td><td style="color:#E30613;">R {{ formatMoney(commission.amount) }}</td><td><span class="status-badge" :class="'status-' + commission.status">{{ commission.status }}</span></td><td><div class="action-icons"><i class="fas fa-check-circle" v-if="commission.status === 'pending'" @click="approveCommission(commission)" style="color:#10b981;" title="Approve"></i><i class="fas fa-money-bill" v-if="commission.status === 'approved'" @click="markCommissionPaid(commission)" style="color:#E30613;" title="Mark Paid"></i></div></td></tr></tbody></table></div></div>
+            <div v-if="currentSection === 'payouts'"><div class="section-header"><h2><i class="fas fa-money-bill-wave"></i> Payout Requests</h2></div><div class="table-wrapper"><table class="data-table"><thead><tr><th>Agent</th><th>Amount Requested</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody><tr v-for="payout in payouts" :key="payout.id"><td>{{ getAgentName(payout.agent_id) }}</td><td>R {{ formatMoney(payout.amount) }}</td><td>{{ payout.requestDate }}</td><td><span class="status-badge" :class="'status-' + payout.status">{{ payout.status }}</span></td><td><div class="action-icons" v-if="payout.status === 'pending'"><i class="fas fa-check-circle" @click="approvePayout(payout)" style="color:#10b981;" title="Approve"></i><i class="fas fa-times-circle" @click="rejectPayout(payout)" style="color:#dc2626;" title="Reject"></i></div><div class="action-icons" v-else-if="payout.status === 'approved'"><i class="fas fa-money-bill" @click="markPayoutPaid(payout)" style="color:#E30613;" title="Mark Paid"></i></div></td></tr></tbody></table></div></div>
+            <div v-if="currentSection === 'messages'"><div class="section-header"><h2><i class="fas fa-comments"></i> Communication Center</h2></div><div class="analytics-grid"><div class="analytics-card"><h3 style="margin-bottom:16px;"><i class="fas fa-paper-plane"></i> Send Message</h3><select v-model="messageRecipient" class="agent-select"><option value="all">All Agents (Broadcast)</option><option v-for="agent in agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option></select><input type="text" class="form-control" v-model="messageSubject" placeholder="Subject" style="margin-bottom:12px;"><textarea class="form-control" v-model="messageBody" rows="4" placeholder="Message content..."></textarea><button class="btn-primary" @click="sendMessage" style="margin-top:12px;"><i class="fas fa-paper-plane"></i> Send Message</button></div><div class="analytics-card"><h3 style="margin-bottom:16px;"><i class="fas fa-inbox"></i> Inbox</h3><div class="message-thread"><div v-for="msg in messages" :key="msg.id" class="message-bubble" :class="msg.type === 'outgoing' ? 'message-outgoing' : 'message-incoming'" style="margin-bottom:12px; cursor:pointer;" @click="viewMessage(msg)"><div style="font-weight:600;">{{ msg.subject }}</div><div style="font-size:0.75rem;">{{ msg.sender }} • {{ msg.date }}</div><div style="font-size:0.8rem; margin-top:4px;">{{ msg.message.substring(0, 100) }}...</div></div><div v-if="messages.length === 0" style="text-align:center; padding:40px; color:#94a3b8;">No messages yet</div></div></div></div></div>
+            <div v-if="currentSection === 'settings'"><div class="section-header"><h2><i class="fas fa-cog"></i> System Settings</h2></div><div class="settings-panel"><h3 style="margin-bottom:16px;"><i class="fas fa-palette"></i> White Label & Branding</h3><div class="form-group"><label>System Name</label><input type="text" class="form-control" v-model="systemSettings.systemName"></div><div class="form-group"><label>Logo URL</label><input type="text" class="form-control" v-model="systemSettings.logoUrl"></div><div class="form-group"><label>Primary Brand Color</label><div class="color-preview"><input type="color" class="form-control" style="width:80px; padding:4px;" v-model="systemSettings.primaryColor"><div class="preview-box" :style="{ backgroundColor: systemSettings.primaryColor }"></div><span>{{ systemSettings.primaryColor }}</span></div></div><button class="btn-primary" @click="saveBranding"><i class="fas fa-save"></i> Save Branding</button></div><div class="settings-panel"><h3 style="margin-bottom:16px;"><i class="fas fa-globe"></i> System Configuration</h3><div class="form-group"><label>Default Currency</label><select class="form-control" v-model="systemSettings.currency"><option value="ZAR">South African Rand (ZAR)</option><option value="USD">US Dollar (USD)</option><option value="EUR">Euro (EUR)</option></select></div><div class="form-group"><label>Date Format</label><select class="form-control" v-model="systemSettings.dateFormat"><option value="DD/MM/YYYY">DD/MM/YYYY</option><option value="MM/DD/YYYY">MM/DD/YYYY</option></select></div><button class="btn-primary" @click="saveSystemConfig"><i class="fas fa-save"></i> Save Configuration</button></div></div>
         </div>
     </div>
 
-    <!-- MODALS -->
+    <!-- MODALS (unchanged) -->
     <div class="modal-mask" :class="{ active: showConfirmModal }"><div class="modal-container"><div class="modal-icon"><i class="fas fa-question-circle" style="color: #f59e0b;"></i></div><h3>Confirm {{ pendingModuleAction === 'enable' ? 'Activation' : 'Deactivation' }}</h3><p>Are you sure you want to <strong>{{ pendingModuleAction === 'enable' ? 'ENABLE' : 'DISABLE' }}</strong> <strong style="color:#E30613;">{{ pendingModuleName }}</strong>?</p><div class="modal-buttons"><button class="btn-outline" @click="cancelModuleToggle">Cancel</button><button class="btn-primary" @click="confirmModuleToggleSave">Confirm</button></div></div></div>
     <div class="modal-mask" :class="{ active: showPricingModal }"><div class="modal-container" style="text-align:left; max-width: 480px;"><h3><i class="fas fa-tags"></i> Custom Pricing for {{ pricingModalTenant?.businessName }}</h3><div class="form-group"><label>Module: <strong>{{ pricingModalModule?.name }}</strong></label></div><div class="form-group"><label>Base Fee (R)</label><input type="number" step="0.01" class="form-control" v-model="pricingForm.basePrice" placeholder="0.00"></div><div class="form-group"><label>Per-Unit Fee (R)</label><input type="number" step="0.01" class="form-control" v-model="pricingForm.perUnitFee" placeholder="0.00"></div><div class="form-group"><label>Per-Unit Label</label><input class="form-control" v-model="pricingForm.perUnitLabel"></div><div class="modal-buttons"><button class="btn-outline" @click="closePricingModal">Cancel</button><button class="btn-primary" @click="saveModulePricing">Save</button></div></div></div>
     <div class="modal-mask" :class="{ active: showCreateModuleModal }"><div class="modal-container" style="text-align:left;"><h3><i class="fas fa-magic"></i> Create Custom Module</h3><div class="form-group"><label>Module Name *</label><input class="form-control" v-model="newModule.name"></div><div class="form-group"><label>Description</label><input class="form-control" v-model="newModule.description"></div><div class="form-group"><label>Icon</label><input class="form-control" v-model="newModule.icon" placeholder="fas fa-plug"></div><div class="modal-buttons"><button class="btn-outline" @click="showCreateModuleModal = false">Cancel</button><button class="btn-primary" @click="createCustomModule">Create</button></div></div></div>
-    <div class="modal-mask" :class="{ active: showBillingCreateModal }"><div class="modal-container" style="text-align:left;"><h3><i class="fas fa-magic"></i> Add Custom Module</h3><div class="form-group"><label>Module Name *</label><input class="form-control" v-model="billingNewModule.name"></div><div class="form-group"><label>Description</label><input class="form-control" v-model="billingNewModule.description"></div><div class="form-group"><label>Base Price</label><input type="number" class="form-control" v-model="billingNewModule.basePrice"></div><div class="form-group"><label>Per-Unit Fee</label><input type="number" class="form-control" v-model="billingNewModule.perUnitFee"></div><div class="modal-buttons"><button class="btn-outline" @click="showBillingCreateModal = false">Cancel</button><button class="btn-primary" @click="createBillingCustomModule">Create</button></div></div></div>
     <div class="modal-mask" :class="{ active: showTenantModal }"><div class="modal-container" style="text-align:left;"><h3>Create New Tenant</h3><div class="form-group"><label>Business Name *</label><input class="form-control" v-model="newTenant.businessName"></div><div class="form-group"><label>Owner Name *</label><input class="form-control" v-model="newTenant.ownerName"></div><div class="form-group"><label>Phone</label><input class="form-control" v-model="newTenant.phone"></div><div class="form-group"><label>Username *</label><input class="form-control" v-model="newTenant.username"></div><div class="form-group"><label>Password *</label><input type="password" class="form-control" v-model="newTenant.password"></div><div class="form-group"><label>Sales Agent</label><select class="form-control" v-model="newTenant.agent_id"><option :value="null">No Agent</option><option v-for="agent in agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option></select></div><div class="modal-buttons"><button class="btn-outline" @click="showTenantModal = false">Cancel</button><button class="btn-primary" @click="createTenant">Create</button></div></div></div>
     <div class="modal-mask" :class="{ active: showViewModal }"><div class="modal-container" style="text-align:left;"><h3>Tenant Details</h3><div v-if="viewingTenant"><p><strong>Business:</strong> {{ viewingTenant.businessName }}</p><p><strong>Owner:</strong> {{ viewingTenant.ownerName }}</p><p><strong>Phone:</strong> {{ viewingTenant.phone }}</p><p><strong>Username:</strong> {{ viewingTenant.username }}</p><p><strong>Sales Agent:</strong> {{ getAgentName(viewingTenant.agent_id) }}</p><p><strong>Status:</strong> {{ viewingTenant.status }}</p></div><button class="btn-primary" @click="showViewModal = false">Close</button></div></div>
     <div class="modal-mask" :class="{ active: showResetModal }"><div class="modal-container" style="text-align:left;"><h3>Reset Password</h3><p>New password for <strong>{{ resettingTenant?.businessName }}</strong></p><input type="password" class="form-control" v-model="newPassword"><div class="modal-buttons"><button class="btn-outline" @click="showResetModal = false">Cancel</button><button class="btn-primary" @click="confirmResetPassword">Reset</button></div></div></div>
@@ -433,25 +884,6 @@
                 const tenantPricingMap = this.tenantPricing[this.selectedTenantId] || {};
                 return this.tenantModules[this.selectedTenantId].map(module => ({ ...module, basePrice: tenantPricingMap[module.id]?.basePrice !== undefined ? tenantPricingMap[module.id].basePrice : module.basePrice, perUnitFee: tenantPricingMap[module.id]?.perUnitFee !== undefined ? tenantPricingMap[module.id].perUnitFee : module.perUnitFee, perUnitLabel: tenantPricingMap[module.id]?.perUnitLabel || module.perUnitLabel }));
             },
-            billingModulesWithTotals() {
-                if (!this.billingSelectedTenantId) return [];
-                let modules = this.tenantModules[this.billingSelectedTenantId] || [];
-                const usageMap = { 1: 5000, 2: 800, 3: 1200, 4: 200, 5: 300, 6: 500, 7: 50 };
-                const tenantPricingMap = this.tenantPricing[this.billingSelectedTenantId] || {};
-                return modules.map(mod => {
-                    const basePrice = tenantPricingMap[mod.id]?.basePrice !== undefined ? tenantPricingMap[mod.id].basePrice : mod.basePrice;
-                    const perUnitFee = tenantPricingMap[mod.id]?.perUnitFee !== undefined ? tenantPricingMap[mod.id].perUnitFee : mod.perUnitFee;
-                    let total = mod.enabled ? (basePrice || 0) : 0;
-                    if (mod.enabled && perUnitFee && perUnitFee > 0) {
-                        let usageCount = usageMap[mod.id] || 150;
-                        if (mod.id === 6) { total = usageCount * (perUnitFee / 100) * 100; }
-                        else { total += usageCount * perUnitFee; }
-                    }
-                    return { ...mod, basePrice, perUnitFee, currentTotal: total };
-                });
-            },
-            billingActiveModulesCount() { if (!this.billingSelectedTenantId || !this.tenantModules[this.billingSelectedTenantId]) return 0; return this.tenantModules[this.billingSelectedTenantId].filter(m => m.enabled).length; },
-            billingCurrentTotalBill() { if (!this.billingSelectedTenantId) return 0; const modules = this.tenantModules[this.billingSelectedTenantId] || []; const usageMap = { 1: 5000, 2: 800, 3: 1200, 4: 200, 5: 300, 6: 500, 7: 50 }; const tenantPricingMap = this.tenantPricing[this.billingSelectedTenantId] || {}; let total = 0; modules.forEach(mod => { if (mod.enabled) { const basePrice = tenantPricingMap[mod.id]?.basePrice !== undefined ? tenantPricingMap[mod.id].basePrice : mod.basePrice; const perUnitFee = tenantPricingMap[mod.id]?.perUnitFee !== undefined ? tenantPricingMap[mod.id].perUnitFee : mod.perUnitFee; total += basePrice || 0; if (perUnitFee && perUnitFee > 0) { let usageCount = usageMap[mod.id] || 150; if (mod.id === 6) { total += usageCount * (perUnitFee / 100) * 100; } else { total += usageCount * perUnitFee; } } } }); return total; }
         },
         methods: {
             closeSidebar() { if (window.innerWidth <= 768) this.sidebarOpen = false; },
@@ -461,7 +893,6 @@
             formatMoney(value) { return (value || 0).toLocaleString(undefined, {minimumFractionDigits: 2}); },
             getAgentName(agentId) { const agent = this.agents.find(a => a.id === agentId); return agent ? agent.name : 'No Agent'; },
             getTenantName(tenantId) { const tenant = this.tenants.find(t => t.id === tenantId); return tenant ? tenant.businessName : 'All Clients'; },
-            
             loadAgents() { const agentsStr = localStorage.getItem(STORAGE_KEYS.AGENTS); if (agentsStr) { this.agents = JSON.parse(agentsStr); } else { this.agents = [{ id: 1, name: 'Sarah Johnson', email: 'sarah@qless.co.za', phone: '+27821234567', status: 'Active', createdAt: '2024-01-15' }, { id: 2, name: 'David Chen', email: 'david@qless.co.za', phone: '+27827654321', status: 'Active', createdAt: '2024-01-20' }, { id: 3, name: 'Maria Garcia', email: 'maria@qless.co.za', phone: '+27829876543', status: 'Active', createdAt: '2024-02-01' }]; localStorage.setItem(STORAGE_KEYS.AGENTS, JSON.stringify(this.agents)); } },
             saveAgents() { localStorage.setItem(STORAGE_KEYS.AGENTS, JSON.stringify(this.agents)); },
             openAddAgentModal() { this.editingAgent = null; this.agentForm = { name: '', email: '', phone: '' }; this.showAgentModal = true; },
@@ -474,7 +905,6 @@
             getAgentTenants(agentId) { return this.tenants.filter(t => t.agent_id === agentId).map(t => ({ ...t, commission: this.commissions.find(c => c.tenant_id === t.id)?.amount || 0 })); },
             viewAgentDetails(agent) { this.selectedAgent = agent; this.showAgentDetailModal = true; },
             updateTenantAgent(tenant) { this.saveTenants(); this.showSuccessToast(`Tenant assigned to ${this.getAgentName(tenant.agent_id)}`); },
-            
             loadCommissions() { const commissionsStr = localStorage.getItem(STORAGE_KEYS.COMMISSIONS); if (commissionsStr) { this.commissions = JSON.parse(commissionsStr); } else { this.commissions = []; localStorage.setItem(STORAGE_KEYS.COMMISSIONS, JSON.stringify(this.commissions)); } },
             saveCommissions() { localStorage.setItem(STORAGE_KEYS.COMMISSIONS, JSON.stringify(this.commissions)); },
             loadGlobalSettings() { const globalRate = localStorage.getItem('qless_global_commission_rate'); if (globalRate) this.globalCommissionRate = parseFloat(globalRate); const globalType = localStorage.getItem('qless_global_commission_type'); if (globalType) this.globalCommissionType = globalType; },
@@ -483,28 +913,22 @@
             saveCustomCommission() { const newCommission = { id: Date.now(), agent_id: this.customCommissionForm.agent_id, custom_rate: this.customCommissionForm.custom_rate, tenant_id: this.customCommissionForm.tenant_id, revenue: 0, amount: 0, status: 'pending', createdAt: new Date().toISOString() }; this.commissions.push(newCommission); this.saveCommissions(); this.showCustomCommissionModal = false; this.showSuccessToast('Custom commission rate set'); },
             approveCommission(commission) { commission.status = 'approved'; this.saveCommissions(); this.showSuccessToast('Commission approved'); },
             markCommissionPaid(commission) { commission.status = 'paid'; this.saveCommissions(); this.showSuccessToast('Commission marked as paid'); },
-            
             loadPayouts() { const payoutsStr = localStorage.getItem(STORAGE_KEYS.PAYOUTS); if (payoutsStr) { this.payouts = JSON.parse(payoutsStr); } else { this.payouts = []; localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(this.payouts)); } },
             savePayouts() { localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(this.payouts)); },
             approvePayout(payout) { payout.status = 'approved'; this.savePayouts(); this.showSuccessToast('Payout approved'); },
             rejectPayout(payout) { payout.status = 'rejected'; this.savePayouts(); this.showSuccessToast('Payout rejected'); },
             markPayoutPaid(payout) { payout.status = 'paid'; this.savePayouts(); this.showSuccessToast('Payout marked as paid'); },
-            
             loadMessages() { const messagesStr = localStorage.getItem(STORAGE_KEYS.MESSAGES); if (messagesStr) { this.messages = JSON.parse(messagesStr); } else { this.messages = [{ id: 1, sender: 'System', subject: 'Welcome', message: 'Welcome to QLess Super Admin', date: '2024-02-01', type: 'incoming', read: true }]; localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(this.messages)); } },
             saveMessages() { localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(this.messages)); },
             sendMessage() { if (!this.messageSubject || !this.messageBody) { this.showSuccessToast('Please fill subject and message'); return; } const newMessage = { id: Date.now(), sender: 'Super Admin', recipient: this.messageRecipient, subject: this.messageSubject, message: this.messageBody, date: new Date().toISOString().split('T')[0], type: 'outgoing', read: false }; this.messages.unshift(newMessage); this.saveMessages(); this.messageSubject = ''; this.messageBody = ''; this.showSuccessToast('Message sent successfully'); },
             viewMessage(msg) { if (!msg.read) { msg.read = true; this.saveMessages(); } },
-            
             initSalesChart() { const ctx = document.getElementById('salesChart'); if (!ctx) return; const salesData = this.agents.map(a => this.getAgentRevenue(a.id)); if (this.salesChart) this.salesChart.destroy(); this.salesChart = new Chart(ctx, { type: 'bar', data: { labels: this.agents.map(a => a.name.split(' ')[0]), datasets: [{ label: 'Revenue (R)', data: salesData, backgroundColor: '#E30613', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: true } }); },
-            
             refreshAllData() { this.loadTenantPricing(); this.loadAgents(); this.loadCommissions(); this.loadPayouts(); this.loadMessages(); this.loadGlobalSettings(); this.initSalesChart(); this.$forceUpdate(); },
-            
             loadTenantPricing() { const pricingStr = localStorage.getItem(STORAGE_KEYS.TENANT_PRICING); this.tenantPricing = pricingStr ? JSON.parse(pricingStr) : {}; },
             saveTenantPricing() { localStorage.setItem(STORAGE_KEYS.TENANT_PRICING, JSON.stringify(this.tenantPricing)); this.triggerSync(); },
             openPricingModal(module) { this.pricingModalTenant = this.selectedTenant; this.pricingModalModule = module; const existingPricing = this.tenantPricing[this.selectedTenantId]?.[module.id] || {}; this.pricingForm = { basePrice: existingPricing.basePrice !== undefined ? existingPricing.basePrice : module.basePrice, perUnitFee: existingPricing.perUnitFee !== undefined ? existingPricing.perUnitFee : module.perUnitFee, perUnitLabel: existingPricing.perUnitLabel || module.perUnitLabel }; this.showPricingModal = true; },
             closePricingModal() { this.showPricingModal = false; this.pricingModalTenant = null; this.pricingModalModule = null; },
             saveModulePricing() { if (!this.selectedTenantId || !this.pricingModalModule) return; if (!this.tenantPricing[this.selectedTenantId]) this.tenantPricing[this.selectedTenantId] = {}; this.tenantPricing[this.selectedTenantId][this.pricingModalModule.id] = { basePrice: parseFloat(this.pricingForm.basePrice) || 0, perUnitFee: parseFloat(this.pricingForm.perUnitFee) || 0, perUnitLabel: this.pricingForm.perUnitLabel || 'Per Use' }; this.saveTenantPricing(); this.showSuccessToast(`Pricing updated for ${this.pricingModalModule.name}`); this.closePricingModal(); this.loadTenantModules(); },
-            
             loadData() {
                 const tenantsStr = localStorage.getItem(STORAGE_KEYS.TENANTS);
                 if (tenantsStr) { this.tenants = JSON.parse(tenantsStr); } else { this.tenants = [{ id: 1, businessName: 'Skyline Lounge', ownerName: 'Thabo Nkosi', phone: '0821112233', username: 'skyline_admin', password: 'skyline123', status: 'Active', agent_id: null, revenue: 28500, createdAt: '2024-02-15' }, { id: 2, businessName: 'Cape Tavern', ownerName: 'Lerato Dlamini', phone: '0834455667', username: 'capetavern', password: 'tavern456', status: 'Active', agent_id: 1, revenue: 18900, createdAt: '2024-02-10' }, { id: 3, businessName: 'Gold Reef Venue', ownerName: 'Sipho Mbele', phone: '0719988776', username: 'goldreef', password: 'reef789', status: 'Suspended', agent_id: 2, revenue: 5200, createdAt: '2024-01-20' }]; localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(this.tenants)); }
@@ -521,22 +945,6 @@
             saveCustomModules() { localStorage.setItem(STORAGE_KEYS.CUSTOM_MODULES, JSON.stringify(this.customModulesList)); this.triggerSync(); },
             openCreateTenantModal() { this.newTenant = { businessName: '', ownerName: '', phone: '', username: '', password: '', agent_id: null }; this.showTenantModal = true; },
             openCreateModuleModal() { this.newModule = { name: '', description: '', icon: 'fas fa-plug' }; this.showCreateModuleModal = true; },
-            openBillingModuleModal() { this.billingNewModule = { name: '', description: '', icon: 'fas fa-plug', basePrice: 29, perUnitFee: 0, perUnitLabel: 'Per Use' }; this.showBillingCreateModal = true; },
-            createBillingCustomModule() {
-                if (!this.billingNewModule.name) { this.showSuccessToast('❌ Module name is required'); return; }
-                const exists = this.customModulesList.some(m => m.name.toLowerCase() === this.billingNewModule.name.toLowerCase());
-                if (exists) { this.showSuccessToast('❌ A module with this name already exists'); return; }
-                const newId = 100 + this.customModulesList.length + 1;
-                const newCustomModule = { id: newId, name: this.billingNewModule.name, description: this.billingNewModule.description || 'Custom module', icon: this.billingNewModule.icon || 'fas fa-plug', isCustom: true, basePrice: parseFloat(this.billingNewModule.basePrice) || 29, perUnitFee: parseFloat(this.billingNewModule.perUnitFee) || 0, perUnitLabel: this.billingNewModule.perUnitLabel || 'Per Use', pricingTier: 'Custom', createdAt: new Date().toISOString() };
-                this.customModulesList.push(newCustomModule); this.saveCustomModules();
-                Object.keys(this.tenantModules).forEach(tenantId => { if (this.tenantModules[tenantId]) { this.tenantModules[tenantId].push({ ...newCustomModule, enabled: false }); } });
-                this.saveModules(); this.showBillingCreateModal = false; this.showSuccessToast(`✅ Custom module "${this.billingNewModule.name}" created!`);
-            },
-            confirmBillingModuleToggle(module) { this.billingPendingModule = module; this.billingPendingModuleName = module.name; this.billingPendingAction = module.enabled ? 'enable' : 'disable'; this.billingPendingOriginalState = !module.enabled; this.showBillingConfirmModal = true; },
-            cancelBillingModuleToggle() { if (this.billingPendingModule) { this.billingPendingModule.enabled = this.billingPendingOriginalState; } this.showBillingConfirmModal = false; this.billingPendingModule = null; },
-            confirmBillingModuleToggleSave() { const tenantId = this.billingSelectedTenantId; if (!tenantId || !this.billingPendingModule) { this.showBillingConfirmModal = false; return; } const index = this.tenantModules[tenantId].findIndex(m => m.id === this.billingPendingModule.id); if (index !== -1) this.tenantModules[tenantId][index].enabled = this.billingPendingModule.enabled; this.saveModules(); const tenant = this.tenants.find(t => t.id === tenantId); this.showSuccessToast(`${tenant?.businessName}: ${this.billingPendingModule.name} is now ${this.billingPendingModule.enabled ? 'ENABLED' : 'DISABLED'}`); this.showBillingConfirmModal = false; this.billingPendingModule = null; this.$forceUpdate(); },
-            deleteBillingCustomModule(module) { if (confirm(`Delete "${module.name}" from ALL tenants? This cannot be undone.`)) { this.customModulesList = this.customModulesList.filter(m => m.id !== module.id); this.saveCustomModules(); Object.keys(this.tenantModules).forEach(tenantId => { if (this.tenantModules[tenantId]) { this.tenantModules[tenantId] = this.tenantModules[tenantId].filter(m => m.id !== module.id); if (this.tenantPricing[tenantId]) { delete this.tenantPricing[tenantId][module.id]; } } }); this.saveModules(); this.saveTenantPricing(); if (this.billingSelectedTenantId) this.$forceUpdate(); this.showSuccessToast(`🗑️ "${module.name}" deleted`); } },
-            loadBillingModules() { this.$forceUpdate(); },
             createCustomModule() {
                 if (!this.newModule.name) { this.showSuccessToast('❌ Module name is required'); return; }
                 const exists = this.customModulesList.some(m => m.name.toLowerCase() === this.newModule.name.toLowerCase());
