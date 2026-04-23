@@ -31,6 +31,8 @@
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
         .chart-card { background: white; border-radius: 20px; padding: 20px; margin-top: 20px; border: 1px solid #edf2f7; }
+        .logout-btn { background: transparent; border: none; color: #E30613; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 40px; }
+        .logout-btn:hover { background: #fff0f0; }
     </style>
 </head>
 <body>
@@ -45,7 +47,11 @@
         <div class="nav-item" @click="navigateTo('messages')"><i class="fas fa-envelope"></i> Messages</div>
     </aside>
     <div class="main-content">
-        <div class="top-header"><div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div><h3>Commission Earnings</h3></div>
+        <div class="top-header">
+            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+            <h3>Commission Earnings</h3>
+            <button class="logout-btn" @click="logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
         
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-value">R {{ formatMoney(totalEarned) }}</div><div>Total Earned</div></div>
@@ -74,7 +80,8 @@
 </div>
 
 <script>
-    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id'));
+    if (!agentId) { window.location.href = '../login.html'; }
     
     function loadCommissions() {
         const stored = localStorage.getItem('qless_commissions');
@@ -103,6 +110,7 @@
         },
         methods: {
             navigateTo(page) { window.location.href = page + '.html'; },
+            logout() { sessionStorage.clear(); window.location.href = '../login.html'; },
             formatMoney(v) { return (v || 0).toLocaleString(undefined, {minimumFractionDigits: 2}); },
             getClientName(id) { const client = this.tenants.find(t => t.id === id); return client ? client.businessName : 'Unknown'; },
             initChart() {

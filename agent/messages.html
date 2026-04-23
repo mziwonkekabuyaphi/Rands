@@ -32,6 +32,8 @@
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } .messages-grid { grid-template-columns: 1fr; height: auto; } .messages-list { max-height: 300px; } }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
         .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; }
+        .logout-btn { background: transparent; border: none; color: #E30613; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 40px; }
+        .logout-btn:hover { background: #fff0f0; }
     </style>
 </head>
 <body>
@@ -49,7 +51,10 @@
         <div class="top-header">
             <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
             <h3>Messages</h3>
-            <button class="btn-primary" @click="markAllRead"><i class="fas fa-check-double"></i> Mark all read</button>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-primary" @click="markAllRead"><i class="fas fa-check-double"></i> Mark all read</button>
+                <button class="logout-btn" @click="logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
         </div>
         
         <div class="messages-grid">
@@ -70,20 +75,18 @@
 </div>
 
 <script>
-    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id'));
+    if (!agentId) { window.location.href = '../login.html'; }
     
     function loadMessages() {
         const stored = localStorage.getItem('qless_messages');
         const allMessages = stored ? JSON.parse(stored) : [];
-        // Filter messages for this agent (all messages or just those where recipient is this agent or 'all')
         return allMessages.filter(m => m.recipient === 'all' || m.recipient === agentId || m.recipient === String(agentId));
     }
     
     function saveMessages(messages) {
-        // Merge with existing to preserve other agents' messages
         const stored = localStorage.getItem('qless_messages');
         let allMessages = stored ? JSON.parse(stored) : [];
-        // Remove old entries for this agent's personal messages (keep announcements)
         allMessages = allMessages.filter(m => !(m.recipient !== 'all' && (m.recipient === agentId || m.recipient === String(agentId))));
         allMessages.push(...messages);
         localStorage.setItem('qless_messages', JSON.stringify(allMessages));
@@ -103,6 +106,7 @@
         },
         methods: {
             navigateTo(page) { window.location.href = page + '.html'; },
+            logout() { sessionStorage.clear(); window.location.href = '../login.html'; },
             selectMessage(msg) {
                 this.selectedMessage = msg;
                 if (!msg.read) {

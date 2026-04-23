@@ -40,6 +40,8 @@
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
         .toast { position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white; padding: 12px 24px; border-radius: 40px; font-size: 0.85rem; z-index: 1000; }
+        .logout-btn { background: transparent; border: none; color: #E30613; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 40px; }
+        .logout-btn:hover { background: #fff0f0; }
     </style>
 </head>
 <body>
@@ -57,7 +59,10 @@
         <div class="top-header">
             <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
             <h3>Lead Management</h3>
-            <button class="btn-primary" @click="openAddLeadModal"><i class="fas fa-plus"></i> Add Lead</button>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-primary" @click="openAddLeadModal"><i class="fas fa-plus"></i> Add Lead</button>
+                <button class="logout-btn" @click="logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
         </div>
         
         <div class="stats-grid">
@@ -90,7 +95,6 @@
         </div>
     </div>
 
-    <!-- Modal -->
     <div class="modal-mask" :class="{ active: showModal }">
         <div class="modal-container">
             <h3>{{ editingLead ? 'Edit Lead' : 'Add Lead' }}</h3>
@@ -107,14 +111,12 @@
 </div>
 
 <script>
-    const STORAGE_KEYS = {
-        TENANTS: 'qless_tenants',
-        AGENTS: 'qless_agents'
-    };
-
-    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
-    const leadsKey = `qless_agent_leads_${agentId}`;
+    const STORAGE_KEYS = { TENANTS: 'qless_tenants', AGENTS: 'qless_agents' };
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id'));
     
+    if (!agentId) { window.location.href = '../login.html'; }
+    
+    const leadsKey = `qless_agent_leads_${agentId}`;
     let leads = JSON.parse(localStorage.getItem(leadsKey) || '[]');
     if (leads.length === 0) {
         leads = [
@@ -136,6 +138,7 @@
         },
         methods: {
             navigateTo(page) { window.location.href = page + '.html'; },
+            logout() { sessionStorage.clear(); window.location.href = '../login.html'; },
             showToast(msg) { this.toastMessage = msg; setTimeout(() => { this.toastMessage = ''; }, 3000); },
             openAddLeadModal() { this.editingLead = null; this.leadForm = { businessName: '', contactPerson: '', phone: '', industry: 'club', status: 'New', notes: '' }; this.showModal = true; },
             editLead(lead) { this.editingLead = lead; this.leadForm = { ...lead }; this.showModal = true; },
@@ -154,7 +157,6 @@
             convertLead(lead) {
                 if (!confirm(`Convert "${lead.businessName}" to a tenant? This will create a new client account.`)) return;
                 
-                // Create actual tenant in Super Admin's storage
                 const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
                 const newId = tenants.length > 0 ? Math.max(...tenants.map(t => t.id)) + 1 : 1;
                 
@@ -174,12 +176,10 @@
                 tenants.push(newTenant);
                 localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants));
                 
-                // Update lead status
                 lead.status = 'Converted';
                 lead.convertedAt = new Date().toISOString().split('T')[0];
                 localStorage.setItem(leadsKey, JSON.stringify(this.leads));
                 
-                // Create a commission record
                 const commissions = JSON.parse(localStorage.getItem('qless_commissions') || '[]');
                 commissions.push({
                     id: Date.now(),
@@ -196,6 +196,9 @@
                 setTimeout(() => { location.reload(); }, 1500);
             },
             closeModal() { this.showModal = false; }
+        },
+        mounted() {
+            window.addEventListener('resize', () => { if (window.innerWidth > 768) this.sidebarOpen = false; });
         }
     });
 </script>
