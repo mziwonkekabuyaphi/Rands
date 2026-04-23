@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>QLess | My Clients</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fb; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: #ffffff; border-right: 1px solid #edf2f7; overflow-y: auto; }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #eff3f8; }
+        .sidebar-header h2 { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg, #E30613, #9f0110); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; color: #4a5568; cursor: pointer; transition: 0.2s; }
+        .nav-item:hover { background: #fff0f0; color: #E30613; }
+        .nav-item.active { background: #E30613; color: white; }
+        .main-content { margin-left: 280px; padding: 28px 32px; }
+        .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; margin: -28px -32px 28px -32px; padding: 14px 32px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 28px; }
+        .stat-card { background: white; border-radius: 20px; padding: 16px 20px; border: 1px solid #edf2f7; }
+        .stat-number { font-size: 1.6rem; font-weight: 800; color: #E30613; }
+        .table-wrapper { overflow-x: auto; background: white; border-radius: 20px; border: 1px solid #edf2f7; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        .data-table th, .data-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        .module-badge { background: #fff0f0; color: #E30613; padding: 4px 8px; border-radius: 20px; font-size: 0.7rem; display: inline-block; margin: 2px; }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } }
+        .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
+        <div class="sidebar-header"><h2>QLess Systems</h2><p>Sales Agent Portal</p></div>
+        <div class="nav-item" @click="navigateTo('sales-dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+        <div class="nav-item" @click="navigateTo('leads')"><i class="fas fa-users"></i> Leads</div>
+        <div class="nav-item active"><i class="fas fa-store"></i> My Clients</div>
+        <div class="nav-item" @click="navigateTo('earnings')"><i class="fas fa-chart-line"></i> Earnings</div>
+        <div class="nav-item" @click="navigateTo('payouts')"><i class="fas fa-credit-card"></i> Payouts</div>
+        <div class="nav-item" @click="navigateTo('messages')"><i class="fas fa-envelope"></i> Messages</div>
+    </aside>
+    <div class="main-content">
+        <div class="top-header"><div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div><h3>My Clients</h3></div>
+        
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number">{{ clients.length }}</div><div>Total Clients</div></div>
+            <div class="stat-card"><div class="stat-number">{{ clients.filter(c => c.status === 'active').length }}</div><div>Active</div></div>
+            <div class="stat-card"><div class="stat-number">R {{ formatMoney(totalRevenue) }}</div><div>Total Revenue</div></div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>Business</th><th>Modules</th><th>Revenue</th><th>Commission</th><th>Joined</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr v-for="client in clients" :key="client.id">
+                        <td><strong>{{ client.name }}</strong></span></span></td>
+                        <td><span v-for="mod in client.modules" :key="mod" class="module-badge">{{ mod }}</span></span></span></td>
+                        <td>R {{ formatMoney(client.revenue) }}</span></span></td>
+                        <td style="color:#10b981;">R {{ formatMoney(client.commission) }}</span></span></td>
+                        <td>{{ client.joinedDate }}</span></span></td>
+                        <td><span class="status-badge" :class="client.status === 'active' ? 'status-active' : 'status-inactive'">{{ client.status }}</span></span></span></td>
+                    </span></span></tr>
+                </tbody>
+            </span></span></table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let clients = JSON.parse(localStorage.getItem('qless_agent_clients') || '[]');
+    if (clients.length === 0) {
+        clients = [{ id: 1, name: 'Club Nova', modules: ['Tickets', 'Queue'], revenue: 28500, commission: 2850, status: 'active', joinedDate: '2024-02-15' }];
+        localStorage.setItem('qless_agent_clients', JSON.stringify(clients));
+    }
+
+    new Vue({
+        el: '#app',
+        data: { sidebarOpen: false, clients: clients },
+        computed: { totalRevenue() { return this.clients.reduce((s, c) => s + c.revenue, 0); } },
+        methods: {
+            navigateTo(page) { window.location.href = page + '.html'; },
+            formatMoney(v) { return v.toLocaleString(undefined, {minimumFractionDigits: 2}); }
+        }
+    });
+</script>
+</body>
+</html>
