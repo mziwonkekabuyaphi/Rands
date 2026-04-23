@@ -27,7 +27,7 @@
         .status-badge { padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
         .status-New { background: #e0f2fe; color: #0284c7; }
         .status-Contacted { background: #fef3c7; color: #d97706; }
-        .status-Demo Booked { background: #d1fae5; color: #059669; }
+        .status-DemoBooked { background: #d1fae5; color: #059669; }
         .status-Converted { background: #dcfce7; color: #10b981; }
         .status-Lost { background: #fee2e2; color: #dc2626; }
         .btn-primary { background: #E30613; color: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-weight: 500; }
@@ -39,6 +39,7 @@
         .form-control { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 40px; margin-bottom: 16px; }
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white; padding: 12px 24px; border-radius: 40px; font-size: 0.85rem; z-index: 1000; }
     </style>
 </head>
 <body>
@@ -53,7 +54,11 @@
         <div class="nav-item" @click="navigateTo('messages')"><i class="fas fa-envelope"></i> Messages</div>
     </aside>
     <div class="main-content">
-        <div class="top-header"><div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div><h3>Lead Management</h3><button class="btn-primary" @click="openAddLeadModal"><i class="fas fa-plus"></i> Add Lead</button></div>
+        <div class="top-header">
+            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+            <h3>Lead Management</h3>
+            <button class="btn-primary" @click="openAddLeadModal"><i class="fas fa-plus"></i> Add Lead</button>
+        </div>
         
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-number">{{ leads.length }}</div><div>Total Leads</div></div>
@@ -64,15 +69,21 @@
 
         <div class="table-wrapper">
             <table class="data-table">
-                <thead><tr><th>Business</th><th>Contact</th><th>Phone</th><th>Industry</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+                <thead>
+                    <tr><th>Business</th><th>Contact</th><th>Phone</th><th>Industry</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+                </thead>
                 <tbody>
                     <tr v-for="lead in leads" :key="lead.id">
-                        <td><strong>{{ lead.businessName }}</strong></td><td>{{ lead.contactPerson }}</td>
+                        <td><strong>{{ lead.businessName }}</strong></td>
+                        <td>{{ lead.contactPerson }}</td>
                         <td><a :href="'https://wa.me/' + lead.phone.replace(/[^0-9]/g, '')" target="_blank"><i class="fab fa-whatsapp" style="color:#25D366;"></i> {{ lead.phone }}</a></td>
                         <td>{{ lead.industry }}</td>
-                        <td><span :class="'status-badge status-' + lead.status.replace(/ /g, '')">{{ lead.status }}</span></td>
+                        <td><span :class="'status-badge status-' + (lead.status === 'Demo Booked' ? 'DemoBooked' : lead.status.replace(/ /g, ''))">{{ lead.status }}</span></td>
                         <td>{{ lead.createdAt }}</td>
-                        <td><button class="btn-outline btn-sm" @click="editLead(lead)"><i class="fas fa-edit"></i></button><button class="btn-outline btn-sm" @click="convertLead(lead)" v-if="lead.status !== 'Converted'"><i class="fas fa-exchange-alt"></i> Convert</button></td>
+                        <td>
+                            <button class="btn-outline btn-sm" @click="editLead(lead)"><i class="fas fa-edit"></i></button>
+                            <button class="btn-outline btn-sm" @click="convertLead(lead)" v-if="lead.status !== 'Converted'"><i class="fas fa-exchange-alt"></i> Convert</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -80,41 +91,110 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal-mask" :class="{ active: showModal }"><div class="modal-container"><h3>{{ editingLead ? 'Edit Lead' : 'Add Lead' }}</h3>
-        <input class="form-control" v-model="leadForm.businessName" placeholder="Business Name">
-        <input class="form-control" v-model="leadForm.contactPerson" placeholder="Contact Person">
-        <input class="form-control" v-model="leadForm.phone" placeholder="Phone Number">
-        <select class="form-control" v-model="leadForm.industry"><option value="club">Club</option><option value="restaurant">Restaurant</option><option value="event">Event Venue</option></select>
-        <select class="form-control" v-model="leadForm.status"><option value="New">New</option><option value="Contacted">Contacted</option><option value="Demo Booked">Demo Booked</option><option value="Converted">Converted</option><option value="Lost">Lost</option></select>
-        <textarea class="form-control" v-model="leadForm.notes" placeholder="Notes" rows="3"></textarea>
-        <div style="display:flex; gap:12px;"><button class="btn-outline" @click="closeModal">Cancel</button><button class="btn-primary" @click="saveLead">Save</button></div>
-    </div></div>
+    <div class="modal-mask" :class="{ active: showModal }">
+        <div class="modal-container">
+            <h3>{{ editingLead ? 'Edit Lead' : 'Add Lead' }}</h3>
+            <input class="form-control" v-model="leadForm.businessName" placeholder="Business Name">
+            <input class="form-control" v-model="leadForm.contactPerson" placeholder="Contact Person">
+            <input class="form-control" v-model="leadForm.phone" placeholder="Phone Number">
+            <select class="form-control" v-model="leadForm.industry"><option value="club">Club</option><option value="restaurant">Restaurant</option><option value="event">Event Venue</option></select>
+            <select class="form-control" v-model="leadForm.status"><option value="New">New</option><option value="Contacted">Contacted</option><option value="Demo Booked">Demo Booked</option><option value="Converted">Converted</option><option value="Lost">Lost</option></select>
+            <textarea class="form-control" v-model="leadForm.notes" placeholder="Notes" rows="3"></textarea>
+            <div style="display:flex; gap:12px;"><button class="btn-outline" @click="closeModal">Cancel</button><button class="btn-primary" @click="saveLead">Save</button></div>
+        </div>
+    </div>
+    <div class="toast" v-if="toastMessage">{{ toastMessage }}</div>
 </div>
 
 <script>
-    let leads = JSON.parse(localStorage.getItem('qless_agent_leads') || '[]');
+    const STORAGE_KEYS = {
+        TENANTS: 'qless_tenants',
+        AGENTS: 'qless_agents'
+    };
+
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
+    const leadsKey = `qless_agent_leads_${agentId}`;
+    
+    let leads = JSON.parse(localStorage.getItem(leadsKey) || '[]');
     if (leads.length === 0) {
         leads = [
             { id: 1, businessName: 'Club Nova', contactPerson: 'Mike Ross', phone: '+27821234567', industry: 'club', status: 'Converted', notes: 'Signed deal', createdAt: '2024-02-01' },
             { id: 2, businessName: 'Lounge 54', contactPerson: 'Rachel Zane', phone: '+27827654321', industry: 'restaurant', status: 'Demo Booked', notes: 'Demo scheduled', createdAt: '2024-02-10' }
         ];
-        localStorage.setItem('qless_agent_leads', JSON.stringify(leads));
+        localStorage.setItem(leadsKey, JSON.stringify(leads));
     }
 
     new Vue({
         el: '#app',
-        data: { sidebarOpen: false, leads: leads, showModal: false, editingLead: null, leadForm: { businessName: '', contactPerson: '', phone: '', industry: 'club', status: 'New', notes: '' } },
+        data: {
+            sidebarOpen: false,
+            leads: leads,
+            showModal: false,
+            editingLead: null,
+            toastMessage: '',
+            leadForm: { businessName: '', contactPerson: '', phone: '', industry: 'club', status: 'New', notes: '' }
+        },
         methods: {
             navigateTo(page) { window.location.href = page + '.html'; },
+            showToast(msg) { this.toastMessage = msg; setTimeout(() => { this.toastMessage = ''; }, 3000); },
             openAddLeadModal() { this.editingLead = null; this.leadForm = { businessName: '', contactPerson: '', phone: '', industry: 'club', status: 'New', notes: '' }; this.showModal = true; },
             editLead(lead) { this.editingLead = lead; this.leadForm = { ...lead }; this.showModal = true; },
             saveLead() {
-                if (this.editingLead) { Object.assign(this.editingLead, this.leadForm); } 
-                else { this.leadForm.id = Date.now(); this.leadForm.createdAt = new Date().toISOString().split('T')[0]; this.leads.push({ ...this.leadForm }); }
-                localStorage.setItem('qless_agent_leads', JSON.stringify(this.leads));
-                this.closeModal(); location.reload();
+                if (this.editingLead) {
+                    Object.assign(this.editingLead, this.leadForm);
+                } else {
+                    this.leadForm.id = Date.now();
+                    this.leadForm.createdAt = new Date().toISOString().split('T')[0];
+                    this.leads.push({ ...this.leadForm });
+                }
+                localStorage.setItem(leadsKey, JSON.stringify(this.leads));
+                this.closeModal();
+                this.showToast('Lead saved!');
             },
-            convertLead(lead) { if (confirm(`Convert "${lead.businessName}" to a tenant?`)) { lead.status = 'Converted'; lead.convertedAt = new Date().toISOString().split('T')[0]; localStorage.setItem('qless_agent_leads', JSON.stringify(this.leads)); alert('Lead converted! Tenant will appear in My Clients.'); location.reload(); } },
+            convertLead(lead) {
+                if (!confirm(`Convert "${lead.businessName}" to a tenant? This will create a new client account.`)) return;
+                
+                // Create actual tenant in Super Admin's storage
+                const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
+                const newId = tenants.length > 0 ? Math.max(...tenants.map(t => t.id)) + 1 : 1;
+                
+                const newTenant = {
+                    id: newId,
+                    businessName: lead.businessName,
+                    ownerName: lead.contactPerson,
+                    phone: lead.phone,
+                    username: lead.businessName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+                    password: Math.random().toString(36).substring(2, 10),
+                    status: 'Active',
+                    agent_id: agentId,
+                    revenue: 0,
+                    createdAt: new Date().toISOString().split('T')[0]
+                };
+                
+                tenants.push(newTenant);
+                localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants));
+                
+                // Update lead status
+                lead.status = 'Converted';
+                lead.convertedAt = new Date().toISOString().split('T')[0];
+                localStorage.setItem(leadsKey, JSON.stringify(this.leads));
+                
+                // Create a commission record
+                const commissions = JSON.parse(localStorage.getItem('qless_commissions') || '[]');
+                commissions.push({
+                    id: Date.now(),
+                    agent_id: agentId,
+                    tenant_id: newId,
+                    amount: 0,
+                    revenue: 0,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('qless_commissions', JSON.stringify(commissions));
+                
+                this.showToast(`✅ "${lead.businessName}" converted to tenant!`);
+                setTimeout(() => { location.reload(); }, 1500);
+            },
             closeModal() { this.showModal = false; }
         }
     });

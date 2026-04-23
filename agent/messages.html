@@ -28,18 +28,8 @@
         .message-preview { font-size: 0.75rem; color: #64748b; }
         .message-date { font-size: 0.7rem; color: #94a3b8; margin-top: 4px; }
         .message-detail { background: white; border-radius: 20px; border: 1px solid #edf2f7; padding: 24px; overflow-y: auto; }
-        .message-header-detail { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9; }
-        .message-from { color: #64748b; font-size: 0.85rem; margin-top: 8px; }
-        .message-body { line-height: 1.6; color: #334155; }
         .announcement-badge { background: #E30613; color: white; padding: 2px 8px; border-radius: 20px; font-size: 0.6rem; margin-left: 8px; }
-        @media (max-width: 768px) { 
-            .sidebar { transform: translateX(-100%); } 
-            .sidebar.open { transform: translateX(0); } 
-            .main-content { margin-left: 0; } 
-            .menu-toggle { display: block; }
-            .messages-grid { grid-template-columns: 1fr; height: auto; }
-            .messages-list { max-height: 300px; }
-        }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } .messages-grid { grid-template-columns: 1fr; height: auto; } .messages-list { max-height: 300px; } }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
         .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; }
     </style>
@@ -56,53 +46,59 @@
         <div class="nav-item active"><i class="fas fa-envelope"></i> Messages<span class="badge" v-if="unreadCount > 0">{{ unreadCount }}</span></div>
     </aside>
     <div class="main-content">
-        <div class="top-header"><div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div><h3>Messages & Announcements</h3><button class="btn-primary" @click="markAllRead"><i class="fas fa-check-double"></i> Mark all read</button></div>
+        <div class="top-header">
+            <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
+            <h3>Messages</h3>
+            <button class="btn-primary" @click="markAllRead"><i class="fas fa-check-double"></i> Mark all read</button>
+        </div>
         
         <div class="messages-grid">
             <div class="messages-list">
-                <div v-for="msg in messages" :key="msg.id" class="message-item" :class="{ unread: !msg.read, active: selectedMessage?.id === msg.id }" @click="selectMessage(msg)">
+                <div v-for="msg in myMessages" :key="msg.id" class="message-item" :class="{ unread: !msg.read, active: selectedMessage?.id === msg.id }" @click="selectMessage(msg)">
                     <div class="message-subject">{{ msg.subject }}<span v-if="msg.isAnnouncement" class="announcement-badge">Announcement</span></div>
                     <div class="message-preview">{{ msg.message.substring(0, 60) }}...</div>
                     <div class="message-date">{{ msg.date }}</div>
                 </div>
-                <div v-if="messages.length === 0" style="padding: 40px; text-align: center; color: #94a3b8;">No messages</div>
+                <div v-if="myMessages.length === 0" style="padding: 40px; text-align: center; color: #94a3b8;">No messages yet</div>
             </div>
             <div class="message-detail" v-if="selectedMessage">
-                <div class="message-header-detail">
-                    <h3>{{ selectedMessage.subject }}</h3>
-                    <div class="message-from">
-                        <i class="fas fa-user-circle"></i> From: {{ selectedMessage.from }} | {{ selectedMessage.date }}
-                    </div>
-                </div>
-                <div class="message-body">{{ selectedMessage.message }}</div>
+                <div><h3>{{ selectedMessage.subject }}</h3><div style="margin-top: 8px; color:#64748b;"><i class="fas fa-user-circle"></i> From: {{ selectedMessage.sender || 'Admin' }} | {{ selectedMessage.date }}</div><hr style="margin: 16px 0;"><div class="message-body">{{ selectedMessage.message }}</div></div>
             </div>
-            <div class="message-detail" v-else style="display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-                <div><i class="fas fa-envelope-open-text" style="font-size: 48px; margin-bottom: 16px;"></i><br>Select a message to read</div>
-            </div>
+            <div class="message-detail" v-else style="display: flex; align-items: center; justify-content: center; color: #94a3b8;"><div><i class="fas fa-envelope-open-text" style="font-size: 48px; margin-bottom: 16px;"></i><br>Select a message to read</div></div>
         </div>
     </div>
 </div>
 
 <script>
-    let messages = JSON.parse(localStorage.getItem('qless_agent_messages') || '[]');
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
     
-    if (messages.length === 0) {
-        messages = [
-            { id: 1, from: 'Admin', subject: 'Welcome to QLess Sales Team!', message: 'Welcome aboard! We\'re excited to have you. Here are the key details about our commission structure...\n\n• 10% commission on all subscription fees\n• Bonus for bringing premium venues\n• Monthly payout on the 15th', read: false, date: '2024-02-01', isAnnouncement: true },
-            { id: 2, from: 'Admin', subject: 'Commission Rate Update', message: 'Starting March 1st, commission rates will increase to 12% for new clients. Existing clients remain at current rates.', read: false, date: '2024-02-20', isAnnouncement: true },
-            { id: 3, from: 'Finance Team', subject: 'February Payout Schedule', message: 'February commissions will be processed on March 5th. Please ensure all your payout details are up to date.', read: true, date: '2024-02-15', isAnnouncement: false }
-        ];
-        localStorage.setItem('qless_agent_messages', JSON.stringify(messages));
+    function loadMessages() {
+        const stored = localStorage.getItem('qless_messages');
+        const allMessages = stored ? JSON.parse(stored) : [];
+        // Filter messages for this agent (all messages or just those where recipient is this agent or 'all')
+        return allMessages.filter(m => m.recipient === 'all' || m.recipient === agentId || m.recipient === String(agentId));
     }
-
+    
+    function saveMessages(messages) {
+        // Merge with existing to preserve other agents' messages
+        const stored = localStorage.getItem('qless_messages');
+        let allMessages = stored ? JSON.parse(stored) : [];
+        // Remove old entries for this agent's personal messages (keep announcements)
+        allMessages = allMessages.filter(m => !(m.recipient !== 'all' && (m.recipient === agentId || m.recipient === String(agentId))));
+        allMessages.push(...messages);
+        localStorage.setItem('qless_messages', JSON.stringify(allMessages));
+        window.dispatchEvent(new StorageEvent('storage', { key: 'qless_messages' }));
+    }
+    
     new Vue({
         el: '#app',
         data: {
             sidebarOpen: false,
-            messages: messages,
+            messages: [],
             selectedMessage: null
         },
         computed: {
+            myMessages() { return this.messages.sort((a,b) => b.id - a.id); },
             unreadCount() { return this.messages.filter(m => !m.read).length; }
         },
         methods: {
@@ -111,15 +107,22 @@
                 this.selectedMessage = msg;
                 if (!msg.read) {
                     msg.read = true;
-                    localStorage.setItem('qless_agent_messages', JSON.stringify(this.messages));
+                    saveMessages(this.messages);
                 }
             },
             markAllRead() {
                 this.messages.forEach(m => m.read = true);
-                localStorage.setItem('qless_agent_messages', JSON.stringify(this.messages));
+                saveMessages(this.messages);
                 this.$forceUpdate();
-                alert('All messages marked as read');
+            },
+            refresh() {
+                this.messages = loadMessages();
             }
+        },
+        mounted() {
+            this.refresh();
+            window.addEventListener('storage', () => this.refresh());
+            window.addEventListener('resize', () => { if (window.innerWidth > 768) this.sidebarOpen = false; });
         }
     });
 </script>

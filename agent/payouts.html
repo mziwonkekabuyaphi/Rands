@@ -9,406 +9,167 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f5f7fb; overflow-x: hidden; }
-        
-        /* Sidebar */
-        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.05); z-index: 100; transition: all 0.3s ease; overflow-y: auto; border-right: 1px solid #edf2f7; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: #ffffff; border-right: 1px solid #edf2f7; overflow-y: auto; }
         .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #eff3f8; }
         .sidebar-header h2 { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg, #E30613, #9f0110); background-clip: text; -webkit-background-clip: text; color: transparent; }
-        .sidebar-header p { font-size: 0.7rem; color: #6c7a8e; margin-top: 4px; }
-        .nav-menu { padding: 20px 0; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; color: #4a5568; font-weight: 500; transition: all 0.2s; cursor: pointer; }
-        .nav-item i { width: 22px; font-size: 1.1rem; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; color: #4a5568; cursor: pointer; transition: 0.2s; }
         .nav-item:hover { background: #fff0f0; color: #E30613; }
-        .nav-item.active { background: #E30613; color: white; box-shadow: 0 4px 10px rgba(227,6,19,0.2); }
-        
-        /* Main Content */
-        .main-content { margin-left: 280px; transition: all 0.3s ease; min-height: 100vh; }
-        .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; }
-        .agent-info { display: flex; align-items: center; gap: 12px; }
-        .agent-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
-        .dashboard-container { padding: 28px 32px; }
-        
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }
-        .stat-card { background: white; border-radius: 24px; padding: 20px; border: 1px solid #edf2f7; transition: all 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-color: #E30613; }
-        .stat-icon { width: 48px; height: 48px; background: #fff0f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #E30613; font-size: 1.4rem; margin-bottom: 12px; }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 600; color: #6c7a8e; }
-        .stat-value { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-top: 4px; }
-        
-        /* Buttons */
-        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
-        .btn-primary:hover { background: #b0050f; transform: scale(0.98); }
-        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
-        .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; transition: 0.2s; }
-        .btn-outline:hover { background: #fff0f0; border-color: #E30613; color: #E30613; }
-        
-        /* Tables */
+        .nav-item.active { background: #E30613; color: white; }
+        .main-content { margin-left: 280px; padding: 28px 32px; }
+        .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; margin: -28px -32px 28px -32px; padding: 14px 32px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 28px; }
+        .stat-card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #edf2f7; }
+        .stat-value { font-size: 2rem; font-weight: 800; color: #E30613; }
+        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 500; }
+        .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
         .table-wrapper { overflow-x: auto; background: white; border-radius: 20px; border: 1px solid #edf2f7; margin-top: 20px; }
         .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        .data-table th, .data-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
-        .data-table th { background: #fafcff; font-weight: 600; color: #4a5568; }
-        
-        /* Status Badges */
-        .status-badge { padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .data-table th, .data-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        .status-badge { padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; display: inline-block; }
         .status-pending { background: #fef3c7; color: #d97706; }
         .status-approved { background: #d1fae5; color: #059669; }
-        .status-rejected { background: #fee2e2; color: #dc2626; }
         .status-paid { background: #dcfce7; color: #10b981; }
-        
-        /* Modal */
+        .status-rejected { background: #fee2e2; color: #dc2626; }
         .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s; }
         .modal-mask.active { visibility: visible; opacity: 1; }
-        .modal-container { background: white; width: 90%; max-width: 450px; border-radius: 24px; padding: 28px; text-align: left; }
-        .form-control { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 40px; font-family: 'Inter', sans-serif; font-size: 0.85rem; margin-bottom: 16px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: #1e293b; }
-        
-        /* Toast */
-        .toast-notification { position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; z-index: 1100; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease; cursor: pointer; }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); width: 260px; }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-            .dashboard-container { padding: 20px; }
-            .top-header { padding: 12px 20px; }
-            .menu-toggle { display: block; margin-right: 16px; }
-        }
+        .modal-container { background: white; width: 90%; max-width: 450px; border-radius: 24px; padding: 28px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 40px; margin-bottom: 16px; }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
-        
-        .referral-link { background: #f8fafd; padding: 6px 12px; border-radius: 40px; font-size: 0.7rem; cursor: pointer; border: 1px solid #e2e8f0; }
-        .referral-link:hover { background: #fff0f0; border-color: #E30613; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white; padding: 12px 24px; border-radius: 40px; font-size: 0.85rem; z-index: 1000; }
     </style>
 </head>
 <body>
 <div id="app">
     <aside class="sidebar" :class="{ open: sidebarOpen }">
-        <div class="sidebar-header">
-            <h2>QLess Systems</h2>
-            <p>Sales Agent Portal</p>
-        </div>
-        <div class="nav-menu">
-            <div class="nav-item" @click="navigateTo('sales-dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
-            <div class="nav-item" @click="navigateTo('leads')"><i class="fas fa-users"></i> Leads</div>
-            <div class="nav-item" @click="navigateTo('clients')"><i class="fas fa-store"></i> My Clients</div>
-            <div class="nav-item" @click="navigateTo('earnings')"><i class="fas fa-chart-line"></i> Earnings</div>
-            <div class="nav-item active"><i class="fas fa-credit-card"></i> Payouts</div>
-            <div class="nav-item" @click="navigateTo('messages')"><i class="fas fa-envelope"></i> Messages</div>
-        </div>
+        <div class="sidebar-header"><h2>QLess Systems</h2><p>Sales Agent Portal</p></div>
+        <div class="nav-item" @click="navigateTo('sales-dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+        <div class="nav-item" @click="navigateTo('leads')"><i class="fas fa-users"></i> Leads</div>
+        <div class="nav-item" @click="navigateTo('clients')"><i class="fas fa-store"></i> My Clients</div>
+        <div class="nav-item" @click="navigateTo('earnings')"><i class="fas fa-chart-line"></i> Earnings</div>
+        <div class="nav-item active"><i class="fas fa-credit-card"></i> Payouts</div>
+        <div class="nav-item" @click="navigateTo('messages')"><i class="fas fa-envelope"></i> Messages</div>
     </aside>
-
     <div class="main-content">
-        <div class="top-header">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div>
-                <div class="agent-info">
-                    <div class="agent-avatar">{{ agentInitial }}</div>
-                    <div><strong>{{ agentName }}</strong><br><span style="font-size: 0.7rem; color: #6c7a8e;">Sales Agent</span></div>
-                </div>
+        <div class="top-header"><div class="menu-toggle" @click="sidebarOpen = !sidebarOpen"><i class="fas fa-bars"></i></div><h3>Payout Requests</h3></div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+            <div class="stats-grid" style="margin-bottom:0; flex:1;">
+                <div class="stat-card"><div class="stat-value">R {{ formatMoney(availableBalance) }}</div><div>Available Balance</div></div>
             </div>
-            <div class="referral-link" @click="copyReferralLink"><i class="fas fa-link"></i> qless.co.za/signup?ref={{ agentCode }} <i class="fas fa-copy"></i></div>
+            <button class="btn-primary" @click="openRequestModal"><i class="fas fa-plus"></i> Request Withdrawal</button>
         </div>
 
-        <div class="dashboard-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-                <h2><i class="fas fa-credit-card"></i> Payout Requests</h2>
-                <button class="btn-primary" @click="openRequestModal"><i class="fas fa-plus"></i> Request Withdrawal</button>
-            </div>
-            
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-wallet"></i></div>
-                    <div class="stat-label">Available Balance</div>
-                    <div class="stat-value">R {{ formatMoney(availableBalance) }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                    <div class="stat-label">Pending Requests</div>
-                    <div class="stat-value">R {{ formatMoney(pendingAmount) }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-label">Approved</div>
-                    <div class="stat-value">R {{ formatMoney(approvedAmount) }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
-                    <div class="stat-label">Total Paid Out</div>
-                    <div class="stat-value">R {{ formatMoney(paidAmount) }}</div>
-                </div>
-            </div>
-
-            <!-- Payout History Table -->
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Amount</th>
-                            <th>Request Date</th>
-                            <th>Status</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="req in payouts" :key="req.id">
-                            <td>#{{ req.id }}</td>
-                            <td><strong>R {{ formatMoney(req.amount) }}</strong></td>
-                            <td>{{ req.requestDate }}</td>
-                            <td><span :class="'status-badge status-' + req.status">{{ req.status }}</span></td>
-                            <td>{{ req.notes || '-' }}</td>
-                        </tr>
-                        <tr v-if="payouts.length === 0">
-                            <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">
-                                <i class="fas fa-receipt" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
-                                No payout requests yet. Click "Request Withdrawal" to get started.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>Date</th><th>Amount</th><th>Status</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr v-for="req in myPayouts" :key="req.id">
+                        <td>{{ req.requestDate }}</td>
+                        <td><strong>R {{ formatMoney(req.amount) }}</strong></td>
+                        <td><span :class="'status-badge status-' + req.status">{{ req.status }}</span></td>
+                        <td>{{ req.notes || '-' }}</td>
+                    </tr>
+                    <tr v-if="myPayouts.length === 0"><td colspan="4" style="text-align:center; padding:40px;">No payout requests yet.</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Request Withdrawal Modal -->
     <div class="modal-mask" :class="{ active: showModal }">
         <div class="modal-container">
-            <h3 style="margin-bottom: 20px; text-align: center;"><i class="fas fa-hand-holding-usd"></i> Request Withdrawal</h3>
-            <div class="form-group">
-                <label>Amount (R)</label>
-                <input type="number" step="0.01" class="form-control" v-model="requestAmount" placeholder="Enter amount">
-                <small style="color:#64748b;">Available balance: R {{ formatMoney(availableBalance) }}</small>
-            </div>
-            <div class="form-group">
-                <label>Notes (Optional)</label>
-                <textarea class="form-control" v-model="requestNotes" rows="3" placeholder="Any additional information for the admin..."></textarea>
-            </div>
+            <h3 style="margin-bottom: 20px;">Request Withdrawal</h3>
+            <input type="number" step="0.01" class="form-control" v-model="requestAmount" placeholder="Amount (R)">
+            <small style="color:#64748b;">Available: R {{ formatMoney(availableBalance) }}</small>
+            <textarea class="form-control" v-model="requestNotes" placeholder="Notes (optional)" rows="3" style="margin-top:16px;"></textarea>
             <div style="display: flex; gap: 12px; margin-top: 20px;">
                 <button class="btn-outline" @click="closeModal" style="flex:1;">Cancel</button>
-                <button class="btn-primary" @click="submitRequest" :disabled="requestAmount <= 0 || requestAmount > availableBalance" style="flex:1;">Submit Request</button>
+                <button class="btn-primary" @click="submitRequest" :disabled="requestAmount <= 0 || requestAmount > availableBalance" style="flex:1;">Submit</button>
             </div>
         </div>
     </div>
-
-    <!-- Toast Notification -->
-    <div class="toast-notification" v-if="toastMessage" @click="toastMessage = ''">
-        <i class="fas fa-check-circle"></i><span>{{ toastMessage }}</span>
-    </div>
+    <div class="toast" v-if="toastMessage">{{ toastMessage }}</div>
 </div>
 
 <script>
-    // Storage Keys (matching Super Admin)
-    const STORAGE_KEYS = {
-        AGENTS: 'qless_agents',
-        TENANTS: 'qless_tenants',
-        COMMISSIONS: 'qless_commissions',
-        PAYOUTS: 'qless_payouts',
-        MESSAGES: 'qless_messages'
-    };
-
-    // Mock current agent (in real app, this comes from login session)
-    const CURRENT_AGENT = {
-        id: 1,
-        name: 'Sarah Johnson',
-        code: 'SARAH123',
-        email: 'sarah@qless.co.za'
-    };
-
-    // Vue App
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
+    
+    function loadCommissions() {
+        const stored = localStorage.getItem('qless_commissions');
+        return stored ? JSON.parse(stored) : [];
+    }
+    
+    function loadPayouts() {
+        const stored = localStorage.getItem('qless_payouts');
+        return stored ? JSON.parse(stored) : [];
+    }
+    
+    function savePayouts(allPayouts) {
+        localStorage.setItem('qless_payouts', JSON.stringify(allPayouts));
+        window.dispatchEvent(new StorageEvent('storage', { key: 'qless_payouts' }));
+    }
+    
     new Vue({
         el: '#app',
         data: {
             sidebarOpen: false,
-            agentName: CURRENT_AGENT.name,
-            agentCode: CURRENT_AGENT.code,
-            agentId: CURRENT_AGENT.id,
-            payouts: [],
             commissions: [],
-            tenants: [],
+            payouts: [],
             showModal: false,
             requestAmount: 0,
             requestNotes: '',
             toastMessage: ''
         },
         computed: {
-            agentInitial() { return this.agentName ? this.agentName.charAt(0).toUpperCase() : 'A'; },
-            
-            // Calculate total approved commission (earned)
+            myPayouts() { return this.payouts.filter(p => p.agent_id === agentId).sort((a,b) => b.id - a.id); },
             totalApprovedCommission() {
-                return this.commissions
-                    .filter(c => c.agent_id === this.agentId && (c.status === 'approved' || c.status === 'paid'))
-                    .reduce((sum, c) => sum + (c.amount || 0), 0);
+                return this.commissions.filter(c => c.agent_id === agentId && (c.status === 'approved' || c.status === 'paid')).reduce((sum, c) => sum + (c.amount || 0), 0);
             },
-            
-            // Calculate total paid out
-            paidAmount() {
-                return this.payouts
-                    .filter(p => p.agent_id === this.agentId && p.status === 'paid')
-                    .reduce((sum, p) => sum + p.amount, 0);
+            pendingPayoutAmount() {
+                return this.myPayouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
             },
-            
-            // Calculate pending requests amount
-            pendingAmount() {
-                return this.payouts
-                    .filter(p => p.agent_id === this.agentId && p.status === 'pending')
-                    .reduce((sum, p) => sum + p.amount, 0);
+            approvedPayoutAmount() {
+                return this.myPayouts.filter(p => p.status === 'approved').reduce((sum, p) => sum + p.amount, 0);
             },
-            
-            // Calculate approved requests amount (not yet paid)
-            approvedAmount() {
-                return this.payouts
-                    .filter(p => p.agent_id === this.agentId && p.status === 'approved')
-                    .reduce((sum, p) => sum + p.amount, 0);
-            },
-            
-            // Available balance = approved commission - (pending + approved requests)
             availableBalance() {
-                return Math.max(0, this.totalApprovedCommission - this.pendingAmount - this.approvedAmount);
+                return Math.max(0, this.totalApprovedCommission - this.pendingPayoutAmount - this.approvedPayoutAmount);
             }
         },
         methods: {
-            formatMoney(value) {
-                return (value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            },
-            
-            navigateTo(page) {
-                window.location.href = page + '.html';
-            },
-            
-            copyReferralLink() {
-                const link = `qless.co.za/signup?ref=${this.agentCode}`;
-                navigator.clipboard.writeText(link);
-                this.showToastMessage('Referral link copied!');
-            },
-            
-            showToastMessage(msg) {
-                this.toastMessage = msg;
-                setTimeout(() => { this.toastMessage = ''; }, 3000);
-            },
-            
-            openRequestModal() {
-                this.requestAmount = 0;
-                this.requestNotes = '';
-                this.showModal = true;
-            },
-            
-            closeModal() {
-                this.showModal = false;
-            },
-            
+            navigateTo(page) { window.location.href = page + '.html'; },
+            formatMoney(v) { return (v || 0).toLocaleString(undefined, {minimumFractionDigits: 2}); },
+            showToast(msg) { this.toastMessage = msg; setTimeout(() => { this.toastMessage = ''; }, 3000); },
+            openRequestModal() { this.requestAmount = 0; this.requestNotes = ''; this.showModal = true; },
+            closeModal() { this.showModal = false; },
             submitRequest() {
-                if (this.requestAmount <= 0) {
-                    this.showToastMessage('Please enter a valid amount');
-                    return;
-                }
-                if (this.requestAmount > this.availableBalance) {
-                    this.showToastMessage('Amount exceeds available balance');
-                    return;
-                }
+                if (this.requestAmount <= 0) { this.showToast('Enter a valid amount'); return; }
+                if (this.requestAmount > this.availableBalance) { this.showToast('Amount exceeds available balance'); return; }
                 
                 const newRequest = {
                     id: Date.now(),
-                    agent_id: this.agentId,
+                    agent_id: agentId,
                     amount: this.requestAmount,
                     requestDate: new Date().toISOString().split('T')[0],
                     status: 'pending',
                     notes: this.requestNotes || ''
                 };
                 
-                this.payouts.unshift(newRequest);
-                this.savePayouts();
+                const allPayouts = loadPayouts();
+                allPayouts.push(newRequest);
+                savePayouts(allPayouts);
+                this.payouts = allPayouts;
                 this.closeModal();
-                this.showToastMessage(`Withdrawal request of R ${this.formatMoney(this.requestAmount)} submitted!`);
+                this.showToast(`Withdrawal request of R ${this.formatMoney(this.requestAmount)} submitted!`);
             },
-            
-            // Load data from localStorage (shared with Super Admin)
-            loadPayouts() {
-                const stored = localStorage.getItem(STORAGE_KEYS.PAYOUTS);
-                if (stored) {
-                    const allPayouts = JSON.parse(stored);
-                    this.payouts = allPayouts.filter(p => p.agent_id === this.agentId).sort((a, b) => b.id - a.id);
-                } else {
-                    // Demo data for new agent
-                    this.payouts = [];
-                    localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify([]));
-                }
-            },
-            
-            savePayouts() {
-                // Merge with existing payouts from other agents
-                const stored = localStorage.getItem(STORAGE_KEYS.PAYOUTS);
-                let allPayouts = stored ? JSON.parse(stored) : [];
-                // Remove old entries for this agent
-                allPayouts = allPayouts.filter(p => p.agent_id !== this.agentId);
-                // Add current agent's payouts
-                allPayouts.push(...this.payouts);
-                localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(allPayouts));
-                
-                // Trigger storage event for Super Admin sync
-                window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.PAYOUTS }));
-            },
-            
-            loadCommissions() {
-                const stored = localStorage.getItem(STORAGE_KEYS.COMMISSIONS);
-                if (stored) {
-                    const allCommissions = JSON.parse(stored);
-                    this.commissions = allCommissions.filter(c => c.agent_id === this.agentId);
-                } else {
-                    // Demo commission data
-                    this.commissions = [
-                        { id: 101, agent_id: 1, tenant_id: 1, amount: 2850, revenue: 28500, status: 'approved', month: 'February 2024' },
-                        { id: 102, agent_id: 1, tenant_id: 2, amount: 1890, revenue: 18900, status: 'approved', month: 'February 2024' },
-                        { id: 103, agent_id: 1, tenant_id: 3, amount: 520, revenue: 5200, status: 'pending', month: 'January 2024' }
-                    ];
-                    localStorage.setItem(STORAGE_KEYS.COMMISSIONS, JSON.stringify(this.commissions));
-                }
-            },
-            
-            loadTenants() {
-                const stored = localStorage.getItem(STORAGE_KEYS.TENANTS);
-                if (stored) {
-                    const allTenants = JSON.parse(stored);
-                    this.tenants = allTenants.filter(t => t.agent_id === this.agentId);
-                } else {
-                    this.tenants = [];
-                }
-            },
-            
-            // Listen for real-time updates from Super Admin
-            setupRealtimeSync() {
-                window.addEventListener('storage', (e) => {
-                    if (e.key === STORAGE_KEYS.PAYOUTS) {
-                        this.loadPayouts();
-                        this.showToastMessage('Payout status updated');
-                    }
-                    if (e.key === STORAGE_KEYS.COMMISSIONS) {
-                        this.loadCommissions();
-                        this.showToastMessage('Commission data updated');
-                    }
-                });
-            },
-            
-            refreshAllData() {
-                this.loadPayouts();
-                this.loadCommissions();
-                this.loadTenants();
+            refresh() {
+                this.commissions = loadCommissions();
+                this.payouts = loadPayouts();
             }
         },
         mounted() {
-            // Load initial data
-            this.loadPayouts();
-            this.loadCommissions();
-            this.loadTenants();
-            this.setupRealtimeSync();
-            
-            // Handle responsive sidebar
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) this.sidebarOpen = false;
-            });
+            this.refresh();
+            window.addEventListener('storage', () => this.refresh());
+            window.addEventListener('resize', () => { if (window.innerWidth > 768) this.sidebarOpen = false; });
         }
     });
 </script>

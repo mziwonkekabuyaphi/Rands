@@ -24,6 +24,9 @@
         .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
         .data-table th, .data-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; }
         .module-badge { background: #fff0f0; color: #E30613; padding: 4px 8px; border-radius: 20px; font-size: 0.7rem; display: inline-block; margin: 2px; }
+        .status-badge { padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .status-active { background: #e6f7e6; color: #10b981; }
+        .status-inactive { background: #fee2e2; color: #E30613; }
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .menu-toggle { display: block; } }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
     </style>
@@ -44,42 +47,71 @@
         
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-number">{{ clients.length }}</div><div>Total Clients</div></div>
-            <div class="stat-card"><div class="stat-number">{{ clients.filter(c => c.status === 'active').length }}</div><div>Active</div></div>
+            <div class="stat-card"><div class="stat-number">{{ clients.filter(c => c.status === 'Active').length }}</div><div>Active</div></div>
             <div class="stat-card"><div class="stat-number">R {{ formatMoney(totalRevenue) }}</div><div>Total Revenue</div></div>
         </div>
 
         <div class="table-wrapper">
             <table class="data-table">
-                <thead><tr><th>Business</th><th>Modules</th><th>Revenue</th><th>Commission</th><th>Joined</th><th>Status</th></tr></thead>
+                <thead>
+                    <tr><th>Business</th><th>Modules</th><th>Revenue</th><th>Commission</th><th>Joined</th><th>Status</th></tr>
+                </thead>
                 <tbody>
                     <tr v-for="client in clients" :key="client.id">
-                        <td><strong>{{ client.name }}</strong></span></span></td>
-                        <td><span v-for="mod in client.modules" :key="mod" class="module-badge">{{ mod }}</span></span></span></td>
-                        <td>R {{ formatMoney(client.revenue) }}</span></span></td>
-                        <td style="color:#10b981;">R {{ formatMoney(client.commission) }}</span></span></td>
-                        <td>{{ client.joinedDate }}</span></span></td>
-                        <td><span class="status-badge" :class="client.status === 'active' ? 'status-active' : 'status-inactive'">{{ client.status }}</span></span></span></td>
-                    </span></span></tr>
+                        <td><strong>{{ client.businessName }}</strong></td>
+                        <td><span class="module-badge">Tickets</span> <span class="module-badge">Queue</span></td>
+                        <td>R {{ formatMoney(client.revenue || 0) }}</span></span></td>
+                        <td style="color:#10b981;">R {{ formatMoney(getClientCommission(client.id)) }}</span></span></td>
+                        <td>{{ client.createdAt || '-' }}</span></span></td>
+                        <td><span class="status-badge" :class="client.status === 'Active' ? 'status-active' : 'status-inactive'">{{ client.status }}</span></span></span></td>
+                    </tr>
+                    <tr v-if="clients.length === 0"><td colspan="6" style="text-align:center; padding:40px;">No clients yet. Convert leads to create clients!</td></tr>
                 </tbody>
-            </span></span></table>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-    let clients = JSON.parse(localStorage.getItem('qless_agent_clients') || '[]');
-    if (clients.length === 0) {
-        clients = [{ id: 1, name: 'Club Nova', modules: ['Tickets', 'Queue'], revenue: 28500, commission: 2850, status: 'active', joinedDate: '2024-02-15' }];
-        localStorage.setItem('qless_agent_clients', JSON.stringify(clients));
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
+    
+    function loadTenants() {
+        const stored = localStorage.getItem('qless_tenants');
+        return stored ? JSON.parse(stored) : [];
     }
-
+    
+    function loadCommissions() {
+        const stored = localStorage.getItem('qless_commissions');
+        return stored ? JSON.parse(stored) : [];
+    }
+    
     new Vue({
         el: '#app',
-        data: { sidebarOpen: false, clients: clients },
-        computed: { totalRevenue() { return this.clients.reduce((s, c) => s + c.revenue, 0); } },
+        data: {
+            sidebarOpen: false,
+            tenants: [],
+            commissions: []
+        },
+        computed: {
+            clients() { return this.tenants.filter(t => t.agent_id === agentId); },
+            totalRevenue() { return this.clients.reduce((sum, c) => sum + (c.revenue || 0), 0); }
+        },
         methods: {
             navigateTo(page) { window.location.href = page + '.html'; },
-            formatMoney(v) { return v.toLocaleString(undefined, {minimumFractionDigits: 2}); }
+            formatMoney(v) { return (v || 0).toLocaleString(undefined, {minimumFractionDigits: 2}); },
+            getClientCommission(clientId) {
+                const comm = this.commissions.find(c => c.tenant_id === clientId && c.agent_id === agentId);
+                return comm ? (comm.amount || 0) : 0;
+            },
+            refresh() {
+                this.tenants = loadTenants();
+                this.commissions = loadCommissions();
+            }
+        },
+        mounted() {
+            this.refresh();
+            window.addEventListener('storage', () => this.refresh());
+            window.addEventListener('resize', () => { if (window.innerWidth > 768) this.sidebarOpen = false; });
         }
     });
 </script>

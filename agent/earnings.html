@@ -58,54 +58,75 @@
 
         <div class="table-wrapper">
             <table class="data-table">
-                <thead><tr><th>Client</th><th>Month</th><th>Amount</th><th>Status</th></tr></thead>
+                <thead><tr><th>Client</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
                 <tbody>
-                    <tr v-for="comm in commissions" :key="comm.id">
-                        <td>{{ getClientName(comm.clientId) }}</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
-                        <td>{{ comm.month }}</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
-                        <td>R {{ formatMoney(comm.amount) }}</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
-                        <td><span :class="'commission-status status-' + comm.status">{{ comm.status }}</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
-                    </span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
+                    <tr v-for="comm in myCommissions" :key="comm.id">
+                        <td>{{ getClientName(comm.tenant_id) }}</span></span></span></span></span></span></span></span></td>
+                        <td>R {{ formatMoney(comm.amount) }}</span></span></span></span></span></span></span></span></td>
+                        <td>{{ comm.createdAt ? comm.createdAt.split('T')[0] : '-' }}</span></span></span></span></span></span></span></span></td>
+                        <td><span :class="'commission-status status-' + comm.status">{{ comm.status }}</span></span></span></span></span></span></span></span></td>
+                    </tr>
+                    <tr v-if="myCommissions.length === 0"><td colspan="4" style="text-align:center; padding:40px;">No commission records yet.</td></tr>
                 </tbody>
-            </span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-    let commissions = JSON.parse(localStorage.getItem('qless_agent_commissions') || '[]');
-    let clients = JSON.parse(localStorage.getItem('qless_agent_clients') || '[]');
+    const agentId = parseInt(sessionStorage.getItem('qless_agent_id')) || 1;
     
-    if (commissions.length === 0) {
-        commissions = [{ id: 1, clientId: 1, amount: 2850, month: 'February 2024', status: 'approved' }];
-        localStorage.setItem('qless_agent_commissions', JSON.stringify(commissions));
+    function loadCommissions() {
+        const stored = localStorage.getItem('qless_commissions');
+        return stored ? JSON.parse(stored) : [];
     }
-
+    
+    function loadTenants() {
+        const stored = localStorage.getItem('qless_tenants');
+        return stored ? JSON.parse(stored) : [];
+    }
+    
     new Vue({
         el: '#app',
-        data: { sidebarOpen: false, commissions: commissions, clients: clients, chart: null },
+        data: {
+            sidebarOpen: false,
+            commissions: [],
+            tenants: [],
+            chart: null
+        },
         computed: {
-            totalEarned() { return this.commissions.reduce((s, c) => s + c.amount, 0); },
-            pendingCommission() { return this.commissions.filter(c => c.status === 'pending').reduce((s, c) => s + c.amount, 0); },
-            approvedCommission() { return this.commissions.filter(c => c.status === 'approved').reduce((s, c) => s + c.amount, 0); },
-            paidCommission() { return this.commissions.filter(c => c.status === 'paid').reduce((s, c) => s + c.amount, 0); }
+            myCommissions() { return this.commissions.filter(c => c.agent_id === agentId); },
+            totalEarned() { return this.myCommissions.reduce((s, c) => s + (c.amount || 0), 0); },
+            pendingCommission() { return this.myCommissions.filter(c => c.status === 'pending').reduce((s, c) => s + (c.amount || 0), 0); },
+            approvedCommission() { return this.myCommissions.filter(c => c.status === 'approved').reduce((s, c) => s + (c.amount || 0), 0); },
+            paidCommission() { return this.myCommissions.filter(c => c.status === 'paid').reduce((s, c) => s + (c.amount || 0), 0); }
         },
         methods: {
             navigateTo(page) { window.location.href = page + '.html'; },
-            formatMoney(v) { return v.toLocaleString(undefined, {minimumFractionDigits: 2}); },
-            getClientName(id) { const c = this.clients.find(c => c.id === id); return c ? c.name : 'Unknown'; },
+            formatMoney(v) { return (v || 0).toLocaleString(undefined, {minimumFractionDigits: 2}); },
+            getClientName(id) { const client = this.tenants.find(t => t.id === id); return client ? client.businessName : 'Unknown'; },
             initChart() {
-                const monthly = [12000, 18000, 22000, 28500];
-                const ctx = document.getElementById('commissionChart').getContext('2d');
+                const statusData = [this.pendingCommission, this.approvedCommission, this.paidCommission];
+                const ctx = document.getElementById('commissionChart');
+                if (!ctx) return;
                 if (this.chart) this.chart.destroy();
                 this.chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: { labels: ['Nov', 'Dec', 'Jan', 'Feb'], datasets: [{ label: 'Commission (R)', data: monthly, backgroundColor: '#E30613', borderRadius: 8 }] },
+                    type: 'doughnut',
+                    data: { labels: ['Pending', 'Approved', 'Paid'], datasets: [{ data: statusData, backgroundColor: ['#f59e0b', '#10b981', '#3b82f6'], borderRadius: 8 }] },
                     options: { responsive: true, maintainAspectRatio: true }
                 });
+            },
+            refresh() {
+                this.commissions = loadCommissions();
+                this.tenants = loadTenants();
+                setTimeout(() => this.initChart(), 100);
             }
         },
-        mounted() { this.initChart(); }
+        mounted() {
+            this.refresh();
+            window.addEventListener('storage', () => this.refresh());
+            window.addEventListener('resize', () => { if (window.innerWidth > 768) this.sidebarOpen = false; });
+        }
     });
 </script>
 </body>
