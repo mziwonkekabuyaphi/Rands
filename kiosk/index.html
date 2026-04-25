@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Rands Kiosk | Welcome</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E31B23;
+    --red-dim: rgba(227,27,35,0.15);
+    --red-glow: rgba(227,27,35,0.35);
+    --black: #070707;
+    --surface: rgba(14,14,14,0.95);
+    --surface2: rgba(22,22,22,0.9);
+    --border: rgba(227,27,35,0.18);
+    --text: #F0F0F0;
+    --muted: #6B7280;
+    --tick: 0.6s cubic-bezier(0.2,0.9,0.4,1.1);
+  }
+
+- { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+font-family: ‘DM Sans’, sans-serif;
+background: var(–black);
+min-height: 100vh;
+overflow-x: hidden;
+color: var(–text);
+cursor: default;
+}
+
+/* ── BACKGROUND ── */
+.bg {
+position: fixed; inset: 0; z-index: 0; pointer-events: none;
+overflow: hidden;
+}
+
+.bg-grid {
+position: absolute; inset: 0;
+background-image:
+linear-gradient(rgba(227,27,35,0.04) 1px, transparent 1px),
+linear-gradient(90deg, rgba(227,27,35,0.04) 1px, transparent 1px);
+background-size: 60px 60px;
+mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+.bg-orb {
+position: absolute; border-radius: 50%;
+filter: blur(80px); animation: drift 20s infinite alternate ease-in-out;
+}
+.bg-orb.a { width:500px; height:500px; top:-10%; left:-10%; background:rgba(227,27,35,0.07); animation-duration:25s; }
+.bg-orb.b { width:400px; height:400px; bottom:-10%; right:-5%; background:rgba(227,27,35,0.05); animation-duration:18s; animation-delay:-8s; }
+.bg-orb.c { width:300px; height:300px; top:40%; left:50%; background:rgba(255,100,100,0.04); animation-duration:22s; animation-delay:-3s; }
+
+@keyframes drift {
+from { transform: translate(0, 0) scale(1); }
+to   { transform: translate(40px, 30px) scale(1.1); }
+}
+
+/* ── SCAN LINE OVERLAY ── */
+.scanlines {
+position: fixed; inset: 0; z-index: 1; pointer-events: none;
+background: repeating-linear-gradient(
+to bottom,
+transparent 0px, transparent 3px,
+rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px
+);
+opacity: 0.4;
+}
+
+/* ── LAYOUT ── */
+.kiosk-wrap {
+position: relative; z-index: 10;
+min-height: 100vh;
+display: grid;
+grid-template-rows: auto 1fr auto auto;
+}
+
+/* ── HEADER ── */
+header {
+padding: 1.6rem 2.5rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid var(–border);
+backdrop-filter: blur(20px);
+background: rgba(7,7,7,0.7);
+}
+
+.logo-wrap {
+display: flex; align-items: center; gap: 14px;
+}
+
+.logo-img {
+height: 42px; width: auto;
+object-fit: contain;
+/* Fallback inline SVG rendered if image fails */
+}
+
+.logo-fallback {
+display: flex; align-items: center; gap: 10px;
+}
+
+.logo-mark {
+width: 42px; height: 42px;
+background: var(–red);
+border-radius: 12px;
+display: flex; align-items: center; justify-content: center;
+position: relative;
+box-shadow: 0 0 20px var(–red-glow);
+}
+
+.logo-mark svg { width: 22px; height: 22px; }
+
+.logo-name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 1.8rem;
+letter-spacing: 2px;
+color: white;
+line-height: 1;
+}
+
+.logo-name span { color: var(–red); }
+
+.header-right {
+display: flex; align-items: center; gap: 12px;
+}
+
+.live-dot {
+display: flex; align-items: center; gap: 6px;
+background: rgba(0,0,0,0.5);
+border: 1px solid var(–border);
+border-radius: 40px;
+padding: 0.4rem 0.9rem;
+font-size: 0.7rem;
+font-weight: 600;
+letter-spacing: 1.5px;
+color: #9CA3AF;
+text-transform: uppercase;
+}
+
+.live-dot::before {
+content: ‘’;
+width: 7px; height: 7px;
+background: #22c55e;
+border-radius: 50%;
+box-shadow: 0 0 6px #22c55e;
+animation: pulse-green 1.5s infinite;
+}
+
+@keyframes pulse-green {
+0%,100% { opacity:1; transform:scale(1); }
+50%      { opacity:0.5; transform:scale(0.8); }
+}
+
+.clock {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 1.1rem;
+letter-spacing: 2px;
+color: var(–red);
+background: rgba(0,0,0,0.5);
+border: 1px solid var(–border);
+border-radius: 40px;
+padding: 0.4rem 1rem;
+}
+
+/* ── MAIN ── */
+main {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 2.5rem 2rem;
+gap: 2.5rem;
+}
+
+/* ── HERO ── */
+.hero {
+text-align: center;
+animation: fadeUp 0.7s ease both;
+}
+
+.hero-eyebrow {
+font-size: 0.7rem;
+font-weight: 600;
+letter-spacing: 4px;
+text-transform: uppercase;
+color: var(–red);
+margin-bottom: 0.8rem;
+display: block;
+}
+
+.hero-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(3rem, 7vw, 5.5rem);
+letter-spacing: 4px;
+line-height: 0.95;
+color: white;
+margin-bottom: 1rem;
+}
+
+.hero-title em {
+font-style: normal;
+color: var(–red);
+-webkit-text-stroke: 0px;
+display: block;
+}
+
+.hero-sub {
+font-size: 0.9rem;
+color: var(–muted);
+max-width: 480px;
+margin: 0 auto;
+line-height: 1.7;
+}
+
+/* ── CARDS ── */
+.cards {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 1.5rem;
+width: 100%;
+max-width: 1000px;
+animation: fadeUp 0.7s ease 0.15s both;
+}
+
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 32px;
+padding: 2.2rem 1.8rem;
+text-align: center;
+cursor: pointer;
+text-decoration: none;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0.8rem;
+position: relative;
+overflow: hidden;
+transition: transform var(–tick), border-color 0.3s, box-shadow 0.3s;
+-webkit-tap-highlight-color: transparent;
+}
+
+.card::after {
+content: ‘’;
+position: absolute; inset: 0;
+background: radial-gradient(circle at 50% 0%, rgba(227,27,35,0.12), transparent 65%);
+opacity: 0;
+transition: opacity 0.4s;
+}
+
+.card:hover {
+transform: translateY(-10px) scale(1.02);
+border-color: var(–red);
+box-shadow: 0 24px 60px rgba(227,27,35,0.22), 0 0 0 1px rgba(227,27,35,0.3);
+}
+
+.card:hover::after { opacity: 1; }
+
+.card:active { transform: scale(0.97); }
+
+/* Numbered accent */
+.card-num {
+position: absolute;
+top: 1.2rem; right: 1.4rem;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 3.5rem;
+color: rgba(227,27,35,0.06);
+line-height: 1;
+pointer-events: none;
+}
+
+.card-icon-wrap {
+width: 72px; height: 72px;
+border-radius: 20px;
+background: rgba(227,27,35,0.1);
+border: 1px solid rgba(227,27,35,0.2);
+display: flex; align-items: center; justify-content: center;
+margin-bottom: 0.4rem;
+transition: background 0.3s, transform 0.3s;
+}
+
+.card:hover .card-icon-wrap {
+background: rgba(227,27,35,0.2);
+transform: scale(1.08) rotate(-3deg);
+}
+
+.card-icon-wrap svg {
+width: 32px; height: 32px;
+}
+
+.card-label {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 1.6rem;
+letter-spacing: 2px;
+color: white;
+line-height: 1;
+}
+
+.card-desc {
+font-size: 0.78rem;
+color: var(–muted);
+line-height: 1.6;
+}
+
+.card-cta {
+margin-top: 0.6rem;
+padding: 0.55rem 1.4rem;
+border-radius: 40px;
+background: var(–red);
+color: white;
+font-size: 0.8rem;
+font-weight: 700;
+letter-spacing: 0.5px;
+transition: background 0.2s, transform 0.2s;
+position: relative; z-index: 1;
+}
+
+.card:hover .card-cta {
+background: #ff2d36;
+}
+
+/* Card accent colors per type */
+.card.order .card-icon-wrap { background: rgba(251,146,60,0.12); border-color: rgba(251,146,60,0.25); }
+.card.order:hover .card-icon-wrap { background: rgba(251,146,60,0.22); }
+.card.order .card-cta { background: #f97316; }
+.card.order:hover .card-cta { background: #fb923c; }
+.card.order:hover { border-color: #f97316; box-shadow: 0 24px 60px rgba(249,115,22,0.2), 0 0 0 1px rgba(249,115,22,0.3); }
+
+.card.checkin .card-icon-wrap { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.2); }
+.card.checkin:hover .card-icon-wrap { background: rgba(34,197,94,0.2); }
+.card.checkin .card-cta { background: #16a34a; }
+.card.checkin:hover .card-cta { background: #22c55e; }
+.card.checkin:hover { border-color: #22c55e; box-shadow: 0 24px 60px rgba(34,197,94,0.2), 0 0 0 1px rgba(34,197,94,0.3); }
+
+.card.tickets .card-icon-wrap { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.2); }
+.card.tickets:hover .card-icon-wrap { background: rgba(168,85,247,0.2); }
+.card.tickets .card-cta { background: #9333ea; }
+.card.tickets:hover .card-cta { background: #a855f7; }
+.card.tickets:hover { border-color: #a855f7; box-shadow: 0 24px 60px rgba(168,85,247,0.2), 0 0 0 1px rgba(168,85,247,0.3); }
+
+/* ── QUICK LINKS ── */
+.quick {
+display: flex; align-items: center; gap: 0.8rem;
+flex-wrap: wrap; justify-content: center;
+animation: fadeUp 0.7s ease 0.3s both;
+}
+
+.quick-label {
+font-size: 0.65rem;
+font-weight: 700;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: var(–muted);
+}
+
+.quick-pill {
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 40px;
+padding: 0.45rem 1.1rem;
+font-size: 0.78rem;
+color: #9CA3AF;
+cursor: pointer;
+transition: all 0.2s;
+text-decoration: none;
+}
+
+.quick-pill:hover {
+background: rgba(227,27,35,0.12);
+border-color: var(–red);
+color: white;
+}
+
+/* ── LIVE FEED TICKER ── */
+.live-feed {
+background: rgba(0,0,0,0.85);
+border-top: 1px solid var(–border);
+padding: 0;
+overflow: hidden;
+height: 44px;
+position: relative;
+backdrop-filter: blur(20px);
+}
+
+.feed-badge {
+position: absolute; left: 0; top: 0; bottom: 0; z-index: 5;
+background: var(–red);
+padding: 0 1.2rem;
+display: flex; align-items: center;
+gap: 6px;
+font-size: 0.65rem;
+font-weight: 800;
+letter-spacing: 2.5px;
+text-transform: uppercase;
+color: white;
+white-space: nowrap;
+clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+padding-right: 1.8rem;
+}
+
+.feed-badge::before {
+content: ‘’;
+width: 6px; height: 6px;
+background: white;
+border-radius: 50%;
+animation: pulse-green 1s infinite;
+box-shadow: 0 0 6px white;
+}
+
+.feed-track {
+display: flex;
+align-items: center;
+height: 100%;
+padding-left: 140px;
+white-space: nowrap;
+overflow: hidden;
+}
+
+.feed-inner {
+display: flex;
+align-items: center;
+gap: 0;
+animation: ticker 40s linear infinite;
+white-space: nowrap;
+}
+
+.feed-inner:hover { animation-play-state: paused; }
+
+@keyframes ticker {
+from { transform: translateX(0); }
+to   { transform: translateX(-50%); }
+}
+
+.feed-item {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 0 2rem;
+font-size: 0.78rem;
+color: #9CA3AF;
+border-right: 1px solid rgba(227,27,35,0.15);
+}
+
+.feed-item .dot {
+width: 5px; height: 5px;
+border-radius: 50%;
+flex-shrink: 0;
+}
+
+.feed-item.green .dot { background: #22c55e; box-shadow: 0 0 5px #22c55e; }
+.feed-item.yellow .dot { background: #facc15; box-shadow: 0 0 5px #facc15; }
+.feed-item.red .dot { background: var(–red); box-shadow: 0 0 5px var(–red); }
+.feed-item.blue .dot { background: #60a5fa; box-shadow: 0 0 5px #60a5fa; }
+
+.feed-item strong { color: white; font-weight: 600; }
+
+/* ── FOOTER ── */
+footer {
+padding: 0.9rem 2rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-top: 1px solid var(–border);
+font-size: 0.68rem;
+color: var(–muted);
+background: rgba(7,7,7,0.8);
+}
+
+footer a { color: var(–red); text-decoration: none; }
+
+.footer-right {
+display: flex; align-items: center; gap: 8px;
+}
+
+/* ── TOAST ── */
+.toast {
+position: fixed; bottom: 90px; left: 50%; z-index: 9999;
+transform: translateX(-50%) translateY(20px);
+background: #111;
+border: 1px solid var(–border);
+border-left: 3px solid var(–red);
+color: white;
+padding: 0.75rem 1.4rem;
+border-radius: 40px;
+font-size: 0.82rem;
+font-weight: 500;
+opacity: 0;
+transition: opacity 0.25s, transform 0.25s;
+pointer-events: none;
+white-space: nowrap;
+}
+
+.toast.show {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+from { opacity:0; transform:translateY(24px); }
+to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 800px) {
+.cards { grid-template-columns: 1fr; max-width: 400px; gap: 1rem; }
+header { padding: 1rem 1.2rem; }
+main { padding: 1.5rem 1rem; gap: 1.8rem; }
+.hero-title { font-size: 3rem; }
+.feed-badge { padding: 0 1rem; padding-right: 1.5rem; font-size: 0.6rem; }
+.feed-track { padding-left: 110px; }
+}
+
+@media (max-width: 480px) {
+.clock { display: none; }
+.hero-title { font-size: 2.4rem; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="bg">
+  <div class="bg-grid"></div>
+  <div class="bg-orb a"></div>
+  <div class="bg-orb b"></div>
+  <div class="bg-orb c"></div>
+</div>
+<div class="scanlines"></div>
+
+<div class="kiosk-wrap">
+
+  <!-- HEADER -->
+
+  <header>
+    <div class="logo-wrap">
+      <!-- Try loading actual logo from GitHub Pages path; fallback to inline mark -->
+      <img
+        class="logo-img"
+        src="../images/Rands-logo2.html"
+        alt="Rands Logo"
+        onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';"
+        style="display:none;"
+      >
+      <div class="logo-fallback" id="logo-fallback">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3L4 7v5c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L12 3z" fill="white" opacity="0.9"/>
+            <path d="M9 12l2 2 4-4" stroke="#E31B23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="logo-name">RANDS<span>.</span></div>
+      </div>
+    </div>
+
+```
+<div class="header-right">
+  <div class="live-dot">Live</div>
+  <div class="clock" id="clock">00:00</div>
+</div>
+```
+
+  </header>
+
+  <!-- MAIN -->
+
+  <main>
+
+```
+<!-- Hero -->
+<div class="hero">
+  <span class="hero-eyebrow">Self-Service Kiosk</span>
+  <h1 class="hero-title">Your Night<em>Starts Here.</em></h1>
+  <p class="hero-sub">Order food & drinks, check in to the venue, or grab your tickets — all in a few taps.</p>
+</div>
+
+<!-- Action Cards -->
+<div class="cards">
+
+  <!-- Start Order -->
+  <a class="card order" href="kiosk-menu.html" id="card-order">
+    <span class="card-num">01</span>
+    <div class="card-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4"/>
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+      </svg>
+    </div>
+    <div class="card-label">Start Order</div>
+    <p class="card-desc">Browse the menu, add items, and pay cashlessly at your pace.</p>
+    <div class="card-cta">Order Now →</div>
+  </a>
+
+  <!-- Check In -->
+  <a class="card checkin" href="self-check-in.html" id="card-checkin">
+    <span class="card-num">02</span>
+    <div class="card-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+        <path d="M16 11l2 2 4-4" stroke="#22c55e"/>
+      </svg>
+    </div>
+    <div class="card-label">Check In</div>
+    <p class="card-desc">Scan your booking, verify your identity, and get access instantly.</p>
+    <div class="card-cta">Check In →</div>
+  </a>
+
+  <!-- Buy Tickets -->
+  <a class="card tickets" href="kiosk-tickets.html" id="card-tickets">
+    <span class="card-num">03</span>
+    <div class="card-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="10" rx="3"/>
+        <path d="M7 7v-.01M7 17v-.01" stroke-width="2.5"/>
+        <path d="M17 7v-.01M17 17v-.01" stroke-width="2.5"/>
+        <path d="M7 12h10" stroke-dasharray="2 2"/>
+      </svg>
+    </div>
+    <div class="card-label">Buy Tickets</div>
+    <p class="card-desc">Get tickets for tonight's events, gigs, and exclusive experiences.</p>
+    <div class="card-cta">Get Tickets →</div>
+  </a>
+
+</div>
+
+<!-- Quick Access -->
+<div class="quick">
+  <span class="quick-label">Quick Access</span>
+  <a class="quick-pill" href="kiosk-menu.html?category=beverages">🍹 Beverages</a>
+  <a class="quick-pill" href="kiosk-menu.html?category=snacks">🍿 Snacks</a>
+  <a class="quick-pill" href="kiosk-menu.html?category=meals">🍽️ Meals</a>
+  <a class="quick-pill" href="kiosk-menu.html?category=specials">🔥 Daily Specials</a>
+</div>
+```
+
+  </main>
+
+  <!-- LIVE FEED TICKER -->
+
+  <div class="live-feed">
+    <div class="feed-badge">Vibe Feed</div>
+    <div class="feed-track">
+      <div class="feed-inner" id="feedInner">
+        <!-- items injected by JS, duplicated for seamless loop -->
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+
+  <footer>
+    <span>© 2025 <a href="#">Rands Venue Management</a> · #SeeYourVibe</span>
+    <div class="footer-right">
+      <span>Powered by Rands Kiosk v2</span>
+    </div>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CLOCK ──
+function tick() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+}
+tick(); setInterval(tick, 1000);
+
+// ── TOAST ──
+function toast(msg, dur = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── LIVE VIBE FEED ──
+const vibeItems = [
+  { color:'green', icon:'🎶', text:'<strong>Table 12</strong> just ordered another round of Long Islands' },
+  { color:'yellow', icon:'🔥', text:'<strong>VIP Lounge</strong> is at 92% capacity tonight' },
+  { color:'green', icon:'🍔', text:'<strong>Order #4821</strong> is ready for collection at counter B' },
+  { color:'blue', icon:'🎤', text:'Live set by <strong>DJ Phantom</strong> starts in 18 minutes' },
+  { color:'green', icon:'🥂', text:'<strong>5 new check-ins</strong> in the last 10 minutes' },
+  { color:'red', icon:'⚡', text:'<strong>Daily Special:</strong> Loaded Nacho Platter — only R85 tonight' },
+  { color:'yellow', icon:'🎟️', text:'<strong>Only 14 tickets left</strong> for the midnight show' },
+  { color:'green', icon:'💳', text:'<strong>VVIP Tag cashless</strong> payments running smoothly' },
+  { color:'blue', icon:'📊', text:'Venue crowd level: <strong>Energetic</strong> — peak vibes in effect' },
+  { color:'green', icon:'🌟', text:'<strong>Order #4819</strong> rated 5 stars — thanks for the love!' },
+  { color:'red', icon:'🚨', text:'<strong>Flash Deal:</strong> Buy 2 shooters, get 1 FREE — ends at 22:30' },
+  { color:'yellow', icon:'🎉', text:'<strong>Tonight\'s theme:</strong> Neon Noir · Dress to impress' },
+  { color:'green', icon:'🍹', text:'<strong>Cocktail of the night:</strong> Passion Crush — try it at the bar' },
+  { color:'blue', icon:'📍', text:'Lost & Found is located at the <strong>main entrance booth</strong>' },
+];
+
+function buildFeed() {
+  const inner = document.getElementById('feedInner');
+  const doubled = [...vibeItems, ...vibeItems]; // seamless loop
+  inner.innerHTML = doubled.map(item => `
+    <span class="feed-item ${item.color}">
+      <span class="dot"></span>
+      ${item.icon} ${item.text}
+    </span>
+  `).join('');
+}
+buildFeed();
+
+// Dynamic feed injection — add a new random "live" event occasionally
+const liveEvents = [
+  () => `<strong>${Math.floor(Math.random()*8)+2} guests</strong> just checked in`,
+  () => `<strong>Order #${4800+Math.floor(Math.random()*200)}</strong> ready at counter ${['A','B','C'][Math.floor(Math.random()*3)]}`,
+  () => `<strong>R${Math.floor(Math.random()*2000+200)}</strong> in orders processed in last 5 min`,
+  () => `<strong>New review:</strong> "Absolutely vibing at Rands tonight 🔥"`,
+];
+
+let liveIdx = 0;
+setInterval(() => {
+  const inner = document.getElementById('feedInner');
+  const fn = liveEvents[liveIdx % liveEvents.length];
+  const newItem = document.createElement('span');
+  newItem.className = 'feed-item green';
+  newItem.innerHTML = `<span class="dot"></span>⚡ ${fn()}`;
+  inner.appendChild(newItem);
+  liveIdx++;
+}, 12000);
+
+// ── LOGO: try to load actual image ──
+const logoImg = document.querySelector('.logo-img');
+if (logoImg) {
+  // Try png, jpg, svg versions if the html reference fails
+  logoImg.src = '../images/Rands-logo2.png';
+  logoImg.onerror = () => {
+    logoImg.src = '../images/Rands-logo2.svg';
+    logoImg.onerror = () => {
+      logoImg.src = '../images/Rands-logo2.jpg';
+      logoImg.onerror = () => {
+        logoImg.style.display = 'none';
+        document.getElementById('logo-fallback').style.display = 'flex';
+      };
+    };
+  };
+  logoImg.onload = () => {
+    logoImg.style.display = 'block';
+    document.getElementById('logo-fallback').style.display = 'none';
+  };
+}
+
+console.log('%c🔴 RANDS KIOSK v2 | Live & Ready', 'color:#E31B23;font-size:14px;font-weight:900;');
+</script>
+
+</body>
+</html>
