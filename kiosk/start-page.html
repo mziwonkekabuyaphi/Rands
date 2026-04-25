@@ -315,6 +315,21 @@ header { padding:1rem; }
 .clock { display:none; }
 .hero-h1 { font-size:2.4rem; }
 }
+
+/* LOADING SPINNER */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 </style>
 
 </head>
@@ -334,7 +349,7 @@ header { padding:1rem; }
       <div id="logoFb" class="logo-text">RANDS<span>.</span></div>
     </div>
     <div class="header-meta">
-      <div class="status-pill">Kiosk Live</div>
+      <div class="status-pill" id="tenantStatus">Kiosk Live</div>
       <div class="clock" id="clock">00:00</div>
     </div>
   </header>
@@ -344,15 +359,15 @@ header { padding:1rem; }
   <main>
 
     <div class="hero">
-      <div class="hero-tag">Self-Service Kiosk</div>
-      <h1 class="hero-h1">Booze<span class="slash">.</span> Butcher<span class="slash">.</span><br>Rands Experience<span class="slash">.</span></h1>
-      <p class="hero-sub">Order at the bar, scan in your ticket, or grab passes for the next one.</p>
+      <div class="hero-tag" id="heroTag">Self-Service Kiosk</div>
+      <h1 class="hero-h1" id="heroTitle">Booze<span class="slash">.</span> Butcher<span class="slash">.</span><br>Rands Experience<span class="slash">.</span></h1>
+      <p class="hero-sub" id="heroSub">Order at the bar, scan in your ticket, or grab passes for the next one.</p>
     </div>
 
     <div class="cards">
 
       <!-- ORDER -->
-      <a class="card order" href="kiosk-menu.html">
+      <a class="card order" id="orderCard" href="#">
         <span class="card-num">01</span>
         <div class="card-icon">🥩</div>
         <div class="card-body">
@@ -363,7 +378,7 @@ header { padding:1rem; }
       </a>
 
       <!-- CHECK IN -->
-      <a class="card checkin" href="self-check-in.html">
+      <a class="card checkin" id="checkinCard" href="#">
         <span class="card-num">02</span>
         <div class="card-icon">🎟️</div>
         <div class="card-body">
@@ -379,7 +394,7 @@ header { padding:1rem; }
       </a>
 
       <!-- TICKETS -->
-      <a class="card tickets" href="kiosk-tickets.html">
+      <a class="card tickets" id="ticketsCard" href="#">
         <span class="card-num">03</span>
         <div class="card-icon">🔥</div>
         <div class="card-body">
@@ -393,11 +408,11 @@ header { padding:1rem; }
 
     <div class="quick">
       <span class="quick-sep">Quick Order</span>
-      <a class="q" href="kiosk-menu.html?category=beers">🍺 Beers</a>
-      <a class="q" href="kiosk-menu.html?category=shots">🥃 Shots</a>
-      <a class="q" href="kiosk-menu.html?category=cocktails">🍹 Cocktails</a>
-      <a class="q" href="kiosk-menu.html?category=platters">🔥 Platters</a>
-      <a class="q" href="kiosk-menu.html?category=specials">⚡ Specials</a>
+      <a class="q" id="quickBeer" href="#">🍺 Beers</a>
+      <a class="q" id="quickShots" href="#">🥃 Shots</a>
+      <a class="q" id="quickCocktails" href="#">🍹 Cocktails</a>
+      <a class="q" id="quickPlatters" href="#">🔥 Platters</a>
+      <a class="q" id="quickSpecials" href="#">⚡ Specials</a>
     </div>
 
   </main>
@@ -412,7 +427,7 @@ header { padding:1rem; }
   </div>
 
   <footer>
-    <span><strong>Rands</strong> Venue Management · #SeeYourVibe</span>
+    <span id="footerLeft"><strong>Rands</strong> Venue Management · #SeeYourVibe</span>
     <span>Kiosk v2.0</span>
   </footer>
 </div>
@@ -420,6 +435,211 @@ header { padding:1rem; }
 <div class="toast" id="toast"></div>
 
 <script>
+// ============================================
+// MULTI-TENANT CONFIGURATION
+// ============================================
+
+// Tenant mapping - subdomain to tenant info
+const TENANT_MAP = {
+    'cloudshisha': {
+        id: 1,
+        name: 'Cloud Shisha Lounge',
+        primary_color: '#E31B23',
+        tagline: 'Shisha<span class="slash">.</span> Flavours<span class="slash">.</span><br>Cloud Vibes<span class="slash">.</span>',
+        hero_sub: 'Order shisha, scan your ticket, or grab passes for the next session.',
+        logo: '../images/cloudshisha-logo.png',
+        api_url: 'https://api.qless.co.za/tenants/1'
+    },
+    'capetownevents': {
+        id: 2,
+        name: 'Cape Town Events',
+        primary_color: '#1a73e8',
+        tagline: 'Events<span class="slash">.</span> Tickets<span class="slash">.</span><br>Memories<span class="slash">.</span>',
+        hero_sub: 'Book events, scan tickets, or grab passes for upcoming shows.',
+        logo: '../images/ctevents-logo.png',
+        api_url: 'https://api.qless.co.za/tenants/2'
+    },
+    'joburgnightlife': {
+        id: 3,
+        name: 'Joburg Nightlife',
+        primary_color: '#F59E0B',
+        tagline: 'Party<span class="slash">.</span> Dance<span class="slash">.</span><br>Night Vibes<span class="slash">.</span>',
+        hero_sub: 'Order drinks, scan VIP passes, or grab event tickets.',
+        logo: '../images/joburg-logo.png',
+        api_url: 'https://api.qless.co.za/tenants/3'
+    },
+    'rands': {
+        id: 4,
+        name: 'Rands Venue',
+        primary_color: '#E31B23',
+        tagline: 'Booze<span class="slash">.</span> Butcher<span class="slash">.</span><br>Rands Experience<span class="slash">.</span>',
+        hero_sub: 'Order at the bar, scan in your ticket, or grab passes for the next one.',
+        logo: '../images/Rands-logo2.png',
+        api_url: 'https://api.qless.co.za/tenants/4'
+    }
+};
+
+// Default tenant (for direct domain access)
+const DEFAULT_TENANT = {
+    id: null,
+    name: 'QLess',
+    primary_color: '#E31B23',
+    tagline: 'Booze<span class="slash">.</span> Butcher<span class="slash">.</span><br>Rands Experience<span class="slash">.</span>',
+    hero_sub: 'Order at the bar, scan in your ticket, or grab passes for the next one.',
+    logo: '../images/Rands-logo2.png',
+    api_url: null
+};
+
+// Detect tenant from URL subdomain
+function detectTenant() {
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+    
+    // Check if it's a subdomain (e.g., cloudshisha.qless.co.za)
+    if (parts.length > 2) {
+        const subdomain = parts[0].toLowerCase();
+        if (TENANT_MAP[subdomain]) {
+            return TENANT_MAP[subdomain];
+        }
+    }
+    
+    // Check for tenant ID in URL query parameter (fallback)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantId = urlParams.get('tenant');
+    if (tenantId) {
+        for (const [key, tenant] of Object.entries(TENANT_MAP)) {
+            if (tenant.id == tenantId) {
+                return tenant;
+            }
+        }
+    }
+    
+    // Return default
+    return DEFAULT_TENANT;
+}
+
+// Current tenant
+const currentTenant = detectTenant();
+
+// Apply tenant branding to the page
+function applyTenantBranding() {
+    if (!currentTenant.id) return;
+    
+    // Update CSS variable for theme color
+    document.documentElement.style.setProperty('--red', currentTenant.primary_color);
+    
+    // Update logo text and image
+    const logoText = document.getElementById('logoFb');
+    if (logoText) {
+        logoText.innerHTML = currentTenant.name.replace(' ', '<span>.</span>');
+        logoText.innerHTML = logoText.innerHTML.replace(/\./g, '<span>.</span>');
+    }
+    
+    // Update hero title
+    const heroTitle = document.getElementById('heroTitle');
+    if (heroTitle) {
+        heroTitle.innerHTML = currentTenant.tagline;
+    }
+    
+    // Update hero subtitle
+    const heroSub = document.getElementById('heroSub');
+    if (heroSub) {
+        heroSub.textContent = currentTenant.hero_sub;
+    }
+    
+    // Update status pill
+    const tenantStatus = document.getElementById('tenantStatus');
+    if (tenantStatus && currentTenant.id) {
+        tenantStatus.innerHTML = `${currentTenant.name} Kiosk`;
+        tenantStatus.style.color = currentTenant.primary_color;
+        tenantStatus.style.borderColor = currentTenant.primary_color;
+    }
+    
+    // Update footer
+    const footerLeft = document.getElementById('footerLeft');
+    if (footerLeft && currentTenant.id) {
+        footerLeft.innerHTML = `<strong>${currentTenant.name}</strong> · #LiveTheVibe`;
+    }
+    
+    // Try to load tenant logo
+    if (currentTenant.logo) {
+        const logoImg = document.getElementById('logoImg');
+        logoImg.src = currentTenant.logo;
+    }
+}
+
+// ============================================
+// API CALLS WITH TENANT CONTEXT
+// ============================================
+
+async function apiCall(endpoint, options = {}) {
+    const headers = {
+        'Content-Type': 'application/json',
+        'X-Tenant-ID': currentTenant.id || 'default',
+        ...options.headers
+    };
+    
+    // Add tenant ID to URL if not already present
+    let url = endpoint;
+    if (currentTenant.id && !url.includes('tenant_id')) {
+        const separator = url.includes('?') ? '&' : '?';
+        url = `${url}${separator}tenant_id=${currentTenant.id}`;
+    }
+    
+    const response = await fetch(url, { ...options, headers });
+    return response.json();
+}
+
+// Load tenant-specific menu items
+async function loadTenantMenu() {
+    if (!currentTenant.id) return;
+    
+    try {
+        const menu = await apiCall('/api/kiosk/menu');
+        if (menu && menu.items) {
+            // Update quick links with tenant-specific categories
+            const quickLinks = document.querySelectorAll('.q');
+            if (quickLinks.length && menu.categories) {
+                // Only update if we have tenant-specific categories
+                console.log('Tenant menu loaded:', menu);
+            }
+        }
+    } catch (error) {
+        console.log('Using default menu (API not ready yet)');
+    }
+}
+
+// Update card links with tenant context
+function updateCardLinks() {
+    const baseUrl = window.location.origin;
+    const tenantParam = currentTenant.id ? `?tenant=${currentTenant.id}` : '';
+    
+    const orderCard = document.getElementById('orderCard');
+    const checkinCard = document.getElementById('checkinCard');
+    const ticketsCard = document.getElementById('ticketsCard');
+    
+    if (orderCard) orderCard.href = `kiosk-menu.html${tenantParam}`;
+    if (checkinCard) checkinCard.href = `self-check-in.html${tenantParam}`;
+    if (ticketsCard) ticketsCard.href = `kiosk-tickets.html${tenantParam}`;
+    
+    // Update quick links
+    const quickBeer = document.getElementById('quickBeer');
+    const quickShots = document.getElementById('quickShots');
+    const quickCocktails = document.getElementById('quickCocktails');
+    const quickPlatters = document.getElementById('quickPlatters');
+    const quickSpecials = document.getElementById('quickSpecials');
+    
+    if (quickBeer) quickBeer.href = `kiosk-menu.html${tenantParam}&category=beers`;
+    if (quickShots) quickShots.href = `kiosk-menu.html${tenantParam}&category=shots`;
+    if (quickCocktails) quickCocktails.href = `kiosk-menu.html${tenantParam}&category=cocktails`;
+    if (quickPlatters) quickPlatters.href = `kiosk-menu.html${tenantParam}&category=platters`;
+    if (quickSpecials) quickSpecials.href = `kiosk-menu.html${tenantParam}&category=specials`;
+}
+
+// ============================================
+// EXISTING FUNCTIONALITY (Preserved)
+// ============================================
+
 // CLOCK
 (function tick(){
   const n=new Date();
@@ -507,7 +727,26 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-console.log('%c🔴 RANDS KIOSK v2 | Ready','color:#E31B23;font-size:14px;font-weight:900;');
+// ============================================
+// INITIALIZE MULTI-TENANT
+// ============================================
+
+// Apply tenant branding immediately
+applyTenantBranding();
+updateCardLinks();
+
+// Load tenant-specific data (if API available)
+loadTenantMenu();
+
+// Log which tenant is active
+console.log(`%c🔴 ${currentTenant.name} Kiosk | Tenant ID: ${currentTenant.id || 'default'} | Multi-Tenant Ready`,'color:#E31B23;font-size:14px;font-weight:900;');
+
+// Show toast notification for current tenant (only if API not ready)
+if (!currentTenant.id) {
+    setTimeout(() => toast('🏢 Welcome to QLess Platform'), 1000);
+} else {
+    setTimeout(() => toast(`🎉 Welcome to ${currentTenant.name}`), 1000);
+}
 </script>
 
 </body>
