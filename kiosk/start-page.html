@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Rands Kiosk</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:    #E31B23;
+  --amber:  #F59E0B;
+  --black:  #080808;
+  --coal:   #111111;
+  --ash:    #1C1C1C;
+  --smoke:  #2A2A2A;
+  --bone:   #E8E0D0;
+  --muted:  #6B6560;
+  --border: rgba(255,255,255,0.07);
+}
+
+- { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; }
+
+body {
+font-family: ‘Barlow’, sans-serif;
+background: var(–black);
+color: var(–bone);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* GRAIN */
+body::before {
+content:’’;
+position:fixed; inset:0; z-index:1; pointer-events:none;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘1’/%3E%3C/svg%3E”);
+opacity: 0.035; mix-blend-mode: overlay;
+}
+
+/* EMBERS */
+.embers { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.ember {
+position:absolute; bottom:-10px;
+border-radius:50%; opacity:0;
+animation: rise var(–dur,8s) var(–delay,0s) infinite ease-out;
+}
+@keyframes rise {
+0%   { transform:translateY(0) translateX(0) scale(1); opacity:0; }
+10%  { opacity:0.9; }
+80%  { opacity:0.3; }
+100% { transform:translateY(-100vh) translateX(var(–sway,30px)) scale(0); opacity:0; }
+}
+
+/* LAYOUT */
+.wrap {
+position:relative; z-index:2;
+min-height:100vh;
+display:grid;
+grid-template-rows: auto 1fr auto auto;
+}
+
+/* ── HEADER ── */
+header {
+padding:1.2rem 2rem;
+display:flex; justify-content:space-between; align-items:center;
+border-bottom:1px solid var(–border);
+background:rgba(8,8,8,0.92);
+backdrop-filter:blur(12px);
+}
+.logo-wrap { display:flex; align-items:center; gap:12px; }
+.logo-img  { height:38px; width:auto; object-fit:contain; display:none; }
+.logo-text {
+font-family:‘Anton’, sans-serif;
+font-size:1.9rem; letter-spacing:3px; color:white; line-height:1;
+}
+.logo-text span { color:var(–red); }
+.header-meta { display:flex; align-items:center; gap:10px; }
+.status-pill {
+display:flex; align-items:center; gap:6px;
+background:rgba(34,197,94,0.08);
+border:1px solid rgba(34,197,94,0.25);
+border-radius:3px;
+padding:0.3rem 0.8rem;
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.68rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+color:#4ade80;
+}
+.status-pill::before {
+content:’’; width:6px; height:6px; border-radius:50%;
+background:#22c55e; box-shadow:0 0 6px #22c55e;
+animation:blink 1.4s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.clock {
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:1.1rem; font-weight:700; letter-spacing:3px; color:var(–muted);
+}
+
+/* ── MAIN ── */
+main {
+display:flex; flex-direction:column;
+justify-content:center; align-items:center;
+padding:2.5rem 1.5rem; gap:2.8rem;
+}
+
+/* ── HERO ── */
+.hero { text-align:center; animation:fadeUp 0.5s ease both; }
+.hero-tag {
+display:inline-block;
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.68rem; font-weight:700; letter-spacing:4px; text-transform:uppercase;
+color:var(–red); border:1px solid rgba(227,27,35,0.35);
+padding:0.25rem 0.8rem; border-radius:2px; margin-bottom:1.1rem;
+}
+.hero-h1 {
+font-family:‘Anton’, sans-serif;
+font-size:clamp(3.2rem, 8vw, 6rem);
+line-height:0.92; letter-spacing:2px;
+color:white; text-transform:uppercase; margin-bottom:0.6rem;
+}
+.hero-h1 .slash { color:var(–red); }
+.hero-sub {
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:1rem; letter-spacing:1px; color:var(–muted);
+max-width:420px; margin:0 auto;
+}
+
+/* ── CARDS ── */
+.cards {
+display:grid; grid-template-columns:repeat(3, 1fr);
+width:100%; max-width:1020px;
+border:1px solid rgba(255,255,255,0.1);
+border-radius:6px; overflow:hidden;
+animation:fadeUp 0.5s ease 0.12s both;
+}
+.card {
+background:var(–coal);
+padding:2.2rem 1.8rem 2rem;
+text-decoration:none; color:inherit;
+display:flex; flex-direction:column; gap:1rem;
+position:relative; overflow:hidden; cursor:pointer;
+transition:background 0.25s;
+border-right:1px solid rgba(255,255,255,0.07);
+}
+.card:last-child { border-right:none; }
+.card-num {
+position:absolute; top:-0.5rem; right:1rem;
+font-family:‘Anton’, sans-serif; font-size:7rem; line-height:1;
+color:rgba(255,255,255,0.025); pointer-events:none; user-select:none;
+}
+.card::before {
+content:’’; position:absolute; top:0; left:0; right:0; height:3px;
+background:var(–stripe, var(–red));
+transform:scaleX(0); transform-origin:left;
+transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.card:hover { background:var(–ash); }
+.card:hover::before { transform:scaleX(1); }
+.card-icon { font-size:3rem; line-height:1; transition:transform 0.3s; }
+.card:hover .card-icon { transform:scale(1.1) rotate(-4deg); }
+.card-body { flex:1; display:flex; flex-direction:column; gap:0.55rem; }
+.card-title {
+font-family:‘Anton’, sans-serif;
+font-size:1.75rem; letter-spacing:1.5px; text-transform:uppercase;
+color:white; line-height:1;
+}
+.card-desc {
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.92rem; color:var(–muted); line-height:1.55;
+}
+.card-cta {
+display:inline-flex; align-items:center; gap:6px;
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.78rem; font-weight:700; letter-spacing:2.5px; text-transform:uppercase;
+color:var(–cta, var(–red));
+border-top:1px solid rgba(255,255,255,0.07);
+padding-top:1rem; margin-top:auto;
+transition:gap 0.2s;
+}
+.card:hover .card-cta { gap:10px; }
+.card-cta::after { content:‘→’; font-size:1rem; }
+
+.card.order   { –stripe:var(–red);   –cta:var(–red); }
+.card.checkin { –stripe:#22c55e;      –cta:#22c55e; }
+.card.tickets { –stripe:var(–amber); –cta:var(–amber); }
+
+/* CHECK-IN extras */
+.checkin-badge {
+display:inline-flex; align-items:center; gap:5px; width:fit-content;
+background:rgba(34,197,94,0.09);
+border:1px solid rgba(34,197,94,0.28);
+border-radius:3px; padding:0.22rem 0.65rem;
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.65rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+color:#4ade80;
+}
+.checkin-badge::before {
+content:’’; width:5px; height:5px; border-radius:50%;
+background:#22c55e; flex-shrink:0;
+animation:blink 1.2s infinite;
+}
+.wb-note {
+display:flex; align-items:flex-start; gap:8px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:4px; padding:0.6rem 0.85rem;
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.8rem; color:#9CA3AF; line-height:1.5;
+}
+.wb-note-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+
+/* ── QUICK LINKS ── */
+.quick {
+display:flex; align-items:center; gap:0.7rem;
+flex-wrap:wrap; justify-content:center;
+animation:fadeUp 0.5s ease 0.24s both;
+}
+.quick-sep {
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.65rem; font-weight:700; letter-spacing:3px; text-transform:uppercase;
+color:var(–muted);
+}
+.q {
+background:transparent;
+border:1px solid rgba(255,255,255,0.1); border-radius:3px;
+padding:0.4rem 1rem;
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.82rem; font-weight:600; letter-spacing:1px;
+color:#9CA3AF; cursor:pointer; text-decoration:none;
+transition:all 0.2s;
+}
+.q:hover { background:var(–red); border-color:var(–red); color:white; }
+
+/* ── LIVE FEED ── */
+.live-feed {
+background:#0C0C0C; border-top:1px solid var(–border);
+height:46px; display:flex; align-items:stretch; overflow:hidden;
+}
+.feed-label {
+flex-shrink:0; background:var(–red);
+display:flex; align-items:center; gap:7px;
+padding:0 2rem 0 1.2rem;
+font-family:‘Anton’, sans-serif;
+font-size:0.72rem; letter-spacing:3px; color:white; white-space:nowrap;
+clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);
+position:relative; z-index:2;
+}
+.feed-dot {
+width:7px; height:7px; border-radius:50%;
+background:white; box-shadow:0 0 8px white;
+flex-shrink:0; animation:blink 1s infinite;
+}
+.feed-track { flex:1; overflow:hidden; display:flex; align-items:center; }
+.feed-scroll {
+display:inline-flex; align-items:center;
+white-space:nowrap;
+animation:scroll-feed 55s linear infinite;
+}
+.feed-scroll:hover { animation-play-state:paused; }
+@keyframes scroll-feed { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.fi {
+display:inline-flex; align-items:center; gap:8px;
+padding:0 2.2rem;
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.85rem; color:#6B6560;
+border-right:1px solid rgba(255,255,255,0.05);
+}
+.fi strong { color:#C9BFB0; font-weight:600; }
+.fi .dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.fi.cr .dot { background:var(–red);   box-shadow:0 0 5px var(–red); }
+.fi.cg .dot { background:#22c55e;      box-shadow:0 0 5px #22c55e; }
+.fi.ca .dot { background:var(–amber); box-shadow:0 0 5px var(–amber); }
+.fi.cb .dot { background:#60a5fa;      box-shadow:0 0 5px #60a5fa; }
+.fi.cw .dot { background:#aaa; }
+
+/* ── FOOTER ── */
+footer {
+padding:0.75rem 2rem;
+border-top:1px solid var(–border);
+display:flex; justify-content:space-between; align-items:center;
+background:rgba(8,8,8,0.9);
+font-family:‘Barlow Condensed’, sans-serif;
+font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(–muted);
+}
+footer strong { color:var(–red); }
+
+/* TOAST */
+.toast {
+position:fixed; bottom:80px; left:50%; z-index:999;
+transform:translateX(-50%) translateY(10px);
+background:var(–ash); border-left:3px solid var(–red);
+color:white; padding:0.7rem 1.4rem;
+font-family:‘Barlow Condensed’, sans-serif; font-size:0.9rem; letter-spacing:0.5px;
+opacity:0; transition:opacity 0.2s, transform 0.2s;
+pointer-events:none; white-space:nowrap; border-radius:2px;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+@keyframes fadeUp {
+from{opacity:0;transform:translateY(20px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+/* RESPONSIVE */
+@media (max-width:820px) {
+.cards { grid-template-columns:1fr; }
+.card  { border-right:none; border-bottom:1px solid rgba(255,255,255,0.07); }
+.card:last-child { border-bottom:none; }
+main { padding:1.5rem 1rem; gap:1.8rem; }
+.hero-h1 { font-size:3rem; }
+}
+@media (max-width:480px) {
+header { padding:1rem; }
+.clock { display:none; }
+.hero-h1 { font-size:2.4rem; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="embers" id="embers"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+
+  <header>
+    <div class="logo-wrap">
+      <img class="logo-img" id="logoImg" alt="Rands"
+           onload="this.style.display='block';document.getElementById('logoFb').style.display='none';"
+           onerror="tryLogo()">
+      <div id="logoFb" class="logo-text">RANDS<span>.</span></div>
+    </div>
+    <div class="header-meta">
+      <div class="status-pill">Kiosk Live</div>
+      <div class="clock" id="clock">00:00</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+
+  <main>
+
+```
+<div class="hero">
+  <div class="hero-tag">Self-Service Kiosk</div>
+  <h1 class="hero-h1">Booze<span class="slash">.</span> Braai<span class="slash">.</span><br>Good Times<span class="slash">.</span></h1>
+  <p class="hero-sub">Order at the bar, scan in your ticket, or grab passes for the next one.</p>
+</div>
+
+<div class="cards">
+
+  <!-- ORDER -->
+  <a class="card order" href="kiosk-menu.html">
+    <span class="card-num">01</span>
+    <div class="card-icon">🥩</div>
+    <div class="card-body">
+      <div class="card-title">Start Order</div>
+      <p class="card-desc">Beers, shots, cocktails, platters — pick what you want, pay here, collect at the bar. No queue.</p>
+    </div>
+    <div class="card-cta">Order Now</div>
+  </a>
+
+  <!-- CHECK IN -->
+  <a class="card checkin" href="self-check-in.html">
+    <span class="card-num">02</span>
+    <div class="card-icon">🎟️</div>
+    <div class="card-body">
+      <div class="card-title">Self Check-In</div>
+      <div class="checkin-badge">Got a ticket? Start here</div>
+      <p class="card-desc">Scan the QR code from your ticket booking and your wristband prints automatically right here. No staff, no waiting.</p>
+      <div class="wb-note">
+        <span class="wb-note-icon">🖨️</span>
+        <span>Scan your QR → wristband auto-prints at this kiosk. Wear it, walk in, you're sorted.</span>
+      </div>
+    </div>
+    <div class="card-cta">Scan & Get Wristband</div>
+  </a>
+
+  <!-- TICKETS -->
+  <a class="card tickets" href="kiosk-tickets.html">
+    <span class="card-num">03</span>
+    <div class="card-icon">🔥</div>
+    <div class="card-body">
+      <div class="card-title">Buy Tickets</div>
+      <p class="card-desc">Events, gigs, braai nights — buy your pass right here and you're in. Cash or card accepted.</p>
+    </div>
+    <div class="card-cta">Get Passes</div>
+  </a>
+
+</div>
+
+<div class="quick">
+  <span class="quick-sep">Quick Order</span>
+  <a class="q" href="kiosk-menu.html?category=beers">🍺 Beers</a>
+  <a class="q" href="kiosk-menu.html?category=shots">🥃 Shots</a>
+  <a class="q" href="kiosk-menu.html?category=cocktails">🍹 Cocktails</a>
+  <a class="q" href="kiosk-menu.html?category=platters">🔥 Platters</a>
+  <a class="q" href="kiosk-menu.html?category=specials">⚡ Specials</a>
+</div>
+```
+
+  </main>
+
+  <!-- LIVE VIBE FEED -->
+
+  <div class="live-feed">
+    <div class="feed-label"><div class="feed-dot"></div>VIBE FEED</div>
+    <div class="feed-track">
+      <div class="feed-scroll" id="feedScroll"></div>
+    </div>
+  </div>
+
+  <footer>
+    <span><strong>Rands</strong> Venue Management · #SeeYourVibe</span>
+    <span>Kiosk v2.0</span>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// CLOCK
+(function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  setTimeout(tick,1000);
+})();
+
+// LOGO FALLBACK
+const LOGO_SRCS=['../images/Rands-logo2.png','../images/Rands-logo2.svg','../images/Rands-logo2.jpg','../images/Rands-logo2.webp'];
+let li=0;
+function tryLogo(){
+  li++;
+  const img=document.getElementById('logoImg');
+  if(li<LOGO_SRCS.length){ img.src=LOGO_SRCS[li]; }
+  else { img.style.display='none'; document.getElementById('logoFb').style.display='flex'; }
+}
+document.getElementById('logoImg').src=LOGO_SRCS[0];
+
+// EMBERS
+(function(){
+  const c=document.getElementById('embers');
+  for(let i=0;i<20;i++){
+    const e=document.createElement('div');
+    e.className='ember';
+    e.style.left=Math.random()*100+'%';
+    e.style.setProperty('--dur',(6+Math.random()*10)+'s');
+    e.style.setProperty('--delay',-(Math.random()*14)+'s');
+    e.style.setProperty('--sway',(Math.random()*80-40)+'px');
+    const s=1.5+Math.random()*2.5;
+    e.style.width=e.style.height=s+'px';
+    e.style.background=Math.random()>0.55?'#E31B23':'#F59E0B';
+    c.appendChild(e);
+  }
+})();
+
+// FEED
+const FEED_ITEMS=[
+  {c:'cr', t:'<strong>FLASH DEAL</strong> — Buy 2 pints, get the 3rd for R10. Tonight only.'},
+  {c:'cg', t:'<strong>7 people</strong> just checked in and collected their wristbands'},
+  {c:'ca', t:'<strong>Braai Special:</strong> 500g ribeye + 2 sides + a cold beer — R285 tonight'},
+  {c:'cg', t:'<strong>Order #3847</strong> ready at the bar — come collect your drinks'},
+  {c:'cw', t:'Cashless payments live — tap your card or phone at any till point'},
+  {c:'cr', t:'<strong>LAST ROUND</strong> at 01:30 — don\'t miss it, order now'},
+  {c:'cg', t:'<strong>15 wristbands</strong> auto-printed at this kiosk in the last 30 min'},
+  {c:'ca', t:'<strong>Cocktail of the night:</strong> Rands Sunset — vodka, passion fruit, ginger beer — R75'},
+  {c:'cb', t:'Crowd level: <strong>Properly Packed</strong> — vibe is immaculate on the floor'},
+  {c:'cg', t:'<strong>Order #3851</strong> ready — two Castles and a Hunters Gold'},
+  {c:'cr', t:'<strong>BOILERMAKER THURSDAYS</strong> — whisky + beer combo for R95, all night'},
+  {c:'cw', t:'Lost something? Security at the <strong>main entrance booth</strong> has a lost & found'},
+  {c:'ca', t:'<strong>Wings going fast</strong> — only 3 portions left on tonight\'s menu'},
+  {c:'cg', t:'<strong>Table 7</strong> just ordered a round for the whole group 🥩🍺'},
+  {c:'cr', t:'<strong>HAPPY HOUR</strong> ends in 40 min — shots are R20, get in while it lasts'},
+  {c:'cb', t:'Kiosk check-in is faster than the door queue — scan your QR right here'},
+];
+
+function buildFeed(){
+  const s=document.getElementById('feedScroll');
+  const all=[...FEED_ITEMS,...FEED_ITEMS];
+  s.innerHTML=all.map(i=>`<span class="fi ${i.c}"><span class="dot"></span>${i.t}</span>`).join('');
+}
+buildFeed();
+
+// Dynamic live inject every 15s
+const LIVE=[
+  ()=>`<strong>Order #${3800+Math.floor(Math.random()*400)}</strong> is ready at the bar`,
+  ()=>`<strong>${Math.floor(Math.random()*5)+2} wristbands</strong> just printed at this kiosk`,
+  ()=>`Someone just ordered the <strong>Mega Meat Platter</strong> 🔥`,
+  ()=>`<strong>${Math.floor(Math.random()*12)+4} people</strong> in door queue — kiosk check-in is instant`,
+  ()=>`<strong>R${Math.floor(Math.random()*1500+300)}</strong> in orders processed in the last 10 minutes`,
+];
+let li2=0;
+setInterval(()=>{
+  const s=document.getElementById('feedScroll');
+  const el=document.createElement('span');
+  el.className='fi ca';
+  el.innerHTML=`<span class="dot"></span>⚡ ${LIVE[li2++%LIVE.length]()}`;
+  s.appendChild(el);
+  if(li2%6===0) buildFeed();
+},15000);
+
+// TOAST
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+console.log('%c🔴 RANDS KIOSK v2 | Ready','color:#E31B23;font-size:14px;font-weight:900;');
+</script>
+
+</body>
+</html>
