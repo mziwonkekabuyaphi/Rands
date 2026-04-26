@@ -9,7 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
     <style>
-        /* [Same CSS as above - keeping it clean] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f5f7fb; overflow-x: hidden; }
         .sidebar { position: fixed; left: 0; top: 0; width: 270px; height: 100%; background: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.05); z-index: 100; transition: all 0.3s ease; overflow-y: auto; border-right: 1px solid #edf2f7; }
@@ -27,6 +26,9 @@
         .main-content { margin-left: 270px; transition: all 0.3s ease; min-height: 100vh; }
         .top-header { background: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; position: sticky; top: 0; z-index: 99; }
         .header-left h3 { font-size: 1.2rem; font-weight: 600; color: #1e293b; }
+        .header-right { display: flex; align-items: center; gap: 24px; }
+        .notification-icon { position: relative; cursor: pointer; font-size: 1.2rem; color: #4a5568; }
+        .badge-dot { position: absolute; top: -4px; right: -6px; width: 10px; height: 10px; background: #E30613; border-radius: 50%; border: 2px solid white; }
         .profile-dropdown { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 12px; border-radius: 40px; background: #f8fafd; }
         .avatar { width: 38px; height: 38px; background: linear-gradient(135deg, #E30613, #b0020e); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
         .dashboard-container { padding: 28px 32px; }
@@ -36,16 +38,14 @@
         .stat-icon { width: 48px; height: 48px; background: #fff0f0; border-radius: 24px; display: flex; align-items: center; justify-content: center; color: #E30613; font-size: 1.4rem; margin-bottom: 16px; }
         .stat-title { font-size: 0.75rem; font-weight: 500; color: #6c7a8e; text-transform: uppercase; }
         .stat-number { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-top: 6px; }
-        .revenue-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
-        .revenue-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; padding: 20px; }
-        .revenue-card.primary { background: linear-gradient(135deg, #E30613, #b0020e); }
-        .revenue-card.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .revenue-card.success { background: linear-gradient(135deg, #10b981, #059669); }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 20px 0; flex-wrap: wrap; gap: 12px; }
         .section-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
-        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; }
+        .btn-primary { background: #E30613; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.1s; }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-outline { background: transparent; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 40px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
         .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; }
+        .btn-success { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; }
         .table-wrapper { overflow-x: auto; background: white; border-radius: 24px; border: 1px solid #edf2f7; }
         .data-table { width: 100%; border-collapse: collapse; min-width: 650px; }
         .data-table th, .data-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
@@ -55,56 +55,85 @@
         .status-warning { background: #fff3e0; color: #f59e0b; }
         .status-success { background: #e0f2fe; color: #0ea5e9; }
         .status-inactive { background: #fee2e2; color: #E30613; }
+        .status-on-duty { background: #d1fae5; color: #059669; }
+        .status-off-duty { background: #f1f5f9; color: #64748b; }
+        .queue-list { background: white; border-radius: 24px; border: 1px solid #edf2f7; overflow: hidden; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+        .queue-actions button { margin-left: 8px; padding: 6px 14px; border-radius: 30px; border: none; cursor: pointer; font-weight: 500; }
+        .btn-call { background: #E30613; color: white; }
+        .btn-skip { background: #f1f5f9; color: #4a5568; }
+        .item-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 30px; background: #f1f5f9; }
         .role-badge { background: #e0e7ff; color: #4f46e5; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
-        .wallet-badge { background: #fef3c7; color: #d97706; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
-        .payment-method-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.6rem; font-weight: 600; margin-right: 4px; }
-        .payment-cash { background: #e0e7ff; color: #4f46e5; }
-        .payment-card { background: #d1fae5; color: #059669; }
-        .payment-wallet { background: #fef3c7; color: #d97706; }
+        .modal-mask { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s; }
+        .modal-mask.active { visibility: visible; opacity: 1; }
+        .modal-container { background: white; width: 90%; max-width: 550px; border-radius: 32px; padding: 28px; }
         .form-control { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 40px; font-family: 'Inter', sans-serif; font-size: 0.85rem; margin-bottom: 16px; }
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: #1e293b; }
-        .settings-panel { background: white; border-radius: 28px; padding: 24px; border: 1px solid #edf2f7; margin-top: 20px; }
-        .modules-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-        .module-card-item { background: white; border-radius: 20px; padding: 20px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; }
-        .module-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-        .module-info p { font-size: 0.7rem; color: #64748b; }
-        .module-badge-enabled { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-        .module-revenue-breakdown { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #E30613; }
-        .module-revenue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px; }
-        .progress-bar { height: 6px; background: #edf2f7; border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #E30613; border-radius: 3px; }
-        .topup-form { background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
-        .amount-input { font-size: 1.5rem; text-align: center; font-weight: 600; }
-        .tabs-container { display: flex; gap: 8px; border-bottom: 1px solid #e2e8f0; margin-bottom: 24px; flex-wrap: wrap; }
-        .tab-button { padding: 10px 20px; background: transparent; border: none; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; }
-        .tab-button:hover { color: #E30613; background: #fff0f0; }
-        .tab-button.active { color: #E30613; border-bottom: 3px solid #E30613; }
-        .action-icons { display: flex; gap: 12px; cursor: pointer; }
         .credential-cell { font-family: monospace; font-size: 0.75rem; background: #f1f5f9; padding: 4px 8px; border-radius: 8px; display: inline-block; }
         .copy-icon { margin-left: 6px; cursor: pointer; color: #64748b; }
-        .sync-status { display: flex; align-items: center; gap: 6px; background: #f0fdf4; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; }
+        .copy-icon:hover { color: #E30613; }
+        .action-icons { display: flex; gap: 12px; cursor: pointer; }
+        .action-icons i:hover { color: #E30613; }
+        .settings-panel { background: white; border-radius: 28px; padding: 24px; border: 1px solid #edf2f7; margin-top: 20px; }
+        .color-preview { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .preview-box { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .sync-status { display: flex; align-items: center; gap: 6px; background: #f0fdf4; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
+        .sync-status i { font-size: 0.65rem; }
+        .sync-status.warning { background: #fef3c7; color: #d97706; }
+        .fullscreen-active .sidebar, .fullscreen-active .top-header .header-right .notification-icon, .fullscreen-active .top-header .menu-toggle { display: none !important; }
+        .fullscreen-active .top-header { justify-content: space-between !important; gap: 20px !important; position: fixed; top: 0; left: 0; right: 0; z-index: 10001; }
+        .fullscreen-active .dashboard-container { margin-top: 70px; }
+        .fullscreen-active .main-content { margin-left: 0 !important; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; background: #f5f7fb; overflow-y: auto; }
+        .fullscreen-active .exit-fullscreen-btn { display: flex !important; }
+        .fullscreen-active .fullscreen-btn-module { display: none; }
+        .fullscreen-active .header-right { display: flex !important; }
+        .exit-fullscreen-btn { display: none; background: #E30613; color: white; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; font-size: 0.85rem; cursor: pointer; align-items: center; gap: 8px; margin-left: auto; }
+        .fullscreen-btn-module { background: transparent; border: 1px solid #E30613; color: #E30613; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-left: auto; transition: 0.2s; }
+        .fullscreen-btn-module:hover { background: #fff0f0; }
+        .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; color: #1e293b; }
         .role-boxoffice { background: #dbeafe; color: #2563eb; }
         .role-hospitality { background: #fce7f3; color: #db2777; }
         .role-shishamaster { background: #fed7aa; color: #ea580c; }
         .role-gatecontrol { background: #d1fae5; color: #059669; }
+        .role-support { background: #e0e7ff; color: #4f46e5; }
         .role-venuemanager { background: #fef3c7; color: #d97706; }
-        .modal-mask { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s; }
-        .modal-mask.active { visibility: visible; opacity: 1; }
-        .modal-container { background: white; width: 90%; max-width: 550px; border-radius: 32px; padding: 28px; }
-        .fullscreen-btn-module { background: transparent; border: 1px solid #E30613; color: #E30613; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-left: 12px; }
-        .exit-fullscreen-btn { display: none; background: #E30613; color: white; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; cursor: pointer; margin-left: 12px; }
-        .fullscreen-active .sidebar { display: none !important; }
-        .fullscreen-active .main-content { margin-left: 0 !important; }
-        .fullscreen-active .exit-fullscreen-btn { display: flex !important; }
-        .fullscreen-active .fullscreen-btn-module { display: none; }
-        .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; margin-right: 16px; }
+        
+        /* Staff Module specific styles */
+        .modules-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .module-card-item { background: white; border-radius: 20px; padding: 20px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .module-card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .module-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .module-info p { font-size: 0.7rem; color: #64748b; }
+        .module-status { display: flex; align-items: center; gap: 12px; }
+        .module-badge-enabled { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+        .module-badge-disabled { background: #ef4444; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+        
+        /* Tabs for Staff Module */
+        .tabs-container { display: flex; gap: 8px; border-bottom: 1px solid #e2e8f0; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab-button { padding: 10px 20px; background: transparent; border: none; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; border-radius: 12px 12px 0 0; }
+        .tab-button:hover { color: #E30613; background: #fff0f0; }
+        .tab-button.active { color: #E30613; border-bottom: 3px solid #E30613; background: transparent; }
+        
+        .active-staff-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #10b981; }
+        .force-logout-btn { background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; }
+        .force-logout-btn:hover { background: #b91c1c; }
+        
+        .session-status { display: flex; align-items: center; gap: 6px; background: #e6f7e6; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #10b981; margin-right: 16px; }
+        .session-status.warning { background: #fee2e2; color: #E30613; }
+        .staff-avatar-small { width: 32px; height: 32px; background: #E30613; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.8rem; }
+        .staff-stat-card { background: #f8fafc; border-radius: 16px; padding: 12px; text-align: center; }
+        .staff-stat-number { font-size: 1.5rem; font-weight: 800; color: #E30613; }
+        
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 260px; }
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; }
             .dashboard-container { padding: 20px; }
-            .menu-toggle { display: block; }
+            .menu-toggle { display: block; margin-right: 16px; }
+            .fullscreen-btn-module { padding: 4px 10px; font-size: 0.7rem; }
+            .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
         }
         @media (min-width: 769px) { .menu-toggle { display: none; } }
     </style>
@@ -120,24 +149,23 @@
             </div>
         </div>
         <div class="nav-menu">
+            <!-- Core Navigation Items - REMOVED duplicate Staff Management -->
             <div v-for="item in coreNavItems" :key="item.id" class="nav-item" :class="{ active: currentSection === item.id }" @click="handleNavClick(item)">
                 <i :class="item.icon"></i>
                 <span>{{ item.label }}</span>
             </div>
             
-            <div class="nav-item" :class="{ active: currentSection === 'payments_revenue' }" @click="currentSection = 'payments_revenue'; closeSidebar()" v-if="showPaymentsRevenue">
-                <i class="fas fa-chart-line"></i>
-                <span>Payments & Revenue</span>
-                <span v-if="hasWalletBalance" class="wallet-badge" style="margin-left: auto;">💰 Active</span>
-            </div>
-            
+            <!-- Dynamic Module Navigation - Only shows ENABLED modules from Super Admin -->
+            <!-- Staff Management Module appears here when enabled by Super Admin - SINGLE UNIFIED ENTRY -->
             <div class="nav-divider" v-if="enabledModulesList.length > 0"></div>
             <div class="nav-section-title" v-if="enabledModulesList.length > 0"><i class="fas fa-puzzle-piece"></i> ACTIVE MODULES</div>
             <div v-for="module in enabledModulesList" :key="'module_' + module.id" class="nav-item" :class="{ active: currentSection === 'module_' + module.id }" @click="goToModuleSection(module)">
                 <i :class="getModuleIcon(module.name)"></i>
                 <span>{{ getModuleDisplayName(module.name) }}</span>
+                <span class="module-badge-enabled" style="font-size: 0.6rem; padding: 2px 6px; margin-left: auto;">Live</span>
             </div>
             
+            <!-- Settings at bottom -->
             <div class="nav-divider"></div>
             <div class="nav-item" :class="{ active: currentSection === 'settings' }" @click="currentSection = 'settings'; closeSidebar()">
                 <i class="fas fa-cog"></i>
@@ -153,10 +181,15 @@
                 <div class="header-left"><h3>{{ currentSectionTitle }}</h3></div>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="sync-status" v-if="walletSummary.total_balance > 0">
-                    <i class="fas fa-wallet"></i>
-                    <span>Wallet: R{{ walletSummary.total_balance.toFixed(2) }}</span>
+                <div class="session-status" :class="{ warning: !sessionValid }">
+                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
+                    <span>Session Active</span>
                 </div>
+                <div class="sync-status" :class="{ warning: syncWarning }">
+                    <i class="fas fa-sync-alt fa-fw" :class="{ 'fa-spin': syncing }"></i>
+                    <span>{{ syncStatusText }}</span>
+                </div>
+                <div class="notification-icon"><i class="far fa-bell"></i><span class="badge-dot"></span></div>
                 <div class="profile-dropdown" @click="logout">
                     <div class="avatar">{{ adminInitial }}</div>
                     <span style="font-size:0.85rem;">{{ adminName }}</span>
@@ -168,627 +201,671 @@
         </div>
 
         <div class="dashboard-container">
-            <!-- DASHBOARD -->
+            <!-- DASHBOARD SECTION -->
             <div v-if="currentSection === 'dashboard'">
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-title">Total Staff</div><div class="stat-number">{{ staffList.length }}</div></div>
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-check"></i></div><div class="stat-title">Active Staff</div><div class="stat-number">{{ activeStaffCount }}</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Today's Revenue</div><div class="stat-number">R{{ todayRevenue.toFixed(2) }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-title">On Shift Now</div><div class="stat-number">{{ staffOnShiftCount }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-title">Tickets Sold</div><div class="stat-number">1,284</div></div>
                 </div>
                 
-                <div class="section-header"><h2>Staff Members</h2></div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr v-for="staff in staffList" :key="staff.id">
-                                <td><strong>{{ staff.name }}</strong></td>
-                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
-                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
-                            </tr>
-                            <tr v-if="staffList.length === 0"><td colspan="3" style="text-align:center; padding:40px;">No staff members</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- PAYMENTS & REVENUE -->
-            <div v-if="currentSection === 'payments_revenue'">
+                <!-- Currently Active Staff (Real-time) -->
                 <div class="section-header">
-                    <h2><i class="fas fa-chart-line"></i> Payments & Revenue</h2>
-                    <button class="btn-outline" @click="refreshRevenueData"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <h2><i class="fas fa-circle" style="color: #10b981; font-size: 0.7rem;"></i> Staff Currently On Shift ({{ activeShiftsList.length }})</h2>
                 </div>
-
-                <div class="revenue-stats-grid">
-                    <div class="revenue-card primary"><div><i class="fas fa-calendar-day"></i> Today's Revenue</div><div style="font-size: 2rem; font-weight: 800;">R{{ todayRevenue.toFixed(2) }}</div></div>
-                    <div class="revenue-card"><div><i class="fas fa-calendar-week"></i> This Week</div><div style="font-size: 2rem; font-weight: 800;">R{{ weeklyRevenue.toFixed(2) }}</div></div>
-                    <div class="revenue-card warning"><div><i class="fas fa-calendar-alt"></i> This Month</div><div style="font-size: 2rem; font-weight: 800;">R{{ monthlyRevenue.toFixed(2) }}</div></div>
-                    <div class="revenue-card success"><div><i class="fas fa-wallet"></i> Platform Fees</div><div style="font-size: 2rem; font-weight: 800;">R{{ totalPlatformFees.toFixed(2) }}</div></div>
-                </div>
-
-                <div class="section-header"><h3>Revenue by Module</h3></div>
-                <div v-for="module in moduleRevenueBreakdown" :key="module.name" class="module-revenue-breakdown">
-                    <div class="module-revenue-header">
-                        <div><i :class="getModuleIcon(module.name)" style="color:#E30613; margin-right:8px;"></i><strong>{{ getModuleDisplayName(module.name) }}</strong><span style="font-size:0.7rem; margin-left:8px;">{{ module.action_count }} txns</span></div>
-                        <div><span style="font-weight:700; font-size:1.2rem;">R{{ module.total_revenue.toFixed(2) }}</span><span style="font-size:0.7rem; margin-left:8px;">Fee: R{{ module.platform_fee.toFixed(2) }}</span></div>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill" :style="{ width: (module.total_revenue / maxModuleRevenue * 100) + '%' }"></div></div>
-                </div>
-
-                <div v-if="shouldShowWalletInterface" class="settings-panel">
-                    <h3><i class="fas fa-wallet"></i> Wallet Management</h3>
-                    <div v-if="financeSettings.manual_topup_enabled" class="topup-form">
-                        <h4>Manual Top-up</h4>
-                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                            <div style="flex:1"><input type="number" v-model="topupForm.amount" class="form-control amount-input" placeholder="Amount" step="0.01"></div>
-                            <div style="flex:1">
-                                <select v-model="topupForm.payment_method" class="form-control">
-                                    <option value="cash">Cash</option><option value="card">Card</option><option value="eft">EFT</option>
-                                </select>
-                            </div>
-                            <div><button class="btn-primary" @click="processManualTopup" :disabled="topupForm.amount <= 0">Add Funds</button></div>
+                <div class="modules-container" v-if="activeShiftsList.length > 0">
+                    <div v-for="shift in activeShiftsList.slice(0, 4)" :key="shift.shift_id" class="module-card-item active-staff-card">
+                        <div class="module-info">
+                            <h4><i class="fas fa-user-circle"></i> {{ shift.staff_name }}</h4>
+                            <p><i class="fas fa-clock"></i> Since: {{ formatTime(shift.login_time) }} | {{ calculateDuration(shift.login_time) }}</p>
+                            <p><i class="fas fa-tag"></i> Role: {{ getRoleDisplay(shift.staff_role) }}</p>
                         </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-top:20px;">
-                        <div style="background:#f8fafc; padding:16px; border-radius:16px;"><div>Total Customer Balance</div><div style="font-size:1.8rem; font-weight:800; color:#E30613;">R{{ walletSummary.total_balance.toFixed(2) }}</div></div>
-                        <div style="background:#f8fafc; padding:16px; border-radius:16px;"><div>Customers with Wallet</div><div style="font-size:1.8rem; font-weight:800;">{{ walletSummary.total_customers }}</div></div>
+                        <button class="force-logout-btn" @click="forceLogout(shift)"><i class="fas fa-sign-out-alt"></i> Force</button>
                     </div>
                 </div>
-
-                <div class="section-header"><h3>Transaction History</h3></div>
+                <div v-else class="settings-panel" style="text-align:center; padding:20px;">
+                    <i class="fas fa-user-clock" style="font-size:32px; color:#cbd5e1;"></i>
+                    <p style="margin-top:8px;">No staff currently on shift</p>
+                </div>
+                
+                <div class="section-header">
+                    <h2>Recent Staff Activity</h2>
+                </div>
                 <div class="table-wrapper">
                     <table class="data-table">
-                        <thead><tr><th>Date</th><th>Module</th><th>Action</th><th>Amount</th><th>Payment</th></tr></thead>
+                        <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Today's Hours</th></tr></thead>
                         <tbody>
-                            <tr v-for="tx in filteredTransactions" :key="tx.id">
-                                <td>{{ formatDateTime(tx.timestamp) }}</td>
-                                <td><span class="role-badge">{{ getModuleDisplayName(tx.module_name) }}</span></td>
-                                <td>{{ tx.action_type }}</td>
-                                <td style="font-weight:600;">R{{ tx.amount_charged.toFixed(2) }}</td>
-                                <td><span class="payment-method-badge" :class="'payment-' + (tx.payment_method || 'wallet')">{{ tx.payment_method || 'Wallet' }}</span></td>
-                            </tr>
+                            <tr v-for="staff in recentStaff" :key="staff.id">
+                                <td>{{ staff.name }}</span></span></span></td>
+                                <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></td>
+                                <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></span></span></td>
+                                <td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</span></span></span></td>
+                            </span></span></tr>
+                            <tr v-if="recentStaff.length === 0"><td colspan="4" style="text-align:center; color:#999;">No staff members yet</span></span></tr>
                         </tbody>
-                    </table>
-                </div>
-
-                <div class="section-header"><h3>Current Invoice</h3><button class="btn-outline" @click="downloadInvoice">Download</button></div>
-                <div class="settings-panel" v-if="currentInvoice">
-                    <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
-                        <div><p><strong>Invoice:</strong> {{ currentInvoice.invoice_number }}</p><p><strong>Period:</strong> {{ formatDate(currentInvoice.period_start) }} - {{ formatDate(currentInvoice.period_end) }}</p></div>
-                        <div style="text-align:right;"><p><strong>Total:</strong> R{{ currentInvoice.total_amount.toFixed(2) }}</p><span class="status-badge" :class="'status-' + (currentInvoice.status === 'pending' ? 'warning' : 'success')">{{ currentInvoice.status }}</span></div>
-                    </div>
+                    </span></span></table>
                 </div>
             </div>
 
-            <!-- MODULES LIST -->
-            <div v-if="currentSection === 'modules_list'">
-                <div class="section-header"><h2>Available Modules</h2><button class="btn-outline" @click="refreshModules">Refresh</button></div>
-                <div class="modules-container">
-                    <div v-for="module in tenantModules" :key="module.id" class="module-card-item">
-                        <div class="module-info"><h4><i :class="getModuleIcon(module.name)" style="color:#E30613;"></i> {{ module.name }}</h4><p>{{ getModuleDescription(module.name) }}</p></div>
-                        <div><span :class="module.enabled ? 'module-badge-enabled' : 'module-badge-disabled'">{{ module.enabled ? 'ENABLED' : 'DISABLED' }}</span></div>
-                    </div>
+            <!-- UNIFIED STAFF MANAGEMENT MODULE - When enabled by Super Admin -->
+            <div v-for="module in enabledModulesList" :key="'content_' + module.id" v-if="currentSection === 'module_' + module.id && module.name === 'Staff Management'">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> {{ getModuleDisplayName(module.name) }}</h2>
+                    <button class="btn-outline" @click="currentSection = 'dashboard'"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
                 </div>
-            </div>
-
-            <!-- STAFF MANAGEMENT MODULE -->
-            <div v-for="module in enabledModulesList" :key="'staff_' + module.id" v-if="currentSection === 'module_' + module.id && module.name === 'Staff Management'">
-                <div class="section-header"><h2><i class="fas fa-users"></i> Staff Management</h2><button class="btn-outline" @click="currentSection = 'dashboard'">Back</button></div>
+                
+                <!-- Tabs for Staff Management -->
                 <div class="tabs-container">
-                    <button class="tab-button" :class="{ active: staffModuleTab === 'accounts' }" @click="staffModuleTab = 'accounts'">Staff Accounts</button>
-                    <button class="tab-button" :class="{ active: staffModuleTab === 'attendance' }" @click="staffModuleTab = 'attendance'">Attendance</button>
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'accounts' }" @click="staffModuleTab = 'accounts'"><i class="fas fa-id-card"></i> Staff Accounts</button>
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'attendance' }" @click="staffModuleTab = 'attendance'"><i class="fas fa-clock"></i> Attendance</button>
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'activity' }" @click="staffModuleTab = 'activity'"><i class="fas fa-chart-line"></i> Activity Logs</button>
+                    <button class="tab-button" :class="{ active: staffModuleTab === 'reports' }" @click="staffModuleTab = 'reports'"><i class="fas fa-file-alt"></i> Reports</button>
                 </div>
+                
+                <!-- TAB 1: STAFF ACCOUNTS -->
                 <div v-if="staffModuleTab === 'accounts'">
-                    <div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff</button></div>
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                        <button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff Member</button>
+                    </div>
+                    
+                    <div class="stats-grid" style="margin-bottom: 24px;">
+                        <div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.length }}</div><div>Total Staff</div></div>
+                        <div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Active').length }}</div><div>Active</div></div>
+                        <div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Inactive').length }}</div><div>Inactive</div></div>
+                    </div>
+                    
                     <div class="table-wrapper">
                         <table class="data-table">
-                            <thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th><th>Actions</th></tr></thead>
+                            <thead>
+                                <tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th><th>Today's Hours</th><th>Actions</th></tr>
+                            </thead>
                             <tbody>
                                 <tr v-for="staff in staffList" :key="staff.id">
-                                    <td><strong>{{ staff.name }}</strong></td>
-                                    <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></td>
-                                    <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></td>
-                                    <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></td>
-                                    <td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)"></i><i class="fas fa-key" @click="resetStaffPassword(staff)"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)"></i></div></td>
-                                </tr>
+                                    <td><strong>{{ staff.name }}</strong></span></span></span></span>
+                                    <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
+                                    <td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></span></span></span>
+                                    <td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></span></span></span>
+                                    <td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</span></span></span></span>
+                                    <td><div class="action-icons">
+                                        <i class="fas fa-edit" @click="editStaff(staff)" style="cursor:pointer; color:#f59e0b;" title="Edit"></i>
+                                        <i class="fas fa-key" @click="resetStaffPassword(staff)" style="cursor:pointer; color:#E30613;" title="Reset Password"></i>
+                                        <i class="fas fa-toggle-on" v-if="staff.status === 'Active'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#10b981;" title="Deactivate"></i>
+                                        <i class="fas fa-toggle-off" v-else @click="toggleStaffStatus(staff.id)" style="cursor:pointer; color:#94a3b8;" title="Activate"></i>
+                                        <i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="cursor:pointer; color:#dc2626;" title="Delete"></i>
+                                    </div></span></span></span></span>
+                                </span></span></tr>
+                                <tr v-if="staffList.length === 0"><td colspan="6" style="text-align:center; padding:40px;">No staff members. Click "Add Staff Member" to create one.</span></span></tr>
                             </tbody>
-                        </table>
+                        </span></span></table>
+                    </div>
+                    
+                    <div class="settings-panel" style="margin-top: 24px;">
+                        <h4 style="margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Role Permissions Guide</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; font-size: 0.75rem;">
+                            <div><span class="role-badge role-boxoffice">Box Office</span> - Ticket sales, entry scanning</div>
+                            <div><span class="role-badge role-hospitality">Hospitality</span> - Food & shisha orders (POS)</div>
+                            <div><span class="role-badge role-shishamaster">Shisha Master</span> - Manage shisha sessions</div>
+                            <div><span class="role-badge role-gatecontrol">Gate Control</span> - Entry scanning only</div>
+                            <div><span class="role-badge role-support">Support Staff</span> - View only, no operations</div>
+                            <div><span class="role-badge role-venuemanager">Venue Manager</span> - Full access to everything</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TAB 2: ATTENDANCE TRACKING -->
+                <div v-if="staffModuleTab === 'attendance'">
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div class="stat-title">Currently On Shift</div><div class="stat-number">{{ activeShiftsList.length }}</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-hourglass-half"></i></div><div class="stat-title">Total Hours Today</div><div class="stat-number">{{ totalHoursToday.toFixed(1) }}h</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Avg Hours/Staff</div><div class="stat-number">{{ avgHoursPerStaff.toFixed(1) }}h</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-week"></i></div><div class="stat-title">Week Total Hours</div><div class="stat-number">{{ totalWeekHours.toFixed(1) }}h</div></div>
+                    </div>
+                    
+                    <div class="section-header">
+                        <h3><i class="fas fa-circle" style="color: #10b981; font-size: 0.7rem;"></i> Currently Active Shifts ({{ activeShiftsList.length }})</h3>
+                    </div>
+                    <div class="modules-container" v-if="activeShiftsList.length > 0">
+                        <div v-for="shift in activeShiftsList" :key="shift.shift_id" class="module-card-item active-staff-card">
+                            <div class="module-info">
+                                <h4><i class="fas fa-user-circle"></i> {{ shift.staff_name }}</h4>
+                                <p><i class="fas fa-clock"></i> Started: {{ formatDateTime(shift.login_time) }}</p>
+                                <p><i class="fas fa-hourglass-half"></i> Duration: {{ calculateDuration(shift.login_time) }}</p>
+                                <p><i class="fas fa-tag"></i> Role: {{ getRoleDisplay(shift.staff_role) }}</p>
+                            </div>
+                            <button class="force-logout-btn" @click="forceLogout(shift)"><i class="fas fa-sign-out-alt"></i> Force Logout</button>
+                        </div>
+                    </div>
+                    <div v-else class="settings-panel" style="text-align:center; padding:40px;">
+                        <i class="fas fa-user-clock" style="font-size:48px; color:#cbd5e1;"></i>
+                        <p style="margin-top:12px;">No staff currently on shift</p>
+                    </div>
+                    
+                    <div class="section-header" style="margin-top: 32px;">
+                        <h3>Attendance History</h3>
+                        <div style="display: flex; gap: 12px;">
+                            <select v-model="attendanceFilter.role" class="tenant-dropdown" style="padding: 8px 16px; border-radius: 40px; border: 1px solid #e2e8f0;" @change="filterAttendance">
+                                <option value="">All Roles</option>
+                                <option value="boxoffice">Box Office</option>
+                                <option value="hospitality">Hospitality</option>
+                                <option value="shishamaster">Shisha Master</option>
+                                <option value="gatecontrol">Gate Control</option>
+                                <option value="venuemanager">Venue Manager</option>
+                            </select>
+                            <button class="btn-outline" @click="exportAttendanceReport"><i class="fas fa-download"></i> Export Report</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Name</th><th>Role</th><th>Status</th><th>Today's Hours</th><th>Week Hours</th><th>Month Hours</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="staff in filteredStaffAttendance" :key="staff.id">
+                                    <td><strong>{{ staff.name }}</strong></span></span></span></span>
+                                    <td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></span></span></span>
+                                    <td><span class="status-badge" :class="staff.isOnShift ? 'status-on-duty' : 'status-off-duty'">{{ staff.isOnShift ? 'On Duty' : 'Off Duty' }}</span></span></span></span>
+                                    <td><strong>{{ staff.today_hours.toFixed(1) }}h</strong></span></span></span></span>
+                                    <td>{{ staff.week_hours.toFixed(1) }}h</span></span></span></span>
+                                    <td>{{ staff.month_hours.toFixed(1) }}h</span></span></span></span>
+                                    <td><div class="action-icons"><i class="fas fa-history" @click="viewStaffShiftHistory(staff)" title="View History" style="cursor:pointer;"></i></div></span></span></span></span>
+                                </span></span></tr>
+                                <tr v-if="filteredStaffAttendance.length === 0"><td colspan="7" style="text-align:center; padding:40px;">No staff members found</span></span></tr>
+                            </tbody>
+                        </span></span></table>
+                    </div>
+                </div>
+                
+                <!-- TAB 3: ACTIVITY LOGS -->
+                <div v-if="staffModuleTab === 'activity'">
+                    <div class="settings-panel" style="text-align:center; padding:60px;">
+                        <i class="fas fa-chart-line" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
+                        <h3 style="margin-bottom:12px;">Activity Tracking</h3>
+                        <p style="color:#64748b;">Staff activity logs (sales, orders, scans) will appear here in real-time.</p>
+                        <p style="font-size:0.75rem; color:#94a3b8; margin-top:12px;">Coming soon: Track actions per staff member</p>
+                    </div>
+                </div>
+                
+                <!-- TAB 4: REPORTS -->
+                <div v-if="staffModuleTab === 'reports'">
+                    <div class="settings-panel" style="text-align:center; padding:60px;">
+                        <i class="fas fa-file-alt" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
+                        <h3 style="margin-bottom:12px;">Staff Reports</h3>
+                        <p style="color:#64748b;">Generate reports on staff performance, attendance, and payroll.</p>
+                        <button class="btn-primary" style="margin-top:16px;" @click="exportAttendanceReport"><i class="fas fa-download"></i> Export Attendance Report</button>
                     </div>
                 </div>
             </div>
 
-            <!-- SETTINGS -->
+            <!-- MODULES LIST SECTION (All Modules view) -->
+            <div v-if="currentSection === 'modules_list'">
+                <div class="section-header">
+                    <h2><i class="fas fa-puzzle-piece"></i> Available Modules</h2>
+                    <div>
+                        <button class="btn-outline" @click="refreshModules" style="margin-right: 8px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        <span style="font-size: 0.7rem; color: #64748b;">Configured by Super Admin</span>
+                    </div>
+                </div>
+                
+                <div style="background: #f0f9ff; border-radius: 16px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #E30613;">
+                    <p style="font-size: 0.75rem; margin-bottom: 8px;"><i class="fas fa-info-circle"></i> <strong>Module Status:</strong> {{ tenantModules.length }} modules loaded from Super Admin</p>
+                    <p style="font-size: 0.7rem; color: #64748b;"><i class="fas fa-lightbulb"></i> <strong>Staff Management</strong> appears in sidebar only when enabled by Super Admin</p>
+                </div>
+                
+                <div class="modules-container" v-if="tenantModules.length > 0">
+                    <div v-for="module in tenantModules" :key="module.id" class="module-card-item">
+                        <div class="module-info">
+                            <h4><i :class="getModuleIcon(module.name)" style="color: #E30613; margin-right: 8px;"></i> {{ module.name }}</h4>
+                            <p>{{ getModuleDescription(module.name) }}</p>
+                        </div>
+                        <div class="module-status">
+                            <span :class="module.enabled ? 'module-badge-enabled' : 'module-badge-disabled'">
+                                {{ module.enabled ? 'ENABLED' : 'DISABLED' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="settings-panel" style="text-align:center; padding:40px;">
+                    <i class="fas fa-puzzle-piece" style="font-size:48px; color:#cbd5e1;"></i>
+                    <p style="margin-top:12px;">No modules configured yet. Contact your Super Admin.</p>
+                </div>
+            </div>
+
+            <!-- Fallback for other module types (non-Staff Management) -->
+            <div v-for="module in enabledModulesList" :key="'fallback_' + module.id" v-if="currentSection === 'module_' + module.id && module.name !== 'Staff Management'">
+                <div class="section-header">
+                    <h2><i :class="getModuleIcon(module.name)"></i> {{ getModuleDisplayName(module.name) }}</h2>
+                    <button class="btn-outline" @click="currentSection = 'dashboard'"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                </div>
+                <div class="settings-panel" style="text-align:center; padding:60px;">
+                    <i :class="getModuleIcon(module.name)" style="font-size:48px; color:#E30613; margin-bottom:16px; display:block;"></i>
+                    <h3 style="margin-bottom:12px;">{{ getModuleDisplayName(module.name) }}</h3>
+                    <p style="color:#64748b;">This module is active and ready to use.</p>
+                    <p style="font-size:0.75rem; color:#94a3b8; margin-top:12px;">Module configured by Super Admin</p>
+                </div>
+            </div>
+
+            <!-- SETTINGS SECTION -->
             <div v-if="currentSection === 'settings'">
                 <div class="section-header"><h2>Branding & Settings</h2></div>
                 <div class="settings-panel">
-                    <div class="form-group"><label>Tenant Name</label><input class="form-control" v-model="tenantName"></div>
-                    <div class="form-group"><label>Primary Color</label><input type="color" v-model="branding.primaryColor" class="form-control" style="width:80px; padding:4px;"></div>
+                    <div class="form-group"><label>Tenant Name</label><input class="form-control" v-model="tenantName" @blur="saveBranding"></div>
+                    <div class="form-group"><label>Logo URL</label><input class="form-control" v-model="branding.logoUrl" placeholder="Logo URL"><div v-if="branding.logoUrl"><img :src="branding.logoUrl" style="height:40px; margin-top:8px;"></div></div>
+                    <div class="form-group"><label>Primary Color</label><div class="color-preview"><input type="color" v-model="branding.primaryColor" class="form-control" style="width:80px; padding:4px;" @change="saveBranding"><div class="preview-box" :style="{ backgroundColor: branding.primaryColor }"></div><span>{{ branding.primaryColor }}</span></div></div>
                     <button class="btn-primary" @click="saveBranding">Save Changes</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODALS -->
+    <!-- All Modals -->
     <div class="modal-mask" :class="{ active: showStaffModal }">
         <div class="modal-container">
-            <h3>{{ isEditing ? 'Edit Staff' : 'Add Staff' }}</h3>
-            <div class="form-group"><label>Name</label><input class="form-control" v-model="staffForm.name"></div>
-            <div class="form-group"><label>Username</label><input class="form-control" v-model="staffForm.username"></div>
-            <div class="form-group"><label>Password</label><input type="password" class="form-control" v-model="staffForm.password"></div>
-            <div class="form-group"><label>Role</label><select class="form-control" v-model="staffForm.role"><option value="boxoffice">Box Office</option><option value="hospitality">Hospitality</option><option value="shishamaster">Shisha Master</option><option value="gatecontrol">Gate Control</option><option value="venuemanager">Venue Manager</option></select></div>
-            <div style="display:flex; gap:12px;"><button class="btn-outline" @click="closeStaffModal">Cancel</button><button class="btn-primary" @click="saveStaff">{{ isEditing ? 'Update' : 'Create' }}</button></div>
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-user-plus"></i> {{ isEditing ? 'Edit Staff' : 'Add New Staff' }}</h3>
+            <div class="form-group"><label>Full Name *</label><input class="form-control" v-model="staffForm.name" placeholder="e.g., John Doe"></div>
+            <div class="form-group"><label>Username *</label><input class="form-control" v-model="staffForm.username" placeholder="Login username (unique)"></div>
+            <div class="form-group"><label>Password *</label><input type="password" class="form-control" v-model="staffForm.password" placeholder="Login password (min 4 characters)"></div>
+            <div class="form-group">
+                <label>Role * - Determines what staff can access</label>
+                <select class="form-control" v-model="staffForm.role">
+                    <option value="boxoffice">🎟️ Box Office - Ticket sales, entry scanning</option>
+                    <option value="hospitality">🍽️ Hospitality - Food & shisha orders (POS)</option>
+                    <option value="shishamaster">💨 Shisha Master - Manage shisha sessions, tables</option>
+                    <option value="gatecontrol">🚪 Gate Control - Entry scanning only</option>
+                    <option value="support">🧹 Support Staff - View only, no operations</option>
+                    <option value="venuemanager">👔 Venue Manager - Full access to everything</option>
+                </select>
+            </div>
+            <div class="modal-buttons" style="display:flex; gap:12px; margin-top:20px;">
+                <button class="btn-outline" @click="closeStaffModal">Cancel</button>
+                <button class="btn-primary" @click="saveStaff">{{ isEditing ? 'Update' : 'Create' }}</button>
+            </div>
         </div>
     </div>
 
     <div class="modal-mask" :class="{ active: showResetModal }">
         <div class="modal-container">
-            <h3>Reset Password</h3>
+            <h3><i class="fas fa-key"></i> Reset Password</h3>
             <p>New password for <strong>{{ resettingStaff?.name }}</strong></p>
-            <input type="password" class="form-control" v-model="newPassword">
-            <div style="display:flex; gap:12px;"><button class="btn-outline" @click="showResetModal = false">Cancel</button><button class="btn-primary" @click="confirmResetPassword">Reset</button></div>
+            <input type="password" class="form-control" v-model="newPassword" placeholder="New password (min 4 characters)" style="margin:16px 0;">
+            <div style="display:flex; gap:12px; margin-top:16px;">
+                <button class="btn-outline" @click="showResetModal = false">Cancel</button>
+                <button class="btn-primary" @click="confirmResetPassword">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" :class="{ active: showShiftHistoryModal }">
+        <div class="modal-container" style="max-width: 700px;">
+            <h3><i class="fas fa-history"></i> Shift History - {{ selectedStaff?.name }}</h3>
+            <div class="table-wrapper" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th><th>Station</th></tr></thead>
+                    <tbody>
+                        <tr v-for="shift in staffShiftHistory" :key="shift.shift_id">
+                            <td>{{ formatDate(shift.login_time) }}</span></span></td>
+                            <td>{{ formatTime(shift.login_time) }}</span></span></td>
+                            <td>{{ shift.logout_time ? formatTime(shift.logout_time) : 'Active' }}</span></span></td>
+                            <td>{{ shift.hours_worked ? shift.hours_worked.toFixed(1) + 'h' : '-' }}</span></span></td>
+                            <td>{{ shift.station_at_login || '-' }}</span></span></td>
+                        </span></span></tr>
+                        <tr v-if="staffShiftHistory.length === 0"><td colspan="5" style="text-align:center;">No shift history found</span></span></tr>
+                    </tbody>
+                </span></span></td>
+            </div>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button class="btn-primary" @click="showShiftHistoryModal = false">Close</button>
+            </div>
         </div>
     </div>
 
     <div class="modal-mask" :class="{ active: showInfoModal }">
         <div class="modal-container" style="text-align:center;">
-            <i :class="infoIcon" style="font-size:48px; margin-bottom:16px;" :style="{ color: infoIconColor }"></i>
+            <i :class="infoIcon" style="font-size: 48px; margin-bottom: 16px;" :style="{ color: infoIconColor }"></i>
             <h3>{{ infoTitle }}</h3>
-            <p style="margin:16px 0;">{{ infoMessage }}</p>
+            <p style="margin: 16px 0; white-space: pre-line;">{{ infoMessage }}</p>
             <button class="btn-primary" @click="showInfoModal = false">OK</button>
         </div>
     </div>
 </div>
 
 <script>
-    // STORAGE KEYS - Must match Super Admin keys
-    const STORAGE_KEYS = {
-        TENANTS: 'qless_tenants',
-        STAFF: 'qless_staff',
-        TENANT_MODULES: 'qless_tenant_modules',
-        SHIFTS: 'qless_shifts',
-        USAGE_LEDGER: 'qless_usage_ledger',
-        WALLET_TRANSACTIONS: 'qless_wallet_transactions',
-        FINANCE_SETTINGS: 'qless_finance_settings',
-        INVOICES: 'qless_invoices'
-    };
-
-    const MONETIZED_MODULES = ['Tickets', 'Ordering Module', 'Shisha System', 'Virtual Booze Lockers'];
+    const STORAGE_KEYS = { TENANTS: 'qless_tenants', STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules', SHIFTS: 'qless_shifts' };
 
     new Vue({
         el: '#app',
         data: {
-            sidebarOpen: false,
-            currentSection: 'dashboard',
-            tenantId: null,
-            tenantName: 'Loading...',
-            adminName: 'Admin',
-            branding: { primaryColor: '#E30613', logoUrl: '' },
-            tenantModules: [],
-            staffList: [],
-            usageLedger: [],
-            walletTransactions: [],
-            financeSettings: { manual_topup_enabled: true },
-            customers: [],
-            topupForm: { amount: 0, payment_method: 'cash', customer_id: null },
-            transactionFilter: { module: '', start_date: '', end_date: '' },
-            currentInvoice: null,
-            staffModuleTab: 'accounts',
+            sidebarOpen: false, currentSection: 'dashboard', tenantId: null, tenantName: 'Loading...', adminName: 'Admin',
+            branding: { primaryColor: '#E30613', logoUrl: '' }, tenantModules: [], staffList: [], showStaffModal: false,
+            showResetModal: false, showInfoModal: false, showShiftHistoryModal: false, isEditing: false, editingStaffId: null,
+            staffForm: { name: '', username: '', password: '', role: 'boxoffice' }, resettingStaff: null, newPassword: '',
+            infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
+            selectedStaff: null, staffShiftHistory: [],
+            sessionValid: true,
+            // Core navigation items - REMOVED duplicate Staff Management (now only appears when module enabled)
             coreNavItems: [
                 { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
                 { id: 'modules_list', label: 'All Modules', icon: 'fas fa-puzzle-piece' }
             ],
-            // Revenue data
-            todayRevenue: 0,
-            weeklyRevenue: 0,
-            monthlyRevenue: 0,
-            todayTransactions: 0,
-            totalPlatformFees: 0,
-            moduleRevenueBreakdown: [],
-            walletSummary: { total_balance: 0, total_customers: 0 },
-            recentWalletTransactions: [],
-            revenuePeriod: 'daily',
-            // Modal states
-            showStaffModal: false,
-            showResetModal: false,
-            showInfoModal: false,
-            isEditing: false,
-            editingStaffId: null,
-            staffForm: { name: '', username: '', password: '', role: 'boxoffice' },
-            resettingStaff: null,
-            newPassword: '',
-            infoTitle: '',
-            infoMessage: '',
-            infoIcon: 'fas fa-info-circle',
-            infoIconColor: '#E30613'
+            syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null, sessionHeartbeat: null,
+            shifts: [], attendanceFilter: { role: '', date: '' }, totalHoursToday: 0, totalWeekHours: 0, avgHoursPerStaff: 0,
+            staffModuleTab: 'accounts'  // Tab state for Staff Management module
         },
-        
         computed: {
-            tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : '?'; },
+            tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
             adminInitial() { return this.adminName ? this.adminName.charAt(0).toUpperCase() : 'A'; },
             activeStaffCount() { return this.staffList.filter(s => s.status === 'Active').length; },
-            
-            enabledModulesList() {
-                return this.tenantModules.filter(m => m.enabled === true);
-            },
-            
-            hasMonetizedModules() {
-                return this.enabledModulesList.some(m => MONETIZED_MODULES.includes(m.name));
-            },
-            
-            hasWalletBalance() {
-                return this.walletSummary.total_balance > 0;
-            },
-            
-            showPaymentsRevenue() {
-                return this.hasMonetizedModules || this.hasWalletBalance || this.financeSettings.manual_topup_enabled;
-            },
-            
-            shouldShowWalletInterface() {
-                return this.hasMonetizedModules || this.financeSettings.manual_topup_enabled || this.hasWalletBalance;
-            },
-            
-            currentSectionTitle() {
-                if (this.currentSection === 'payments_revenue') return 'Payments & Revenue';
+            recentStaff() { return this.staffList.slice(0, 5); },
+            currentSectionTitle() { 
                 if (this.currentSection.startsWith('module_')) {
                     const moduleId = this.currentSection.replace('module_', '');
                     const module = this.enabledModulesList.find(m => m.id == moduleId);
                     return module ? this.getModuleDisplayName(module.name) : 'Module';
                 }
+                const coreItem = this.coreNavItems.find(i => i.id === this.currentSection);
+                if (coreItem) return coreItem.label;
                 if (this.currentSection === 'settings') return 'Settings';
                 if (this.currentSection === 'modules_list') return 'All Modules';
                 return 'Dashboard';
             },
             
-            filteredTransactions() {
-                let filtered = [...this.usageLedger];
-                if (this.transactionFilter.module) {
-                    filtered = filtered.filter(t => t.module_name === this.transactionFilter.module);
-                }
-                return filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 50);
+            activeShiftsList() {
+                return this.shifts.filter(s => s.status === 'active' && s.tenant_id === this.tenantId).map(s => {
+                    const staff = this.staffList.find(st => st.id === s.staff_id);
+                    return { ...s, staff_name: staff?.name || 'Unknown', staff_role: staff?.role || 'unknown' };
+                });
+            },
+            staffOnShiftCount() { return this.activeShiftsList.length; },
+            
+            // Get ONLY enabled modules for sidebar navigation
+            enabledModulesList() {
+                return this.tenantModules.filter(m => m.enabled === true);
             },
             
-            maxModuleRevenue() {
-                if (this.moduleRevenueBreakdown.length === 0) return 1;
-                return Math.max(...this.moduleRevenueBreakdown.map(m => m.total_revenue));
+            filteredStaffAttendance() {
+                let filtered = [...this.staffList];
+                if (this.attendanceFilter.role) {
+                    filtered = filtered.filter(s => s.role === this.attendanceFilter.role);
+                }
+                return filtered.map(staff => {
+                    const staffShifts = this.shifts.filter(s => s.staff_id === staff.id && s.tenant_id === this.tenantId);
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const todayShifts = staffShifts.filter(s => new Date(s.login_time) >= today);
+                    const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); weekStart.setHours(0,0,0,0);
+                    const weekShifts = staffShifts.filter(s => new Date(s.login_time) >= weekStart);
+                    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+                    const monthShifts = staffShifts.filter(s => new Date(s.login_time) >= monthStart);
+                    
+                    let todayHours = 0, weekHours = 0, monthHours = 0;
+                    todayShifts.forEach(s => { if(s.hours_worked) todayHours += s.hours_worked; else if(s.status === 'active') todayHours += (new Date() - new Date(s.login_time)) / (1000*60*60); });
+                    weekShifts.forEach(s => { if(s.hours_worked) weekHours += s.hours_worked; });
+                    monthShifts.forEach(s => { if(s.hours_worked) monthHours += s.hours_worked; });
+                    
+                    const isOnShift = staffShifts.some(s => s.status === 'active');
+                    return { ...staff, today_hours: todayHours, week_hours: weekHours, month_hours: monthHours, isOnShift };
+                });
             }
         },
-        
         methods: {
+            getStaffTodayHours(staffId) {
+                const staffData = this.filteredStaffAttendance.find(s => s.id === staffId);
+                return staffData ? staffData.today_hours : 0;
+            },
             closeSidebar() { if(window.innerWidth <= 768) this.sidebarOpen = false; },
-            handleNavClick(item) { this.currentSection = item.id; this.closeSidebar(); },
-            goToModuleSection(module) { this.currentSection = 'module_' + module.id; this.closeSidebar(); },
             
-            getModuleDisplayName(name) {
-                const names = { 'Tickets': 'Tickets', 'Queue Management': 'Queue', 'Ordering Module': 'Orders', 'Virtual Booze Lockers': 'Lockers', 'Shisha System': 'Shisha', 'Staff Management': 'Staff Management' };
-                return names[name] || name;
+            handleNavClick(item) {
+                this.currentSection = item.id;
+                this.closeSidebar();
             },
             
-            getModuleIcon(name) {
-                const icons = { 'Tickets': 'fas fa-ticket-alt', 'Queue Management': 'fas fa-hourglass-half', 'Ordering Module': 'fas fa-clipboard-list', 'Virtual Booze Lockers': 'fas fa-lock', 'Shisha System': 'fas fa-smoking', 'Staff Management': 'fas fa-users' };
-                return icons[name] || 'fas fa-puzzle-piece';
+            goToModuleSection(module) {
+                this.currentSection = 'module_' + module.id;
+                // Reset tab when opening Staff Management module
+                if (module.name === 'Staff Management') {
+                    this.staffModuleTab = 'accounts';
+                }
+                this.closeSidebar();
             },
             
-            getModuleDescription(name) {
-                const desc = { 'Tickets': 'Event ticketing', 'Queue Management': 'Smart queuing', 'Ordering Module': 'Food & beverage orders', 'Virtual Booze Lockers': 'Bottle storage', 'Shisha System': 'Hookah sessions', 'Staff Management': 'Staff & attendance' };
-                return desc[name] || 'Module';
+            getModuleDisplayName(moduleName) {
+                const names = {
+                    'Tickets': 'Tickets',
+                    'Queue Management': 'Queue',
+                    'Ordering Module': 'Orders',
+                    'Self-Serve Kiosk': 'Orders',
+                    'Virtual Booze Lockers': 'Lockers',
+                    'Shisha System': 'Shisha',
+                    'VVIP Management': 'VVIP',
+                    'Staff Management': 'Staff Management'
+                };
+                return names[moduleName] || moduleName;
             },
             
+            getModuleIcon(moduleName) {
+                const icons = { 
+                    'Tickets': 'fas fa-ticket-alt', 
+                    'Queue Management': 'fas fa-hourglass-half', 
+                    'Ordering Module': 'fas fa-clipboard-list',
+                    'Self-Serve Kiosk': 'fas fa-clipboard-list', 
+                    'Virtual Booze Lockers': 'fas fa-lock', 
+                    'Shisha System': 'fas fa-smoking', 
+                    'VVIP Management': 'fas fa-crown',
+                    'Staff Management': 'fas fa-users'
+                };
+                return icons[moduleName] || 'fas fa-puzzle-piece';
+            },
+            getModuleDescription(moduleName) {
+                const descriptions = { 
+                    'Tickets': 'Event ticketing and QR code scanning', 
+                    'Queue Management': 'Smart virtual queuing system', 
+                    'Ordering Module': 'Food & beverage ordering via Kiosk, Wallet & WhatsApp',
+                    'Self-Serve Kiosk': 'Food & beverage ordering system', 
+                    'Virtual Booze Lockers': 'Secure bottle storage management', 
+                    'Shisha System': 'Hookah session management', 
+                    'VVIP Management': 'Exclusive VIP accounts & tabs',
+                    'Staff Management': 'Complete staff management with attendance tracking'
+                };
+                return descriptions[moduleName] || 'Custom module configured by Super Admin';
+            },
             getRoleDisplay(role) {
-                const roles = { boxoffice: 'Box Office', hospitality: 'Hospitality', shishamaster: 'Shisha Master', gatecontrol: 'Gate Control', venuemanager: 'Venue Manager' };
+                const roles = { boxoffice: 'Box Office', hospitality: 'Hospitality', shishamaster: 'Shisha Master', gatecontrol: 'Gate Control', support: 'Support Staff', venuemanager: 'Venue Manager' };
                 return roles[role] || role;
             },
-            
             getRoleClass(role) {
-                const classes = { boxoffice: 'role-boxoffice', hospitality: 'role-hospitality', shishamaster: 'role-shishamaster', gatecontrol: 'role-gatecontrol', venuemanager: 'role-venuemanager' };
+                const classes = { boxoffice: 'role-boxoffice', hospitality: 'role-hospitality', shishamaster: 'role-shishamaster', gatecontrol: 'role-gatecontrol', support: 'role-support', venuemanager: 'role-venuemanager' };
                 return classes[role] || '';
             },
+            showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') { this.infoTitle = title; this.infoMessage = message; this.infoIcon = icon; this.infoIconColor = iconColor; this.showInfoModal = true; },
+            copyToClipboard(text) { navigator.clipboard.writeText(text); this.showAlert('Copied!', 'Text copied to clipboard', 'fas fa-check-circle', '#10b981'); },
+            formatTime(date) { if(!date) return '-'; const d = new Date(date); return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); },
+            formatDateTime(date) { if(!date) return '-'; const d = new Date(date); return d.toLocaleString(); },
+            formatDate(date) { if(!date) return '-'; const d = new Date(date); return d.toLocaleDateString(); },
+            calculateDuration(loginTime) { const start = new Date(loginTime); const now = new Date(); const diff = Math.floor((now - start) / (1000 * 60)); const hours = Math.floor(diff / 60); const mins = diff % 60; return `${hours}h ${mins}m`; },
             
-            formatDateTime(date) { if(!date) return '-'; return new Date(date).toLocaleString(); },
-            formatDate(date) { if(!date) return '-'; return new Date(date).toLocaleDateString(); },
+            refreshModules() { this.loadModules(); this.showAlert('Modules Refreshed', 'Module list has been updated from Super Admin settings.', 'fas fa-sync-alt', '#10b981'); },
             
-            showAlert(title, message, icon = 'fas fa-info-circle', iconColor = '#E30613') {
-                this.infoTitle = title;
-                this.infoMessage = message;
-                this.infoIcon = icon;
-                this.infoIconColor = iconColor;
-                this.showInfoModal = true;
+            forceRefreshModules() {
+                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
+                if (allModules[this.tenantId] && allModules[this.tenantId].length > 0) { 
+                    this.tenantModules = allModules[this.tenantId];
+                    console.log('Modules loaded from Super Admin:', this.tenantModules);
+                } else { 
+                    this.tenantModules = [ 
+                        { id: 1, name: 'Tickets', enabled: true, description: 'Event ticketing' }, 
+                        { id: 2, name: 'Queue Management', enabled: true, description: 'Smart queuing' }, 
+                        { id: 3, name: 'Ordering Module', enabled: false, description: 'Orders via Kiosk, Wallet & WhatsApp' }, 
+                        { id: 4, name: 'Virtual Booze Lockers', enabled: true, description: 'Secure storage' }, 
+                        { id: 5, name: 'Shisha System', enabled: false, description: 'Hookah management' }, 
+                        { id: 6, name: 'VVIP Management', enabled: true, description: 'VIP accounts' },
+                        { id: 7, name: 'Staff Management', enabled: true, description: 'Staff & attendance management' }
+                    ]; 
+                }
+                this.$forceUpdate();
             },
             
-            copyToClipboard(text) { navigator.clipboard.writeText(text); this.showAlert('Copied!', 'Text copied', 'fas fa-check-circle', '#10b981'); },
-            
-            async refreshRevenueData() { await this.loadRevenueData(); await this.loadWalletSummary(); this.showAlert('Refreshed', 'Data updated'); },
-            
-            downloadInvoice() {
-                if (!this.currentInvoice) { this.showAlert('No Invoice', 'No invoice available'); return; }
-                const blob = new Blob([JSON.stringify(this.currentInvoice, null, 2)], { type: 'application/json' });
+            loadShifts() {
+                const allShifts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS) || '[]');
+                this.shifts = allShifts.filter(s => s.tenant_id === this.tenantId);
+                this.calculateTotals();
+            },
+            saveShifts() {
+                const allShifts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS) || '[]');
+                const otherShifts = allShifts.filter(s => s.tenant_id !== this.tenantId);
+                localStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify([...otherShifts, ...this.shifts]));
+                window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.SHIFTS }));
+            },
+            calculateTotals() {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); weekStart.setHours(0,0,0,0);
+                let todayTotal = 0, weekTotal = 0;
+                this.shifts.forEach(shift => {
+                    const loginDate = new Date(shift.login_time);
+                    if(loginDate >= today) { if(shift.hours_worked) todayTotal += shift.hours_worked; else if(shift.status === 'active') todayTotal += (new Date() - loginDate) / (1000*60*60); }
+                    if(loginDate >= weekStart) { if(shift.hours_worked) weekTotal += shift.hours_worked; }
+                });
+                this.totalHoursToday = todayTotal;
+                this.totalWeekHours = weekTotal;
+                const activeStaffCount = this.staffList.filter(s => s.status === 'Active').length;
+                this.avgHoursPerStaff = activeStaffCount ? todayTotal / activeStaffCount : 0;
+            },
+            async forceLogout(shift) {
+                if(!confirm(`Force logout ${shift.staff_name}? This will end their current shift.`)) return;
+                const index = this.shifts.findIndex(s => s.shift_id === shift.shift_id);
+                if(index !== -1) {
+                    const loginTime = new Date(shift.login_time);
+                    const hoursWorked = (new Date() - loginTime) / (1000 * 60 * 60);
+                    this.shifts[index].logout_time = new Date().toISOString();
+                    this.shifts[index].status = 'completed';
+                    this.shifts[index].hours_worked = hoursWorked;
+                    this.shifts[index].forced_logout = true;
+                    this.saveShifts();
+                    this.showAlert('Force Logout', `${shift.staff_name} has been logged out. Hours worked: ${hoursWorked.toFixed(2)}h`, 'fas fa-sign-out-alt', '#10b981');
+                }
+            },
+            forceLogoutByStaffId(staffId) {
+                const activeShift = this.shifts.find(s => s.staff_id === staffId && s.status === 'active');
+                if(activeShift) this.forceLogout(activeShift);
+            },
+            async viewStaffShiftHistory(staff) {
+                this.selectedStaff = staff;
+                const staffShifts = this.shifts.filter(s => s.staff_id === staff.id).sort((a,b) => new Date(b.login_time) - new Date(a.login_time));
+                this.staffShiftHistory = staffShifts;
+                this.showShiftHistoryModal = true;
+            },
+            filterAttendance() { this.$forceUpdate(); },
+            clearFilters() { this.attendanceFilter = { role: '', date: '' }; this.$forceUpdate(); },
+            exportAttendanceReport() {
+                const data = { tenant: this.tenantName, date: new Date().toISOString(), staff: this.filteredStaffAttendance.map(s => ({ name: s.name, role: s.role, today_hours: s.today_hours, week_hours: s.week_hours, month_hours: s.month_hours, status: s.isOnShift ? 'On Duty' : 'Off Duty' })), summary: { total_staff: this.filteredStaffAttendance.length, active_now: this.activeShiftsList.length, total_hours_today: this.totalHoursToday, avg_hours: this.avgHoursPerStaff } };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `invoice_${this.currentInvoice.invoice_number}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
+                a.href = url; a.download = `attendance_${this.tenantName}_${new Date().toISOString().split('T')[0]}.json`;
+                a.click(); URL.revokeObjectURL(url);
+                this.showAlert('Export Complete', 'Attendance report has been downloaded', 'fas fa-download', '#10b981');
             },
             
-            async processManualTopup() {
-                if (this.topupForm.amount <= 0) { this.showAlert('Invalid', 'Enter amount'); return; }
-                const tx = { id: Date.now(), tenant_id: this.tenantId, transaction_type: 'topup', amount: this.topupForm.amount, payment_method: this.topupForm.payment_method, timestamp: new Date().toISOString(), status: 'completed' };
-                this.walletTransactions.push(tx);
-                localStorage.setItem(STORAGE_KEYS.WALLET_TRANSACTIONS, JSON.stringify(this.walletTransactions));
-                this.showAlert('Success', `R${this.topupForm.amount} added`);
-                this.topupForm.amount = 0;
-                await this.loadWalletSummary();
-            },
-            
-            async loadRevenueData() {
-                const allLedger = JSON.parse(localStorage.getItem(STORAGE_KEYS.USAGE_LEDGER) || '[]');
-                this.usageLedger = allLedger.filter(l => l.tenant_id === this.tenantId);
-                
-                const today = new Date().toISOString().split('T')[0];
-                const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-                const monthAgo = new Date(); monthAgo.setMonth(monthAgo.getMonth() - 1);
-                
-                this.todayRevenue = this.usageLedger.filter(l => l.timestamp.split('T')[0] === today).reduce((s, l) => s + l.amount_charged, 0);
-                this.weeklyRevenue = this.usageLedger.filter(l => new Date(l.timestamp) >= weekAgo).reduce((s, l) => s + l.amount_charged, 0);
-                this.monthlyRevenue = this.usageLedger.filter(l => new Date(l.timestamp) >= monthAgo).reduce((s, l) => s + l.amount_charged, 0);
-                this.totalPlatformFees = this.usageLedger.reduce((s, l) => s + (l.platform_fee || 0), 0);
-                
-                const moduleMap = new Map();
-                this.usageLedger.forEach(entry => {
-                    if (!moduleMap.has(entry.module_name)) moduleMap.set(entry.module_name, { total_revenue: 0, platform_fee: 0, action_count: 0 });
-                    const mod = moduleMap.get(entry.module_name);
-                    mod.total_revenue += entry.amount_charged;
-                    mod.platform_fee += entry.platform_fee || 0;
-                    mod.action_count++;
+            setupRealtimeSync() {
+                window.addEventListener('storage', (e) => { 
+                    if (e.key === STORAGE_KEYS.TENANT_MODULES) { 
+                        this.syncing = true; this.syncStatusText = 'Updating...'; 
+                        setTimeout(() => { this.forceRefreshModules(); this.syncing = false; this.syncStatusText = 'Live'; this.syncWarning = false; this.showAlert('Modules Updated', 'Super Admin has updated module settings.', 'fas fa-sync-alt', '#10b981'); }, 500); 
+                    }
+                    if (e.key === STORAGE_KEYS.SHIFTS) { this.loadShifts(); }
                 });
-                this.moduleRevenueBreakdown = Array.from(moduleMap.entries()).map(([name, data]) => ({ name, total_revenue: data.total_revenue, platform_fee: data.platform_fee, action_count: data.action_count }));
+                this.syncInterval = setInterval(() => { this.syncing = true; this.syncStatusText = 'Checking...'; const oldModules = JSON.stringify(this.tenantModules); this.forceRefreshModules(); if (JSON.stringify(this.tenantModules) !== oldModules) { this.syncWarning = true; this.syncStatusText = 'Update Available'; } else { this.syncStatusText = 'Live'; this.syncWarning = false; } this.syncing = false; }, 30000);
             },
             
-            async loadWalletSummary() {
-                const allWallet = JSON.parse(localStorage.getItem(STORAGE_KEYS.WALLET_TRANSACTIONS) || '[]');
-                this.walletTransactions = allWallet.filter(w => w.tenant_id === this.tenantId);
-                const balances = new Map();
-                this.walletTransactions.forEach(tx => { if (tx.customer_id && tx.status === 'completed') balances.set(tx.customer_id, (balances.get(tx.customer_id) || 0) + tx.amount); });
-                this.walletSummary = { total_balance: Array.from(balances.values()).reduce((s, b) => s + b, 0), total_customers: balances.size };
-                this.recentWalletTransactions = this.walletTransactions.slice(-5);
-            },
-            
-            // CRITICAL: Loads YOUR existing tenants from localStorage
-            loadTenantData() {
-                // Get tenant ID from session storage (set during login)
-                let tenantId = sessionStorage.getItem('qless_tenant_id');
-                let tenantName = sessionStorage.getItem('qless_tenant_name');
-                let adminUser = sessionStorage.getItem('qless_user_name');
+            validateSession() {
+                console.log('⚠️ DEVELOPMENT MODE: Session validation bypassed');
+                this.sessionValid = true;
                 
-                console.log('Loading tenant data - Session values:', { tenantId, tenantName, adminUser });
-                
-                // If no tenant in session, try to get from tenants list
-                if (!tenantId) {
+                if (!sessionStorage.getItem('qless_tenant_id')) {
                     const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
-                    console.log('Available tenants in localStorage:', tenants);
-                    
-                    if (tenants && tenants.length > 0) {
-                        // Try to find the last selected tenant or use first
-                        const lastTenantId = localStorage.getItem('qless_last_tenant_id');
-                        const tenant = lastTenantId ? tenants.find(t => t.id == lastTenantId) : tenants[0];
-                        
-                        if (tenant) {
-                            tenantId = tenant.id;
-                            tenantName = tenant.businessName;
-                            console.log('Using tenant from localStorage:', tenant);
-                            
-                            // Set session for this tenant
-                            sessionStorage.setItem('qless_tenant_id', tenantId);
-                            sessionStorage.setItem('qless_tenant_name', tenantName);
-                            sessionStorage.setItem('qless_user_name', adminUser || 'Tenant Admin');
-                            sessionStorage.setItem('qless_user_role', 'tenant_administrator');
-                            sessionStorage.setItem('qless_logged_in', 'true');
-                        }
+                    if (tenants.length > 0) {
+                        sessionStorage.setItem('qless_tenant_id', tenants[0].id);
+                        sessionStorage.setItem('qless_tenant_name', tenants[0].businessName);
+                        sessionStorage.setItem('qless_user_name', 'Dev Admin');
+                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
+                        sessionStorage.setItem('qless_logged_in', 'true');
+                        console.log('✅ Development session created with tenant:', tenants[0].businessName);
+                    } else {
+                        sessionStorage.setItem('qless_tenant_id', '1');
+                        sessionStorage.setItem('qless_tenant_name', 'Demo Venue');
+                        sessionStorage.setItem('qless_user_name', 'Demo Admin');
+                        sessionStorage.setItem('qless_user_role', 'tenant_administrator');
+                        sessionStorage.setItem('qless_logged_in', 'true');
+                        console.log('✅ Demo development session created');
                     }
                 }
+                return true;
+            },
+            
+            loadTenantData() {
+                this.validateSession();
                 
-                // Fallback to demo if still nothing
-                if (!tenantId) {
-                    console.warn('No tenant found, using demo data');
+                const tenantId = sessionStorage.getItem('qless_tenant_id');
+                const tenantName = sessionStorage.getItem('qless_tenant_name');
+                const adminUser = sessionStorage.getItem('qless_user_name');
+                
+                console.log('Loading tenant data - ID:', tenantId, 'Name:', tenantName);
+                
+                if (!tenantId) { 
                     this.tenantId = 1;
                     this.tenantName = 'Demo Venue';
                     this.adminName = 'Demo Admin';
                 } else {
-                    this.tenantId = parseInt(tenantId);
-                    this.tenantName = tenantName || 'Venue';
+                    this.tenantId = parseInt(tenantId); 
+                    this.tenantName = tenantName || 'Venue'; 
                     this.adminName = adminUser || 'Administrator';
                 }
-                
-                console.log('Final tenant data:', { tenantId: this.tenantId, tenantName: this.tenantName, adminName: this.adminName });
-                
-                // Load all data for this tenant
-                this.loadStaff();
-                this.loadModules();
-                this.loadFinanceSettings();
-                this.loadRevenueData();
-                this.loadWalletSummary();
-                this.loadCurrentInvoice();
-                this.loadBranding();
+                this.loadStaff(); 
+                this.forceRefreshModules(); 
+                this.loadBranding(); 
+                this.loadShifts();
             },
-            
-            loadStaff() {
-                const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]');
-                this.staffList = allStaff.filter(s => s.tenantId === this.tenantId);
-                console.log(`Loaded ${this.staffList.length} staff for tenant ${this.tenantId}`);
-            },
-            
-            loadModules() {
-                const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
-                if (allModules[this.tenantId] && allModules[this.tenantId].length > 0) {
-                    this.tenantModules = allModules[this.tenantId];
-                } else {
-                    // Default modules (but preserve any that might exist in a different format)
-                    this.tenantModules = [
-                        { id: 1, name: 'Tickets', enabled: true },
-                        { id: 2, name: 'Queue Management', enabled: true },
-                        { id: 3, name: 'Ordering Module', enabled: false },
-                        { id: 4, name: 'Virtual Booze Lockers', enabled: true },
-                        { id: 5, name: 'Shisha System', enabled: false },
-                        { id: 6, name: 'Staff Management', enabled: false }
-                    ];
-                }
-                console.log(`Loaded ${this.tenantModules.length} modules for tenant ${this.tenantId}`);
-            },
-            
-            loadFinanceSettings() {
-                const allSettings = JSON.parse(localStorage.getItem(STORAGE_KEYS.FINANCE_SETTINGS) || '{}');
-                this.financeSettings = allSettings[this.tenantId] || { manual_topup_enabled: true };
-            },
-            
-            loadCurrentInvoice() {
-                const allInvoices = JSON.parse(localStorage.getItem(STORAGE_KEYS.INVOICES) || '[]');
-                this.currentInvoice = allInvoices.find(i => i.tenant_id === this.tenantId && i.status !== 'paid');
-            },
-            
-            loadBranding() {
-                const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    this.tenantName = data.tenantName || this.tenantName;
-                    this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' };
-                }
-            },
-            
-            refreshModules() {
-                this.loadModules();
-                this.showAlert('Refreshed', 'Module list updated');
-            },
-            
-            saveBranding() {
-                localStorage.setItem(`qless_tenant_branding_${this.tenantId}`, JSON.stringify({ tenantName: this.tenantName, branding: this.branding }));
-                // Also update tenant name in tenants list
-                const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]');
-                const tenant = tenants.find(t => t.id === this.tenantId);
-                if (tenant) tenant.businessName = this.tenantName;
-                localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants));
-                this.showAlert('Saved', 'Branding saved');
-            },
-            
-            openCreateStaffModal() {
-                this.isEditing = false;
-                this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' };
-                this.showStaffModal = true;
-            },
-            
-            editStaff(staff) {
-                this.isEditing = true;
-                this.editingStaffId = staff.id;
-                this.staffForm = { name: staff.name, username: staff.username, password: '', role: staff.role };
-                this.showStaffModal = true;
-            },
-            
+            loadStaff() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); this.staffList = allStaff.filter(s => s.tenantId === this.tenantId); this.calculateTotals(); },
+            saveStaffToStorage() { const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]'); const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId); localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList])); window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEYS.STAFF })); this.calculateTotals(); },
+            loadModules() { this.forceRefreshModules(); },
+            loadBranding() { const saved = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`); if (saved) { const data = JSON.parse(saved); this.tenantName = data.tenantName || this.tenantName; this.branding = data.branding || { primaryColor: '#E30613', logoUrl: '' }; } },
+            saveBranding() { const data = { tenantName: this.tenantName, branding: this.branding }; localStorage.setItem(`qless_tenant_branding_${this.tenantId}`, JSON.stringify(data)); const tenants = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANTS) || '[]'); const tenant = tenants.find(t => t.id === this.tenantId); if (tenant) tenant.businessName = this.tenantName; localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants)); this.showAlert('Saved', 'Branding saved successfully!', 'fas fa-check-circle', '#10b981'); },
+            openCreateStaffModal() { this.isEditing = false; this.editingStaffId = null; this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' }; this.showStaffModal = true; },
+            editStaff(staff) { this.isEditing = true; this.editingStaffId = staff.id; this.staffForm = { name: staff.name, username: staff.username, password: staff.password, role: staff.role }; this.showStaffModal = true; },
             saveStaff() {
-                if (!this.staffForm.name || !this.staffForm.username) {
-                    this.showAlert('Error', 'Please fill required fields');
-                    return;
-                }
-                
-                if (this.isEditing) {
-                    const index = this.staffList.findIndex(s => s.id === this.editingStaffId);
-                    if (index !== -1) {
-                        if (this.staffForm.password) this.staffList[index].password = this.staffForm.password;
-                        this.staffList[index].name = this.staffForm.name;
-                        this.staffList[index].username = this.staffForm.username;
-                        this.staffList[index].role = this.staffForm.role;
-                    }
-                } else {
-                    if (!this.staffForm.password) {
-                        this.showAlert('Error', 'Password required for new staff');
-                        return;
-                    }
-                    this.staffList.push({
-                        id: Date.now(),
-                        tenantId: this.tenantId,
-                        ...this.staffForm,
-                        status: 'Active'
-                    });
-                }
-                
-                // Save to localStorage
-                const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]');
-                const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId);
-                localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList]));
-                
-                this.closeStaffModal();
-                this.showAlert('Success', `Staff ${this.staffForm.name} saved`);
+                if (!this.staffForm.name || !this.staffForm.username || !this.staffForm.password) { this.showAlert('Missing Fields', 'Please fill all required fields', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                if (this.staffForm.password.length < 4) { this.showAlert('Invalid Password', 'Password must be at least 4 characters', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                const existingStaff = this.staffList.find(s => s.username === this.staffForm.username && s.id !== this.editingStaffId);
+                if (existingStaff) { this.showAlert('Duplicate Username', 'A staff member with this username already exists', 'fas fa-exclamation-triangle', '#dc2626'); return; }
+                const roleDisplay = this.getRoleDisplay(this.staffForm.role);
+                if (this.isEditing && this.editingStaffId) { const index = this.staffList.findIndex(s => s.id === this.editingStaffId); if (index !== -1) { this.staffList[index] = { ...this.staffList[index], name: this.staffForm.name, username: this.staffForm.username, password: this.staffForm.password, role: this.staffForm.role }; this.showAlert('Updated', `Staff member ${this.staffForm.name} (${roleDisplay}) has been updated`, 'fas fa-check-circle', '#10b981'); } }
+                else { const newStaff = { id: Date.now(), tenantId: this.tenantId, name: this.staffForm.name, username: this.staffForm.username, password: this.staffForm.password, role: this.staffForm.role, status: 'Active', createdAt: new Date().toISOString() }; this.staffList.push(newStaff); this.showAlert('Staff Created', `${newStaff.name} (${roleDisplay}) has been added.\n\nUsername: ${newStaff.username}\nPassword: ${newStaff.password}`, 'fas fa-check-circle', '#10b981'); }
+                this.saveStaffToStorage(); this.closeStaffModal();
             },
-            
-            closeStaffModal() {
-                this.showStaffModal = false;
-                this.isEditing = false;
-                this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' };
-            },
-            
-            deleteStaff(staffId) {
-                if (confirm('Delete this staff member?')) {
-                    this.staffList = this.staffList.filter(s => s.id !== staffId);
-                    const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]');
-                    const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId);
-                    localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList]));
-                    this.showAlert('Deleted', 'Staff removed');
-                }
-            },
-            
-            resetStaffPassword(staff) {
-                this.resettingStaff = staff;
-                this.newPassword = '';
-                this.showResetModal = true;
-            },
-            
-            confirmResetPassword() {
-                if (!this.newPassword || this.newPassword.length < 4) {
-                    this.showAlert('Error', 'Password must be at least 4 characters');
-                    return;
-                }
-                const staff = this.staffList.find(s => s.id === this.resettingStaff.id);
-                if (staff) staff.password = this.newPassword;
-                const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF) || '[]');
-                const otherStaff = allStaff.filter(s => s.tenantId !== this.tenantId);
-                localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify([...otherStaff, ...this.staffList]));
-                this.showResetModal = false;
-                this.showAlert('Password Reset', `New password: ${this.newPassword}`);
-            },
-            
-            logout() {
-                sessionStorage.clear();
-                window.location.href = 'login.html';
+            closeStaffModal() { this.showStaffModal = false; this.isEditing = false; this.editingStaffId = null; this.staffForm = { name: '', username: '', password: '', role: 'boxoffice' }; },
+            toggleStaffStatus(staffId) { const staff = this.staffList.find(s => s.id === staffId); if (staff) { staff.status = staff.status === 'Active' ? 'Inactive' : 'Active'; this.saveStaffToStorage(); this.showAlert('Status Updated', `${staff.name} is now ${staff.status}`, 'fas fa-check-circle', '#10b981'); } },
+            deleteStaff(staffId) { const staff = this.staffList.find(s => s.id === staffId); if (staff && confirm(`Are you sure you want to delete ${staff.name}?`)) { this.staffList = this.staffList.filter(s => s.id !== staffId); this.saveStaffToStorage(); this.showAlert('Deleted', 'Staff member has been removed', 'fas fa-check-circle', '#10b981'); } },
+            resetStaffPassword(staff) { this.resettingStaff = staff; this.newPassword = ''; this.showResetModal = true; },
+            confirmResetPassword() { if (!this.newPassword || this.newPassword.length < 4) { this.showAlert('Invalid Password', 'Password must be at least 4 characters', 'fas fa-exclamation-triangle', '#dc2626'); return; } const staff = this.staffList.find(s => s.id === this.resettingStaff.id); if (staff) { staff.password = this.newPassword; this.saveStaffToStorage(); this.showAlert('Password Reset', `New password for ${staff.name}: ${this.newPassword}`, 'fas fa-key', '#10b981'); } this.showResetModal = false; this.resettingStaff = null; this.newPassword = ''; },
+            logout() { 
+                if (this.syncInterval) clearInterval(this.syncInterval); 
+                if (this.sessionHeartbeat) clearInterval(this.sessionHeartbeat);
+                sessionStorage.clear(); 
+                window.location.href = 'login.html'; 
             }
         },
-        
         mounted() {
-            console.log('Tenant Dashboard Loading...');
-            console.log('Wallet is core infrastructure - not a toggleable module');
-            console.log('Payments & Revenue shows dynamically based on monetized modules');
+            console.log('⚠️ DEVELOPMENT MODE: Running without login requirements');
+            console.log('✅ Staff Management appears in sidebar ONLY when enabled by Super Admin');
+            console.log('✅ Duplicate Staff Management tab has been REMOVED');
             
-            this.loadTenantData();
+            this.loadTenantData(); 
+            this.setupRealtimeSync();
             
-            // Fullscreen functionality
-            setTimeout(() => {
-                const appElement = document.querySelector('#app');
-                const exitBtn = document.getElementById('exitFullscreenBtn');
-                const fullscreenBtn = document.getElementById('globalFullscreenBtn');
-                if (fullscreenBtn) {
-                    fullscreenBtn.addEventListener('click', () => {
-                        appElement.classList.add('fullscreen-active');
-                        if (exitBtn) exitBtn.style.display = 'flex';
-                        if (fullscreenBtn) fullscreenBtn.style.display = 'none';
-                    });
-                }
-                if (exitBtn) {
-                    exitBtn.addEventListener('click', () => {
-                        appElement.classList.remove('fullscreen-active');
-                        if (exitBtn) exitBtn.style.display = 'none';
-                        if (fullscreenBtn) fullscreenBtn.style.display = '';
-                    });
-                }
-            }, 100);
-            
-            window.addEventListener('resize', () => { if (window.innerWidth > 768) this.sidebarOpen = false; });
+            window.addEventListener('resize', () => { if(window.innerWidth > 768) this.sidebarOpen = false; });
+            setTimeout(() => { const appElement = document.querySelector('#app'); if (!appElement) return; let isFullscreen = false; const exitBtn = document.getElementById('exitFullscreenBtn'); const fullscreenBtn = document.getElementById('globalFullscreenBtn'); function toggleFullscreen() { if (!isFullscreen) { appElement.classList.add('fullscreen-active'); isFullscreen = true; if (exitBtn) exitBtn.style.display = 'flex'; if (fullscreenBtn) fullscreenBtn.style.display = 'none'; } else { appElement.classList.remove('fullscreen-active'); isFullscreen = false; if (exitBtn) exitBtn.style.display = 'none'; if (fullscreenBtn) fullscreenBtn.style.display = ''; } } if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen); if (exitBtn) exitBtn.addEventListener('click', toggleFullscreen); }, 500);
+        },
+        beforeDestroy() { 
+            if (this.syncInterval) clearInterval(this.syncInterval); 
+            if (this.sessionHeartbeat) clearInterval(this.sessionHeartbeat);
         }
     });
 </script>
