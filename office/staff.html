@@ -81,6 +81,7 @@
         .fullscreen-btn-module:hover { background: #fff0f0; }
         .menu-toggle { display: none; font-size: 1.3rem; cursor: pointer; color: #1e293b; }
         .shift-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #10b981; }
+        .modules-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 260px; }
             .sidebar.open { transform: translateX(0); }
@@ -89,6 +90,7 @@
             .menu-toggle { display: block; margin-right: 16px; }
             .fullscreen-btn-module { padding: 4px 10px; font-size: 0.7rem; }
             .fullscreen-active .header-right .profile-dropdown span { display: none !important; }
+            .modules-container { grid-template-columns: 1fr; }
         }
         @media (min-width: 769px) { .menu-toggle { display: none; } }
     </style>
@@ -200,6 +202,7 @@
                     <button class="btn-primary" @click="currentSection = 'shisha-pos'" v-if="isScreenAvailable('shisha-pos')"><i class="fas fa-smoking"></i> Shisha POS</button>
                     <button class="btn-primary" @click="currentSection = 'shisha-admin'" v-if="isScreenAvailable('shisha-admin')"><i class="fas fa-cog"></i> Shisha Admin</button>
                     <button class="btn-primary" @click="currentSection = 'vvip'" v-if="isScreenAvailable('vvip')"><i class="fas fa-crown"></i> VVIP Concierge</button>
+                    <button class="btn-primary" @click="currentSection = 'booze-vault'" v-if="isScreenAvailable('booze-vault')"><i class="fas fa-lock"></i> Booze Vault</button>
                 </div>
                 
                 <!-- Recent Shifts -->
@@ -209,13 +212,13 @@
                         <thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th><th>Station</th></tr></thead>
                         <tbody>
                             <tr v-for="shift in recentShifts" :key="shift.shift_id">
-                                <td>{{ formatDate(shift.login_time) }}</td>
-                                <td>{{ formatTime(shift.login_time) }}</td>
-                                <td>{{ shift.logout_time ? formatTime(shift.logout_time) : 'Active' }}</td>
-                                <td><strong>{{ shift.hours_worked ? shift.hours_worked.toFixed(1) + 'h' : 'In progress' }}</strong></td>
-                                <td>{{ shift.station_at_login || '-' }}</td>
+                                <td>{{ formatDate(shift.login_time) }}</div>
+                                <td>{{ formatTime(shift.login_time) }}</div>
+                                <td>{{ shift.logout_time ? formatTime(shift.logout_time) : 'Active' }}</div>
+                                <td><strong>{{ shift.hours_worked ? shift.hours_worked.toFixed(1) + 'h' : 'In progress' }}</strong></div>
+                                <td>{{ shift.station_at_login || '-' }}</div>
                             </tr>
-                            <tr v-if="recentShifts.length === 0"><td colspan="5" style="text-align:center;">No shift history yet. Start your first shift!</td></tr>
+                            <tr v-if="recentShifts.length === 0"><td colspan="5" style="text-align:center;">No shift history yet. Start your first shift!</tr>
                         </tbody>
                     </table>
                 </div>
@@ -236,8 +239,9 @@
                 <div class="section-header"><h2>Today's Ticket Sales</h2></div>
                 <div class="table-wrapper">
                     <table class="data-table"><thead><tr><th>Ticket ID</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
-                    <tbody><tr v-for="sale in ticketSales" :key="sale.id"><td>{{ sale.id }}</td><td>{{ sale.event }}</td><td>R{{ sale.amount }}</td><td>{{ sale.time }}</td></tr>
-                    <tr v-if="ticketSales.length === 0"><td colspan="4" style="text-align:center;">No sales today</td></tr></tbody></table>
+                    <tbody><tr v-for="sale in ticketSales" :key="sale.id"><td>{{ sale.id }}</div><td>{{ sale.event }}</div><td>R{{ sale.amount }}</div><td>{{ sale.time }}</tr>
+                    <tr v-if="ticketSales.length === 0"><td colspan="4" style="text-align:center;">No sales today</tr></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -255,8 +259,9 @@
                 <div class="section-header"><h2>Recent Validations</h2></div>
                 <div class="table-wrapper">
                     <table class="data-table"><thead><tr><th>Ticket ID</th><th>Status</th><th>Time</th></tr></thead>
-                    <tbody><tr v-for="scan in gateScans" :key="scan.id"><td>{{ scan.id }}</td><td><span class="status-badge" :class="scan.valid ? 'status-valid' : 'status-invalid'">{{ scan.valid ? 'Entry Granted' : 'Invalid' }}</span></td><td>{{ scan.time }}</td></tr>
-                    <tr v-if="gateScans.length === 0"><td colspan="3" style="text-align:center;">No scans yet</td></tr></tbody></table>
+                    <tbody><tr v-for="scan in gateScans" :key="scan.id"><td>{{ scan.id }}</div><td><span class="status-badge" :class="scan.valid ? 'status-valid' : 'status-invalid'">{{ scan.valid ? 'Entry Granted' : 'Invalid' }}</span></div><td>{{ scan.time }}</tr>
+                    <tr v-if="gateScans.length === 0"><td colspan="3" style="text-align:center;">No scans yet</tr></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -271,8 +276,9 @@
                 <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutButcher"><i class="fas fa-credit-card"></i> Complete Sale (R{{ butcherCartTotal }})</button></div>
                 <div class="table-wrapper">
                     <table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
-                    <tbody><tr v-for="(item, idx) in butcherCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromButcherCart(idx)"></i></td></tr>
-                    <tr v-if="butcherCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr></tbody></table>
+                    <tbody><tr v-for="(item, idx) in butcherCart" :key="idx"><td>{{ item.name }}</div><td>{{ item.qty }}</div><td>R{{ item.price }}</div><td>R{{ item.qty * item.price }}</div><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromButcherCart(idx)"></i></tr>
+                    <tr v-if="butcherCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</tr></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -287,8 +293,9 @@
                 <div class="section-header"><h2>Current Order</h2><button class="btn-primary" @click="checkoutShisha"><i class="fas fa-credit-card"></i> Complete Sale (R{{ shishaCartTotal }})</button></div>
                 <div class="table-wrapper">
                     <table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
-                    <tbody><tr v-for="(item, idx) in shishaCart" :key="idx"><td>{{ item.name }}</td><td>{{ item.qty }}</td><td>R{{ item.price }}</td><td>R{{ item.qty * item.price }}</td><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromShishaCart(idx)"></i></td></tr>
-                    <tr v-if="shishaCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</td></tr></tbody></table>
+                    <tbody><tr v-for="(item, idx) in shishaCart" :key="idx"><td>{{ item.name }}</div><td>{{ item.qty }}</div><td>R{{ item.price }}</div><td>R{{ item.qty * item.price }}</div><td><i class="fas fa-trash" style="cursor:pointer; color:#E30613;" @click="removeFromShishaCart(idx)"></i></tr>
+                    <tr v-if="shishaCart.length === 0"><td colspan="5" style="text-align:center;">Cart is empty</tr></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -308,6 +315,24 @@
                 <div v-for="tab in vvipTabs" :key="tab.id" class="item-card">
                     <div><strong>{{ tab.customer }}</strong><div>Balance: R{{ tab.balance }} | Limit: R{{ tab.limit }}</div></div>
                     <div><button class="btn-outline" @click="closeTab(tab.id)">Close Tab</button><button class="btn-outline" style="margin-left:8px;" @click="addToTab(tab.id)">Add Item</button></div>
+                </div>
+            </div>
+
+            <!-- BOOZE VAULT - Virtual Booze Lockers -->
+            <div v-if="currentSection === 'booze-vault' && isScreenAvailable('booze-vault')">
+                <div class="section-header"><h2><i class="fas fa-lock"></i> Booze Vault</h2></div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-wine-bottle"></i></div><div class="stat-title">Active Lockers</div><div class="stat-number">{{ boozeLockers.filter(l => l.status === 'occupied').length }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-box-open"></i></div><div class="stat-title">Available Lockers</div><div class="stat-number">{{ boozeLockers.filter(l => l.status === 'available').length }}</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-title">Today's Rentals</div><div class="stat-number">{{ todayBoozeRentals }}</div></div>
+                </div>
+                <div class="section-header"><h2>Locker Management</h2><button class="btn-primary" @click="openLockerRental"><i class="fas fa-plus"></i> Rent Locker</button></div>
+                <div class="modules-container">
+                    <div v-for="locker in boozeLockers" :key="locker.id" class="item-card" :class="{ 'shift-card': locker.status === 'occupied' }">
+                        <div><h4><i class="fas fa-cube"></i> Locker #{{ locker.number }}</h4><p><strong>Status:</strong> <span class="status-badge" :class="locker.status === 'occupied' ? 'status-active' : 'status-warning'">{{ locker.status === 'occupied' ? 'Occupied' : 'Available' }}</span></p><p v-if="locker.customer"><i class="fas fa-user"></i> {{ locker.customer }} | <i class="fas fa-calendar"></i> Expires: {{ locker.expiryDate }}</p></div>
+                        <button v-if="locker.status === 'occupied'" class="btn-outline" @click="releaseLocker(locker.id)"><i class="fas fa-unlock-alt"></i> Release</button>
+                        <button v-else class="btn-primary" @click="rentLocker(locker.id)"><i class="fas fa-plus"></i> Rent</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -339,10 +364,11 @@
     const SCREEN_REQUIREMENTS = {
         'boxoffice': { label: 'Box Office POS', icon: 'fas fa-ticket-alt', requiredModules: ['Tickets'], allowedRoles: ['boxoffice', 'venuemanager'] },
         'gatecontrol': { label: 'Gate Scanner', icon: 'fas fa-qrcode', requiredModules: ['Tickets'], allowedRoles: ['gatecontrol', 'venuemanager'] },
-        'butcher-pos': { label: 'Butcher POS', icon: 'fas fa-utensils', requiredModules: ['Self-Serve Kiosk'], allowedRoles: ['hospitality', 'venuemanager'] },
-        'shisha-pos': { label: 'Shisha POS', icon: 'fas fa-smoking', requiredModules: ['Self-Serve Kiosk'], allowedRoles: ['shishamaster', 'venuemanager'] },
-        'shisha-admin': { label: 'Shisha Admin', icon: 'fas fa-cog', requiredModules: ['Shisha System'], allowedRoles: ['shishamaster', 'venuemanager'] },
-        'vvip': { label: 'VVIP Concierge', icon: 'fas fa-crown', requiredModules: ['VVIP Management'], allowedRoles: ['venuemanager'] }
+        'butcher-pos': { label: 'Butcher POS', icon: 'fas fa-utensils', requiredModules: ['Sales and Orders'], allowedRoles: ['hospitality', 'venuemanager'] },
+        'shisha-pos': { label: 'Shisha POS', icon: 'fas fa-smoking', requiredModules: ['Shisha Lounge System'], allowedRoles: ['shishamaster', 'venuemanager'] },
+        'shisha-admin': { label: 'Shisha Admin', icon: 'fas fa-cog', requiredModules: ['Shisha Lounge System'], allowedRoles: ['shishamaster', 'venuemanager'] },
+        'vvip': { label: 'VVIP Concierge', icon: 'fas fa-crown', requiredModules: ['VVIP Management'], allowedRoles: ['venuemanager'] },
+        'booze-vault': { label: 'Booze Vault', icon: 'fas fa-lock', requiredModules: ['Virtual Booze Lockers'], allowedRoles: ['hospitality', 'venuemanager'] }
     };
 
     const ROLE_DISPLAY = { boxoffice: 'Box Office', gatecontrol: 'Gate Control', hospitality: 'Hospitality', shishamaster: 'Shisha Master', support: 'Support Staff', venuemanager: 'Venue Manager' };
@@ -365,7 +391,17 @@
             infoTitle: '', infoMessage: '', infoIcon: 'fas fa-info-circle', infoIconColor: '#E30613',
             syncing: false, syncWarning: false, syncStatusText: 'Live', syncInterval: null,
             // Shift tracking data
-            shifts: [], selectedStation: '', isOnShift: false, activeShift: null, shiftStartTime: '', currentStation: '', todayHours: 0, weekHours: 0
+            shifts: [], selectedStation: '', isOnShift: false, activeShift: null, shiftStartTime: '', currentStation: '', todayHours: 0, weekHours: 0,
+            // Booze Vault data
+            boozeLockers: [
+                { id: 1, number: 'A01', status: 'available', customer: null, expiryDate: null },
+                { id: 2, number: 'A02', status: 'occupied', customer: 'John Doe', expiryDate: '2026-05-15' },
+                { id: 3, number: 'A03', status: 'available', customer: null, expiryDate: null },
+                { id: 4, number: 'B01', status: 'occupied', customer: 'VIP Group', expiryDate: '2026-05-20' },
+                { id: 5, number: 'B02', status: 'available', customer: null, expiryDate: null },
+                { id: 6, number: 'B03', status: 'available', customer: null, expiryDate: null }
+            ],
+            todayBoozeRentals: 4
         },
         computed: {
             tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
@@ -524,7 +560,7 @@
                 const allModules = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES) || '{}');
                 const modules = allModules[this.tenantId] || [];
                 if (modules.length === 0) {
-                    this.tenantModules = [ { id: 1, name: 'Tickets', enabled: true }, { id: 2, name: 'Queue Management', enabled: true }, { id: 3, name: 'Self-Serve Kiosk', enabled: false }, { id: 4, name: 'Virtual Booze Lockers', enabled: true }, { id: 5, name: 'Shisha System', enabled: false }, { id: 6, name: 'VVIP Management', enabled: true } ];
+                    this.tenantModules = [ { id: 1, name: 'Tickets', enabled: true }, { id: 2, name: 'Queue Management', enabled: true }, { id: 3, name: 'Sales and Orders', enabled: false }, { id: 4, name: 'Virtual Booze Lockers', enabled: true }, { id: 5, name: 'Shisha Lounge System', enabled: false }, { id: 6, name: 'VVIP Management', enabled: true } ];
                 } else { this.tenantModules = modules; }
                 this.$forceUpdate();
             },
@@ -546,6 +582,31 @@
             addVvipItem() { this.showAlert('VVIP Concierge', 'Add charge to VVIP tab', 'fas fa-crown', '#f59e0b'); },
             closeTab(id) { this.vvipTabs = this.vvipTabs.filter(t => t.id !== id); this.showAlert('Tab Closed', 'VVIP tab has been closed', 'fas fa-check-circle', '#10b981'); },
             addToTab(id) { this.showAlert('VVIP Concierge', `Add item to tab ${id}`, 'fas fa-crown', '#f59e0b'); },
+            // Booze Vault methods
+            openLockerRental() { this.showAlert('Rent Locker', 'Select an available locker from below to rent', 'fas fa-wine-bottle', '#f59e0b'); },
+            rentLocker(id) { 
+                const locker = this.boozeLockers.find(l => l.id === id); 
+                if(locker && locker.status === 'available') { 
+                    locker.status = 'occupied'; 
+                    locker.customer = 'Customer ' + Math.floor(Math.random() * 1000); 
+                    const expiry = new Date(); 
+                    expiry.setDate(expiry.getDate() + 30); 
+                    locker.expiryDate = expiry.toISOString().split('T')[0]; 
+                    this.todayBoozeRentals++; 
+                    this.showAlert('Locker Rented', `Locker ${locker.number} has been rented until ${locker.expiryDate}`, 'fas fa-check-circle', '#10b981'); 
+                } else { 
+                    this.showAlert('Not Available', 'This locker is already occupied', 'fas fa-exclamation-triangle', '#dc2626'); 
+                } 
+            },
+            releaseLocker(id) { 
+                const locker = this.boozeLockers.find(l => l.id === id); 
+                if(locker && locker.status === 'occupied') { 
+                    locker.status = 'available'; 
+                    locker.customer = null; 
+                    locker.expiryDate = null; 
+                    this.showAlert('Locker Released', `Locker ${locker.number} is now available for new rentals`, 'fas fa-unlock-alt', '#10b981'); 
+                } 
+            },
             logout() { if (this.syncInterval) clearInterval(this.syncInterval); sessionStorage.clear(); window.location.href = 'login.html'; }
         },
         mounted() {

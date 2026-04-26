@@ -203,7 +203,7 @@
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-tie"></i></div><div class="stat-title">Active Agents</div><div class="stat-number">{{ activeAgentsCount }}</div></div>
                 </div>
                 <div class="section-header"><h2>Recent Tenants</h2><button class="btn-outline" @click="currentSection = 'tenants'">View All <i class="fas fa-arrow-right"></i></button></div>
-                <div class="table-wrapper"><table class="data-table"><thead><tr><th>Business Name</th><th>Owner</th><th>Username</th><th>Sales Agent</th><th>Status</th></tr></thead><tbody><tr v-for="tenant in recentTenants" :key="tenant.id"><td><strong>{{ tenant.businessName }}</strong></td><td>{{ tenant.ownerName }}</div></td><td><span class="credential-cell">{{ tenant.username }}</span></div><td>{{ getAgentName(tenant.agent_id) }}</div><td><span class="status-badge" :class="tenant.status === 'Active' ? 'status-active' : 'status-suspended'">{{ tenant.status }}</span></div></tr></tbody></table></div>
+                <div class="table-wrapper"><table class="data-table"><thead><tr><th>Business Name</th><th>Owner</th><th>Username</th><th>Sales Agent</th><th>Status</th></tr></thead><tbody><tr v-for="tenant in recentTenants" :key="tenant.id"><td><strong>{{ tenant.businessName }}</strong></td><td>{{ tenant.ownerName }}</div><td><span class="credential-cell">{{ tenant.username }}</span></div><td>{{ getAgentName(tenant.agent_id) }}</div><td><span class="status-badge" :class="tenant.status === 'Active' ? 'status-active' : 'status-suspended'">{{ tenant.status }}</span></div></tr></tbody></td></div>
             </div>
 
             <!-- TENANTS SECTION -->
@@ -271,14 +271,17 @@
 <script>
     const STORAGE_KEYS = { TENANTS: 'qless_tenants', STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules', SYSTEM_SETTINGS: 'qless_system_settings', CUSTOM_MODULES: 'qless_custom_modules', TENANT_PRICING: 'qless_tenant_pricing', AGENTS: 'qless_agents', COMMISSIONS: 'qless_commissions', PAYOUTS: 'qless_payouts', MESSAGES: 'qless_messages' };
     
+    // BASE_MODULES with new Private Label / Venue Branding module (base price: 500, no per-unit fee, monthly)
     const BASE_MODULES = [
         { id: 1, name: 'Tickets', description: 'Event ticketing & reservations', icon: 'fas fa-ticket-alt', isCustom: false, basePrice: 10, perUnitFee: 0, perUnitLabel: 'Per Ticket', pricingTier: 'Pay as you go' },
         { id: 2, name: 'Queue Management', description: 'Smart virtual queuing', icon: 'fas fa-hourglass-half', isCustom: false, basePrice: 2, perUnitFee: 0, perUnitLabel: 'Per Queue', pricingTier: 'Pay as you go' },
         { id: 3, name: 'Sales and Orders', description: 'Sales & order management from Kiosk, Wallet & WhatsApp', icon: 'fas fa-cash-register', isCustom: false, basePrice: 8, perUnitFee: 0, perUnitLabel: 'Per Order', pricingTier: 'Pay as you go' },
         { id: 4, name: 'Virtual Booze Lockers', description: 'Secure bottle storage', icon: 'fas fa-lock', isCustom: false, basePrice: 1, perUnitFee: 0, perUnitLabel: 'Per Locker', pricingTier: 'Pay as you go' },
-        { id: 5, name: 'Shisha System', description: 'Hookah management', icon: 'fas fa-smoking', isCustom: false, basePrice: 5, perUnitFee: 0, perUnitLabel: 'Per Session', pricingTier: 'Pay as you go' },
+        { id: 5, name: 'Shisha Lounge System', description: 'Hookah management', icon: 'fas fa-smoking', isCustom: false, basePrice: 5, perUnitFee: 0, perUnitLabel: 'Per Session', pricingTier: 'Pay as you go' },
         { id: 6, name: 'VVIP Management', description: 'Exclusive VIP accounts', icon: 'fas fa-crown', isCustom: false, basePrice: 0, perUnitFee: 3, perUnitLabel: '% of Transaction', pricingTier: 'Percentage' },
-        { id: 7, name: 'Staff Management', description: 'Staff payroll & management', icon: 'fas fa-users', isCustom: false, basePrice: 10, perUnitFee: 0, perUnitLabel: 'Per Staff Member', pricingTier: 'Monthly' }
+        { id: 7, name: 'Staff Management', description: 'Staff payroll & management', icon: 'fas fa-users', isCustom: false, basePrice: 10, perUnitFee: 0, perUnitLabel: 'Per Staff Member', pricingTier: 'Monthly' },
+        { id: 8, name: 'Ordering Service Flow', description: 'Orders via Kiosk, WhatsApp, and wallet (Self-Serve Kiosk alternative)', icon: 'fas fa-mobile-alt', isCustom: false, basePrice: 8, perUnitFee: 0, perUnitLabel: 'Per Order', pricingTier: 'Pay as you go' },
+        { id: 9, name: 'Private Label / Venue Branding', description: 'White-label branding for your venue - custom logo, colors, and domain', icon: 'fas fa-trademark', isCustom: false, basePrice: 500, perUnitFee: 0, perUnitLabel: 'Monthly', pricingTier: 'Monthly' }
     ];
 
     new Vue({
