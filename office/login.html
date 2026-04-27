@@ -1,548 +1,977 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Rands Wallet | Login</title>
+    <title>Your Vibe Passport | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: #f4f6fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
-        .app-container { max-width: 500px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 40px; box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08); overflow: hidden; position: relative; }
-        .app-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eff3f8; }
-        .logo { height: 45px; width: auto; max-width: 180px; object-fit: contain; border-radius: 12px; }
-        .login-container { padding: 40px 20px; text-align: center; }
-        .circular-logo {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #E30613, #b0020e);
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        :root {
+            --red: #E30613;
+            --red-dark: #a8040e;
+            --red-glow: rgba(227,6,19,0.25);
+            --green: #25D366;
+            --green-dark: #1aaa50;
+            --green-glow: rgba(37,211,102,0.22);
+            --white: #ffffff;
+            --off-white: #fff5f5;
+            --text-muted: #999;
+            --card-shadow: 0 28px 70px -10px rgba(227,6,19,0.22), 0 6px 24px rgba(0,0,0,0.10);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: #130102;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 25px -5px rgba(227,6,19,0.4);
+            padding: 16px;
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
         }
-        .circular-logo:hover {
-            transform: scale(1.02);
-            box-shadow: 0 15px 30px -5px rgba(227,6,19,0.5);
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 55% at 15% 5%,  rgba(227,6,19,0.22) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 55% at 85% 95%, rgba(227,6,19,0.14) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 50% 50%, rgba(37,211,102,0.04) 0%, transparent 70%);
+            z-index: 0;
+            animation: bgPulse 9s ease-in-out infinite alternate;
         }
-        .circular-logo img {
-            width: 70%;
-            height: auto;
-            object-fit: contain;
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(227,6,19,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(227,6,19,0.035) 1px, transparent 1px);
+            background-size: 44px 44px;
+            z-index: 0;
         }
-        .input-field {
-            background: #f8fafd;
-            border: 1px solid #e2e8f0;
-            padding: 12px;
-            border-radius: 60px;
+
+        @keyframes bgPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        /* ── Card ─────────────────────────────────────────────── */
+        .card {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 400px;
+            background: var(--white);
+            border-radius: 30px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            animation: cardIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(36px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── Header ───────────────────────────────────────────── */
+        .card-header {
+            background: linear-gradient(160deg, var(--red) 0%, var(--red-dark) 100%);
+            padding: 32px 28px 26px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute; top: -50px; right: -50px;
+            width: 180px; height: 180px; border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+        }
+        .card-header::after {
+            content: '';
+            position: absolute; bottom: -70px; left: -30px;
+            width: 220px; height: 140px; border-radius: 50%;
+            background: rgba(0,0,0,0.07);
+        }
+
+        /* Logo trigger */
+        .logo-wrap {
+            position: relative; z-index: 2;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            margin-bottom: 14px;
+        }
+
+        .logo-icon {
+            width: 76px; height: 76px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.13);
+            border: 2.5px solid rgba(255,255,255,0.26);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            transition: transform 0.14s, box-shadow 0.14s;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon img {
             width: 100%;
-            font-size: 0.9rem;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 18px;
+        }
+
+        .logo-icon.tapped {
+            transform: scale(0.88);
+            box-shadow: 0 0 0 7px rgba(255,255,255,0.16);
+        }
+
+        .tap-ring {
+            position: absolute; inset: 0;
+            border-radius: 22px;
+            border: 2px solid rgba(255,255,255,0.7);
+            opacity: 0;
+            pointer-events: none;
+            animation: tapRing 0.42s ease-out forwards;
+        }
+
+        @keyframes tapRing {
+            0%   { opacity: 0.9; transform: scale(1); }
+            100% { opacity: 0;   transform: scale(1.6); }
+        }
+
+        .tap-dots {
+            display: flex; gap: 6px;
+            justify-content: center;
+            margin-top: 9px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tap-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: rgba(255,255,255,0.22);
+            transition: background 0.18s, transform 0.18s;
+        }
+        .tap-dot.lit { background: var(--green); transform: scale(1.25); }
+
+        .brand-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.1rem;
+            letter-spacing: 3.5px;
+            color: white; line-height: 1;
+            position: relative; z-index: 2;
+        }
+
+        .brand-tagline {
+            font-size: 0.66rem;
+            color: rgba(255,255,255,0.65);
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            position: relative; z-index: 2;
+        }
+
+        /* ── Card Body ────────────────────────────────────────── */
+        .card-body { padding: 26px 26px 22px; }
+
+        .section-label {
+            font-size: 0.67rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-muted); margin-bottom: 14px;
+        }
+
+        /* ── Fields ───────────────────────────────────────────── */
+        .field-group { margin-bottom: 13px; }
+
+        .field-label {
+            font-size: 0.7rem; font-weight: 800;
+            color: #666; letter-spacing: 0.5px;
+            margin-bottom: 5px; text-transform: uppercase;
+        }
+
+        .input-wrap { position: relative; }
+
+        .input-wrap .fi {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: #ccc; font-size: 0.82rem;
+            pointer-events: none; transition: color 0.2s;
+        }
+
+        .input-field, .select-field {
+            width: 100%;
+            background: var(--off-white);
+            border: 2px solid #f0e8e8;
+            border-radius: 12px;
+            padding: 12px 14px 12px 38px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.88rem; font-weight: 700;
+            color: #222; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            -webkit-appearance: none; appearance: none;
+        }
+
+        .input-field::placeholder { color: #ccc; font-weight: 500; }
+
+        .input-field:focus, .select-field:focus {
+            border-color: var(--red);
+            background: white;
+            box-shadow: 0 0 0 4px var(--red-glow);
+        }
+
+        .input-wrap:focus-within .fi { color: var(--red); }
+
+        .pw-toggle {
+            position: absolute; right: 14px; top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer; color: #ccc; font-size: 0.82rem;
+            transition: color 0.2s;
+        }
+        .pw-toggle:hover { color: var(--red); }
+
+        /* ── Buttons ──────────────────────────────────────────── */
+        .btn {
+            width: 100%; padding: 14px;
+            border: none; border-radius: 12px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.93rem; font-weight: 800; letter-spacing: 0.4px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 9px;
+            transition: transform 0.18s, box-shadow 0.18s;
+            position: relative; overflow: hidden;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-green {
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+            color: white; box-shadow: 0 6px 22px var(--green-glow);
             margin-bottom: 10px;
         }
-        .whatsapp-login-btn {
-            background: #25D366;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 60px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
+        .btn-green:hover { box-shadow: 0 8px 30px rgba(37,211,102,0.40); transform: translateY(-1px); }
+
+        .btn-red {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: white; box-shadow: 0 6px 22px var(--red-glow);
+        }
+        .btn-red:hover { box-shadow: 0 8px 30px rgba(227,6,19,0.38); transform: translateY(-1px); }
+
+        /* ── Phone prefix ─────────────────────────────────────── */
+        .phone-prefix {
+            position: absolute; left: 38px; top: 50%;
+            transform: translateY(-50%);
+            font-weight: 800; color: var(--red); font-size: 0.88rem;
+            pointer-events: none;
+        }
+        .phone-input { padding-left: 72px !important; }
+
+        /* ── PIN dots ─────────────────────────────────────────── */
+        .pin-display {
+            display: flex; gap: 12px;
             justify-content: center;
-            gap: 10px;
+            margin: 6px 0 18px;
         }
-        .whatsapp-login-btn:active { transform: scale(0.98); }
-        .toast-msg { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #1e2a3a; color: white; padding: 10px 16px; border-radius: 60px; text-align: center; z-index: 3500; display: none; font-size: 0.8rem; }
-        .toast-msg.show { display: block; }
-        .role-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 60px;
+        .pin-dot {
+            width: 15px; height: 15px; border-radius: 50%;
+            border: 2.5px solid #e0d0d0;
+            transition: all 0.18s;
         }
-        .role-btn {
-            flex: 1;
-            padding: 10px 8px;
-            border: none;
-            background: transparent;
-            border-radius: 60px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #64748b;
+        .pin-dot.filled {
+            background: var(--red); border-color: var(--red);
+            transform: scale(1.15);
         }
-        .role-btn.active {
+
+        /* ── PIN pad ──────────────────────────────────────────── */
+        .pin-pad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 9px; margin-bottom: 16px;
+        }
+        .pin-key {
+            background: var(--off-white);
+            border: 2px solid #f0e8e8;
+            border-radius: 12px;
+            padding: 15px 8px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.15rem; font-weight: 800;
+            color: #222; cursor: pointer;
+            transition: all 0.13s; text-align: center;
+        }
+        .pin-key:hover  { border-color: var(--red); background: #fff0f0; }
+        .pin-key:active { transform: scale(0.90); background: #ffe0e0; }
+        .pin-key.del    { color: var(--red); font-size: 1rem; }
+        .pin-key.zero   { grid-column: 2; }
+
+        /* ── Divider ──────────────────────────────────────────── */
+        .divider {
+            display: flex; align-items: center; gap: 10px;
+            margin: 16px 0 14px;
+        }
+        .divider span { font-size: 0.7rem; font-weight: 800; color: #ddd; letter-spacing: 1px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #f0e8e8; }
+
+        /* ── Footer ───────────────────────────────────────────── */
+        .card-footer {
+            padding: 12px 26px 18px;
+            border-top: 1px solid #f8eded;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+        }
+        .status-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--green); animation: blink 2.2s ease infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+        .powered-tag { font-size: 0.63rem; color: #ccc; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+
+        /* ── Admin modal ──────────────────────────────────────── */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(20,0,2,0.74);
+            backdrop-filter: blur(7px);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-backdrop.open { display: flex; }
+
+        .admin-modal {
             background: white;
-            color: #E30613;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 26px 26px 20px 20px;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 -10px 50px rgba(227,6,19,0.20);
+            animation: slideUp 0.38s cubic-bezier(0.22,1,0.36,1) both;
+            overflow: hidden;
         }
-        .role-btn.super.active { background: linear-gradient(135deg, #E30613, #9f0110); color: white; }
-        .role-btn.tenant.active { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; }
-        .role-btn.staff.active { background: linear-gradient(135deg, #4a5568, #718096); color: white; }
-        .tenant-dropdown {
-            background: #f8fafd;
-            border: 1px solid #e2e8f0;
-            padding: 12px;
-            border-radius: 60px;
-            width: 100%;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        .admin-modal-header {
+            background: linear-gradient(135deg, var(--red), var(--red-dark));
+            padding: 14px 20px 0;
+            position: relative;
+        }
+
+        .modal-handle {
+            width: 38px; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.3);
+            margin: 0 auto 14px;
+        }
+
+        .modal-close {
+            position: absolute; top: 12px; right: 14px;
+            background: rgba(255,255,255,0.14);
+            border: none; color: white;
+            width: 28px; height: 28px; border-radius: 50%;
+            font-size: 0.8rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.25); }
+
+        .modal-tabs { display: flex; }
+
+        .modal-tab {
+            flex: 1; padding: 11px 6px;
+            border: none; background: transparent;
+            color: rgba(255,255,255,0.48);
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.68rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.4px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .modal-tab.active { color: white; border-bottom-color: var(--green); background: rgba(255,255,255,0.06); }
+        .modal-tab:hover:not(.active) { color: rgba(255,255,255,0.78); }
+
+        .admin-modal-body { padding: 22px 22px 20px; }
+        .admin-modal-body .section-label { margin-bottom: 14px; }
+
+        /* ── Spinner ──────────────────────────────────────────── */
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2.5px solid rgba(255,255,255,0.35);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 0.55s linear infinite;
             display: none;
         }
-        .tenant-dropdown.show {
-            display: block;
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Toast ────────────────────────────────────────────── */
+        #toast {
+            position: fixed; bottom: 26px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1a0103; color: white;
+            padding: 11px 22px; border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.3px;
+            white-space: nowrap; z-index: 9999;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+            opacity: 0;
+        }
+        #toast.show  { transform: translateX(-50%) translateY(0); opacity: 1; }
+        #toast.error   { border-color: var(--red); }
+        #toast.success { border-color: var(--green); }
+
+        .hidden { display: none !important; }
+
+        /* ─── Mobile friendly fix - makes card scrollable on small screens ─── */
+        @media (max-height: 700px) {
+            .card {
+                max-height: 95vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .card-header {
+                padding: 20px 28px 18px;
+            }
+            .card-body {
+                padding: 18px 22px 20px;
+            }
+            .pin-key {
+                padding: 12px 8px;
+            }
+            .card-footer {
+                padding: 10px 20px 14px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .card-header {
+                padding: 14px 24px 12px;
+            }
+            .logo-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 1.6rem;
+            }
+            .brand-name {
+                font-size: 1.6rem;
+            }
+            .tap-dots {
+                margin-top: 4px;
+            }
+            .pin-pad {
+                gap: 6px;
+                margin-bottom: 10px;
+            }
+            .pin-key {
+                padding: 8px 6px;
+                font-size: 1rem;
+            }
+            .btn {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <div class="app-header">
-        <div class="logo"></div>
+
+<!-- ═══════════════════════════════════
+     CUSTOMER CARD
+═══════════════════════════════════ -->
+
+<div class="card">
+
+    <div class="card-header">
+        <!-- Tappable logo — 5 taps or long-press reveals admin modal -->
+        <div class="logo-wrap" id="logoWrap">
+            <div class="logo-icon" id="logoIcon">
+                <img src="images/rands-logo2.png" alt="Vibe Passport Logo">
+            </div>
+            <div class="tap-dots" id="tapDots">
+                <div class="tap-dot" id="td0"></div>
+                <div class="tap-dot" id="td1"></div>
+                <div class="tap-dot" id="td2"></div>
+                <div class="tap-dot" id="td3"></div>
+                <div class="tap-dot" id="td4"></div>
+            </div>
+        </div>
+        <div class="brand-name">Your Vibe Passport</div>
+        <div class="brand-tagline">Your Digital Vibe Experience</div>
     </div>
-    <div class="login-container">
-        <div class="circular-logo">
-            <img src="images/rands-logo2.png" alt="Rands Wallet" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23E30613\'/%3E%3Ctext x=\'50\' y=\'67\' font-size=\'45\' text-anchor=\'middle\' fill=\'white\' font-family=\'Arial\'%3ER%3C/text%3E%3C/svg%3E'">
+
+    <div class="card-body">
+        <p class="section-label">Sign In to Your Vibe</p>
+
+        <!-- Phone -->
+        <div class="field-group">
+            <div class="field-label">Phone Number</div>
+            <div class="input-wrap">
+                <i class="fi fas fa-phone"></i>
+                <span class="phone-prefix">+27</span>
+                <input type="tel" id="customerPhone" class="input-field phone-input"
+                       placeholder="8x xxx xxxx" maxlength="10" autocomplete="off">
+            </div>
         </div>
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="margin-top: 20px;">Rands Venue OS</h2>
-            <p style="color: #64748b;">Super Admin · Tenant Admin · Staff</p>
+
+        <!-- PIN label -->
+        <div class="field-label" style="text-align:center; margin-bottom:10px;">Enter Your 4-Digit PIN</div>
+
+        <!-- PIN dots -->
+        <div class="pin-display">
+            <div class="pin-dot" id="dot-0"></div>
+            <div class="pin-dot" id="dot-1"></div>
+            <div class="pin-dot" id="dot-2"></div>
+            <div class="pin-dot" id="dot-3"></div>
         </div>
-        
-        <!-- Role Selector -->
-        <div class="role-selector" id="roleSelector">
-            <button class="role-btn super active" data-role="super_administrator">👑 Super Admin</button>
-            <button class="role-btn tenant" data-role="tenant_admin">🏢 Tenant Admin</button>
-            <button class="role-btn staff" data-role="staff">👥 Staff</button>
+
+        <!-- PIN pad -->
+        <div class="pin-pad">
+            <button class="pin-key" data-k="1">1</button>
+            <button class="pin-key" data-k="2">2</button>
+            <button class="pin-key" data-k="3">3</button>
+            <button class="pin-key" data-k="4">4</button>
+            <button class="pin-key" data-k="5">5</button>
+            <button class="pin-key" data-k="6">6</button>
+            <button class="pin-key" data-k="7">7</button>
+            <button class="pin-key" data-k="8">8</button>
+            <button class="pin-key" data-k="9">9</button>
+            <button class="pin-key zero" data-k="0">0</button>
+            <button class="pin-key del" data-k="del"><i class="fas fa-delete-left"></i></button>
         </div>
-        
-        <!-- Tenant Dropdown (for Tenant Admin and Staff) -->
-        <select id="tenantDropdown" class="tenant-dropdown">
-            <option value="">Select Venue</option>
-        </select>
-        
-        <div id="loginForm">
-            <input type="text" id="loginWhatsapp" class="input-field" placeholder="Username / Phone Number" style="margin-bottom: 15px;">
-            <input type="password" id="loginPin" class="input-field" placeholder="Password / PIN" style="margin-bottom: 15px;">
-            <button class="whatsapp-login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
-            <p style="text-align: center; margin: 15px 0; color: #64748b; font-size: 0.75rem;">Demo: Super / 1989 | Tenant: use tenant credentials | Staff: use staff credentials</p>
+
+        <!-- Login btn -->
+        <button class="btn btn-green" id="customerLoginBtn">
+            <i class="fas fa-arrow-right-to-bracket"></i>
+            <span>Enter My Vibe</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="divider"><span>Don't have an account?</span></div>
+
+        <!-- Create account -->
+        <button class="btn btn-red" id="createAccountBtn">
+            <i class="fas fa-user-plus"></i>
+            <span>Create New Account</span>
+        </button>
+    </div>
+
+    <div class="card-footer">
+        <div class="status-dot"></div>
+        <span class="powered-tag">Secure · Encrypted · Local</span>
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════
+     ADMIN / STAFF MODAL (hidden until logo trigger)
+═══════════════════════════════════ -->
+
+<div class="modal-backdrop" id="adminBackdrop">
+    <div class="admin-modal" id="adminModal">
+
+        <div class="admin-modal-header">
+            <div class="modal-handle"></div>
+            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-role="super_administrator">
+                    <i class="fas fa-crown"></i> Super
+                </button>
+                <button class="modal-tab" data-role="tenant_admin">
+                    <i class="fas fa-building"></i> Tenant
+                </button>
+                <button class="modal-tab" data-role="staff">
+                    <i class="fas fa-users"></i> Staff
+                </button>
+            </div>
         </div>
+
+        <div class="admin-modal-body">
+            <p class="section-label" id="adminFormLabel">Super Admin Login</p>
+
+            <!-- Venue (hidden for super) -->
+            <div class="field-group hidden" id="venueGroup">
+                <div class="field-label">Select Venue</div>
+                <div class="input-wrap">
+                    <i class="fi fas fa-store"></i>
+                    <select class="select-field" id="tenantDropdown">
+                        <option value="">— Choose Venue —</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-label">Username</div>
+                <div class="input-wrap">
+                    <i class="fi fas fa-user"></i>
+                    <input type="text" id="adminUsername" class="input-field"
+                           placeholder="Enter username" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-label">Password / PIN</div>
+                <div class="input-wrap">
+                    <i class="fi fas fa-lock"></i>
+                    <input type="password" id="adminPassword" class="input-field"
+                           placeholder="Enter password" autocomplete="off">
+                    <span class="pw-toggle" id="pwToggle"><i class="fas fa-eye"></i></span>
+                </div>
+            </div>
+
+            <button class="btn btn-green" id="adminLoginBtn" style="margin-bottom:0;">
+                <div class="spinner" id="adminSpinner"></div>
+                <i class="fas fa-arrow-right-to-bracket" id="adminIcon"></i>
+                <span id="adminBtnText">Login</span>
+            </button>
+        </div>
+
     </div>
 </div>
-<div id="globalToast" class="toast-msg"></div>
+
+<div id="toast"></div>
+
+<script src="route.js"></script>
 
 <script>
-    // Storage keys
-    const ACCOUNTS_KEY = 'rands_accounts_v2';
-    const TENANTS_KEY = 'qless_tenants';
-    const STAFF_KEY = 'qless_staff';
-    
-    let accounts = [];
-    let currentAccountId = null;
-    let selectedRole = 'super_administrator';
-    let tenantsList = [];
-    let staffList = [];
+// ─── Storage ───────────────────────────────────────────────────
+const TENANTS_KEY   = 'qless_tenants';
+const STAFF_KEY     = 'qless_staff';
+const CUSTOMERS_KEY = 'rands_customers';
 
-    function showToastMsg(msg) { 
-        let t = document.getElementById('globalToast'); 
-        t.innerText = msg; 
-        t.classList.add('show'); 
-        setTimeout(() => t.classList.remove('show'), 2500); 
+function loadTenants() {
+    const s = localStorage.getItem(TENANTS_KEY);
+    if (s) return JSON.parse(s);
+    const d = [
+        { id:1, businessName:'Skyline Lounge',  ownerName:'Thabo Nkosi',    username:'skyline_admin', password:'skyline123', status:'Active' },
+        { id:2, businessName:'Cape Tavern',     ownerName:'Lerato Dlamini', username:'capetavern',    password:'tavern456',  status:'Active' },
+        { id:3, businessName:'Gold Reef Venue', ownerName:'Sipho Mbele',    username:'goldreef',      password:'reef789',    status:'Active' }
+    ];
+    localStorage.setItem(TENANTS_KEY, JSON.stringify(d));
+    return d;
+}
+
+function loadStaff() {
+    const s = localStorage.getItem(STAFF_KEY);
+    if (s) return JSON.parse(s);
+    const d = [
+        { id:1, tenantId:1, name:'John Doe',     username:'john_skyline', password:'staff123', role:'bartender', status:'Active' },
+        { id:2, tenantId:2, name:'Jane Smith',   username:'jane_cape',    password:'staff456', role:'manager',   status:'Active' },
+        { id:3, tenantId:3, name:'Mike Johnson', username:'mike_gold',    password:'staff789', role:'security',  status:'Active' }
+    ];
+    localStorage.setItem(STAFF_KEY, JSON.stringify(d));
+    return d;
+}
+
+function loadCustomers() {
+    const s = localStorage.getItem(CUSTOMERS_KEY);
+    return s ? JSON.parse(s) : [];
+}
+
+// ─── Toast ─────────────────────────────────────────────────────
+function showToast(msg, type='info') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type}`;
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.className = '', 2700);
+}
+
+// ─── Session check (redirect if already logged in) ─────────────
+(function() {
+    const loggedIn = sessionStorage.getItem('qless_logged_in');
+    const role     = sessionStorage.getItem('qless_user_role');
+    if (loggedIn === 'true' && role && typeof RouteGuard !== 'undefined') {
+        RouteGuard.redirectByRole(role);
     }
-    
-    function saveAccounts() { 
-        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); 
+})();
+
+// ─── PIN state ─────────────────────────────────────────────────
+let customerPin = '';
+
+function updatePinDots() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(`dot-${i}`).classList.toggle('filled', i < customerPin.length);
     }
-    
-    // Load tenants from Super Admin storage
-    function loadTenants() {
-        const stored = localStorage.getItem(TENANTS_KEY);
-        if (stored) {
-            tenantsList = JSON.parse(stored);
-        } else {
-            // Default demo tenants
-            tenantsList = [
-                { id: 1, businessName: 'Skyline Lounge', ownerName: 'Thabo Nkosi', username: 'skyline_admin', password: 'skyline123', status: 'Active', phone: '0821112233' },
-                { id: 2, businessName: 'Cape Tavern', ownerName: 'Lerato Dlamini', username: 'capetavern', password: 'tavern456', status: 'Active', phone: '0834455667' },
-                { id: 3, businessName: 'Gold Reef Venue', ownerName: 'Sipho Mbele', username: 'goldreef', password: 'reef789', status: 'Active', phone: '0719988776' }
-            ];
-            localStorage.setItem(TENANTS_KEY, JSON.stringify(tenantsList));
+}
+
+document.querySelectorAll('.pin-key').forEach(key => {
+    key.addEventListener('click', () => {
+        const k = key.dataset.k;
+        if (k === 'del') {
+            customerPin = customerPin.slice(0, -1);
+        } else if (customerPin.length < 4) {
+            customerPin += k;
+            if (customerPin.length === 4) {
+                setTimeout(() => document.getElementById('customerLoginBtn').click(), 320);
+            }
         }
-        return tenantsList;
+        updatePinDots();
+    });
+});
+
+// ─── Customer Login ────────────────────────────────────────────
+document.getElementById('customerLoginBtn').addEventListener('click', () => {
+    const phone = document.getElementById('customerPhone').value.trim();
+    if (!phone) { showToast('Enter your phone number', 'error'); return; }
+    if (customerPin.length < 4) { showToast('Enter your 4-digit PIN', 'error'); return; }
+
+    const customers = loadCustomers();
+    const customer  = customers.find(c => c.phone === phone && c.pin === customerPin && c.status !== 'Inactive');
+
+    if (customer) {
+        localStorage.setItem('user', JSON.stringify({ id:customer.id, name:customer.name, phone:customer.phone, role:'customer' }));
+        sessionStorage.setItem('qless_logged_in', 'true');
+        sessionStorage.setItem('qless_user_role', 'customer');
+        sessionStorage.setItem('qless_user_name', customer.name);
+        showToast('Welcome back! 🎉', 'success');
+        setTimeout(() => window.location.href = 'home.html', 900);
+    } else {
+        showToast('Invalid phone or PIN', 'error');
+        customerPin = '';
+        updatePinDots();
     }
-    
-    // Load staff from storage
-    function loadStaff() {
-        const stored = localStorage.getItem(STAFF_KEY);
-        if (stored) {
-            staffList = JSON.parse(stored);
-        } else {
-            // Default demo staff
-            staffList = [
-                { id: 1, tenantId: 1, name: 'John Doe', username: 'john_skyline', password: 'staff123', role: 'bartender', status: 'Active' },
-                { id: 2, tenantId: 2, name: 'Jane Smith', username: 'jane_cape', password: 'staff456', role: 'manager', status: 'Active' },
-                { id: 3, tenantId: 3, name: 'Mike Johnson', username: 'mike_gold', password: 'staff789', role: 'security', status: 'Active' }
-            ];
-            localStorage.setItem(STAFF_KEY, JSON.stringify(staffList));
-        }
-        return staffList;
+});
+
+document.getElementById('createAccountBtn').addEventListener('click', () => {
+    window.location.href = 'register.html';
+});
+
+// ─── Logo: 5-tap OR long-press reveals admin modal ─────────────
+const logoWrap  = document.getElementById('logoWrap');
+const logoIcon  = document.getElementById('logoIcon');
+const tapDotsEl = document.getElementById('tapDots');
+const tapDots   = [0,1,2,3,4].map(i => document.getElementById(`td${i}`));
+
+let tapCount = 0;
+let tapResetTimer = null;
+let longPressTimer = null;
+
+function markDot(n) {
+    tapDotsEl.style.opacity = '1';
+    tapDots.forEach((d, i) => d.classList.toggle('lit', i < n));
+}
+
+function clearDots() {
+    tapCount = 0;
+    tapDots.forEach(d => d.classList.remove('lit'));
+    setTimeout(() => { tapDotsEl.style.opacity = '0'; }, 500);
+}
+
+function openAdminModal() {
+    clearDots();
+    document.getElementById('adminBackdrop').classList.add('open');
+    setAdminRole('super_administrator');
+}
+
+// 5-tap trigger
+logoWrap.addEventListener('click', () => {
+    // Visual pulse
+    logoIcon.classList.add('tapped');
+    const ring = document.createElement('div');
+    ring.className = 'tap-ring';
+    logoIcon.appendChild(ring);
+    setTimeout(() => { logoIcon.classList.remove('tapped'); ring.remove(); }, 430);
+
+    tapCount++;
+    markDot(tapCount);
+    clearTimeout(tapResetTimer);
+
+    if (tapCount >= 5) { openAdminModal(); return; }
+
+    tapResetTimer = setTimeout(clearDots, 2400);
+});
+
+// Long-press trigger (600ms)
+logoWrap.addEventListener('pointerdown', () => {
+    longPressTimer = setTimeout(openAdminModal, 600);
+});
+logoWrap.addEventListener('pointerup',    () => clearTimeout(longPressTimer));
+logoWrap.addEventListener('pointerleave', () => clearTimeout(longPressTimer));
+logoWrap.addEventListener('pointermove',  () => clearTimeout(longPressTimer));
+
+// ─── Admin modal controls ──────────────────────────────────────
+const adminBackdrop = document.getElementById('adminBackdrop');
+
+document.getElementById('modalClose').addEventListener('click', () => {
+    adminBackdrop.classList.remove('open');
+});
+
+adminBackdrop.addEventListener('click', e => {
+    if (e.target === adminBackdrop) adminBackdrop.classList.remove('open');
+});
+
+// Swipe down to close
+let touchStartY = 0;
+document.getElementById('adminModal').addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
+document.getElementById('adminModal').addEventListener('touchend',   e => {
+    if (e.changedTouches[0].clientY - touchStartY > 60) adminBackdrop.classList.remove('open');
+});
+
+let selectedAdminRole = 'super_administrator';
+
+function populateVenueDropdown() {
+    const dd = document.getElementById('tenantDropdown');
+    const tenants = loadTenants();
+    dd.innerHTML = '<option value="">— Choose Venue —</option>';
+    tenants.filter(t => t.status === 'Active').forEach(t => {
+        const o = document.createElement('option');
+        o.value = t.id;
+        o.textContent = t.businessName;
+        dd.appendChild(o);
+    });
+}
+
+function setAdminRole(role) {
+    selectedAdminRole = role;
+    document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.modal-tab[data-role="${role}"]`).classList.add('active');
+
+    const venueGroup = document.getElementById('venueGroup');
+    const label      = document.getElementById('adminFormLabel');
+    const uInput     = document.getElementById('adminUsername');
+    const pInput     = document.getElementById('adminPassword');
+    const btnText    = document.getElementById('adminBtnText');
+
+    // Reset pw visibility
+    pInput.type = 'password';
+    document.getElementById('pwToggle').innerHTML = '<i class="fas fa-eye"></i>';
+
+    if (role === 'super_administrator') {
+        venueGroup.classList.add('hidden');
+        label.textContent    = 'Super Admin Login';
+        uInput.value         = 'Super';
+        pInput.value         = '1989';
+        uInput.placeholder   = 'Username';
+        btnText.textContent  = 'Login as Super Admin';
+    } else if (role === 'tenant_admin') {
+        venueGroup.classList.remove('hidden');
+        label.textContent    = 'Tenant Admin Login';
+        uInput.value         = '';
+        pInput.value         = '';
+        uInput.placeholder   = 'Tenant username';
+        btnText.textContent  = 'Login as Tenant Admin';
+        populateVenueDropdown();
+    } else {
+        venueGroup.classList.remove('hidden');
+        label.textContent    = 'Staff Login';
+        uInput.value         = '';
+        pInput.value         = '';
+        uInput.placeholder   = 'Staff username';
+        btnText.textContent  = 'Login as Staff';
+        populateVenueDropdown();
     }
-    
-    function loadAccounts() { 
-        const stored = localStorage.getItem(ACCOUNTS_KEY); 
-        if (stored) {
-            accounts = JSON.parse(stored);
-        } else { 
-            // Default account with Super Admin access
-            accounts = [{ 
-                id: "super_admin",
-                phone: "super_admin",
-                name: "Super Administrator",
-                balance: 0,
-                pin: "1989",
-                status: "Active",
-                role: "super_administrator"
-            }]; 
-            saveAccounts(); 
-        } 
-    }
-    
-    // Update tenant dropdown based on role
-    function updateTenantDropdown() {
-        const dropdown = document.getElementById('tenantDropdown');
-        const tenants = loadTenants();
-        
-        if (!dropdown) return;
-        
-        if (selectedRole === 'tenant_admin' || selectedRole === 'staff') {
-            dropdown.classList.add('show');
-            dropdown.innerHTML = '<option value="">Select Venue</option>';
-            
-            tenants.forEach(tenant => {
-                if (tenant.status === 'Active') {
-                    const option = document.createElement('option');
-                    option.value = tenant.id;
-                    option.textContent = `${tenant.businessName} (${tenant.ownerName})`;
-                    dropdown.appendChild(option);
-                }
-            });
-        } else {
-            dropdown.classList.remove('show');
-        }
-    }
-    
-    // Role button handler
-    function initRoleSelector() {
-        const buttons = document.querySelectorAll('.role-btn');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                buttons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                selectedRole = this.getAttribute('data-role');
-                
-                // Update visual styling
-                if (selectedRole === 'super_administrator') {
-                    this.classList.add('super');
-                } else if (selectedRole === 'tenant_admin') {
-                    this.classList.add('tenant');
-                } else {
-                    this.classList.add('staff');
-                }
-                
-                // Update placeholder
-                const usernameInput = document.getElementById('loginWhatsapp');
-                if (selectedRole === 'super_administrator') {
-                    usernameInput.placeholder = 'Username: Super';
-                    usernameInput.value = 'Super';
-                    document.getElementById('loginPin').value = '1989';
-                } else if (selectedRole === 'tenant_admin') {
-                    usernameInput.placeholder = 'Tenant username (e.g., skyline_admin)';
-                    usernameInput.value = '';
-                    document.getElementById('loginPin').value = '';
-                } else {
-                    usernameInput.placeholder = 'Staff username';
-                    usernameInput.value = '';
-                    document.getElementById('loginPin').value = '';
-                }
-                
-                updateTenantDropdown();
-            });
-        });
-    }
-    
-    // Super Admin login
-    function loginSuperAdmin(username, password) {
-        if (username === 'Super' && password === '1989') {
-            const userData = {
-                id: 'super_admin_001',
-                name: 'Super Administrator',
-                username: 'Super',
-                role: 'super_administrator',
-                permissions: 'all'
-            };
-            localStorage.setItem('user', JSON.stringify(userData));
-            sessionStorage.setItem('qless_logged_in', 'true');
-            sessionStorage.setItem('qless_user_role', 'super_administrator');
-            sessionStorage.setItem('qless_user_name', 'Super Admin');
-            return true;
-        }
-        return false;
-    }
-    
-    // Tenant Admin login
-    function loginTenantAdmin(username, password, tenantId) {
-        const tenants = loadTenants();
-        const tenant = tenants.find(t => t.username === username && t.password === password);
-        
-        if (tenant && tenant.status === 'Active') {
-            const selectedTenantId = tenantId || tenant.id;
-            const selectedTenant = tenants.find(t => t.id == selectedTenantId);
-            
-            if (selectedTenant && selectedTenant.id === tenant.id) {
-                const userData = {
-                    id: tenant.id,
-                    name: tenant.ownerName,
-                    username: tenant.username,
-                    businessName: tenant.businessName,
-                    role: 'tenant_admin',
-                    tenantId: tenant.id
-                };
-                localStorage.setItem('user', JSON.stringify(userData));
+}
+
+document.querySelectorAll('.modal-tab').forEach(btn => {
+    btn.addEventListener('click', () => setAdminRole(btn.dataset.role));
+});
+
+// Password toggle
+document.getElementById('pwToggle').addEventListener('click', function() {
+    const pw = document.getElementById('adminPassword');
+    const hide = pw.type === 'password';
+    pw.type = hide ? 'text' : 'password';
+    this.innerHTML = hide ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+});
+
+// Enter key inside modal
+['adminUsername','adminPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('adminLoginBtn').click();
+    });
+});
+
+// ─── Admin Login ───────────────────────────────────────────────
+function setAdminLoading(on) {
+    document.getElementById('adminSpinner').style.display = on ? 'block' : 'none';
+    document.getElementById('adminIcon').style.display   = on ? 'none'  : 'inline';
+    document.getElementById('adminLoginBtn').disabled    = on;
+}
+
+document.getElementById('adminLoginBtn').addEventListener('click', () => {
+    const username = document.getElementById('adminUsername').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+    if (!username || !password) { showToast('Fill in all fields', 'error'); return; }
+
+    setAdminLoading(true);
+
+    setTimeout(() => {
+        setAdminLoading(false);
+
+        if (selectedAdminRole === 'super_administrator') {
+            if (username === 'Super' && password === '1989') {
+                localStorage.setItem('user', JSON.stringify({
+                    id:'super_admin_001', name:'Super Administrator',
+                    username:'Super', role:'super_administrator', permissions:'all'
+                }));
+                sessionStorage.setItem('qless_logged_in', 'true');
+                sessionStorage.setItem('qless_user_role', 'super_administrator');
+                sessionStorage.setItem('qless_user_name', 'Super Admin');
+                showToast('Welcome, Super Admin 👑', 'success');
+                setTimeout(() => window.location.href = 'super-admin.html', 900);
+            } else {
+                showToast('Invalid credentials', 'error');
+            }
+
+        } else if (selectedAdminRole === 'tenant_admin') {
+            const tenantId = document.getElementById('tenantDropdown').value;
+            if (!tenantId) { showToast('Select a venue first', 'error'); return; }
+            const tenants = loadTenants();
+            const tenant  = tenants.find(t => t.username === username && t.password === password && t.status === 'Active' && t.id == tenantId);
+            if (tenant) {
+                localStorage.setItem('user', JSON.stringify({
+                    id:tenant.id, name:tenant.ownerName, username:tenant.username,
+                    businessName:tenant.businessName, role:'tenant_admin', tenantId:tenant.id
+                }));
                 localStorage.setItem('currentTenantId', tenant.id);
                 localStorage.setItem('currentTenant', JSON.stringify(tenant));
                 sessionStorage.setItem('qless_logged_in', 'true');
                 sessionStorage.setItem('qless_user_role', 'tenant_admin');
                 sessionStorage.setItem('qless_user_name', tenant.ownerName);
                 sessionStorage.setItem('qless_tenant_id', tenant.id);
-                return true;
+                showToast(`Welcome, ${tenant.businessName} 🏢`, 'success');
+                setTimeout(() => window.location.href = 'admin.html', 900);
+            } else {
+                showToast('Invalid tenant credentials', 'error');
             }
-        }
-        return false;
-    }
-    
-    // Staff login
-    function loginStaff(username, password, tenantId) {
-        const staff = loadStaff();
-        const staffMember = staff.find(s => s.username === username && s.password === password);
-        
-        if (staffMember && staffMember.status === 'Active') {
-            const tenants = loadTenants();
-            const selectedTenantId = tenantId || staffMember.tenantId;
-            const tenant = tenants.find(t => t.id == selectedTenantId);
-            
-            if (tenant && tenant.status === 'Active' && staffMember.tenantId == selectedTenantId) {
-                const userData = {
-                    id: staffMember.id,
-                    name: staffMember.name,
-                    username: staffMember.username,
-                    role: 'staff',
-                    tenantId: tenant.id,
-                    businessName: tenant.businessName,
-                    staffRole: staffMember.role
-                };
-                localStorage.setItem('user', JSON.stringify(userData));
+
+        } else if (selectedAdminRole === 'staff') {
+            const tenantId = document.getElementById('tenantDropdown').value;
+            if (!tenantId) { showToast('Select a venue first', 'error'); return; }
+            const staffList = loadStaff();
+            const member = staffList.find(s => s.username === username && s.password === password && s.status === 'Active' && s.tenantId == tenantId);
+            if (member) {
+                const tenants = loadTenants();
+                const tenant  = tenants.find(t => t.id == member.tenantId && t.status === 'Active');
+                if (!tenant) { showToast('Venue not found', 'error'); return; }
+                localStorage.setItem('user', JSON.stringify({
+                    id:member.id, name:member.name, username:member.username,
+                    role:'staff', tenantId:tenant.id, businessName:tenant.businessName, staffRole:member.role
+                }));
                 localStorage.setItem('currentTenantId', tenant.id);
                 localStorage.setItem('currentTenant', JSON.stringify(tenant));
                 sessionStorage.setItem('qless_logged_in', 'true');
                 sessionStorage.setItem('qless_user_role', 'staff');
-                sessionStorage.setItem('qless_user_name', staffMember.name);
+                sessionStorage.setItem('qless_user_name', member.name);
                 sessionStorage.setItem('qless_tenant_id', tenant.id);
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    // Main login function
-    function login(username, password) {
-        const usernameTrimmed = username.trim();
-        const passwordTrimmed = password.trim();
-        
-        if (selectedRole === 'super_administrator') {
-            if (loginSuperAdmin(usernameTrimmed, passwordTrimmed)) {
-                showToastMsg("Welcome Super Admin!");
-                return true;
+                showToast(`Welcome, ${member.name} 👥`, 'success');
+                setTimeout(() => window.location.href = 'staff.html', 900);
             } else {
-                showToastMsg("Invalid Super Admin credentials. Use: Super / 1989");
-                return false;
-            }
-        } 
-        else if (selectedRole === 'tenant_admin') {
-            const tenantSelect = document.getElementById('tenantDropdown');
-            const selectedTenantId = tenantSelect.value;
-            
-            if (!selectedTenantId) {
-                showToastMsg("Please select a venue");
-                return false;
-            }
-            
-            if (loginTenantAdmin(usernameTrimmed, passwordTrimmed, parseInt(selectedTenantId))) {
-                const tenant = loadTenants().find(t => t.id == selectedTenantId);
-                showToastMsg(`Welcome ${tenant?.businessName} Admin!`);
-                return true;
-            } else {
-                showToastMsg("Invalid tenant credentials. Check username/password");
-                return false;
-            }
-        } 
-        else if (selectedRole === 'staff') {
-            const tenantSelect = document.getElementById('tenantDropdown');
-            const selectedTenantId = tenantSelect.value;
-            
-            if (!selectedTenantId) {
-                showToastMsg("Please select a venue");
-                return false;
-            }
-            
-            if (loginStaff(usernameTrimmed, passwordTrimmed, parseInt(selectedTenantId))) {
-                const tenant = loadTenants().find(t => t.id == selectedTenantId);
-                showToastMsg(`Welcome staff member at ${tenant?.businessName}!`);
-                return true;
-            } else {
-                showToastMsg("Invalid staff credentials. Contact your admin");
-                return false;
+                showToast('Invalid staff credentials', 'error');
             }
         }
-        
-        return false;
-    }
-    
-    // Redirect based on role - UPDATED to match your file names
-    function redirectToDashboard() {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        if (user.role === 'super_administrator') {
-            window.location.href = 'super-admin.html';
-        } else if (user.role === 'tenant_admin') {
-            window.location.href = 'admin.html';
-        } else if (user.role === 'staff') {
-            window.location.href = 'staff.html';
-        } else {
-            window.location.href = 'home.html';
-        }
-    }
-    
-    // Check if already logged in
-    function checkExistingSession() {
-        const isLoggedIn = sessionStorage.getItem('qless_logged_in');
-        const userRole = sessionStorage.getItem('qless_user_role');
-        
-        if (isLoggedIn === 'true' && userRole) {
-            let userData = {
-                role: userRole,
-                name: sessionStorage.getItem('qless_user_name')
-            };
-            
-            if (userRole === 'super_administrator') {
-                userData.id = 'super_admin_001';
-                userData.username = 'Super';
-            } else if (userRole === 'tenant_admin') {
-                userData.tenantId = sessionStorage.getItem('qless_tenant_id');
-                const tenants = loadTenants();
-                const tenant = tenants.find(t => t.id == userData.tenantId);
-                if (tenant) {
-                    userData.businessName = tenant.businessName;
-                    userData.username = tenant.username;
-                    userData.name = tenant.ownerName;
-                }
-            } else if (userRole === 'staff') {
-                userData.tenantId = sessionStorage.getItem('qless_tenant_id');
-                const tenants = loadTenants();
-                const tenant = tenants.find(t => t.id == userData.tenantId);
-                if (tenant) {
-                    userData.businessName = tenant.businessName;
-                }
-            }
-            
-            localStorage.setItem('user', JSON.stringify(userData));
-            redirectToDashboard();
-            return true;
-        }
-        return false;
-    }
-    
-    // Initialize everything
-    function init() {
-        loadAccounts();
-        loadTenants();
-        loadStaff();
-        initRoleSelector();
-        updateTenantDropdown();
-        
-        // Check existing session
-        if (checkExistingSession()) {
-            return;
-        }
-        
-        // Set default credentials for Super Admin
-        const usernameInput = document.getElementById('loginWhatsapp');
-        const passwordInput = document.getElementById('loginPin');
-        usernameInput.value = 'Super';
-        passwordInput.value = '1989';
-        
-        // Login button handler
-        document.getElementById("loginBtn")?.addEventListener("click", (e) => {
-            e.preventDefault();
-            const username = document.getElementById("loginWhatsapp").value;
-            const password = document.getElementById("loginPin").value;
-            
-            if (login(username, password)) {
-                redirectToDashboard();
-            }
-        });
-        
-        // Enter key support
-        const pinInput = document.getElementById("loginPin");
-        if (pinInput) {
-            pinInput.addEventListener("keypress", function(e) {
-                if (e.key === "Enter") {
-                    document.getElementById("loginBtn").click();
-                }
-            });
-        }
-        
-        const userInput = document.getElementById("loginWhatsapp");
-        if (userInput) {
-            userInput.addEventListener("keypress", function(e) {
-                if (e.key === "Enter") {
-                    document.getElementById("loginBtn").click();
-                }
-            });
-        }
-        
-        // When tenant dropdown changes, update placeholder hints
-        const tenantDropdown = document.getElementById('tenantDropdown');
-        if (tenantDropdown) {
-            tenantDropdown.addEventListener('change', function() {
-                const selectedId = this.value;
-                if (selectedId && selectedRole === 'tenant_admin') {
-                    const tenants = loadTenants();
-                    const tenant = tenants.find(t => t.id == selectedId);
-                    if (tenant) {
-                        const usernameHint = document.getElementById('loginWhatsapp');
-                        usernameHint.placeholder = `Username: ${tenant.username}`;
-                    }
-                }
-            });
-        }
-    }
-    
-    init();
+    }, 650);
+});
 </script>
+
 </body>
 </html>

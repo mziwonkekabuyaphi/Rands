@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Rands Venue OS | Customer Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:wght@400;500;600;700;800&family=Kaushan+Script&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; background: #f4f6fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
+    .app-container { max-width: 500px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 40px; box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08); overflow: hidden; position: relative; }
+    .app-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eff3f8; }
+    .logo { height: 45px; width: auto; max-width: 180px; object-fit: contain; border-radius: 12px; }
+    .login-container { padding: 40px 20px; text-align: center; }
+
+    .circular-logo {
+      width: 100px; height: 100px; margin: 0 auto 20px; border-radius: 50%;
+      background: linear-gradient(135deg, #E30613, #b0020e);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 25px -5px rgba(227,6,19,0.4);
+      overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+    }
+    .circular-logo:hover { transform: scale(1.02); box-shadow: 0 15px 30px -5px rgba(227,6,19,0.5); }
+    .circular-logo:active { transform: scale(0.98); }
+    .circular-logo img { width: 70%; height: auto; object-fit: contain; pointer-events: none; }
+
+    .input-field {
+      background: #f8fafd; border: 1px solid #e2e8f0;
+      padding: 12px; border-radius: 60px; width: 100%;
+      font-size: 0.9rem; margin-bottom: 10px;
+    }
+
+    .login-btn {
+      background: #E30613; color: white; border: none; padding: 14px;
+      border-radius: 60px; font-size: 1rem; font-weight: 600; cursor: pointer;
+      width: 100%; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .login-btn:active { transform: scale(0.98); }
+
+    .toast-msg { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #1e2a3a; color: white; padding: 10px 16px; border-radius: 60px; text-align: center; z-index: 3500; display: none; font-size: 0.8rem; }
+    .toast-msg.show { display: block; }
+
+    .role-selector { display: flex; gap: 8px; margin-bottom: 20px; background: #f1f5f9; padding: 4px; border-radius: 60px; }
+    .role-btn {
+      flex: 1; padding: 10px 8px; border: none; background: transparent;
+      border-radius: 60px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease; color: #64748b;
+    }
+    .role-btn.active { background: white; color: #E30613; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .role-btn.super.active { background: linear-gradient(135deg, #E30613, #9f0110); color: white; }
+    .role-btn.tenant.active { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; }
+    .role-btn.staff.active { background: linear-gradient(135deg, #4a5568, #718096); color: white; }
+
+    .tenant-dropdown {
+      background: #f8fafd; border: 1px solid #e2e8f0;
+      padding: 12px; border-radius: 60px; width: 100%;
+      font-size: 0.9rem; margin-bottom: 15px; display: none;
+    }
+    .tenant-dropdown.show { display: block; }
+
+    /* Hidden admin panel - shown only after secret gesture */
+    .admin-panel {
+      display: none;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .admin-panel.show {
+      display: block;
+    }
+
+    .divider {
+      display: flex; align-items: center; text-align: center; margin: 20px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; border-bottom: 1px solid #e2e8f0;
+    }
+    .divider span {
+      padding: 0 10px; color: #64748b; font-size: 0.75rem;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-container">
+  <div class="app-header">
+    <div class="logo"></div>
+  </div>
+
+  <div class="login-container">
+    <div class="circular-logo" id="secretLogo">
+      <img src="images/rands-logo2.png" alt="Rands Wallet" style="pointer-events: none;"
+           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2750%27 fill=%27%23ffffff%27/%3E%3Ctext x=%2750%27 y=%2767%27 font-size=%2745%27 text-anchor=%27middle%27 fill=%27%23E30613%27 font-family=%27Arial%27 font-weight=%27bold%27%3ER%3C/text%3E%3C/svg%3E'">
+    </div>
+
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h2 style="margin-top: 20px;">Rands Venue OS</h2>
+      <p style="color: #64748b;">Welcome! Please log in to continue</p>
+    </div>
+
+    <!-- Customer Login Form (Default) -->
+    <div id="customerLogin">
+      <input type="email" id="customerEmail" class="input-field" placeholder="Email Address" style="margin-bottom: 15px;">
+      <input type="password" id="customerPassword" class="input-field" placeholder="Password" style="margin-bottom: 15px;">
+      <button class="login-btn" id="customerLoginBtn"><i class="fas fa-sign-in-alt"></i> Customer Login</button>
+    </div>
+
+    <!-- Hidden Admin Panel (shown after 5 taps or long press) -->
+    <div id="adminPanel" class="admin-panel">
+      <div class="divider">
+        <span>🔐 Admin Access</span>
+      </div>
+      
+      <!-- Role Selector -->
+      <div class="role-selector" id="roleSelector">
+        <button class="role-btn super active" data-role="super_administrator">👑 Super Admin</button>
+        <button class="role-btn tenant" data-role="tenant_admin">🏢 Tenant Admin</button>
+        <button class="role-btn staff" data-role="staff">👥 Staff</button>
+      </div>
+
+      <!-- Tenant Dropdown (for Tenant Admin and Staff) -->
+      <select id="tenantDropdown" class="tenant-dropdown">
+        <option value="">Select Venue</option>
+        <option value="venue1">Venue 1</option>
+        <option value="venue2">Venue 2</option>
+        <option value="venue3">Venue 3</option>
+      </select>
+
+      <div id="adminLoginForm">
+        <input type="email" id="adminEmail" class="input-field" placeholder="Email Address" style="margin-bottom: 15px;">
+        <input type="password" id="adminPassword" class="input-field" placeholder="Password" style="margin-bottom: 15px;">
+        <button class="login-btn" id="adminLoginBtn" style="background: #2c3e50;"><i class="fas fa-user-shield"></i> Admin Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="globalToast" class="toast-msg"></div>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  /***********************
+   * 1) CONFIG
+   ***********************/
+  const SUPABASE_URL = "https://qrjlgfajglvkbifhlebc.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyamxnZmFqZ2x2a2JpZmhsZWJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjAzOTAsImV4cCI6MjA5MjY5NjM5MH0.dBj6kPPyBE7LwrZZudyNkUsFcq_8NJBIXCJcNH41ajY";
+
+  const { createClient } = window.supabase;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /***********************
+   * 2) Local UI state
+   ***********************/
+  let selectedRole = 'super_administrator';
+  let tapCount = 0;
+  let tapTimeout = null;
+  let longPressTimer = null;
+  let adminPanelRevealed = false;
+
+  function showToastMsg(msg) {
+    const t = document.getElementById('globalToast');
+    t.innerText = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function redirectToDashboard(role) {
+    if (role === 'super_administrator') window.location.href = 'super-admin.html';
+    else if (role === 'tenant_admin') window.location.href = 'admin.html';
+    else if (role === 'staff') window.location.href = 'staff.html';
+    else window.location.href = 'customer-dashboard.html';
+  }
+
+  function updateTenantDropdown() {
+    const dropdown = document.getElementById('tenantDropdown');
+    if (!dropdown) return;
+
+    if (selectedRole === 'tenant_admin' || selectedRole === 'staff') {
+      dropdown.classList.add('show');
+    } else {
+      dropdown.classList.remove('show');
+    }
+  }
+
+  function initRoleSelector() {
+    const buttons = document.querySelectorAll('.role-btn');
+    buttons.forEach(btn => {
+      btn.removeEventListener('click', btn._listener);
+      const clickHandler = function() {
+        buttons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedRole = this.getAttribute('data-role');
+
+        const emailInput = document.getElementById('adminEmail');
+        const passwordInput = document.getElementById('adminPassword');
+        if (emailInput) emailInput.value = '';
+        if (passwordInput) passwordInput.value = '';
+
+        updateTenantDropdown();
+      };
+      btn._listener = clickHandler;
+      btn.addEventListener('click', clickHandler);
+    });
+  }
+
+  /***********************
+   * 3) Supabase login functions
+   ***********************/
+  async function customerLogin(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      showToastMsg(error.message || "Login failed");
+      return null;
+    }
+
+    return data?.session ?? null;
+  }
+
+  async function adminLogin(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      showToastMsg(error.message || "Login failed");
+      return null;
+    }
+
+    return data?.session ?? null;
+  }
+
+  /***********************
+   * 4) Secret gesture detection (5 taps or long press)
+   ***********************/
+  function showAdminPanel() {
+    if (adminPanelRevealed) return;
+    
+    const panel = document.getElementById('adminPanel');
+    if (panel) {
+      panel.classList.add('show');
+      adminPanelRevealed = true;
+      showToastMsg("✅ Admin access granted!");
+      
+      initRoleSelector();
+      updateTenantDropdown();
+      
+      const adminLoginBtn = document.getElementById('adminLoginBtn');
+      if (adminLoginBtn && !adminLoginBtn._hasListener) {
+        adminLoginBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+
+          const email = document.getElementById("adminEmail").value;
+          const password = document.getElementById("adminPassword").value;
+
+          if (!email) return showToastMsg("Enter your email");
+          if (!password) return showToastMsg("Enter your password");
+
+          const tenantDropdown = document.getElementById('tenantDropdown');
+          const tenantNeedsSelection = (selectedRole === 'tenant_admin' || selectedRole === 'staff');
+          if (tenantNeedsSelection && tenantDropdown && tenantDropdown.value === "") {
+            return showToastMsg("Please select a venue");
+          }
+
+          const session = await adminLogin(email, password);
+          if (!session) return;
+
+          sessionStorage.setItem('qless_logged_in', 'true');
+          sessionStorage.setItem('qless_user_role', selectedRole);
+          if (tenantNeedsSelection && tenantDropdown) {
+            sessionStorage.setItem('selected_venue', tenantDropdown.value);
+          }
+
+          showToastMsg("Admin login successful!");
+          setTimeout(() => redirectToDashboard(selectedRole), 500);
+        });
+        adminLoginBtn._hasListener = true;
+      }
+    }
+  }
+
+  function setupSecretGesture() {
+    const logo = document.getElementById('secretLogo');
+    if (!logo) {
+      console.error("Logo not found!");
+      return;
+    }
+
+    // Clear any existing listeners
+    const newLogo = logo.cloneNode(true);
+    logo.parentNode.replaceChild(newLogo, logo);
+    const finalLogo = document.getElementById('secretLogo');
+    
+    // 5 taps detection
+    finalLogo.addEventListener('click', function(e) {
+      e.stopPropagation();
+      tapCount++;
+      
+      if (tapTimeout) clearTimeout(tapTimeout);
+      
+      tapTimeout = setTimeout(() => {
+        tapCount = 0;
+      }, 1000);
+      
+      if (tapCount === 5) {
+        tapCount = 0;
+        if (tapTimeout) clearTimeout(tapTimeout);
+        showAdminPanel();
+      }
+    });
+    
+    // Long press detection
+    finalLogo.addEventListener('mousedown', function() {
+      longPressTimer = setTimeout(() => {
+        showAdminPanel();
+        longPressTimer = null;
+      }, 800);
+    });
+    
+    finalLogo.addEventListener('mouseup', function() {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    });
+    
+    finalLogo.addEventListener('mouseleave', function() {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    });
+    
+    // Touch events for mobile
+    finalLogo.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      longPressTimer = setTimeout(() => {
+        showAdminPanel();
+        longPressTimer = null;
+      }, 800);
+    });
+    
+    finalLogo.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    });
+    
+    finalLogo.addEventListener('touchcancel', function(e) {
+      e.preventDefault();
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    });
+    
+    // Also add a title hint
+    finalLogo.setAttribute('title', 'Tap 5 times or long press for admin access');
+  }
+
+  /***********************
+   * 5) Event handlers
+   ***********************/
+  function init() {
+    setupSecretGesture();
+    
+    const customerLoginBtn = document.getElementById('customerLoginBtn');
+    if (customerLoginBtn) {
+      customerLoginBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("customerEmail").value;
+        const password = document.getElementById("customerPassword").value;
+
+        if (!email) return showToastMsg("Enter your email");
+        if (!password) return showToastMsg("Enter your password");
+
+        const session = await customerLogin(email, password);
+        if (!session) return;
+
+        sessionStorage.setItem('qless_logged_in', 'true');
+        sessionStorage.setItem('qless_user_role', 'customer');
+
+        showToastMsg("Customer login successful!");
+        setTimeout(() => redirectToDashboard('customer'), 500);
+      });
+    }
+
+    const customerEmail = document.getElementById("customerEmail");
+    const customerPassword = document.getElementById("customerPassword");
+    
+    if (customerEmail && customerPassword && customerLoginBtn) {
+      customerEmail.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") customerLoginBtn.click();
+      });
+      customerPassword.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") customerLoginBtn.click();
+      });
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
