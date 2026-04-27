@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Rands | Secure Payment</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>Rands | Kiosk Payment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
   <style>
@@ -16,26 +16,32 @@
       --red: #E30613; --red-dark: #B5040F; --red-glow: rgba(227,6,19,0.18);
       --ink: #0D0D0D; --ink-muted: #2A2A2A; --slate: #4A4A5A; --mist: #8A8A9A;
       --bone: #F5F2EE; --white: #FFFFFF; --border: rgba(0,0,0,0.07);
-      --border-strong: rgba(0,0,0,0.12); --shadow-soft: 0 2px 20px rgba(0,0,0,0.06);
-      --shadow-card: 0 4px 24px rgba(0,0,0,0.08); --shadow-float: 0 16px 48px rgba(0,0,0,0.14);
-      --shadow-modal: 0 32px 80px rgba(0,0,0,0.22);
-      --radius-sm: 12px; --radius-md: 20px; --radius-lg: 28px; --radius-xl: 40px; --radius-full: 9999px;
+      --border-strong: rgba(0,0,0,0.12); --radius-sm: 12px; --radius-md: 20px; --radius-lg: 28px; --radius-xl: 40px; --radius-full: 9999px;
       --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .payment-container { max-width: 560px; width: 100%; margin: 0 auto; }
-    .payment-card { background: var(--white); border-radius: 40px; box-shadow: var(--shadow-modal); overflow: hidden; border: 1px solid var(--border); }
+    .payment-card { background: var(--white); border-radius: 40px; box-shadow: 0 32px 80px rgba(0,0,0,0.22); overflow: hidden; border: 1px solid var(--border); }
     .payment-header { background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%); padding: 28px 24px; text-align: center; color: white; }
     .payment-header i { font-size: 3rem; margin-bottom: 12px; background: rgba(255,255,255,0.2); width: 80px; height: 80px; border-radius: 40px; display: inline-flex; align-items: center; justify-content: center; }
     .payment-header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
     .payment-header p { opacity: 0.85; font-size: 0.9rem; }
     .payment-body { padding: 28px 24px; }
     .section-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .section-title i { font-size: 0.8rem; }
     .order-summary-box { background: var(--bone); border-radius: 24px; padding: 20px; margin-bottom: 28px; }
     .order-summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.87rem; color: var(--slate); margin-bottom: 10px; }
     .order-summary-row.total { border-top: 1px solid var(--border-strong); padding-top: 12px; margin-top: 8px; font-weight: 800; font-size: 1rem; color: var(--ink); }
     .order-summary-row.total .amt { color: var(--red); font-family: 'Playfair Display', serif; font-size: 1.2rem; }
-    .alcohol-notice { display: flex; align-items: center; gap: 8px; background: rgba(227,6,19,0.06); border: 1px solid rgba(227,6,19,0.2); border-radius: 16px; padding: 10px 14px; font-size: 0.78rem; color: var(--red-dark); font-weight: 600; margin-top: 12px; }
+    .field-wrap { margin-bottom: 16px; }
+    .field-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate); margin-bottom: 8px; display: block; }
+    .field-input { width: 100%; padding: 14px 18px; border: 1.5px solid var(--border-strong); border-radius: 40px; font-family: 'DM Sans', sans-serif; font-size: 0.93rem; background: var(--bone); transition: var(--transition); outline: none; }
+    .field-input:focus { border-color: var(--red); background: var(--white); box-shadow: 0 0 0 3px var(--red-glow); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 40px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700; border: none; cursor: pointer; transition: var(--transition); width: 100%; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--red); color: white; box-shadow: 0 4px 16px var(--red-glow); }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: var(--bone); color: var(--ink-muted); border: 1px solid var(--border-strong); margin-top: 12px; }
+    .btn-ghost:hover { background: #ede9e3; }
     .pay-option { border: 1.5px solid var(--border-strong); border-radius: 24px; padding: 18px; cursor: pointer; transition: var(--transition); margin-bottom: 16px; }
     .pay-option:hover { border-color: var(--red); background: rgba(227,6,19,0.04); }
     .pay-option.selected { border-color: var(--red); background: rgba(227,6,19,0.06); }
@@ -47,20 +53,6 @@
     .pay-option-title { font-weight: 700; font-size: 0.95rem; color: var(--ink); margin-bottom: 2px; }
     .pay-option-desc { font-size: 0.77rem; color: var(--mist); }
     .pay-option-expand { overflow: hidden; transition: var(--transition); }
-    .field-wrap { margin-bottom: 14px; }
-    .field-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate); margin-bottom: 8px; display: block; }
-    .field-input { width: 100%; padding: 13px 18px; border: 1.5px solid var(--border-strong); border-radius: 40px; font-family: 'DM Sans', sans-serif; font-size: 0.93rem; background: var(--bone); transition: var(--transition); outline: none; }
-    .field-input:focus { border-color: var(--red); background: var(--white); box-shadow: 0 0 0 3px var(--red-glow); }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 40px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700; border: none; cursor: pointer; transition: var(--transition); width: 100%; }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--red); color: white; box-shadow: 0 4px 16px var(--red-glow); }
-    .btn-primary:hover { background: var(--red-dark); }
-    .btn-success { background: #059669; color: white; }
-    .btn-success:hover { background: #047857; }
-    .btn-ghost { background: var(--bone); color: var(--ink-muted); border: 1px solid var(--border-strong); }
-    .btn-ghost:hover { background: #ede9e3; }
-    .btn-row { display: flex; gap: 12px; margin-top: 20px; }
-    .btn-row .btn { flex: 1; }
     .fingerprint-zone { text-align: center; padding: 8px 0; }
     .fp-circle { width: 100px; height: 100px; background: rgba(227,6,19,0.08); border-radius: 50%; border: 2px solid rgba(227,6,19,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; cursor: pointer; transition: var(--transition); }
     .fp-circle:hover { background: rgba(227,6,19,0.15); transform: scale(1.02); }
@@ -73,36 +65,30 @@
     @keyframes fpPulse { 0%, 100% { box-shadow: 0 0 0 0 var(--red-glow); transform: scale(1); } 50% { box-shadow: 0 0 0 14px transparent; transform: scale(1.04); } }
     .fp-hint { font-size: 0.82rem; color: var(--mist); font-weight: 500; }
     .fp-error { font-size: 0.82rem; color: var(--red); font-weight: 600; margin-top: 8px; }
-    .timer-ring-wrap { display: flex; flex-direction: column; align-items: center; margin: 24px 0; }
-    .timer-display { font-family: 'DM Mono', monospace; font-size: 3rem; font-weight: 500; color: var(--ink); letter-spacing: 0.04em; margin-bottom: 6px; transition: color 0.3s; }
-    .timer-display.warn { color: #D97706; }
-    .timer-display.critical { color: var(--red); animation: pulse 1s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .waiting-anim { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
-    .waiting-dot { width: 12px; height: 12px; background: var(--red); border-radius: 50%; animation: bounceDot 1.4s ease-in-out infinite; }
-    .waiting-dot:nth-child(2) { animation-delay: 0.2s; }
-    .waiting-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounceDot { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(13,13,13,0.75); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .modal-backdrop.open { opacity: 1; visibility: visible; }
-    .modal-box { background: var(--white); border-radius: 40px; max-width: 480px; width: 92%; padding: 36px; box-shadow: var(--shadow-modal); transform: translateY(30px) scale(0.95); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 92vh; overflow-y: auto; text-align: center; }
+    .modal-box { background: white; border-radius: 40px; max-width: 480px; width: 90%; padding: 36px; text-align: center; transform: translateY(30px) scale(0.95); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 90vh; overflow-y: auto; }
     .modal-backdrop.open .modal-box { transform: translateY(0) scale(1); }
-    .modal-emblem { width: 72px; height: 72px; background: linear-gradient(135deg, var(--red), var(--red-dark)); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 8px 24px var(--red-glow); }
+    .modal-emblem { width: 72px; height: 72px; background: linear-gradient(135deg, var(--red), var(--red-dark)); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
     .modal-emblem i { font-size: 2rem; color: white; }
-    .modal-emblem.success-emblem { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 8px 24px rgba(5,150,105,0.3); }
-    .modal-emblem.wait-emblem { background: linear-gradient(135deg, #2563EB, #1D4ED8); box-shadow: 0 8px 24px rgba(37,99,235,0.3); }
-    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
-    .modal-subtitle { font-size: 0.87rem; color: var(--mist); line-height: 1.5; }
-    .success-number { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 800; color: var(--ink); margin: 12px 0 6px; }
-    .confetti-line { display: flex; justify-content: center; gap: 8px; font-size: 1.4rem; margin-bottom: 12px; }
-    .back-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; color: var(--mist); text-decoration: none; font-size: 0.85rem; transition: var(--transition); }
-    .back-link:hover { color: var(--red); }
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 40px; font-size: 0.87rem; font-weight: 600; z-index: 2000; box-shadow: var(--shadow-float); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .modal-emblem.success-emblem { background: linear-gradient(135deg, #059669, #047857); }
+    .modal-emblem.wait-emblem { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+    .modal-subtitle { font-size: 0.87rem; color: var(--mist); }
+    .timer-display { font-family: 'DM Mono', monospace; font-size: 2.5rem; font-weight: 600; margin: 20px 0; color: var(--red); }
+    .waiting-anim { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+    .waiting-dot { width: 12px; height: 12px; background: var(--red); border-radius: 50%; animation: bounce 1.4s ease-in-out infinite; }
+    .waiting-dot:nth-child(2) { animation-delay: 0.2s; }
+    .waiting-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #0D0D0D; color: white; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 2000; opacity: 0; transition: all 0.3s ease; pointer-events: none; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.success { background: #059669; }
     .toast.error { background: var(--red); }
-    .event-ticket-badge { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; padding: 6px 14px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+    .toast.info { background: #2563EB; }
+    .wallet-hint { font-size: 0.7rem; color: var(--mist); text-align: center; margin-top: 8px; }
     .voucher-code-display { background: var(--bone); border-radius: 16px; padding: 12px; text-align: center; margin-top: 12px; font-family: 'DM Mono', monospace; font-size: 1.1rem; letter-spacing: 2px; font-weight: 700; color: var(--red); }
+    @media (max-width: 500px) { .payment-body { padding: 20px; } .order-summary-box { padding: 16px; } }
   </style>
 </head>
 <body>
@@ -110,62 +96,99 @@
   <div class="payment-container">
     <div class="payment-card">
       <div class="payment-header">
-        <i class="fas fa-credit-card"></i>
-        <h1>Secure Payment</h1>
-        <p>Complete your transaction</p>
+        <i class="fas fa-receipt"></i>
+        <h1>Kiosk Payment</h1>
+        <p>Complete your order</p>
       </div>
       <div class="payment-body">
-        <div v-if="isEventMode" class="event-ticket-badge"><i class="fas fa-ticket-alt"></i> Event Ticket Payment</div>
-        
         <!-- Order Summary -->
-        <div class="section-title"><i class="fas fa-receipt"></i> Order Summary</div>
+        <div class="section-title"><i class="fas fa-shopping-bag"></i> Your Order</div>
         <div class="order-summary-box">
           <div v-for="item in cart" :key="item.id" class="order-summary-row">
             <span>{{ item.name }} ×{{ item.quantity }}</span>
             <span>R {{ formatPrice(item.price * item.quantity) }}</span>
           </div>
           <div v-if="cart.length === 0" class="order-summary-row" style="justify-content: center; color: var(--red);">
-            <i class="fas fa-info-circle"></i> No items — manual amount entry
+            <i class="fas fa-info-circle"></i> No items — enter amount below
           </div>
           <div class="order-summary-row total">
-            <span>Total</span>
+            <span>Total to Pay</span>
             <span class="amt">R {{ formatPrice(totalAmount) }}</span>
           </div>
-          <div v-if="cartHasAlcohol" class="alcohol-notice">
+          <div v-if="cartHasAlcohol" class="alcohol-notice" style="display: flex; align-items: center; gap: 8px; background: rgba(227,6,19,0.06); border-radius: 16px; padding: 10px 14px; font-size: 0.78rem; color: var(--red-dark); font-weight: 600; margin-top: 12px;">
             <i class="fas fa-triangle-exclamation"></i> Contains alcohol — age verification required
           </div>
         </div>
 
-        <!-- Manual Amount Entry (for event tickets / custom payments) -->
-        <div class="section-title"><i class="fas fa-pen-alt"></i> Custom Amount</div>
+        <!-- Custom Amount (for manual entry like event tickets) -->
+        <div class="section-title"><i class="fas fa-pen-alt"></i> Custom Amount (Optional)</div>
         <div class="field-wrap">
-          <input type="number" class="field-input" v-model.number="manualAmount" placeholder="Enter amount manually (e.g., 150.00)" @input="updateManualAmount" />
+          <input type="number" class="field-input" v-model.number="manualAmount" placeholder="Or enter amount manually" @input="updateManualAmount" />
         </div>
 
         <!-- Payment Method Selection -->
-        <div class="section-title"><i class="fas fa-wallet"></i> Payment Method</div>
+        <div class="section-title"><i class="fas fa-wallet"></i> Select Payment Method</div>
 
-        <!-- Wallet Option -->
+        <!-- 1. Rands Wallet Option -->
         <div class="pay-option" :class="{ selected: selectedPayMethod === 'wallet' }" @click="selectedPayMethod = 'wallet'">
           <div class="pay-option-header">
             <div class="pay-icon-wrap"><i class="fas fa-paper-plane"></i></div>
             <div>
               <div class="pay-option-title">Rands Wallet</div>
-              <div class="pay-option-desc">Send a payment request to your wallet</div>
+              <div class="pay-option-desc">Send payment request to wallet app</div>
             </div>
           </div>
           <div v-if="selectedPayMethod === 'wallet'" class="pay-option-expand" style="margin-top:14px;">
-            <label class="field-label">WhatsApp / Wallet Account ID</label>
-            <div class="field-wrap">
-              <input class="field-input" type="tel" v-model="walletId" placeholder="+27 XX XXX XXXX" @keyup.enter="sendWalletRequest" />
-            </div>
-            <button class="btn btn-primary" @click="sendWalletRequest" :disabled="!isWalletIdValid">
+            <label class="field-label">Wallet Account ID / Phone Number</label>
+            <input type="tel" class="field-input" v-model="walletAccountId" placeholder="e.g., 0635713652" />
+            <button class="btn btn-primary" @click="sendWalletRequest" :disabled="!walletAccountId || sending" style="margin-top:12px;">
               <i class="fas fa-paper-plane"></i> Send Payment Request
             </button>
+            <div class="wallet-hint"><i class="fas fa-info-circle"></i> Customer will approve in their Rands Wallet app</div>
           </div>
         </div>
 
-        <!-- Fingerprint Option -->
+        <!-- 2. 1Voucher Option -->
+        <div class="pay-option" :class="{ selected: selectedPayMethod === '1voucher' }" @click="selectedPayMethod = '1voucher'">
+          <div class="pay-option-header">
+            <div class="pay-icon-wrap"><img src="../icons/1voucher-icon.png" alt="1Voucher" @error="handleImageError"></div>
+            <div>
+              <div class="pay-option-title">1Voucher</div>
+              <div class="pay-option-desc">Pay with 1Voucher (Airtime, Data, Electricity)</div>
+            </div>
+          </div>
+          <div v-if="selectedPayMethod === '1voucher'" class="pay-option-expand" style="margin-top:14px;">
+            <label class="field-label">Voucher PIN / Code</label>
+            <input type="text" class="field-input" v-model="voucherCode" placeholder="Enter 16-digit voucher PIN" maxlength="20" />
+            <button class="btn btn-primary" @click="processVoucherPayment" :disabled="!voucherCode || processing" style="margin-top:12px;">
+              <i class="fas fa-ticket-alt"></i> {{ processing ? 'Processing...' : 'Redeem Voucher' }}
+            </button>
+            <div class="voucher-code-display" v-if="voucherRedeemed">
+              <i class="fas fa-check-circle" style="color:#059669"></i> Voucher Redeemed! R {{ formatPrice(voucherAmount) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. CapitecPay Option -->
+        <div class="pay-option" :class="{ selected: selectedPayMethod === 'capitecpay' }" @click="selectedPayMethod = 'capitecpay'">
+          <div class="pay-option-header">
+            <div class="pay-icon-wrap"><img src="../icons/capitec.png" alt="CapitecPay" @error="handleImageError"></div>
+            <div>
+              <div class="pay-option-title">CapitecPay</div>
+              <div class="pay-option-desc">Pay instantly with Capitec banking app</div>
+            </div>
+          </div>
+          <div v-if="selectedPayMethod === 'capitecpay'" class="pay-option-expand" style="margin-top:14px;">
+            <label class="field-label">Capitec Mobile Number</label>
+            <input type="tel" class="field-input" v-model="capitecNumber" placeholder="+27 XX XXX XXXX" />
+            <button class="btn btn-primary" @click="processCapitecPay" :disabled="!capitecNumber || processing" style="margin-top:12px;">
+              <i class="fas fa-university"></i> {{ processing ? 'Processing...' : 'Pay with CapitecPay' }}
+            </button>
+            <p style="font-size:0.7rem; color:var(--mist); margin-top:8px; text-align:center;">You will receive a push notification on your Capitec app</p>
+          </div>
+        </div>
+
+        <!-- 4. Fingerprint Option -->
         <div class="pay-option" :class="{ selected: selectedPayMethod === 'fingerprint' }" @click="selectedPayMethod = 'fingerprint'">
           <div class="pay-option-header">
             <div class="pay-icon-wrap"><i class="fas fa-fingerprint"></i></div>
@@ -192,79 +215,32 @@
           </div>
         </div>
 
-        <!-- 1Voucher Option - Path: ../icons/1voucher-icon.png (up one level from kiosk folder) -->
-        <div class="pay-option" :class="{ selected: selectedPayMethod === '1voucher' }" @click="selectedPayMethod = '1voucher'">
-          <div class="pay-option-header">
-            <div class="pay-icon-wrap"><img src="../icons/1voucher-icon.png" alt="1Voucher" @error="handleImageError($event, '1voucher')"></div>
-            <div>
-              <div class="pay-option-title">1Voucher</div>
-              <div class="pay-option-desc">Pay with any 1Voucher (Airtime, Data, Electricity)</div>
-            </div>
-          </div>
-          <div v-if="selectedPayMethod === '1voucher'" class="pay-option-expand" style="margin-top:14px;">
-            <label class="field-label">Voucher PIN / Code</label>
-            <div class="field-wrap">
-              <input class="field-input" type="text" v-model="voucherCode" placeholder="Enter 16-digit voucher PIN" maxlength="20" />
-            </div>
-            <button class="btn btn-primary" @click="processVoucherPayment" :disabled="!voucherCode.trim() || processing">
-              <i class="fas fa-ticket-alt"></i> {{ processing ? 'Processing...' : 'Redeem Voucher' }}
-            </button>
-            <div class="voucher-code-display" v-if="voucherRedeemed">
-              <i class="fas fa-check-circle" style="color:#059669"></i> Voucher Redeemed! R {{ formatPrice(voucherAmount) }}
-            </div>
-          </div>
-        </div>
-
-        <!-- CapitecPay Option - Path: ../icons/capitec.png (up one level from kiosk folder) -->
-        <div class="pay-option" :class="{ selected: selectedPayMethod === 'capitecpay' }" @click="selectedPayMethod = 'capitecpay'">
-          <div class="pay-option-header">
-            <div class="pay-icon-wrap"><img src="../icons/capitec.png" alt="CapitecPay" @error="handleImageError($event, 'capitec')"></div>
-            <div>
-              <div class="pay-option-title">CapitecPay</div>
-              <div class="pay-option-desc">Pay instantly with Capitec banking app</div>
-            </div>
-          </div>
-          <div v-if="selectedPayMethod === 'capitecpay'" class="pay-option-expand" style="margin-top:14px;">
-            <label class="field-label">Capitec Mobile Number</label>
-            <div class="field-wrap">
-              <input class="field-input" type="tel" v-model="capitecNumber" placeholder="+27 XX XXX XXXX" />
-            </div>
-            <button class="btn btn-primary" @click="processCapitecPay" :disabled="!capitecNumber.trim() || processing">
-              <i class="fas fa-university"></i> {{ processing ? 'Processing...' : 'Pay with CapitecPay' }}
-            </button>
-            <p style="font-size:0.7rem; color:var(--mist); margin-top:8px; text-align:center;">You will receive a push notification on your Capitec app to approve the payment.</p>
-          </div>
-        </div>
-
-        <button class="btn btn-ghost" style="margin-top:8px;" @click="goBack">
+        <button class="btn btn-ghost" @click="goBack">
           <i class="fas fa-arrow-left"></i> Back to Menu
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Waiting Modal -->
+  <!-- Waiting Modal (for Wallet & CapitecPay) -->
   <div class="modal-backdrop" :class="{ open: waitingModalOpen }">
     <div class="modal-box">
-      <div class="modal-emblem wait-emblem"><i class="fas fa-paper-plane"></i></div>
-      <h2 class="modal-title">Request Sent</h2>
-      <p class="modal-subtitle">Complete the payment using your selected method</p>
+      <div class="modal-emblem wait-emblem"><i class="fas fa-clock"></i></div>
+      <h2 class="modal-title">Waiting for Approval</h2>
+      <p class="modal-subtitle">{{ waitingMessage }}</p>
       <div class="waiting-anim"><div class="waiting-dot"></div><div class="waiting-dot"></div><div class="waiting-dot"></div></div>
-      <div class="timer-ring-wrap"><div class="timer-display" :class="{ warn: remainingSeconds <= 60 && remainingSeconds > 30, critical: remainingSeconds <= 30 }">{{ formatTime(remainingSeconds) }}</div><div class="timer-label">Time remaining</div></div>
-      <p style="font-size:0.82rem;color:var(--mist);margin-bottom:20px;">{{ waitingMessage }}</p>
-      <button class="btn btn-ghost" style="width:100%;" @click="cancelPayment"><i class="fas fa-times"></i> Cancel</button>
+      <div class="timer-display">{{ formatTime(remainingSeconds) }}</div>
+      <button class="btn btn-ghost" @click="cancelWaiting" style="margin-top: 20px;">Cancel Request</button>
     </div>
   </div>
 
   <!-- Success Modal -->
   <div class="modal-backdrop" :class="{ open: successModalOpen }">
-    <div class="modal-box" style="text-align:center;">
+    <div class="modal-box">
       <div class="modal-emblem success-emblem"><i class="fas fa-check"></i></div>
-      <div class="confetti-line">🎉 🥂 🎊</div>
       <h2 class="modal-title">Payment Successful!</h2>
-      <div class="success-number">{{ orderNumber }}</div>
-      <p class="modal-subtitle">Your {{ isEventMode ? 'tickets' : 'order' }} has been confirmed. Thank you!</p>
-      <div style="margin-top:24px;font-size:0.82rem;color:var(--mist);">Redirecting to menu in 3 seconds…</div>
+      <p class="modal-subtitle">Payment of <strong>R {{ formatPrice(lastPaidAmount) }}</strong> was successful.</p>
+      <div style="margin-top: 24px; font-size: 0.85rem; color: var(--mist);">Redirecting to menu...</div>
     </div>
   </div>
 
@@ -274,11 +250,15 @@
       <div class="modal-emblem"><i class="fas fa-fingerprint"></i></div>
       <h2 class="modal-title">Register Fingerprint</h2>
       <p class="modal-subtitle">Place your finger on the sensor to register a new biometric profile.</p>
-      <div class="btn-row"><button class="btn btn-ghost" @click="showRegisterModal = false">Cancel</button><button class="btn btn-primary" @click="simulateRegister">Register</button></div>
+      <div style="display: flex; gap: 12px; margin-top: 20px;">
+        <button class="btn btn-ghost" @click="showRegisterModal = false" style="margin-top:0;">Cancel</button>
+        <button class="btn btn-primary" @click="simulateRegister" style="margin-top:0;">Register</button>
+      </div>
     </div>
   </div>
 
-  <div class="toast" :class="[toast.type, { show: toast.visible }]"><i :class="toast.icon"></i> {{ toast.text }}</div>
+  <!-- Toast -->
+  <div class="toast" :class="[toastType, { show: toastVisible }]"><i :class="toastIcon"></i> {{ toastMessage }}</div>
 </div>
 
 <script>
@@ -286,33 +266,50 @@ new Vue({
   el: '#app',
   data() {
     return {
+      // Cart & amount
       cart: [],
       manualAmount: 0,
+      
+      // Selected payment method
       selectedPayMethod: 'wallet',
-      walletId: '',
+      
+      // Wallet payment
+      walletAccountId: '',
+      
       // 1Voucher
       voucherCode: '',
       voucherRedeemed: false,
       voucherAmount: 0,
+      
       // CapitecPay
       capitecNumber: '',
-      // Shared
-      processing: false,
-      waitingModalOpen: false,
-      successModalOpen: false,
-      showRegisterModal: false,
+      
+      // Fingerprint
       fpScanning: false,
       fpSuccess: false,
       fpError: '',
       fpTimer: null,
-      currentRequestId: null,
+      showRegisterModal: false,
+      
+      // Shared state
+      sending: false,
+      processing: false,
+      waitingModalOpen: false,
+      successModalOpen: false,
       remainingSeconds: 120,
       approvalTimer: null,
-      orderNumber: '',
-      toast: { visible: false, text: '', type: '', icon: '' },
+      currentRequestId: null,
+      lastPaidAmount: 0,
+      waitingMessage: 'Waiting for payment confirmation...',
+      
+      // Toast
+      toastVisible: false,
+      toastMessage: '',
+      toastType: '',
+      toastIcon: '',
       toastTimer: null,
-      isEventMode: false,
-      waitingMessage: 'Waiting for payment confirmation...'
+      
+      isEventMode: false
     };
   },
   computed: {
@@ -323,115 +320,202 @@ new Vue({
     },
     cartHasAlcohol() {
       return this.cart.some(i => i.alcohol === true);
-    },
-    isWalletIdValid() {
-      return this.walletId && this.walletId.trim().length >= 8;
     }
   },
   mounted() {
+    // Load cart from localStorage
     const savedCart = localStorage.getItem('rands_kiosk_cart');
     if (savedCart) {
-      try { this.cart = JSON.parse(savedCart); } catch(e) {}
+      try { this.cart = JSON.parse(savedCart); } catch(e) { console.error(e); }
     }
+    
+    // Check if event mode
     const urlParams = new URLSearchParams(window.location.search);
     this.isEventMode = urlParams.get('event') === 'true' || urlParams.get('tickets') === 'true';
-    if (this.isEventMode && this.cart.length === 0) {
-      this.manualAmount = 250;
-    }
-    window.addEventListener('storage', this.onStorageChange);
+    
+    // Listen for wallet approval
+    window.addEventListener('storage', this.handleWalletApproval);
   },
   beforeDestroy() {
-    window.removeEventListener('storage', this.onStorageChange);
+    window.removeEventListener('storage', this.handleWalletApproval);
     if (this.approvalTimer) clearInterval(this.approvalTimer);
     if (this.fpTimer) clearTimeout(this.fpTimer);
   },
   methods: {
     formatPrice(n) { return Number(n).toFixed(2); },
-    formatTime(s) { const m = Math.floor(s / 60); const sec = s % 60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; },
-    showToast(text, type = 'success') {
-      const icons = { success: 'fas fa-check-circle', error: 'fas fa-circle-xmark', info: 'fas fa-circle-info' };
-      this.toast = { visible: true, text, type, icon: icons[type] || icons.info };
-      if (this.toastTimer) clearTimeout(this.toastTimer);
-      this.toastTimer = setTimeout(() => { this.toast.visible = false; }, 3200);
-    },
-    updateManualAmount() { if (this.manualAmount < 0) this.manualAmount = 0; },
-    goBack() { window.location.href = 'kiosk-menu.html'; },
-    handleImageError(event, type) { 
-      // Fallback to Font Awesome icon if image not found
-      event.target.style.display = 'none';
-      const parent = event.target.parentElement;
-      const fallbackIcon = document.createElement('i');
-      fallbackIcon.className = type === '1voucher' ? 'fas fa-ticket-alt' : 'fas fa-university';
-      fallbackIcon.style.fontSize = '1.4rem';
-      fallbackIcon.style.color = 'var(--red)';
-      parent.appendChild(fallbackIcon);
+    formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     },
     
+    showToast(msg, type = 'info') {
+      if (this.toastTimer) clearTimeout(this.toastTimer);
+      const icons = { success: 'fas fa-check-circle', error: 'fas fa-exclamation-circle', info: 'fas fa-info-circle' };
+      this.toastMessage = msg;
+      this.toastType = type;
+      this.toastIcon = icons[type] || icons.info;
+      this.toastVisible = true;
+      this.toastTimer = setTimeout(() => { this.toastVisible = false; }, 3000);
+    },
+    
+    updateManualAmount() { if (this.manualAmount < 0) this.manualAmount = 0; },
+    goBack() { window.location.href = 'kiosk-menu.html'; },
+    handleImageError(e) { e.target.style.display = 'none'; },
+    
     completePayment() {
-      this.orderNumber = 'ORD-' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
+      this.lastPaidAmount = this.totalAmount;
       localStorage.removeItem('rands_kiosk_cart');
       this.cart = [];
       this.successModalOpen = true;
-      setTimeout(() => { window.location.href = 'kiosk-menu.html'; }, 3000);
+      setTimeout(() => {
+        window.location.href = 'kiosk-menu.html';
+      }, 3000);
     },
-
-    // Wallet Payment
-    sendWalletRequest() {
-      if (!this.isWalletIdValid) { this.showToast('Please enter a valid wallet ID', 'error'); return; }
-      if (this.totalAmount <= 0) { this.showToast('Please enter a valid amount', 'error'); return; }
-      this.processing = true;
-      this.currentRequestId = 'REQ_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-      const paymentRequest = {
-        id: this.currentRequestId, amount: this.totalAmount, from: 'Rands Kiosk',
-        reference: this.isEventMode ? 'EVENT-' + Date.now().toString().slice(-8) : 'KIO-' + Date.now().toString().slice(-8),
-        accountId: this.walletId, timestamp: Date.now(), status: 'pending',
-        items: this.cart.length ? this.cart.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })) : [{ name: 'Manual Payment', quantity: 1, price: this.totalAmount }],
-        isEvent: this.isEventMode
-      };
-      localStorage.setItem('rands_payment_request', JSON.stringify(paymentRequest));
-      this.waitingMessage = `Waiting for approval from ${this.walletId}`;
-      this.startWaitingTimer();
-      this.showToast(`Request sent to ${this.walletId}`, 'info');
-      this.processing = false;
-    },
-
-    startWaitingTimer() {
-      this.remainingSeconds = 120;
+    
+    startTimer(message, duration = 120) {
+      this.remainingSeconds = duration;
+      this.waitingMessage = message;
       this.waitingModalOpen = true;
       if (this.approvalTimer) clearInterval(this.approvalTimer);
       this.approvalTimer = setInterval(() => {
-        if (this.remainingSeconds > 0) { this.remainingSeconds--; }
-        else { this.clearWaitingTimer(); this.showToast('Payment request expired. Please try again.', 'error'); }
+        if (this.remainingSeconds > 0) {
+          this.remainingSeconds--;
+        } else {
+          this.clearTimer();
+          this.showToast('Payment request expired. Please try again.', 'error');
+        }
       }, 1000);
     },
-
-    clearWaitingTimer() {
+    
+    clearTimer() {
       if (this.approvalTimer) { clearInterval(this.approvalTimer); this.approvalTimer = null; }
       this.waitingModalOpen = false;
-      this.currentRequestId = null;
     },
-
-    cancelPayment() { this.clearWaitingTimer(); this.showToast('Payment cancelled', 'error'); },
-
-    onStorageChange(e) {
-      if (e.key === 'rands_payment_approved' && e.newValue) {
+    
+    cancelWaiting() {
+      this.clearTimer();
+      this.showToast('Payment cancelled', 'error');
+    },
+    
+    // ========== 1. WALLET PAYMENT (sends to wallet app) ==========
+    sendWalletRequest() {
+      if (!this.walletAccountId || this.walletAccountId.length < 8) {
+        this.showToast('Please enter a valid wallet ID (phone number)', 'error');
+        return;
+      }
+      if (this.totalAmount <= 0) {
+        this.showToast('Please enter a valid amount', 'error');
+        return;
+      }
+      
+      this.sending = true;
+      this.currentRequestId = 'REQ_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      
+      const paymentRequest = {
+        id: this.currentRequestId,
+        amount: this.totalAmount,
+        from: 'Rands Kiosk',
+        reference: this.isEventMode ? 'EVENT-' + Date.now().toString().slice(-8) : 'KIO-' + Date.now().toString().slice(-8),
+        accountId: this.walletAccountId.trim(),
+        timestamp: Date.now(),
+        status: 'pending',
+        items: this.cart.length ? this.cart.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })) : [{ name: 'Manual Payment', quantity: 1, price: this.totalAmount }],
+        isEvent: this.isEventMode
+      };
+      
+      localStorage.setItem('rands_payment_request', JSON.stringify(paymentRequest));
+      this.startTimer(`Waiting for approval from ${this.walletAccountId}`, 120);
+      this.showToast(`Payment request sent to ${this.walletAccountId}`, 'success');
+      this.sending = false;
+    },
+    
+    handleWalletApproval(e) {
+      if (e.key === 'rands_payment_approved' && e.newValue && this.currentRequestId) {
         try {
           const approval = JSON.parse(e.newValue);
-          if (approval.requestId === this.currentRequestId && approval.approved) {
-            this.clearWaitingTimer();
-            this.completePayment();
-          } else if (approval.requestId === this.currentRequestId && !approval.approved) {
-            this.clearWaitingTimer();
-            this.showToast('Payment was not approved', 'error');
+          if (approval.requestId === this.currentRequestId) {
+            if (approval.approved === true) {
+              this.clearTimer();
+              this.completePayment();
+            } else {
+              this.clearTimer();
+              this.showToast('Payment was declined in wallet', 'error');
+            }
+            localStorage.removeItem('rands_payment_request');
+            this.currentRequestId = null;
           }
-        } catch(err) {}
+        } catch(err) { console.error(err); }
       }
     },
-
-    // Fingerprint
+    
+    // ========== 2. 1VOUCHER PAYMENT ==========
+    processVoucherPayment() {
+      if (!this.voucherCode.trim()) {
+        this.showToast('Please enter voucher code', 'error');
+        return;
+      }
+      if (this.totalAmount <= 0) {
+        this.showToast('Please enter a valid amount', 'error');
+        return;
+      }
+      
+      this.processing = true;
+      setTimeout(() => {
+        const success = Math.random() > 0.1;
+        if (success) {
+          this.voucherRedeemed = true;
+          this.voucherAmount = this.totalAmount;
+          this.showToast(`Voucher of R${this.formatPrice(this.totalAmount)} redeemed successfully!`, 'success');
+          this.completePayment();
+        } else {
+          this.showToast('Invalid voucher code or insufficient balance', 'error');
+        }
+        this.processing = false;
+      }, 1500);
+    },
+    
+    // ========== 3. CAPITEC PAY ==========
+    processCapitecPay() {
+      if (!this.capitecNumber.trim()) {
+        this.showToast('Please enter Capitec mobile number', 'error');
+        return;
+      }
+      if (this.totalAmount <= 0) {
+        this.showToast('Please enter a valid amount', 'error');
+        return;
+      }
+      if (!this.capitecNumber.match(/^[\+]?[0-9]{9,15}$/)) {
+        this.showToast('Please enter a valid mobile number', 'error');
+        return;
+      }
+      
+      this.processing = true;
+      this.startTimer(`Waiting for CapitecPay approval on ${this.capitecNumber}`, 120);
+      
+      setTimeout(() => {
+        if (this.waitingModalOpen) {
+          this.clearTimer();
+          const success = Math.random() > 0.2;
+          if (success) {
+            this.showToast('CapitecPay payment approved!', 'success');
+            this.completePayment();
+          } else {
+            this.showToast('CapitecPay payment declined or timed out', 'error');
+          }
+        }
+        this.processing = false;
+      }, 5000);
+    },
+    
+    // ========== 4. FINGERPRINT ==========
     startFingerprintScan() {
       if (this.fpScanning || this.fpSuccess) return;
-      if (this.totalAmount <= 0) { this.showToast('Please enter a valid amount', 'error'); return; }
+      if (this.totalAmount <= 0) {
+        this.showToast('Please enter a valid amount', 'error');
+        return;
+      }
+      
       this.fpScanning = true;
       this.fpError = '';
       this.fpTimer = setTimeout(() => {
@@ -448,51 +532,11 @@ new Vue({
         }
       }, 1000);
     },
-
-    // 1Voucher
-    processVoucherPayment() {
-      if (!this.voucherCode.trim()) { this.showToast('Please enter voucher code', 'error'); return; }
-      if (this.totalAmount <= 0) { this.showToast('Please enter a valid amount', 'error'); return; }
-      this.processing = true;
-      setTimeout(() => {
-        const success = Math.random() > 0.1;
-        if (success) {
-          this.voucherRedeemed = true;
-          this.voucherAmount = this.totalAmount;
-          this.showToast(`Voucher of R${this.formatPrice(this.totalAmount)} redeemed successfully!`, 'success');
-          this.completePayment();
-        } else {
-          this.showToast('Invalid voucher code or insufficient balance', 'error');
-        }
-        this.processing = false;
-      }, 1500);
-    },
-
-    // CapitecPay
-    processCapitecPay() {
-      if (!this.capitecNumber.trim()) { this.showToast('Please enter Capitec mobile number', 'error'); return; }
-      if (this.totalAmount <= 0) { this.showToast('Please enter a valid amount', 'error'); return; }
-      if (!this.capitecNumber.match(/^[\+]?[0-9]{9,15}$/)) { this.showToast('Please enter a valid mobile number', 'error'); return; }
-      this.processing = true;
-      this.currentRequestId = 'CAP_' + Date.now();
-      this.waitingMessage = `Waiting for CapitecPay approval on ${this.capitecNumber}`;
-      this.startWaitingTimer();
-      setTimeout(() => {
-        if (this.waitingModalOpen) {
-          this.clearWaitingTimer();
-          const success = Math.random() > 0.2;
-          if (success) {
-            this.showToast('CapitecPay payment approved!', 'success');
-            this.completePayment();
-          } else {
-            this.showToast('CapitecPay payment declined or timed out', 'error');
-          }
-        }
-        this.processing = false;
-      }, 5000);
-    },
-
-    simulateRegister() { this.showRegisterModal = false; this.showToast('Fingerprint registered successfully!', 'success'); }
+    
+    simulateRegister() {
+      this.showRegisterModal = false;
+      this.showToast('Fingerprint registered successfully!', 'success');
+    }
   }
 });
 </script>
