@@ -8,12 +8,24 @@
       "destination": "/index.html"
     },
     {
-      "source": "/admin",
-      "destination": "/event-pass-admin.html"
+      "source": "/super-admin",
+      "destination": "/super-admin.html"
     },
     {
-      "source": "/store",
-      "destination": "/index.html"
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/staff",
+      "destination": "/staff.html"
+    },
+    {
+      "source": "/home",
+      "destination": "/home.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/register.html"
     },
     {
       "source": "/(.*)",
