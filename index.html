@@ -2,427 +2,262 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Event Test - Debug Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Supabase Event Test - Mobile Friendly</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f5f7fc 0%, #eef2f8 100%);
-            min-height: 100vh;
-            padding: 24px 16px;
+            background: #f4f6fa;
+            padding: 16px;
+            padding-bottom: 80px;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .container { max-width: 600px; margin: 0 auto; }
         .card {
             background: white;
-            border-radius: 28px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(227, 6, 19, 0.1);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eef2f8;
         }
-        h2 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #E30613;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        h2 i {
-            font-size: 1.4rem;
-        }
-        input {
+        h2 { font-size: 1.2rem; color: #E30613; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        input, button {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px;
             border: 1.5px solid #e2e8f0;
-            border-radius: 60px;
+            border-radius: 50px;
             font-size: 1rem;
-            font-family: inherit;
-            margin-bottom: 12px;
-            transition: all 0.2s;
-        }
-        input:focus {
-            outline: none;
-            border-color: #E30613;
-            box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+            margin-bottom: 10px;
         }
         button {
-            background: linear-gradient(135deg, #E30613, #b00410);
+            background: #E30613;
             color: white;
+            font-weight: bold;
             border: none;
-            padding: 12px 24px;
-            border-radius: 60px;
-            font-weight: 700;
-            font-size: 0.95rem;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            width: 100%;
-            justify-content: center;
         }
-        button:active {
-            transform: scale(0.97);
-        }
-        .status-badge {
-            background: #f1f5f9;
-            padding: 8px 16px;
-            border-radius: 60px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            margin-bottom: 16px;
-            display: inline-block;
-        }
-        .status-badge.connected {
-            background: #e6f7ec;
-            color: #2b7a3e;
-        }
-        .status-badge.error {
-            background: #ffe6e6;
-            color: #E30613;
-        }
-        .event-list {
-            list-style: none;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .event-list li {
-            background: #f8fafd;
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            border-radius: 20px;
-            border: 1px solid #eef2f8;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-        }
-        .event-list li:hover {
-            border-color: #E30613;
-            background: #fff5f5;
-        }
-        .event-name {
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .event-date {
-            font-size: 0.7rem;
-            color: #6c7a8e;
-        }
-        .empty-state {
+        button:active { transform: scale(0.97); }
+        .status {
+            padding: 10px;
+            border-radius: 50px;
             text-align: center;
-            padding: 40px 20px;
-            color: #6c7a8e;
-        }
-        .empty-state i {
-            font-size: 48px;
             margin-bottom: 12px;
-            opacity: 0.5;
+            font-size: 0.8rem;
         }
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            max-width: 400px;
-            margin: 0 auto;
-            background: #1e2a3a;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 60px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            z-index: 2000;
-            font-size: 0.85rem;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        }
-        .toast.show {
-            display: flex;
-            animation: slideUp 0.3s ease;
-        }
-        .toast.success { background: #2e7d32; }
-        .toast.error { background: #b71c1c; }
-        @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        hr {
-            margin: 16px 0;
-            border: none;
-            border-top: 1px solid #eef2f8;
-        }
-        .debug-info {
+        .status.success { background: #e6f7ec; color: #2b7a3e; }
+        .status.error { background: #ffe6e6; color: #E30613; }
+        .event-item {
             background: #f8fafd;
-            border-radius: 16px;
             padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            border: 1px solid #eef2f8;
+        }
+        .event-name { font-weight: 700; color: #E30613; }
+        .event-date { font-size: 0.7rem; color: #6c7a8e; margin-top: 4px; }
+        
+        /* Mobile Console Panel */
+        .console-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0f172a;
+            color: #38bdf8;
             font-family: monospace;
             font-size: 0.7rem;
-            color: #475569;
-            margin-top: 16px;
-            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 12px;
+            border-top: 2px solid #E30613;
+            z-index: 1000;
+            transition: max-height 0.3s;
+        }
+        .console-panel.minimized { max-height: 40px; overflow-y: hidden; }
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #1e293b;
+            cursor: pointer;
+        }
+        .console-log { line-height: 1.4; }
+        .log-line { margin-bottom: 4px; word-break: break-word; }
+        .log-error { color: #ef4444; }
+        .log-success { color: #10b981; }
+        .clear-btn {
+            background: #334155;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <div class="container">
-    <!-- Status Card -->
     <div class="card">
-        <h2><i class="fas fa-database"></i> Supabase Connection Test</h2>
-        <div id="statusBadge" class="status-badge">⏳ Checking connection...</div>
-        <div class="debug-info" id="debugInfo">
-            Waiting for connection test...
-        </div>
-    </div>
-
-    <!-- Create Event Card -->
-    <div class="card">
-        <h2><i class="fas fa-plus-circle"></i> Create New Event</h2>
-        <input type="text" id="eventName" placeholder="Event name (e.g., Summer Festival 2026)" autocomplete="off">
-        <input type="text" id="eventLocation" placeholder="Location (optional)" autocomplete="off">
+        <h2>🔌 Supabase Test</h2>
+        <div id="status" class="status">⏳ Checking connection...</div>
+        <input type="text" id="eventName" placeholder="Event name *">
+        <input type="text" id="eventLocation" placeholder="Location">
         <input type="datetime-local" id="eventDateTime">
-        <button id="createBtn"><i class="fas fa-save"></i> Create Event</button>
+        <button id="createBtn">➕ Create Event</button>
+        <button id="refreshBtn" style="background:#475569; margin-top:8px;">🔄 Refresh Events</button>
     </div>
-
-    <!-- Events List Card -->
+    
     <div class="card">
-        <h2><i class="fas fa-list-ul"></i> Events in Database</h2>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
-            <button id="refreshBtn" style="width: auto; padding: 8px 16px; background: #f1f5f9; color: #1f2a48; border: 1px solid #e2e8f0;">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            <button id="clearConsoleBtn" style="width: auto; padding: 8px 16px; background: #f1f5f9; color: #1f2a48; border: 1px solid #e2e8f0;">
-                <i class="fas fa-broom"></i> Clear logs
-            </button>
-        </div>
-        <ul id="eventList" class="event-list">
-            <li class="empty-state"><i class="fas fa-calendar-alt"></i><br>Loading events...</li>
-        </ul>
-    </div>
-
-    <!-- Debug Log Card -->
-    <div class="card">
-        <h2><i class="fas fa-terminal"></i> Console Log</h2>
-        <div id="consoleLog" style="background: #0f172a; color: #38bdf8; border-radius: 16px; padding: 12px; font-family: monospace; font-size: 0.7rem; max-height: 200px; overflow-y: auto;">
-            📦 Ready. Click "Create Event" to test...
-        </div>
+        <h2>📋 Events in Database</h2>
+        <div id="eventsList">Loading...</div>
     </div>
 </div>
 
-<div id="toast" class="toast">
-    <i id="toastIcon" class="fas fa-check-circle"></i>
-    <span id="toastMessage">Success!</span>
+<!-- Mobile Console Panel -->
+<div class="console-panel" id="consolePanel">
+    <div class="console-header" onclick="toggleConsole()">
+        <span>📟 CONSOLE LOG</span>
+        <span class="clear-btn" onclick="clearConsoleLog(event)">Clear</span>
+    </div>
+    <div id="consoleLog" class="console-log">Ready...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // ============================================================
-    // YOUR SUPABASE CREDENTIALS (added with anon key)
-    // ============================================================
+    // Supabase credentials
     const SUPABASE_URL = 'https://qrjlgfajglvkbifhlebc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyamxnZmFqZ2x2a2JpZmhsZWJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjAzOTAsImV4cCI6MjA5MjY5NjM5MH0.dBj6kPPyBE7LwrZZudyNkUsFcq_8NJBIXCJcNH41ajY';
     
-    // Initialize Supabase client
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    // DOM Elements
-    const eventNameInput = document.getElementById('eventName');
-    const eventLocationInput = document.getElementById('eventLocation');
-    const eventDateTimeInput = document.getElementById('eventDateTime');
-    const createBtn = document.getElementById('createBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const clearConsoleBtn = document.getElementById('clearConsoleBtn');
-    const eventListUl = document.getElementById('eventList');
-    const statusBadge = document.getElementById('statusBadge');
-    const debugInfo = document.getElementById('debugInfo');
-    const consoleLogDiv = document.getElementById('consoleLog');
+    // Mobile console functions
+    let consoleLines = [];
     
-    // Helper: Add message to console log
-    function addConsoleMessage(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        const color = type === 'error' ? '#ef4444' : (type === 'success' ? '#10b981' : '#38bdf8');
-        const prefix = type === 'error' ? '❌' : (type === 'success' ? '✅' : '📝');
-        const logLine = `<div style="color: ${color}; margin-bottom: 4px; border-bottom: 1px solid #1e293b; padding-bottom: 4px;">[${timestamp}] ${prefix} ${message}</div>`;
-        consoleLogDiv.innerHTML += logLine;
-        consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
-        
-        // Also log to browser console
-        if (type === 'error') console.error(message);
-        else if (type === 'success') console.log('✅', message);
-        else console.log(message);
+    function addLog(message, type = 'info') {
+        const time = new Date().toLocaleTimeString();
+        const className = type === 'error' ? 'log-error' : (type === 'success' ? 'log-success' : '');
+        const icon = type === 'error' ? '❌' : (type === 'success' ? '✅' : '📝');
+        const logLine = `<div class="log-line ${className}">[${time}] ${icon} ${message}</div>`;
+        consoleLines.push(logLine);
+        if (consoleLines.length > 30) consoleLines.shift();
+        document.getElementById('consoleLog').innerHTML = consoleLines.join('');
+        console.log(message);
     }
     
-    function clearConsole() {
-        consoleLogDiv.innerHTML = '<div style="color: #6c7a8e;">📦 Console cleared. Ready for new tests...</div>';
-        addConsoleMessage('Console cleared', 'info');
+    window.toggleConsole = function() {
+        const panel = document.getElementById('consolePanel');
+        panel.classList.toggle('minimized');
+    };
+    
+    window.clearConsoleLog = function(e) {
+        e.stopPropagation();
+        consoleLines = [];
+        document.getElementById('consoleLog').innerHTML = 'Console cleared.';
+        addLog('Console cleared', 'info');
+    };
+    
+    function showStatus(message, isError = false) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.textContent = message;
+        statusDiv.className = isError ? 'status error' : 'status success';
     }
     
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('toast');
-        const toastIcon = document.getElementById('toastIcon');
-        const toastMessage = document.getElementById('toastMessage');
-        toastIcon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
-        toastMessage.innerText = message;
-        toast.className = `toast ${type} show`;
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-    
-    // Format date for display
-    function formatDate(dateStr) {
-        if (!dateStr) return 'No date';
-        try {
-            const d = new Date(dateStr);
-            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } catch(e) {
-            return dateStr;
-        }
-    }
-    
-    // LOAD EVENTS from Supabase (READ operation)
+    // Load events from Supabase
     async function loadEvents() {
-        addConsoleMessage('Fetching events from Supabase...', 'info');
+        addLog('Fetching events from Supabase...', 'info');
         try {
-            const { data, error } = await supabase
-                .from('events')
-                .select('*')
-                .order('created_at', { ascending: false });
+            const { data, error } = await supabase.from('events').select('*').order('created_at', { ascending: false });
             
             if (error) {
-                addConsoleMessage(`READ ERROR: ${error.message}`, 'error');
-                debugInfo.innerHTML = `<span style="color:#E30613;">❌ Read error: ${error.message}</span><br>Check RLS policies or table existence.`;
-                statusBadge.className = 'status-badge error';
-                statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection Error';
-                showToast(`Read failed: ${error.message}`, 'error');
+                addLog(`READ ERROR: ${error.message}`, 'error');
+                showStatus(`Error: ${error.message}`, true);
+                document.getElementById('eventsList').innerHTML = `<div class="event-item">❌ Error: ${error.message}</div>`;
                 return;
             }
             
-            addConsoleMessage(`✅ Read SUCCESS! Found ${data?.length || 0} events`, 'success');
-            debugInfo.innerHTML = `<span style="color:#2b7a3e;">✅ Connected! Last read: ${new Date().toLocaleTimeString()}</span><br>Table: events | Total rows: ${data?.length || 0}`;
-            statusBadge.className = 'status-badge connected';
-            statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Connected to Supabase';
+            addLog(`Found ${data?.length || 0} events in database`, 'success');
+            showStatus(`✅ Connected - ${data?.length || 0} events`, false);
             
-            // Render events
             if (!data || data.length === 0) {
-                eventListUl.innerHTML = '<li class="empty-state"><i class="fas fa-calendar-alt"></i><br>No events found. Create your first event!</li>';
+                document.getElementById('eventsList').innerHTML = '<div class="event-item">📭 No events yet. Create one!</div>';
                 return;
             }
             
-            eventListUl.innerHTML = '';
-            data.forEach(event => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div style="flex:1">
-                        <div class="event-name">📌 ${escapeHtml(event.name)}</div>
-                        <div class="event-date">
-                            <i class="fas fa-map-marker-alt"></i> ${escapeHtml(event.location || 'No location')} &nbsp;|&nbsp;
-                            <i class="fas fa-calendar"></i> ${formatDate(event.start_time)}
-                        </div>
-                        ${event.description ? `<div style="font-size:0.65rem; color:#6c7a8e; margin-top:4px;">📝 ${escapeHtml(event.description.substring(0, 80))}</div>` : ''}
-                    </div>
-                    <div style="font-size:0.65rem; color:#94a3b8;">${event.id ? event.id.slice(0, 8) : ''}</div>
-                `;
-                eventListUl.appendChild(li);
-            });
-            
-        } catch (err) {
-            addConsoleMessage(`Exception: ${err.message}`, 'error');
-            debugInfo.innerHTML = `<span style="color:#E30613;">❌ Exception: ${err.message}</span>`;
-            statusBadge.className = 'status-badge error';
-            statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection Error';
+            document.getElementById('eventsList').innerHTML = data.map(ev => `
+                <div class="event-item">
+                    <div class="event-name">📌 ${escapeHtml(ev.name)}</div>
+                    <div class="event-date">📍 ${escapeHtml(ev.location || 'No location')} | 📅 ${ev.start_time ? ev.start_time.split('T')[0] : 'No date'}</div>
+                    <div style="font-size:0.65rem; color:#64748b;">🆔 ${ev.id?.slice(0,8)}</div>
+                </div>
+            `).join('');
+        } catch(err) {
+            addLog(`Exception: ${err.message}`, 'error');
+            showStatus(`Exception: ${err.message}`, true);
         }
     }
     
-    // CREATE EVENT (INSERT into Supabase)
+    // Create event
     async function createEvent() {
-        const name = eventNameInput.value.trim();
-        const location = eventLocationInput.value.trim();
-        const startTime = eventDateTimeInput.value;
+        const name = document.getElementById('eventName').value.trim();
+        const location = document.getElementById('eventLocation').value.trim();
+        const startTime = document.getElementById('eventDateTime').value;
         
         if (!name) {
-            showToast('Event name is required', 'error');
-            addConsoleMessage('Create failed: event name is empty', 'error');
+            addLog('Event name is required!', 'error');
+            showStatus('Please enter event name', true);
             return;
         }
         
-        addConsoleMessage(`Attempting to create event: "${name}"`, 'info');
+        addLog(`Creating event: "${name}"...`, 'info');
         
         const eventData = {
             name: name,
             location: location || null,
             start_time: startTime || new Date().toISOString(),
-            description: `Created via debug tool at ${new Date().toLocaleString()}`
+            description: `Created from mobile test at ${new Date().toLocaleString()}`
         };
         
         try {
-            const { data, error } = await supabase
-                .from('events')
-                .insert([eventData])
-                .select();
+            const { data, error } = await supabase.from('events').insert([eventData]).select();
             
             if (error) {
-                addConsoleMessage(`INSERT ERROR: ${error.message}`, 'error');
-                showToast(`Failed: ${error.message}`, 'error');
-                debugInfo.innerHTML = `<span style="color:#E30613;">❌ Insert error: ${error.message}</span><br>Check RLS INSERT policy.`;
+                addLog(`INSERT ERROR: ${error.message}`, 'error');
+                showStatus(`Failed: ${error.message}`, true);
                 return;
             }
             
-            addConsoleMessage(`✅ INSERT SUCCESS! Event "${name}" saved to Supabase`, 'success');
-            showToast(`Event "${name}" created!`, 'success');
-            debugInfo.innerHTML = `<span style="color:#2b7a3e;">✅ Last insert successful: "${name}"</span>`;
+            addLog(`✅ SUCCESS! Event "${name}" saved to Supabase!`, 'success');
+            showStatus(`✅ "${name}" created!`, false);
             
             // Clear form
-            eventNameInput.value = '';
-            eventLocationInput.value = '';
-            eventDateTimeInput.value = '';
+            document.getElementById('eventName').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventDateTime').value = '';
             
-            // Refresh the list
+            // Refresh list
             await loadEvents();
             
-        } catch (err) {
-            addConsoleMessage(`Exception during insert: ${err.message}`, 'error');
-            showToast(`Error: ${err.message}`, 'error');
+        } catch(err) {
+            addLog(`Exception: ${err.message}`, 'error');
+            showStatus(`Error: ${err.message}`, true);
         }
     }
     
-    // Test connection on load (simple count)
+    // Test connection on load
     async function testConnection() {
-        addConsoleMessage('Testing Supabase connection...', 'info');
+        addLog('Testing Supabase connection...', 'info');
         try {
-            const { data, error, count } = await supabase
-                .from('events')
-                .select('*', { count: 'exact', head: true });
-            
+            const { error } = await supabase.from('events').select('count', { count: 'exact', head: true });
             if (error) {
-                addConsoleMessage(`Connection test FAILED: ${error.message}`, 'error');
-                debugInfo.innerHTML = `<span style="color:#E30613;">❌ Connection failed: ${error.message}</span><br>Check URL and anon key. Also verify table "events" exists.`;
-                statusBadge.className = 'status-badge error';
-                statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection Failed';
+                addLog(`Connection FAILED: ${error.message}`, 'error');
+                showStatus(`Connection failed: ${error.message}`, true);
                 return;
             }
-            
-            addConsoleMessage(`Connection test PASSED! Table "events" exists.`, 'success');
-            debugInfo.innerHTML = `<span style="color:#2b7a3e;">✅ Connected to Supabase!</span><br>URL: ${SUPABASE_URL}<br>Table: events | Row count: ${count || 0}`;
-            statusBadge.className = 'status-badge connected';
-            statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Connected to Supabase';
-            
-            // Load events after connection test
+            addLog('✅ Supabase connected successfully!', 'success');
+            showStatus('Connected to Supabase!', false);
             await loadEvents();
-            
-        } catch (err) {
-            addConsoleMessage(`Connection exception: ${err.message}`, 'error');
-            debugInfo.innerHTML = `<span style="color:#E30613;">❌ Exception: ${err.message}</span>`;
-            statusBadge.className = 'status-badge error';
+        } catch(err) {
+            addLog(`Connection error: ${err.message}`, 'error');
         }
     }
     
@@ -437,23 +272,13 @@
     }
     
     // Event listeners
-    createBtn.addEventListener('click', createEvent);
-    refreshBtn.addEventListener('click', loadEvents);
-    clearConsoleBtn.addEventListener('click', clearConsole);
+    document.getElementById('createBtn').addEventListener('click', createEvent);
+    document.getElementById('refreshBtn').addEventListener('click', loadEvents);
     
-    // Initialize
+    // Enter key support
+    document.getElementById('eventName').addEventListener('keypress', (e) => { if(e.key === 'Enter') createEvent(); });
+    
     testConnection();
-    
-    // Also allow Enter key in input field
-    eventNameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') createEvent();
-    });
-    
-    // Add instructions to console
-    console.log('🚀 Supabase Debug Tool Loaded');
-    console.log('Supabase URL:', SUPABASE_URL);
-    console.log('Anon key present:', !!SUPABASE_ANON_KEY);
-    console.log('Table: events');
 </script>
 </body>
 </html>
