@@ -192,10 +192,10 @@
           </div>
         </div>
 
-        <!-- 1Voucher Option -->
+        <!-- 1Voucher Option - Path: ../icons/1voucher-icon.png (up one level from kiosk folder) -->
         <div class="pay-option" :class="{ selected: selectedPayMethod === '1voucher' }" @click="selectedPayMethod = '1voucher'">
           <div class="pay-option-header">
-            <div class="pay-icon-wrap"><img src="icons/1voucher-icon.png" alt="1Voucher" @error="handleImageError($event, '1voucher')"></div>
+            <div class="pay-icon-wrap"><img src="../icons/1voucher-icon.png" alt="1Voucher" @error="handleImageError($event, '1voucher')"></div>
             <div>
               <div class="pay-option-title">1Voucher</div>
               <div class="pay-option-desc">Pay with any 1Voucher (Airtime, Data, Electricity)</div>
@@ -215,10 +215,10 @@
           </div>
         </div>
 
-        <!-- CapitecPay Option -->
+        <!-- CapitecPay Option - Path: ../icons/capitec.png (up one level from kiosk folder) -->
         <div class="pay-option" :class="{ selected: selectedPayMethod === 'capitecpay' }" @click="selectedPayMethod = 'capitecpay'">
           <div class="pay-option-header">
-            <div class="pay-icon-wrap"><img src="icons/capitec.png" alt="CapitecPay" @error="handleImageError($event, 'capitec')"></div>
+            <div class="pay-icon-wrap"><img src="../icons/capitec.png" alt="CapitecPay" @error="handleImageError($event, 'capitec')"></div>
             <div>
               <div class="pay-option-title">CapitecPay</div>
               <div class="pay-option-desc">Pay instantly with Capitec banking app</div>
@@ -356,7 +356,16 @@ new Vue({
     },
     updateManualAmount() { if (this.manualAmount < 0) this.manualAmount = 0; },
     goBack() { window.location.href = 'kiosk-menu.html'; },
-    handleImageError(event, type) { event.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23E30613"%3E%3Cpath d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/%3E%3C/svg%3E'; },
+    handleImageError(event, type) { 
+      // Fallback to Font Awesome icon if image not found
+      event.target.style.display = 'none';
+      const parent = event.target.parentElement;
+      const fallbackIcon = document.createElement('i');
+      fallbackIcon.className = type === '1voucher' ? 'fas fa-ticket-alt' : 'fas fa-university';
+      fallbackIcon.style.fontSize = '1.4rem';
+      fallbackIcon.style.color = 'var(--red)';
+      parent.appendChild(fallbackIcon);
+    },
     
     completePayment() {
       this.orderNumber = 'ORD-' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
