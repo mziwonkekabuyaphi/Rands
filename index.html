@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #E30613;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 70%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #E30613;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #b3000c;
+    }
+    ul {
+      margin-top: 20px;
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #f8f9fa;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border-left: 3px solid #E30613;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+    .status.success { background: #d4edda; color: #155724; }
+    .status.error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>🎟️ Create Event</h2>
+  <input id="name" placeholder="Event name" />
+  <button onclick="createEvent()">Create Event</button>
+
+  <h3>📅 Events List</h3>
+  <ul id="list"></ul>
+  <div id="status" class="status" style="display: none;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Supabase configuration
+const supabaseUrl = "https://qrjlgfajglvkbifhlebc.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyamxnZmFqZ2x2a2JpZmhsZWJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjAzOTAsImV4cCI6MjA5MjY5NjM5MH0.dBj6kPPyBE7LwrZZudyNkUsFcq_8NJBIXCJcNH41ajY";
+
+// Initialize Supabase client
+const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+function showStatus(message, isError = false) {
+  const statusDiv = document.getElementById('status');
+  statusDiv.textContent = message;
+  statusDiv.className = `status ${isError ? 'error' : 'success'}`;
+  statusDiv.style.display = 'block';
+  setTimeout(() => {
+    statusDiv.style.display = 'none';
+  }, 3000);
+}
+
+// CREATE EVENT
+async function createEvent() {
+  const name = document.getElementById("name").value.trim();
+  
+  if (!name) {
+    showStatus("Please enter an event name", true);
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("events")
+    .insert([{ name }])
+    .select();
+
+  console.log("INSERT DATA:", data);
+  console.log("INSERT ERROR:", error);
+
+  if (error) {
+    showStatus("Insert failed: " + error.message, true);
+    return;
+  }
+
+  showStatus(`✅ Event "${name}" created successfully!`);
+  document.getElementById("name").value = "";
+  loadEvents();
+}
+
+// READ EVENTS
+async function loadEvents() {
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  console.log("SELECT DATA:", data);
+  console.log("SELECT ERROR:", error);
+
+  if (error) {
+    showStatus("Failed to load events: " + error.message, true);
+    return;
+  }
+
+  const list = document.getElementById("list");
+  
+  if (!data || data.length === 0) {
+    list.innerHTML = '<li style="color: #999; text-align: center;">No events yet. Create your first event!</li>';
+    return;
+  }
+
+  list.innerHTML = "";
+  data.forEach(ev => {
+    const li = document.createElement("li");
+    li.textContent = ev.name;
+    list.appendChild(li);
+  });
+}
+
+// Load events on page load
+loadEvents();
+</script>
+</body>
+</html>
