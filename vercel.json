@@ -4,8 +4,20 @@
   "outputDirectory": ".",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
       "destination": "/event-pass-admin.html"
+    },
+    {
+      "source": "/store",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/404.html"
     }
   ],
   "headers": [

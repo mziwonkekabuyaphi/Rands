@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Rands | Event Tickets – Official Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fbbf24, #f87171);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .event-selector {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 12px 24px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .event-selector label {
+            font-weight: 600;
+            color: #fbbf24;
+        }
+        
+        #eventSelect {
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: none;
+            background: #1e293b;
+            color: white;
+            font-weight: 500;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .tickets-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1300px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        .ticket {
+            background: rgba(30, 41, 59, 0.85);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .ticket:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .ticket-header {
+            padding: 25px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ticket-type {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .ticket-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+        
+        .ticket-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        
+        .ticket-body {
+            padding: 25px 30px;
+            background: rgba(15, 23, 42, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .features-list {
+            list-style: none;
+        }
+        
+        .features-list li {
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 60px;
+            padding: 6px;
+            gap: 12px;
+        }
+        
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transition: 0.2s;
+        }
+        
+        .quantity-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.05);
+        }
+        
+        .quantity-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .ticket-footer {
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .buy-btn {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            letter-spacing: 0.5px;
+        }
+        
+        .buy-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .buy-btn:hover:not(:disabled) {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Ticket specific header gradients */
+        .early-bird .ticket-header { background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%); }
+        .general .ticket-header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .vip .ticket-header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        
+        /* Perforated edge */
+        .ticket::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 100%;
+            background: radial-gradient(circle at 15px 25px, #0f172a 4px, transparent 5px) 0 0,
+                        radial-gradient(circle at 15px 75px, #0f172a 4px, transparent 5px) 0 0;
+            background-size: 30px 100px;
+            background-repeat: repeat-y;
+            z-index: 10;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            background: #f59e0b;
+            color: #0f172a;
+            padding: 8px 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transform: rotate(45deg);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 15;
+        }
+        
+        .sold-out-tag {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        /* Cart Sidebar */
+        .cart-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #f59e0b;
+            color: #0f172a;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            z-index: 100;
+            border: none;
+        }
+        
+        .cart-btn:hover {
+            transform: scale(1.1);
+            background: #fbbf24;
+        }
+        
+        .cart-sidebar {
+            position: fixed;
+            right: -420px;
+            top: 0;
+            width: 420px;
+            height: 100vh;
+            background: #1e293b;
+            z-index: 200;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .cart-sidebar.open {
+            right: 0;
+        }
+        
+        .cart-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .cart-header h3 {
+            font-size: 1.5rem;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+        }
+        
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .cart-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .cart-item-price {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .cart-item-qty {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cart-qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: #f59e0b;
+            color: #0f172a;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .cart-total {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .checkout-btn {
+            margin: 20px;
+            padding: 14px;
+            background: #10b981;
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .checkout-btn:hover {
+            background: #059669;
+        }
+        
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 199;
+            display: none;
+        }
+        
+        .cart-overlay.open {
+            display: block;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .cart-sidebar { width: 100%; right: -100%; }
+            .tickets-container { grid-template-columns: 1fr; max-width: 400px; }
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Rands Event Tickets</h1>
+        <p class="subtitle">Secure your spot at the most anticipated event. Choose your ticket type and enjoy exclusive benefits.</p>
+    </div>
+    
+    <div class="event-selector">
+        <label><i class="fas fa-calendar-alt"></i> Select Event:</label>
+        <select id="eventSelect"></select>
+    </div>
+    
+    <div class="tickets-container" id="ticketsContainer"></div>
+    
+    <!-- Cart Button -->
+    <button class="cart-btn" id="cartBtn"><i class="fas fa-shopping-cart"></i></button>
+    
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Your Cart</h3>
+            <button class="close-cart" id="closeCartBtn">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-total">
+            <span>Total</span>
+            <span id="cartTotal">R0</span>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn">💰 CHECKOUT</button>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ========== SUPABASE CONFIGURATION (YOUR CREDENTIALS) ==========
+        const SUPABASE_URL = 'https://qrjlgfajglvkbifhlebc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyamxnZmFqZ2x2a2JpZmhsZWJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjAzOTAsImV4cCI6MjA5MjY5NjM5MH0.dBj6kPPyBE7LwrZZudyNkUsFcq_8NJBIXCJcNH41ajY';
+        
+        let supabase = null;
+        let supabaseConnected = false;
+        
+        // ========== STORAGE KEYS (fallback & offline cache) ==========
+        const EVENTS_KEY = 'rands_events';
+        const TICKETS_KEY = 'rands_tickets';
+        
+        let events = [];
+        let selectedEventId = null;
+        let cart = [];
+        
+        // Ticket type definitions (matching event-management)
+        const TICKET_TYPES = [
+            { key: 'earlyBird', label: 'Early Bird', emoji: '🐦', desc: 'Limited early bird discount – act fast!', classSlug: 'early-bird', features: ['Full event access', 'Event swag bag', 'Digital handbook', 'Standard seating'] },
+            { key: 'general', label: 'General Admission', emoji: '🎟️', desc: 'Standard ticket with balanced benefits.', classSlug: 'general', features: ['All Early Bird benefits', 'Priority seating', 'Complimentary drinks (2)', 'Exclusive workshop access'], popular: true },
+            { key: 'vip', label: 'VIP Access', emoji: '👑', desc: 'Premium access with exclusive perks.', classSlug: 'vip', features: ['All General benefits', 'VIP Lounge access', 'Meet & greet with artists', 'Premium swag bag'] }
+        ];
+        
+        // ----- Helper functions -----
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.background = isError ? '#ef4444' : '#10b981';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+        
+        // Save events to localStorage as fallback
+        function saveEventsToLocal() {
+            localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
+        }
+        
+        // Load events from localStorage
+        function loadEventsFromLocal() {
+            const stored = localStorage.getItem(EVENTS_KEY);
+            if (stored) events = JSON.parse(stored);
+            else events = [];
+        }
+        
+        // Create demo event locally (only if database empty)
+        function createDemoEventLocally() {
+            const demoEvent = {
+                id: 'evt_demo_001',
+                name: 'Rands 11th Birthday Celebration',
+                date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                time: '18:00',
+                location: 'Rands Cape Town',
+                status: 'active',
+                imageData: null,
+                ticketTypes: {
+                    earlyBird: { price: 250, capacity: 200, sold: 45 },
+                    general: { price: 350, capacity: 500, sold: 120 },
+                    vip: { price: 600, capacity: 100, sold: 30 }
+                }
+            };
+            events = [demoEvent];
+            saveEventsToLocal();
+        }
+        
+        // Sync events from Supabase (read from database)
+        async function syncEventsFromSupabase() {
+            if (!supabase || !supabaseConnected) {
+                console.warn("Supabase not connected, using local storage");
+                loadEventsFromLocal();
+                if (events.length === 0) createDemoEventLocally();
+                return;
+            }
+            try {
+                // Fetch events from Supabase table 'events'
+                const { data: supabaseEvents, error } = await supabase
+                    .from('events')
+                    .select('*')
+                    .in('status', ['active', 'upcoming']);
+                
+                if (error) throw error;
+                
+                if (supabaseEvents && supabaseEvents.length > 0) {
+                    // Transform Supabase events to match frontend structure
+                    events = supabaseEvents.map(ev => ({
+                        id: ev.id,
+                        name: ev.name,
+                        date: ev.date,
+                        time: ev.time || '18:00',
+                        location: ev.location || 'Rands Venue',
+                        status: ev.status,
+                        imageData: ev.image_data || null,
+                        ticketTypes: {
+                            earlyBird: { price: ev.early_bird_price, capacity: ev.early_bird_capacity, sold: ev.early_bird_sold || 0 },
+                            general: { price: ev.general_price, capacity: ev.general_capacity, sold: ev.general_sold || 0 },
+                            vip: { price: ev.vip_price, capacity: ev.vip_capacity, sold: ev.vip_sold || 0 }
+                        }
+                    }));
+                    saveEventsToLocal(); // cache
+                } else {
+                    // If no events in Supabase, fallback to local demo
+                    loadEventsFromLocal();
+                    if (events.length === 0) createDemoEventLocally();
+                }
+            } catch (err) {
+                console.error("Supabase read error:", err);
+                showToast("Could not sync events from database. Showing cached events.", true);
+                loadEventsFromLocal();
+                if (events.length === 0) createDemoEventLocally();
+            }
+            // Re-render UI after sync
+            if (selectedEventId && !events.find(e => e.id === selectedEventId)) {
+                selectedEventId = events[0]?.id || null;
+            }
+            populateEventSelector();
+        }
+        
+        // Update ticket sold counts in Supabase after checkout
+        async function updateSoldCountsInSupabase(eventId, ticketType, newSold) {
+            if (!supabase || !supabaseConnected) return false;
+            const columnMap = {
+                earlyBird: 'early_bird_sold',
+                general: 'general_sold',
+                vip: 'vip_sold'
+            };
+            const column = columnMap[ticketType];
+            if (!column) return false;
+            try {
+                const { error } = await supabase
+                    .from('events')
+                    .update({ [column]: newSold })
+                    .eq('id', eventId);
+                if (error) throw error;
+                return true;
+            } catch (err) {
+                console.error("Failed to update sold counts:", err);
+                showToast("Warning: Could not update ticket availability on server", true);
+                return false;
+            }
+        }
+        
+        // Store purchased tickets in Supabase tickets table
+        async function storeTicketsInSupabase(ticketsArray) {
+            if (!supabase || !supabaseConnected) return false;
+            try {
+                const { error } = await supabase
+                    .from('tickets')
+                    .insert(ticketsArray.map(t => ({
+                        ticket_id: t.ticketId,
+                        attendee_name: t.attendeeName,
+                        event_name: t.eventName,
+                        ticket_type: t.ticketType,
+                        checked_in: t.checkedIn,
+                        checkin_time: t.checkinTime,
+                        price: t.price,
+                        event_id: events.find(e => e.name === t.eventName)?.id || null
+                    })));
+                if (error) throw error;
+                return true;
+            } catch (err) {
+                console.error("Failed to store tickets in Supabase:", err);
+                return false;
+            }
+        }
+        
+        // Update cart UI
+        function updateCartUI() {
+            const subtotal = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            document.getElementById('cartTotal').textContent = `R${subtotal.toLocaleString()}`;
+            const cartItemsDiv = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<div style="text-align:center;padding:2rem;opacity:0.7;">Cart is empty</div>';
+                return;
+            }
+            cartItemsDiv.innerHTML = cart.map(item => `
+                <div class="cart-item" data-id="${item.id}">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.emoji} ${item.name}</div>
+                        <div class="cart-item-price">R${item.price.toLocaleString()} each</div>
+                    </div>
+                    <div class="cart-item-qty">
+                        <button class="cart-qty-btn" onclick="updateCartQuantity('${item.id}', -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="cart-qty-btn" onclick="updateCartQuantity('${item.id}', 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        window.updateCartQuantity = function(id, delta) {
+            const itemIndex = cart.findIndex(i => i.id === id);
+            if (itemIndex === -1) return;
+            const newQty = cart[itemIndex].quantity + delta;
+            if (newQty <= 0) {
+                cart.splice(itemIndex, 1);
+            } else {
+                cart[itemIndex].quantity = newQty;
+            }
+            updateCartUI();
+        };
+        
+        function addToCart(ticket, quantity) {
+            const existing = cart.find(i => i.id === ticket.id);
+            if (existing) {
+                existing.quantity += quantity;
+            } else {
+                cart.push({ ...ticket, quantity });
+            }
+            updateCartUI();
+            showToast(`✓ Added ${quantity} × ${ticket.name}`);
+        }
+        
+        // Render tickets based on selected event
+        function renderTickets() {
+            const container = document.getElementById('ticketsContainer');
+            if (!selectedEventId) {
+                container.innerHTML = '<div style="text-align:center;padding:60px;">Please select an event</div>';
+                return;
+            }
+            const event = events.find(e => e.id === selectedEventId);
+            if (!event) {
+                container.innerHTML = '<div style="text-align:center;padding:60px;">Event not found</div>';
+                return;
+            }
+            
+            const ticketsHtml = TICKET_TYPES.map(type => {
+                const ticketData = event.ticketTypes[type.key];
+                if (!ticketData) return '';
+                const remaining = ticketData.capacity - ticketData.sold;
+                const isSoldOut = remaining <= 0;
+                const priceInZAR = ticketData.price;
+                
+                return `
+                    <div class="ticket ${type.classSlug}" data-type="${type.key}">
+                        ${type.popular ? '<div class="popular-badge">MOST POPULAR</div>' : ''}
+                        <div class="ticket-header">
+                            <div class="ticket-type">
+                                ${type.emoji} ${type.label}
+                                ${isSoldOut ? '<span class="sold-out-tag">SOLD OUT</span>' : ''}
+                            </div>
+                            <div class="ticket-price">R${priceInZAR.toLocaleString()}</div>
+                            <p class="ticket-description">${type.desc}</p>
+                        </div>
+                        <div class="ticket-body">
+                            <ul class="features-list">
+                                ${type.features.map(f => `<li><span class="feature-icon"><i class="fas fa-check-circle"></i></span> ${f}</li>`).join('')}
+                                <li><span class="feature-icon"><i class="fas fa-ticket-alt"></i></span> Remaining: ${remaining} / ${ticketData.capacity}</li>
+                            </ul>
+                            ${!isSoldOut ? `
+                                <div class="quantity-selector" data-type="${type.key}">
+                                    <button class="quantity-btn minus">−</button>
+                                    <span class="quantity-display">1</span>
+                                    <button class="quantity-btn plus">+</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="ticket-footer">
+                            <button class="buy-btn" data-type="${type.key}" ${isSoldOut ? 'disabled' : ''}>
+                                ${isSoldOut ? 'Sold Out' : 'Add to Cart'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = ticketsHtml;
+            
+            // Attach event listeners for quantity and buy buttons
+            document.querySelectorAll('.ticket').forEach(ticketDiv => {
+                const typeKey = ticketDiv.dataset.type;
+                const ticketInfo = TICKET_TYPES.find(t => t.key === typeKey);
+                const eventData = events.find(e => e.id === selectedEventId);
+                if (!eventData || !ticketInfo) return;
+                const ticketData = eventData.ticketTypes[typeKey];
+                const remaining = ticketData.capacity - ticketData.sold;
+                if (remaining <= 0) return;
+                
+                const qtySelector = ticketDiv.querySelector('.quantity-selector');
+                let currentQty = 1;
+                if (qtySelector) {
+                    const minusBtn = qtySelector.querySelector('.minus');
+                    const plusBtn = qtySelector.querySelector('.plus');
+                    const qtySpan = qtySelector.querySelector('.quantity-display');
+                    
+                    minusBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (currentQty > 1) {
+                            currentQty--;
+                            qtySpan.textContent = currentQty;
+                        }
+                    });
+                    plusBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (currentQty < remaining) {
+                            currentQty++;
+                            qtySpan.textContent = currentQty;
+                        } else {
+                            showToast(`Only ${remaining} tickets left`, true);
+                        }
+                    });
+                }
+                
+                const buyBtn = ticketDiv.querySelector('.buy-btn');
+                buyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const quantity = qtySelector ? parseInt(qtySelector.querySelector('.quantity-display').textContent) : 1;
+                    const product = {
+                        id: `${selectedEventId}_${typeKey}`,
+                        name: ticketInfo.label,
+                        price: ticketData.price,
+                        emoji: ticketInfo.emoji,
+                        eventId: selectedEventId,
+                        ticketTypeKey: typeKey,
+                        isTable: false
+                    };
+                    addToCart(product, quantity);
+                });
+            });
+        }
+        
+        function populateEventSelector() {
+            const activeEvents = events.filter(e => e.status === 'active' || e.status === 'upcoming');
+            const selector = document.getElementById('eventSelect');
+            if (activeEvents.length === 0) {
+                selector.innerHTML = '<option>No active events</option>';
+                selectedEventId = null;
+                renderTickets();
+                return;
+            }
+            selector.innerHTML = activeEvents.map(e => `<option value="${e.id}" ${selectedEventId === e.id ? 'selected' : ''}>${escapeHtml(e.name)} (${formatDate(e.date)})</option>`).join('');
+            if (!selectedEventId || !activeEvents.find(e => e.id === selectedEventId)) {
+                selectedEventId = activeEvents[0].id;
+                selector.value = selectedEventId;
+            }
+            selector.addEventListener('change', (e) => {
+                selectedEventId = e.target.value;
+                renderTickets();
+            });
+            renderTickets();
+        }
+        
+        // Checkout: update event sold counts and create tickets (with Supabase sync)
+        async function performCheckout() {
+            if (cart.length === 0) {
+                showToast('Your cart is empty', true);
+                return;
+            }
+            
+            let allTickets = [];
+            const storedTickets = localStorage.getItem(TICKETS_KEY);
+            if (storedTickets) allTickets = JSON.parse(storedTickets);
+            
+            // Validate and update each cart item
+            for (const item of cart) {
+                const event = events.find(e => e.id === item.eventId);
+                if (!event) {
+                    showToast(`Event not found for ${item.name}`, true);
+                    return;
+                }
+                const ticketType = event.ticketTypes[item.ticketTypeKey];
+                if (!ticketType) {
+                    showToast(`Ticket type ${item.name} not found`, true);
+                    return;
+                }
+                const newSold = ticketType.sold + item.quantity;
+                if (newSold > ticketType.capacity) {
+                    showToast(`Not enough ${item.name} tickets. Only ${ticketType.capacity - ticketType.sold} left.`, true);
+                    return;
+                }
+                ticketType.sold = newSold;
+                
+                // Update Supabase if connected
+                await updateSoldCountsInSupabase(event.id, item.ticketTypeKey, newSold);
+                
+                // Create individual ticket records
+                for (let i = 0; i < item.quantity; i++) {
+                    const ticketId = `${item.eventId}_${item.ticketTypeKey}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+                    const newTicket = {
+                        ticketId: ticketId.toUpperCase(),
+                        attendeeName: `Guest ${item.ticketTypeKey}`,
+                        eventName: event.name,
+                        ticketType: item.name,
+                        checkedIn: false,
+                        checkinTime: null,
+                        price: item.price
+                    };
+                    allTickets.push(newTicket);
+                }
+            }
+            
+            // Save updates locally
+            saveEventsToLocal();
+            localStorage.setItem(TICKETS_KEY, JSON.stringify(allTickets));
+            
+            // Store tickets in Supabase
+            const newTicketsCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+            await storeTicketsInSupabase(allTickets.slice(-newTicketsCount));
+            
+            // Trigger storage events for other tabs
+            window.dispatchEvent(new StorageEvent('storage', { key: EVENTS_KEY, newValue: JSON.stringify(events) }));
+            window.dispatchEvent(new StorageEvent('storage', { key: TICKETS_KEY, newValue: JSON.stringify(allTickets) }));
+            
+            const total = cart.reduce((s,i) => s + i.price * i.quantity, 0);
+            showToast(`✅ Checkout successful! Total: R${total.toLocaleString()}. Tickets saved to wallet + database.`);
+            cart = [];
+            updateCartUI();
+            document.getElementById('cartSidebar').classList.remove('open');
+            document.getElementById('cartOverlay').classList.remove('open');
+            // Re-sync from Supabase to reflect updated sold counts
+            await syncEventsFromSupabase();
+            renderTickets();
+        }
+        
+        function setupCartSidebar() {
+            const cartBtn = document.getElementById('cartBtn');
+            const cartSidebar = document.getElementById('cartSidebar');
+            const cartOverlay = document.getElementById('cartOverlay');
+            const closeCartBtn = document.getElementById('closeCartBtn');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            
+            cartBtn.addEventListener('click', () => {
+                cartSidebar.classList.add('open');
+                cartOverlay.classList.add('open');
+            });
+            closeCartBtn.addEventListener('click', () => {
+                cartSidebar.classList.remove('open');
+                cartOverlay.classList.remove('open');
+            });
+            cartOverlay.addEventListener('click', () => {
+                cartSidebar.classList.remove('open');
+                cartOverlay.classList.remove('open');
+            });
+            checkoutBtn.addEventListener('click', performCheckout);
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString('en-ZA', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        // Initialize Supabase connection
+        async function initSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                // Test connection by fetching a simple count
+                const { error } = await supabase.from('events').select('id', { count: 'exact', head: true });
+                if (error) throw error;
+                supabaseConnected = true;
+                showToast("✅ Connected to Supabase database. Events synced.");
+                await syncEventsFromSupabase();
+            } catch (err) {
+                console.error("Supabase init failed:", err);
+                supabaseConnected = false;
+                showToast("⚠️ Offline mode: using local cache. Database not reachable.", true);
+                loadEventsFromLocal();
+                if (events.length === 0) createDemoEventLocally();
+                selectedEventId = events[0]?.id || null;
+                populateEventSelector();
+            }
+        }
+        
+        // Main entry point
+        async function init() {
+            setupCartSidebar();
+            updateCartUI();
+            await initSupabase();
+            // Listen for storage events from management panel
+            window.addEventListener('storage', (e) => {
+                if (e.key === EVENTS_KEY) {
+                    loadEventsFromLocal();
+                    populateEventSelector();
+                }
+            });
+        }
+        
+        init();
+    </script>
+</body>
+</html>
