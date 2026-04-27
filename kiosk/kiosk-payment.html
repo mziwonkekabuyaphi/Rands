@@ -169,10 +169,10 @@
           </div>
         </div>
 
-        <!-- 3. CapitecPay Option -->
+        <!-- 3. CapitecPay Option - CORRECTED PATH: ../images/capitec.png -->
         <div class="pay-option" :class="{ selected: selectedPayMethod === 'capitecpay' }" @click="selectedPayMethod = 'capitecpay'">
           <div class="pay-option-header">
-            <div class="pay-icon-wrap"><img src="../icons/capitec.png" alt="CapitecPay" @error="handleImageError"></div>
+            <div class="pay-icon-wrap"><img src="../images/capitec.png" alt="CapitecPay" @error="handleImageError"></div>
             <div>
               <div class="pay-option-title">CapitecPay</div>
               <div class="pay-option-desc">Pay instantly with Capitec banking app</div>
@@ -266,32 +266,19 @@ new Vue({
   el: '#app',
   data() {
     return {
-      // Cart & amount
       cart: [],
       manualAmount: 0,
-      
-      // Selected payment method
       selectedPayMethod: 'wallet',
-      
-      // Wallet payment
       walletAccountId: '',
-      
-      // 1Voucher
       voucherCode: '',
       voucherRedeemed: false,
       voucherAmount: 0,
-      
-      // CapitecPay
       capitecNumber: '',
-      
-      // Fingerprint
       fpScanning: false,
       fpSuccess: false,
       fpError: '',
       fpTimer: null,
       showRegisterModal: false,
-      
-      // Shared state
       sending: false,
       processing: false,
       waitingModalOpen: false,
@@ -301,14 +288,11 @@ new Vue({
       currentRequestId: null,
       lastPaidAmount: 0,
       waitingMessage: 'Waiting for payment confirmation...',
-      
-      // Toast
       toastVisible: false,
       toastMessage: '',
       toastType: '',
       toastIcon: '',
       toastTimer: null,
-      
       isEventMode: false
     };
   },
@@ -323,17 +307,12 @@ new Vue({
     }
   },
   mounted() {
-    // Load cart from localStorage
     const savedCart = localStorage.getItem('rands_kiosk_cart');
     if (savedCart) {
       try { this.cart = JSON.parse(savedCart); } catch(e) { console.error(e); }
     }
-    
-    // Check if event mode
     const urlParams = new URLSearchParams(window.location.search);
     this.isEventMode = urlParams.get('event') === 'true' || urlParams.get('tickets') === 'true';
-    
-    // Listen for wallet approval
     window.addEventListener('storage', this.handleWalletApproval);
   },
   beforeDestroy() {
@@ -348,7 +327,6 @@ new Vue({
       const secs = seconds % 60;
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     },
-    
     showToast(msg, type = 'info') {
       if (this.toastTimer) clearTimeout(this.toastTimer);
       const icons = { success: 'fas fa-check-circle', error: 'fas fa-exclamation-circle', info: 'fas fa-info-circle' };
@@ -358,21 +336,16 @@ new Vue({
       this.toastVisible = true;
       this.toastTimer = setTimeout(() => { this.toastVisible = false; }, 3000);
     },
-    
     updateManualAmount() { if (this.manualAmount < 0) this.manualAmount = 0; },
     goBack() { window.location.href = 'kiosk-menu.html'; },
     handleImageError(e) { e.target.style.display = 'none'; },
-    
     completePayment() {
       this.lastPaidAmount = this.totalAmount;
       localStorage.removeItem('rands_kiosk_cart');
       this.cart = [];
       this.successModalOpen = true;
-      setTimeout(() => {
-        window.location.href = 'kiosk-menu.html';
-      }, 3000);
+      setTimeout(() => { window.location.href = 'kiosk-menu.html'; }, 3000);
     },
-    
     startTimer(message, duration = 120) {
       this.remainingSeconds = duration;
       this.waitingMessage = message;
@@ -387,18 +360,14 @@ new Vue({
         }
       }, 1000);
     },
-    
     clearTimer() {
       if (this.approvalTimer) { clearInterval(this.approvalTimer); this.approvalTimer = null; }
       this.waitingModalOpen = false;
     },
-    
     cancelWaiting() {
       this.clearTimer();
       this.showToast('Payment cancelled', 'error');
     },
-    
-    // ========== 1. WALLET PAYMENT (sends to wallet app) ==========
     sendWalletRequest() {
       if (!this.walletAccountId || this.walletAccountId.length < 8) {
         this.showToast('Please enter a valid wallet ID (phone number)', 'error');
@@ -408,10 +377,8 @@ new Vue({
         this.showToast('Please enter a valid amount', 'error');
         return;
       }
-      
       this.sending = true;
       this.currentRequestId = 'REQ_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-      
       const paymentRequest = {
         id: this.currentRequestId,
         amount: this.totalAmount,
@@ -423,13 +390,11 @@ new Vue({
         items: this.cart.length ? this.cart.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })) : [{ name: 'Manual Payment', quantity: 1, price: this.totalAmount }],
         isEvent: this.isEventMode
       };
-      
       localStorage.setItem('rands_payment_request', JSON.stringify(paymentRequest));
       this.startTimer(`Waiting for approval from ${this.walletAccountId}`, 120);
       this.showToast(`Payment request sent to ${this.walletAccountId}`, 'success');
       this.sending = false;
     },
-    
     handleWalletApproval(e) {
       if (e.key === 'rands_payment_approved' && e.newValue && this.currentRequestId) {
         try {
@@ -448,8 +413,6 @@ new Vue({
         } catch(err) { console.error(err); }
       }
     },
-    
-    // ========== 2. 1VOUCHER PAYMENT ==========
     processVoucherPayment() {
       if (!this.voucherCode.trim()) {
         this.showToast('Please enter voucher code', 'error');
@@ -459,7 +422,6 @@ new Vue({
         this.showToast('Please enter a valid amount', 'error');
         return;
       }
-      
       this.processing = true;
       setTimeout(() => {
         const success = Math.random() > 0.1;
@@ -474,8 +436,6 @@ new Vue({
         this.processing = false;
       }, 1500);
     },
-    
-    // ========== 3. CAPITEC PAY ==========
     processCapitecPay() {
       if (!this.capitecNumber.trim()) {
         this.showToast('Please enter Capitec mobile number', 'error');
@@ -489,10 +449,8 @@ new Vue({
         this.showToast('Please enter a valid mobile number', 'error');
         return;
       }
-      
       this.processing = true;
       this.startTimer(`Waiting for CapitecPay approval on ${this.capitecNumber}`, 120);
-      
       setTimeout(() => {
         if (this.waitingModalOpen) {
           this.clearTimer();
@@ -507,15 +465,12 @@ new Vue({
         this.processing = false;
       }, 5000);
     },
-    
-    // ========== 4. FINGERPRINT ==========
     startFingerprintScan() {
       if (this.fpScanning || this.fpSuccess) return;
       if (this.totalAmount <= 0) {
         this.showToast('Please enter a valid amount', 'error');
         return;
       }
-      
       this.fpScanning = true;
       this.fpError = '';
       this.fpTimer = setTimeout(() => {
@@ -532,7 +487,6 @@ new Vue({
         }
       }, 1000);
     },
-    
     simulateRegister() {
       this.showRegisterModal = false;
       this.showToast('Fingerprint registered successfully!', 'success');
