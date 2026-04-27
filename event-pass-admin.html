@@ -233,6 +233,115 @@
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('✅ Supabase connected with your credentials');
         
+        // Function to sync localStorage events to Supabase (called on page load)
+        async function syncLocalEventsToSupabase() {
+            try {
+                // Fetch existing events from Supabase
+                const { data: supabaseEvents, error: fetchError } = await window.supabaseClient
+                    .from('events')
+                    .select('*');
+                
+                if (fetchError) {
+                    console.warn('Could not fetch Supabase events:', fetchError.message);
+                    return;
+                }
+                
+                // Get localStorage events
+                const storedEventsRaw = localStorage.getItem('rands_events');
+                const localEvents = storedEventsRaw ? JSON.parse(storedEventsRaw) : [];
+                
+                // For each local event, check if it exists in Supabase (by name + date as simple check)
+                for (const localEvent of localEvents) {
+                    const exists = supabaseEvents.some(se => 
+                        se.name === localEvent.name && 
+                        se.start_time === localEvent.date
+                    );
+                    
+                    if (!exists && localEvent.name && localEvent.date) {
+                        // Push to Supabase
+                        await window.supabaseClient.from('events').insert([{
+                            name: localEvent.name,
+                            location: localEvent.location || 'Rands Cape Town',
+                            start_time: localEvent.date,
+                            description: `Ticket types: Early Bird R${localEvent.ticketTypes?.earlyBird?.price || 0}, General R${localEvent.ticketTypes?.general?.price || 0}, VIP R${localEvent.ticketTypes?.vip?.price || 0}`
+                        }]);
+                        console.log(`Synced event: ${localEvent.name}`);
+                    }
+                }
+            } catch (err) {
+                console.log('Sync error:', err);
+            }
+        }
+        
+        // Modified confirmAddEvent - saves to both localStorage AND Supabase
+        const originalConfirmAddEvent = window.confirmAddEvent;
+        window.confirmAddEvent = function() {
+            const name = document.getElementById('newEventName').value;
+            const date = document.getElementById('newEventDate').value;
+            const location = document.getElementById('newEventLocation').value;
+            if (!name || !date) {
+                if (window.showToast) window.showToast('Event name and date required', 'error');
+                return;
+            }
+            const earlyBirdPrice = parseFloat(document.getElementById('newEarlyBirdPrice').value) || 250;
+            const earlyBirdCap = parseInt(document.getElementById('newEarlyBirdCapacity').value) || 200;
+            const generalPrice = parseFloat(document.getElementById('newGeneralPrice').value) || 350;
+            const generalCap = parseInt(document.getElementById('newGeneralCapacity').value) || 400;
+            const vipPrice = parseFloat(document.getElementById('newVipPrice').value) || 600;
+            const vipCap = parseInt(document.getElementById('newVipCapacity').value) || 100;
+            
+            // Save to Supabase
+            window.supabaseClient.from('events').insert([{
+                name: name,
+                location: location || 'Rands Cape Town',
+                start_time: date,
+                description: `EarlyBird: R${earlyBirdPrice} (Cap:${earlyBirdCap}) | General: R${generalPrice} (Cap:${generalCap}) | VIP: R${vipPrice} (Cap:${vipCap})`
+            }]).then(result => {
+                if (result.error) {
+                    console.error('Supabase insert error:', result.error);
+                    if (window.showToast) window.showToast('Failed to save to Supabase: ' + result.error.message, 'error');
+                } else {
+                    console.log('Saved to Supabase:', result.data);
+                    if (window.showToast) window.showToast(`✅ Event "${name}" saved to Supabase!`, 'success');
+                }
+            }).catch(err => {
+                console.error('Supabase error:', err);
+                if (window.showToast) window.showToast('Network error saving to Supabase', 'error');
+            });
+            
+            // Call original localStorage function if it exists
+            if (typeof originalConfirmAddEvent === 'function') {
+                originalConfirmAddEvent();
+            } else {
+                // Fallback: manually create local event
+                const newEvent = {
+                    id: 'evt_' + Date.now(),
+                    name, date,
+                    location: location || 'Rands Cape Town',
+                    status: 'active',
+                    ticketTypes: {
+                        earlyBird: { price: earlyBirdPrice, capacity: earlyBirdCap, sold: 0 },
+                        general: { price: generalPrice, capacity: generalCap, sold: 0 },
+                        vip: { price: vipPrice, capacity: vipCap, sold: 0 }
+                    }
+                };
+                if (window.events) window.events.push(newEvent);
+                if (window.saveEvents) window.saveEvents();
+                if (window.renderFullEventCard) window.renderFullEventCard();
+                if (window.updateTicketStats) window.updateTicketStats();
+                if (window.closeAddEventModal) window.closeAddEventModal();
+                if (window.showToast) window.showToast(`Event "${name}" created`, 'success');
+                
+                // Clear form
+                document.getElementById('newEventName').value = '';
+                document.getElementById('newEventDate').value = '';
+                document.getElementById('newEventLocation').value = '';
+                ['newEarlyBirdPrice','newEarlyBirdCapacity','newGeneralPrice','newGeneralCapacity','newVipPrice','newVipCapacity'].forEach(id => {
+                    if(document.getElementById(id)) document.getElementById(id).value = '';
+                });
+            }
+        };
+        
         // Optional: Test connection when page loads
         window.addEventListener('DOMContentLoaded', async () => {
             try {
@@ -243,6 +352,8 @@
                     console.warn('Supabase connection test:', error.message);
                 } else {
                     console.log('✅ Supabase ready!');
+                    // Sync existing localStorage events to Supabase
+                    await syncLocalEventsToSupabase();
                 }
             } catch (err) {
                 console.log('Supabase test:', err);
@@ -336,7 +447,7 @@
 
 <!-- MODALS (COMPLETELY UNCHANGED) -->
 <div class="modal" id="topUpModal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-plus-circle"></i> Top Up Passport</h3></div><div class="modal-body"><div style="margin-bottom:15px;"><label style="font-size:0.75rem;">Account: <span id="modalAccountId" style="color:#E30613;">-</span></label></div><div class="topup-input-group"><input type="number" id="modalTopupAmount" placeholder="Enter amount" class="topup-input"></div><div class="preset-amounts"><button class="preset-btn" onclick="setModalAmount(50)">R50</button><button class="preset-btn" onclick="setModalAmount(100)">R100</button><button class="preset-btn" onclick="setModalAmount(200)">R200</button><button class="preset-btn" onclick="setModalAmount(500)">R500</button><button class="preset-btn" onclick="setModalAmount(1000)">R1000</button></div></div><div class="modal-footer"><button class="modal-btn confirm" onclick="confirmTopUp()">Confirm</button><button class="modal-btn cancel" onclick="closeModal()">Cancel</button></div></div></div>
-<div class="modal" id="addEventModal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-calendar-plus"></i> Add Event</h3></div><div class="modal-body"><input type="text" id="newEventName" placeholder="Event Name" class="topup-input" style="margin-bottom:10px;"><input type="date" id="newEventDate" class="topup-input" style="margin-bottom:10px;"><input type="text" id="newEventLocation" placeholder="Location" class="topup-input" style="margin-bottom:10px;"><div style="margin:12px 0 8px;"><label style="color:#E30613; font-size:0.7rem;">Ticket Types (Price/Capacity)</label></div><input type="number" id="newEarlyBirdPrice" placeholder="Early Bird Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newEarlyBirdCapacity" placeholder="Early Bird Capacity" class="topup-input" style="margin-bottom:10px;"><input type="number" id="newGeneralPrice" placeholder="General Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newGeneralCapacity" placeholder="General Capacity" class="topup-input" style="margin-bottom:10px;"><input type="number" id="newVipPrice" placeholder="VIP Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newVipCapacity" placeholder="VIP Capacity" class="topup-input"></div><div class="modal-footer"><button class="modal-btn confirm" onclick="confirmAddEvent()">Create</button><button class="modal-btn cancel" onclick="closeAddEventModal()">Cancel</button></div></div></div>
+<div class="modal" id="addEventModal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-calendar-plus"></i> Add Event</h3></div><div class="modal-body"><input type="text" id="newEventName" placeholder="Event Name" class="topup-input" style="margin-bottom:10px;"><input type="date" id="newEventDate" class="topup-input" style="margin-bottom:10px;"><input type="text" id="newEventLocation" placeholder="Location" class="topup-input" style="margin-bottom:10px;"><div style="margin:12px 0 8px;"><label style="color:#E30613; font-size:0.7rem;">Ticket Types (Price/Capacity)</label></div><input type="number" id="newEarlyBirdPrice" placeholder="Early Bird Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newEarlyBirdCapacity" placeholder="Early Bird Capacity" class="topup-input" style="margin-bottom:10px;"><input type="number" id="newGeneralPrice" placeholder="General Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newGeneralCapacity" placeholder="General Capacity" class="topup-input" style="margin-bottom:10px;"><input type="number" id="newVipPrice" placeholder="VIP Price" class="topup-input" style="margin-bottom:5px;"><input type="number" id="newVipCapacity" placeholder="VIP Capacity" class="topup-input"></div><div class="modal-footer"><button class="modal-btn confirm" onclick="window.confirmAddEvent()">Create</button><button class="modal-btn cancel" onclick="closeAddEventModal()">Cancel</button></div></div></div>
 <div class="modal" id="editTicketModal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-edit"></i> Edit Tickets</h3><p id="editEventNameDisplay" style="font-size:0.7rem;"></p></div><div class="modal-body"><div style="margin-bottom:12px;"><label style="color:#E30613; font-size:0.7rem;">Early Bird</label><div style="display:flex; gap:8px; margin-top:5px;"><input type="number" id="editEarlyBirdPrice" placeholder="Price" class="topup-input"><input type="number" id="editEarlyBirdCapacity" placeholder="Capacity" class="topup-input"></div></div><div style="margin-bottom:12px;"><label style="color:#E30613; font-size:0.7rem;">General</label><div style="display:flex; gap:8px; margin-top:5px;"><input type="number" id="editGeneralPrice" placeholder="Price" class="topup-input"><input type="number" id="editGeneralCapacity" placeholder="Capacity" class="topup-input"></div></div><div style="margin-bottom:12px;"><label style="color:#E30613; font-size:0.7rem;">VIP</label><div style="display:flex; gap:8px; margin-top:5px;"><input type="number" id="editVipPrice" placeholder="Price" class="topup-input"><input type="number" id="editVipCapacity" placeholder="Capacity" class="topup-input"></div></div></div><div class="modal-footer"><button class="modal-btn confirm" onclick="confirmEditTickets()">Save</button><button class="modal-btn cancel" onclick="closeEditTicketModal()">Cancel</button></div></div></div>
 
 <div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMessage">Success!</span></div>
@@ -428,7 +539,61 @@
     function renderEventPurchases() { const container = document.getElementById('eventPurchases'); if (!selectedEventId) { container.innerHTML = '<div class="empty-state"><span>📭</span><p>Select an event</p></div>'; return; } const ev = events.find(e => e.id === selectedEventId); const tickets = loadTickets(); const eventTickets = tickets.filter(t => t.eventName === ev.name); if (eventTickets.length === 0) { container.innerHTML = '<div class="empty-state"><span>🎫</span><p>No tickets purchased</p></div>'; return; } container.innerHTML = eventTickets.map(t => `<div class="transaction-item"><div class="transaction-left"><div class="transaction-icon"><i class="fas fa-user"></i></div><div class="transaction-details"><div class="transaction-type">${escapeHtml(t.ticketType)}</div><div class="transaction-time">ID: ${t.ticketId?.slice(-12)}</div></div></div><div class="transaction-amount amount-positive">R${t.price?.toFixed(2) || 0}</div></div>`).join(''); }
     function openAddEventModal() { document.getElementById('addEventModal').classList.add('active'); }
     function closeAddEventModal() { document.getElementById('addEventModal').classList.remove('active'); }
-    function confirmAddEvent() { const name = document.getElementById('newEventName').value; const date = document.getElementById('newEventDate').value; const location = document.getElementById('newEventLocation').value; if (!name || !date) { showToast('Event name and date required', 'error'); return; } const earlyBirdPrice = parseFloat(document.getElementById('newEarlyBirdPrice').value) || 250; const earlyBirdCap = parseInt(document.getElementById('newEarlyBirdCapacity').value) || 200; const generalPrice = parseFloat(document.getElementById('newGeneralPrice').value) || 350; const generalCap = parseInt(document.getElementById('newGeneralCapacity').value) || 400; const vipPrice = parseFloat(document.getElementById('newVipPrice').value) || 600; const vipCap = parseInt(document.getElementById('newVipCapacity').value) || 100; const newEvent = { id: 'evt_' + Date.now(), name, date, location: location || 'Rands Cape Town', status: 'active', ticketTypes: { earlyBird: { price: earlyBirdPrice, capacity: earlyBirdCap, sold: 0 }, general: { price: generalPrice, capacity: generalCap, sold: 0 }, vip: { price: vipPrice, capacity: vipCap, sold: 0 } } }; events.push(newEvent); saveEvents(); logStaffActivity('CREATE_EVENT', `Created event "${name}"`, newEvent.id); showToast(`Event "${name}" created`, 'success'); closeAddEventModal(); renderFullEventCard(); updateTicketStats(); document.getElementById('newEventName').value = ''; document.getElementById('newEventDate').value = ''; document.getElementById('newEventLocation').value = ''; ['newEarlyBirdPrice','newEarlyBirdCapacity','newGeneralPrice','newGeneralCapacity','newVipPrice','newVipCapacity'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; }); }
+    // ORIGINAL confirmAddEvent (kept for localStorage) - now wrapped by Supabase version above
+    window.originalConfirmAddEvent = function() {
+        const name = document.getElementById('newEventName').value;
+        const date = document.getElementById('newEventDate').value;
+        const location = document.getElementById('newEventLocation').value;
+        if (!name || !date) { showToast('Event name and date required', 'error'); return; }
+        const earlyBirdPrice = parseFloat(document.getElementById('newEarlyBirdPrice').value) || 250;
+        const earlyBirdCap = parseInt(document.getElementById('newEarlyBirdCapacity').value) || 200;
+        const generalPrice = parseFloat(document.getElementById('newGeneralPrice').value) || 350;
+        const generalCap = parseInt(document.getElementById('newGeneralCapacity').value) || 400;
+        const vipPrice = parseFloat(document.getElementById('newVipPrice').value) || 600;
+        const vipCap = parseInt(document.getElementById('newVipCapacity').value) || 100;
+        const newEvent = { id: 'evt_' + Date.now(), name, date, location: location || 'Rands Cape Town', status: 'active', ticketTypes: { earlyBird: { price: earlyBirdPrice, capacity: earlyBirdCap, sold: 0 }, general: { price: generalPrice, capacity: generalCap, sold: 0 }, vip: { price: vipPrice, capacity: vipCap, sold: 0 } } };
+        events.push(newEvent);
+        saveEvents();
+        logStaffActivity('CREATE_EVENT', `Created event "${name}"`, newEvent.id);
+        showToast(`Event "${name}" created`, 'success');
+        closeAddEventModal();
+        renderFullEventCard();
+        updateTicketStats();
+        document.getElementById('newEventName').value = '';
+        document.getElementById('newEventDate').value = '';
+        document.getElementById('newEventLocation').value = '';
+        ['newEarlyBirdPrice','newEarlyBirdCapacity','newGeneralPrice','newGeneralCapacity','newVipPrice','newVipCapacity'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
+    };
+    // Override confirmAddEvent to also call Supabase
+    window.confirmAddEvent = function() {
+        // Call Supabase save (async, doesn't block UI)
+        const name = document.getElementById('newEventName').value;
+        const date = document.getElementById('newEventDate').value;
+        const location = document.getElementById('newEventLocation').value;
+        const earlyBirdPrice = parseFloat(document.getElementById('newEarlyBirdPrice').value) || 250;
+        const earlyBirdCap = parseInt(document.getElementById('newEarlyBirdCapacity').value) || 200;
+        const generalPrice = parseFloat(document.getElementById('newGeneralPrice').value) || 350;
+        const generalCap = parseInt(document.getElementById('newGeneralCapacity').value) || 400;
+        const vipPrice = parseFloat(document.getElementById('newVipPrice').value) || 600;
+        const vipCap = parseInt(document.getElementById('newVipCapacity').value) || 100;
+        
+        if (name && date) {
+            window.supabaseClient.from('events').insert([{
+                name: name,
+                location: location || 'Rands Cape Town',
+                start_time: date,
+                description: `EarlyBird: R${earlyBirdPrice} (Cap:${earlyBirdCap}) | General: R${generalPrice} (Cap:${generalCap}) | VIP: R${vipPrice} (Cap:${vipCap})`
+            }]).then(result => {
+                if (result.error) {
+                    console.error('Supabase insert error:', result.error);
+                } else {
+                    console.log('✅ Saved to Supabase:', result.data);
+                }
+            });
+        }
+        // Call original localStorage function
+        window.originalConfirmAddEvent();
+    };
     function deleteSelectedEvent() { if (!selectedEventId) { showToast('Select an event first', 'error'); return; } if (confirm('Delete selected event?')) { events = events.filter(e => e.id !== selectedEventId); saveEvents(); logStaffActivity('DELETE_EVENT', `Deleted event`, selectedEventId); selectedEventId = null; document.getElementById('selectedEventInfo').style.display = 'none'; document.getElementById('selectedEventDisplay').innerHTML = 'No event selected'; renderFullEventCard(); updateTicketStats(); showToast('Event deleted', 'success'); } }
     function openEditTicketModal() { if (!selectedEventId) { showToast('Select an event first', 'error'); return; } const ev = events.find(e => e.id === selectedEventId); document.getElementById('editEventNameDisplay').innerHTML = ev.name; document.getElementById('editEarlyBirdPrice').value = ev.ticketTypes.earlyBird.price; document.getElementById('editEarlyBirdCapacity').value = ev.ticketTypes.earlyBird.capacity; document.getElementById('editGeneralPrice').value = ev.ticketTypes.general.price; document.getElementById('editGeneralCapacity').value = ev.ticketTypes.general.capacity; document.getElementById('editVipPrice').value = ev.ticketTypes.vip.price; document.getElementById('editVipCapacity').value = ev.ticketTypes.vip.capacity; document.getElementById('editTicketModal').classList.add('active'); }
     function closeEditTicketModal() { document.getElementById('editTicketModal').classList.remove('active'); }
