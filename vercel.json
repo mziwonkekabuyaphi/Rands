@@ -8,6 +8,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
       "source": "/super-admin",
       "destination": "/super-admin.html"
     },
