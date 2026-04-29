@@ -6,8 +6,8 @@
     <title>Your Vibe Passport | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- FIXED: lowercase 'index.css' -->
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <!-- FIXED: external CSS path updated to login.css as per instructions -->
+    <link rel="stylesheet" href="./assets/css/login.css">
 </head>
 <body>
 
@@ -178,9 +178,15 @@
 
 <div id="toast"></div>
 
-<!-- FIXED: route.js now points to config/route.js -->
+<!-- ═══════════════════════════════════════════════════════════════
+     EXTERNAL SCRIPTS — UPDATED PATHS ACCORDING TO YOUR INSTRUCTIONS
+     config/supabase.js , config/route.js , assets/js/data.js , assets/js/login.js
+     Maintaining load order: Supabase client -> route helpers -> data layer -> login logic
+══════════════════════════════════════════════════════════════════ -->
+<script src="config/supabase.js"></script>
 <script src="config/route.js"></script>
-<script src="./assets/js/index.js" defer></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/login.js" defer></script>
 
 </body>
 </html>
