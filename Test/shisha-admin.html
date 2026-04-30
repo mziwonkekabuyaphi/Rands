@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Shisha Admin | Inventory Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        body {
+            background: #1e1e2f;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .admin-container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 24px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .admin-header h1 {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .admin-header h1 i {
+            font-size: 32px;
+        }
+        .status-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+        }
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .admin-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .admin-card:hover {
+            transform: translateY(-2px);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .card-header i {
+            font-size: 28px;
+            color: #d32f2f;
+        }
+        .card-header h2 {
+            font-size: 22px;
+            color: #1e1e2f;
+        }
+        .card-header span {
+            margin-left: auto;
+            background: #f5f5f5;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+        .items-list {
+            max-height: 320px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 16px;
+            background: #fafafa;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        .list-item:hover {
+            background: #f0f0f0;
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        .item-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .item-badge {
+            font-size: 10px;
+            background: #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+        }
+        .delete-btn {
+            background: #ffebee;
+            border: none;
+            color: #d32f2f;
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .delete-btn:hover:not(:disabled) {
+            background: #d32f2f;
+            color: white;
+        }
+        .delete-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .add-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .add-section input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 40px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .add-section input:focus {
+            border-color: #d32f2f;
+        }
+        .add-btn {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 0 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .add-btn:hover {
+            background: #1b5e20;
+        }
+        .info-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 12px;
+            padding: 8px;
+            background: #fff8e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-text i {
+            color: #ff9800;
+        }
+        .refresh-btn {
+            background: #1e1e2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #888;
+            font-size: 12px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #eee;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: #888;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>
+            <i class="fas fa-screwdriver-wrench"></i>
+            Shisha Admin Panel
+        </h1>
+        <div class="status-badge">
+            <i class="fas fa-sync-alt"></i> Live sync with POS
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <!-- Manage Hookahs (Shisha IDs) -->
+        <div class="admin-card">
+            <div class="card-header">
+                <i class="fas fa-hook"></i>
+                <h2>Hookahs</h2>
+                <span>Shisha IDs</span>
+            </div>
+            <div class="subtitle">
+                <i class="fas fa-info-circle"></i> Base: SH-001 to SH-030 + custom
+            </div>
+            <div id="shishaList" class="items-list">
+                <div class="empty-state">Loading...</div>
+            </div>
+            <div class="add-section">
+                <input type="text" id="newShishaId" placeholder="e.g., SH-031 or VIP-01" maxlength="20">
+                <button class="add-btn" id="addShishaBtn">+ Add</button>
+            </div>
+            <div class="info-text">
+                <i class="fas fa-lock"></i>
+                Cannot delete hookahs with active sessions
+            </div>
+        </div>
+
+        <!-- Manage Locations -->
+        <div class="admin-card">
+            <div class="card-header">
+                <i class="fas fa-location-dot"></i>
+                <h2>Locations</h2>
+                <span>Venue spots</span>
+            </div>
+            <div class="subtitle">
+                <i class="fas fa-building"></i> 6 defaults + your custom locations
+            </div>
+            <div id="locationsList" class="items-list">
+                <div class="empty-state">Loading...</div>
+            </div>
+            <div class="add-section">
+                <input type="text" id="newLocation" placeholder="e.g., Rooftop Lounge">
+                <button class="add-btn" id="addLocationBtn">+ Add</button>
+            </div>
+            <div class="info-text">
+                <i class="fas fa-star"></i>
+                Default locations cannot be deleted
+            </div>
+        </div>
+
+        <!-- Manage Flavours -->
+        <div class="admin-card">
+            <div class="card-header">
+                <i class="fas fa-leaf"></i>
+                <h2>Flavours</h2>
+                <span>Tobacco menu</span>
+            </div>
+            <div class="subtitle">
+                <i class="fas fa-tag"></i> 6 defaults + your custom flavours
+            </div>
+            <div id="flavoursList" class="items-list">
+                <div class="empty-state">Loading...</div>
+            </div>
+            <div class="add-section">
+                <input type="text" id="newFlavour" placeholder="e.g., Double Apple">
+                <button class="add-btn" id="addFlavourBtn">+ Add</button>
+            </div>
+            <div class="info-text">
+                <i class="fas fa-fire"></i>
+                Default flavours cannot be deleted
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <button class="refresh-btn" id="manualRefreshBtn">
+            <i class="fas fa-rotate-right"></i> Refresh Data
+        </button>
+        <div style="background: #333; padding: 8px 16px; border-radius: 40px; color: #ccc; font-size: 13px;">
+            <i class="fas fa-database"></i> Changes reflect immediately in POS
+        </div>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-link"></i> This admin panel syncs with Shisha POS via localStorage | Close and reopen POS to see updates instantly
+    </div>
+</div>
+
+<script>
+    // ========== STORAGE KEYS (must match POS) ==========
+    const SESSIONS_KEY = 'shishaSessions';
+    const CUSTOM_SHISHAS_KEY = 'custom_shisha_ids';
+    const CUSTOM_LOCATIONS_KEY = 'custom_locations';
+    const CUSTOM_FLAVOURS_KEY = 'custom_flavours';
+    const DELETED_SHISHAS_KEY = 'deleted_shisha_ids';
+    
+    // Base data (must match POS exactly)
+    const DEFAULT_SHISHAS = Array.from({ length: 30 }, (_, i) => `SH-${String(i+1).padStart(3,'0')}`);
+    const DEFAULT_LOCATIONS = ["Genera Hub", "General Vibe Stage", "VIP South", "VIP North", "Main VIP", "Shisha Lounge"];
+    const DEFAULT_FLAVOURS = ["Mint+Grape", "Apple", "Berry with Mint", "Bombay Pan Masala", "Blueberry", "Watermelon"];
+    
+    let activeSessions = [];
+    
+    // Helper: Get current data
+    function getCustomShishas() { return JSON.parse(localStorage.getItem(CUSTOM_SHISHAS_KEY) || '[]'); }
+    function saveCustomShishas(arr) { localStorage.setItem(CUSTOM_SHISHAS_KEY, JSON.stringify(arr)); triggerStorage(); }
+    function getCustomLocations() { return JSON.parse(localStorage.getItem(CUSTOM_LOCATIONS_KEY) || '[]'); }
+    function saveCustomLocations(arr) { localStorage.setItem(CUSTOM_LOCATIONS_KEY, JSON.stringify(arr)); triggerStorage(); }
+    function getCustomFlavours() { return JSON.parse(localStorage.getItem(CUSTOM_FLAVOURS_KEY) || '[]'); }
+    function saveCustomFlavours(arr) { localStorage.setItem(CUSTOM_FLAVOURS_KEY, JSON.stringify(arr)); triggerStorage(); }
+    function getDeletedShishas() { return JSON.parse(localStorage.getItem(DELETED_SHISHAS_KEY) || '[]'); }
+    function saveDeletedShishas(arr) { localStorage.setItem(DELETED_SHISHAS_KEY, JSON.stringify(arr)); triggerStorage(); }
+    
+    function getAllShishas() {
+        const custom = getCustomShishas();
+        const deleted = getDeletedShishas();
+        const activeBase = DEFAULT_SHISHAS.filter(id => !deleted.includes(id));
+        return [...activeBase, ...custom];
+    }
+    
+    function getAllLocations() {
+        return [...DEFAULT_LOCATIONS, ...getCustomLocations()];
+    }
+    
+    function getAllFlavours() {
+        return [...DEFAULT_FLAVOURS, ...getCustomFlavours()];
+    }
+    
+    function loadActiveSessions() {
+        const saved = localStorage.getItem(SESSIONS_KEY);
+        if (saved) {
+            activeSessions = JSON.parse(saved);
+        } else {
+            activeSessions = [];
+        }
+    }
+    
+    function canDeleteShisha(shishaId) {
+        return !activeSessions.some(s => s.shishaId === shishaId);
+    }
+    
+    function deleteShisha(shishaId) {
+        if (!canDeleteShisha(shishaId)) return false;
+        const custom = getCustomShishas();
+        if (custom.includes(shishaId)) {
+            const newCustom = custom.filter(c => c !== shishaId);
+            saveCustomShishas(newCustom);
+            return true;
+        } else if (DEFAULT_SHISHAS.includes(shishaId)) {
+            const deleted = getDeletedShishas();
+            if (!deleted.includes(shishaId)) {
+                deleted.push(shishaId);
+                saveDeletedShishas(deleted);
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    function addShisha(newId) {
+        if (!newId.trim()) return false;
+        newId = newId.trim().toUpperCase();
+        const allShishas = getAllShishas();
+        if (allShishas.includes(newId)) return false;
+        const custom = getCustomShishas();
+        if (!custom.includes(newId)) {
+            custom.push(newId);
+            saveCustomShishas(custom);
+        }
+        return true;
+    }
+    
+    function addLocation(loc) {
+        if (!loc.trim()) return false;
+        const trimmed = loc.trim();
+        const all = getAllLocations();
+        if (all.includes(trimmed)) return false;
+        const custom = getCustomLocations();
+        if (!custom.includes(trimmed)) {
+            custom.push(trimmed);
+            saveCustomLocations(custom);
+        }
+        return true;
+    }
+    
+    function deleteLocation(loc) {
+        if (DEFAULT_LOCATIONS.includes(loc)) return false;
+        let custom = getCustomLocations();
+        if (custom.includes(loc)) {
+            custom = custom.filter(l => l !== loc);
+            saveCustomLocations(custom);
+            return true;
+        }
+        return false;
+    }
+    
+    function addFlavour(flav) {
+        if (!flav.trim()) return false;
+        const trimmed = flav.trim();
+        const all = getAllFlavours();
+        if (all.includes(trimmed)) return false;
+        const custom = getCustomFlavours();
+        if (!custom.includes(trimmed)) {
+            custom.push(trimmed);
+            saveCustomFlavours(custom);
+        }
+        return true;
+    }
+    
+    function deleteFlavour(flav) {
+        if (DEFAULT_FLAVOURS.includes(flav)) return false;
+        let custom = getCustomFlavours();
+        if (custom.includes(flav)) {
+            custom = custom.filter(f => f !== flav);
+            saveCustomFlavours(custom);
+            return true;
+        }
+        return false;
+    }
+    
+    function triggerStorage() {
+        window.dispatchEvent(new Event('storage'));
+        // Also notify POS if it's open
+        try {
+            localStorage.setItem('__admin_sync_timestamp', Date.now().toString());
+        } catch(e) {}
+    }
+    
+    // Render functions
+    function renderShishas() {
+        const container = document.getElementById('shishaList');
+        const allShishas = getAllShishas();
+        if (allShishas.length === 0) {
+            container.innerHTML = '<div class="empty-state">No hookahs available</div>';
+            return;
+        }
+        container.innerHTML = allShishas.map(sh => {
+            const inUse = !canDeleteShisha(sh);
+            const isCustom = !DEFAULT_SHISHAS.includes(sh);
+            return `
+                <div class="list-item">
+                    <div>
+                        <span class="item-name">🔥 ${sh}</span>
+                        ${isCustom ? '<span class="item-badge">custom</span>' : '<span class="item-badge">base</span>'}
+                        ${inUse ? '<span class="item-badge" style="background:#ffcdd2;">in session</span>' : ''}
+                    </div>
+                    <button class="delete-btn" onclick="handleDeleteShisha('${sh}')" ${inUse ? 'disabled' : ''}>
+                        🗑️ Delete
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function renderLocations() {
+        const container = document.getElementById('locationsList');
+        const allLocs = getAllLocations();
+        if (allLocs.length === 0) {
+            container.innerHTML = '<div class="empty-state">No locations</div>';
+            return;
+        }
+        container.innerHTML = allLocs.map(loc => {
+            const isDefault = DEFAULT_LOCATIONS.includes(loc);
+            return `
+                <div class="list-item">
+                    <div>
+                        <span class="item-name">📍 ${loc}</span>
+                        ${isDefault ? '<span class="item-badge">default</span>' : '<span class="item-badge">custom</span>'}
+                    </div>
+                    <button class="delete-btn" onclick="handleDeleteLocation('${loc.replace(/'/g, "\\'")}')" ${isDefault ? 'disabled' : ''}>
+                        🗑️ Delete
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function renderFlavours() {
+        const container = document.getElementById('flavoursList');
+        const allFlavs = getAllFlavours();
+        if (allFlavs.length === 0) {
+            container.innerHTML = '<div class="empty-state">No flavours</div>';
+            return;
+        }
+        container.innerHTML = allFlavs.map(flav => {
+            const isDefault = DEFAULT_FLAVOURS.includes(flav);
+            return `
+                <div class="list-item">
+                    <div>
+                        <span class="item-name">🍃 ${flav}</span>
+                        ${isDefault ? '<span class="item-badge">default</span>' : '<span class="item-badge">custom</span>'}
+                    </div>
+                    <button class="delete-btn" onclick="handleDeleteFlavour('${flav.replace(/'/g, "\\'")}')" ${isDefault ? 'disabled' : ''}>
+                        🗑️ Delete
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function refreshAll() {
+        loadActiveSessions();
+        renderShishas();
+        renderLocations();
+        renderFlavours();
+    }
+    
+    // Global handlers
+    window.handleDeleteShisha = function(id) {
+        if (deleteShisha(id)) {
+            refreshAll();
+            showToast(`✅ Deleted ${id}`);
+        } else {
+            alert(`❌ Cannot delete "${id}". Active session exists or not found.`);
+        }
+    };
+    
+    window.handleDeleteLocation = function(loc) {
+        if (deleteLocation(loc)) {
+            refreshAll();
+            showToast(`✅ Deleted location: ${loc}`);
+        } else {
+            alert("Cannot delete default location.");
+        }
+    };
+    
+    window.handleDeleteFlavour = function(flav) {
+        if (deleteFlavour(flav)) {
+            refreshAll();
+            showToast(`✅ Deleted flavour: ${flav}`);
+        } else {
+            alert("Cannot delete default flavour.");
+        }
+    };
+    
+    function showToast(msg) {
+        // Simple notification
+        const toast = document.createElement('div');
+        toast.textContent = msg;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.background = '#2e7d32';
+        toast.style.color = 'white';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '40px';
+        toast.style.zIndex = '10000';
+        toast.style.fontSize = '14px';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+    
+    // Event listeners
+    document.getElementById('addShishaBtn').addEventListener('click', () => {
+        const input = document.getElementById('newShishaId');
+        if (addShisha(input.value)) {
+            input.value = '';
+            refreshAll();
+            showToast('✅ Hookah added');
+        } else {
+            alert('Invalid or duplicate ID');
+        }
+    });
+    
+    document.getElementById('addLocationBtn').addEventListener('click', () => {
+        const input = document.getElementById('newLocation');
+        if (addLocation(input.value)) {
+            input.value = '';
+            refreshAll();
+            showToast('✅ Location added');
+        } else {
+            alert('Invalid or duplicate location');
+        }
+    });
+    
+    document.getElementById('addFlavourBtn').addEventListener('click', () => {
+        const input = document.getElementById('newFlavour');
+        if (addFlavour(input.value)) {
+            input.value = '';
+            refreshAll();
+            showToast('✅ Flavour added');
+        } else {
+            alert('Invalid or duplicate flavour');
+        }
+    });
+    
+    document.getElementById('manualRefreshBtn').addEventListener('click', () => {
+        refreshAll();
+        showToast('🔄 Data refreshed');
+    });
+    
+    // Listen for changes from POS or other tabs
+    window.addEventListener('storage', (e) => {
+        if (e.key === SESSIONS_KEY || e.key === CUSTOM_SHISHAS_KEY || e.key === CUSTOM_LOCATIONS_KEY || 
+            e.key === CUSTOM_FLAVOURS_KEY || e.key === DELETED_SHISHAS_KEY) {
+            refreshAll();
+        }
+    });
+    
+    // Initial load
+    refreshAll();
+</script>
+</body>
+</html>
