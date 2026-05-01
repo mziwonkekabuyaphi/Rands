@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>ButcherShop · Staff Command with Preorder</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e30613;
+    --red-dark: #b3040f;
+    --red-light: #fff0f1;
+    --red-border: #ffd0d3;
+    --orange: #f97316;
+    --green: #10b981;
+    --green-light: #d1fae5;
+    --blue: #3b82f6;
+    --bg: #f4f4f6;
+    --surface: #ffffff;
+    --text: #111111;
+    --muted: #666666;
+    --border: #ebebeb;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+
+body {
+background: var(–bg);
+min-height: 100vh;
+font-family: ‘Inter’, sans-serif;
+color: var(–text);
+}
+
+/* ── TOP BAR ── */
+.topbar {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+padding: 12px 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+position: sticky;
+top: 0;
+z-index: 50;
+box-shadow: 0 1px 0 #e8e8e8;
+}
+.topbar-brand {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.topbar-logo {
+width: 36px;
+height: 36px;
+background: var(–red);
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-weight: 900;
+font-size: 1.1rem;
+}
+.topbar-title {
+font-size: 1rem;
+font-weight: 800;
+letter-spacing: -0.4px;
+}
+.topbar-title span { color: var(–red); }
+.topbar-right {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.topbar-time {
+font-size: 0.78rem;
+font-weight: 600;
+color: var(–muted);
+background: var(–bg);
+padding: 5px 12px;
+border-radius: 30px;
+}
+
+/* ── LAYOUT ── */
+.dashboard {
+display: grid;
+grid-template-columns: 300px 1fr 340px;
+gap: 16px;
+max-width: 1600px;
+margin: 0 auto;
+padding: 16px;
+height: calc(100vh - 62px);
+}
+
+/* ── CARDS ── */
+.card {
+background: var(–surface);
+border-radius: var(–radius-lg);
+overflow: hidden;
+border: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+box-shadow: var(–shadow);
+}
+
+.card-header {
+padding: 14px 18px;
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+font-weight: 800;
+font-size: 0.88rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 10px;
+flex-shrink: 0;
+letter-spacing: -0.2px;
+}
+.card-header i { color: var(–red); margin-right: 6px; }
+
+/* ── QUEUE LIST (Column 1) ── */
+.queue-list {
+flex: 1;
+overflow-y: auto;
+padding: 12px;
+}
+
+.queue-item {
+background: var(–bg);
+border-radius: var(–radius);
+padding: 12px 14px;
+margin-bottom: 8px;
+border: 2px solid transparent;
+cursor: pointer;
+transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.queue-item:hover { border-color: var(–red-border); background: var(–red-light); }
+.queue-item:active { transform: scale(0.98); }
+.queue-item.active {
+background: var(–red-light);
+border-color: var(–red);
+box-shadow: 0 2px 12px rgba(227,6,19,0.12);
+}
+
+.queue-ticket {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 6px;
+}
+.ticket-num {
+font-weight: 900;
+font-size: 1.15rem;
+letter-spacing: -0.5px;
+color: var(–text);
+}
+
+.badge {
+padding: 3px 10px;
+border-radius: 30px;
+font-size: 0.68rem;
+font-weight: 700;
+letter-spacing: 0.3px;
+}
+.badge-waiting  { background: #f1f5f9; color: #475569; }
+.badge-called   { background: #dbeafe; color: #1d4ed8; }
+.badge-order    { background: var(–green-light); color: #065f46; }
+
+.queue-meta {
+font-size: 0.7rem;
+color: var(–muted);
+font-weight: 500;
+margin-bottom: 8px;
+}
+
+.btn-icon-group {
+display: flex;
+gap: 6px;
+margin-top: 8px;
+flex-wrap: wrap;
+}
+.btn-sm {
+background: var(–surface);
+border: 1px solid var(–border);
+padding: 6px 12px;
+border-radius: 30px;
+font-size: 0.72rem;
+font-weight: 700;
+cursor: pointer;
+font-family: ‘Inter’, sans-serif;
+color: var(–text);
+transition: background 0.15s, transform 0.1s;
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.btn-sm:active { transform: scale(0.95); }
+.btn-sm-call { background: var(–red); color: white; border-color: var(–red); }
+.btn-sm-call:hover { background: var(–red-dark); }
+.btn-sm-skip { background: #fff7ed; color: var(–orange); border-color: #fed7aa; }
+.btn-sm-skip:hover { background: #ffedd5; }
+
+/* ── ACTIVE ORDER (Column 2) ── */
+.active-order-col { overflow-y: auto; display: flex; flex-direction: column; }
+
+.active-ticket-banner {
+padding: 12px 18px;
+background: var(–red-light);
+border-bottom: 1px solid var(–red-border);
+display: flex;
+align-items: center;
+gap: 12px;
+flex-shrink: 0;
+}
+.active-ticket-badge {
+font-size: 1.4rem;
+font-weight: 900;
+color: var(–red);
+letter-spacing: -1px;
+}
+.active-ticket-meta {
+font-size: 0.78rem;
+color: var(–muted);
+font-weight: 600;
+}
+
+/* Category bar */
+.pos-categories {
+display: flex;
+gap: 8px;
+padding: 12px 16px;
+border-bottom: 1px solid var(–border);
+flex-wrap: nowrap;
+overflow-x: auto;
+flex-shrink: 0;
+-ms-overflow-style: none;
+scrollbar-width: none;
+}
+.pos-categories::-webkit-scrollbar { display: none; }
+
+.cat-btn {
+background: var(–bg);
+border: none;
+padding: 8px 18px;
+border-radius: 30px;
+font-weight: 700;
+cursor: pointer;
+font-family: ‘Inter’, sans-serif;
+font-size: 0.78rem;
+white-space: nowrap;
+color: var(–text);
+transition: background 0.15s, color 0.15s;
+}
+.cat-btn.active { background: var(–red); color: white; }
+.cat-btn:hover:not(.active) { background: #e8e8e8; }
+
+/* Items grid */
+.items-grid-pos {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+gap: 10px;
+padding: 14px 16px;
+overflow-y: auto;
+max-height: 230px;
+flex-shrink: 0;
+}
+.item-card {
+background: var(–bg);
+border: 2px solid transparent;
+border-radius: var(–radius);
+padding: 12px 8px;
+text-align: center;
+cursor: pointer;
+transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.item-card:hover { border-color: var(–red-border); background: var(–red-light); }
+.item-card:active { transform: scale(0.94); }
+.item-card.locked { opacity: 0.4; cursor: not-allowed; }
+
+.item-name {
+font-weight: 700;
+font-size: 0.78rem;
+color: var(–text);
+margin-bottom: 4px;
+line-height: 1.2;
+}
+.item-price {
+color: var(–red);
+font-weight: 800;
+font-size: 0.88rem;
+}
+
+/* Cart */
+.cart-section {
+background: #fafafa;
+border-top: 2px solid var(–border);
+padding: 12px 16px;
+flex: 1;
+overflow-y: auto;
+min-height: 100px;
+}
+.cart-section-title {
+font-weight: 800;
+font-size: 0.82rem;
+color: var(–text);
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.cart-section-title i { color: var(–red); }
+
+.cart-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+background: white;
+padding: 9px 12px;
+border-radius: 12px;
+border: 1px solid var(–border);
+gap: 8px;
+}
+.cart-item-name { font-weight: 700; font-size: 0.8rem; }
+.cart-item-qty  { font-size: 0.72rem; color: var(–muted); font-weight: 500; }
+.cart-item-price-right { font-weight: 800; font-size: 0.85rem; color: var(–text); }
+
+/* Action buttons */
+.action-buttons-pos {
+display: flex;
+gap: 10px;
+padding: 12px 16px;
+background: white;
+border-top: 1px solid var(–border);
+flex-shrink: 0;
+}
+.btn-pos {
+flex: 1;
+padding: 13px 8px;
+border-radius: var(–radius);
+font-weight: 800;
+border: none;
+cursor: pointer;
+font-family: ‘Inter’, sans-serif;
+font-size: 0.8rem;
+transition: opacity 0.15s, transform 0.1s;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+letter-spacing: -0.2px;
+}
+.btn-pos:active { transform: scale(0.96); }
+.btn-pos:hover { opacity: 0.9; }
+.btn-card    { background: #1e293b; color: white; }
+.btn-wallet  { background: var(–green); color: white; }
+.btn-kitchen { background: var(–orange); color: white; }
+
+#paymentWarning {
+display: none;
+background: #fee2e2;
+color: #b91c1c;
+padding: 10px 16px;
+margin: 0 16px 8px;
+border-radius: var(–radius);
+text-align: center;
+font-size: 0.8rem;
+font-weight: 600;
+border: 1px solid #fca5a5;
+flex-shrink: 0;
+}
+
+/* ── KITCHEN ORDERS (Column 3) ── */
+.order-tabs {
+display: flex;
+border-bottom: 1px solid var(–border);
+flex-shrink: 0;
+}
+.order-tab {
+flex: 1;
+text-align: center;
+padding: 12px 6px;
+font-weight: 700;
+font-size: 0.75rem;
+background: white;
+border: none;
+cursor: pointer;
+font-family: ‘Inter’, sans-serif;
+color: var(–muted);
+transition: color 0.15s;
+border-bottom: 2px solid transparent;
+}
+.order-tab.active { color: var(–red); border-bottom-color: var(–red); }
+
+.order-list {
+padding: 12px;
+flex: 1;
+overflow-y: auto;
+}
+
+.order-card {
+background: white;
+border-radius: var(–radius);
+padding: 12px 14px;
+margin-bottom: 10px;
+border-left: 4px solid;
+border-top: 1px solid var(–border);
+border-right: 1px solid var(–border);
+border-bottom: 1px solid var(–border);
+transition: box-shadow 0.15s;
+}
+.order-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+
+.order-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 8px;
+}
+.order-ticket-num {
+font-weight: 900;
+font-size: 1.05rem;
+letter-spacing: -0.5px;
+}
+.order-meta {
+font-size: 0.68rem;
+color: var(–muted);
+font-weight: 500;
+margin-top: 2px;
+}
+.order-items-preview {
+font-size: 0.72rem;
+color: var(–muted);
+margin-bottom: 10px;
+line-height: 1.4;
+font-weight: 500;
+}
+
+.order-actions {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+}
+.mark-ready, .mark-collected {
+padding: 7px 14px;
+border-radius: 30px;
+font-size: 0.73rem;
+font-weight: 700;
+border: none;
+cursor: pointer;
+font-family: ‘Inter’, sans-serif;
+transition: opacity 0.15s, transform 0.1s;
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.mark-ready:active, .mark-collected:active { transform: scale(0.95); }
+.mark-ready     { background: var(–green); color: white; }
+.mark-collected { background: var(–red); color: white; }
+
+/* Status color coding */
+.status-preparing { border-left-color: var(–orange); }
+.status-ready     { border-left-color: var(–green); }
+.status-completed { border-left-color: #94a3b8; }
+
+/* Status dot on order card */
+.status-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+display: inline-block;
+margin-right: 4px;
+}
+.dot-preparing { background: var(–orange); }
+.dot-ready     { background: var(–green); }
+
+/* ── EMPTY STATES ── */
+.empty-state {
+padding: 32px 16px;
+text-align: center;
+color: #bbb;
+}
+.empty-state i { font-size: 2rem; margin-bottom: 8px; display: block; }
+.empty-state p { font-size: 0.82rem; font-weight: 500; }
+
+/* ── CALL NEXT BUTTON ── */
+.call-next-btn {
+background: var(–red);
+color: white;
+border: none;
+padding: 7px 14px;
+border-radius: 30px;
+font-size: 0.75rem;
+font-weight: 800;
+cursor: pointer;
+font-family: ‘Inter’, sans-serif;
+display: flex;
+align-items: center;
+gap: 5px;
+transition: background 0.15s, transform 0.1s;
+}
+.call-next-btn:hover { background: var(–red-dark); }
+.call-next-btn:active { transform: scale(0.95); }
+
+/* ── ADMIN STATUS ── */
+.admin-status {
+color: white;
+padding: 5px 10px;
+border-radius: 30px;
+font-size: 0.68rem;
+font-weight: 700;
+display: flex;
+align-items: center;
+gap: 5px;
+transition: background 0.3s;
+}
+
+/* ── PREORDER MODAL ── */
+.preorder-modal {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0,0,0,0.8);
+backdrop-filter: blur(6px);
+z-index: 3000;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.preorder-container {
+background: white;
+border-radius: var(–radius-lg);
+width: 92%;
+max-width: 560px;
+max-height: 88vh;
+overflow-y: auto;
+padding: 24px;
+position: relative;
+animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes popIn {
+from { transform: scale(0.92); opacity: 0; }
+to   { transform: scale(1);    opacity: 1; }
+}
+.close-modal {
+position: absolute;
+top: 16px; right: 18px;
+width: 32px; height: 32px;
+background: var(–bg);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 17px;
+cursor: pointer;
+color: var(–muted);
+border: none;
+font-family: ‘Inter’, sans-serif;
+}
+.category-row {
+display: flex;
+gap: 8px;
+margin: 16px 0;
+overflow-x: auto;
+}
+.cat-pill {
+background: var(–bg);
+padding: 7px 16px;
+border-radius: 30px;
+font-weight: 700;
+cursor: pointer;
+border: none;
+font-size: 0.78rem;
+white-space: nowrap;
+font-family: ‘Inter’, sans-serif;
+color: var(–text);
+transition: background 0.15s, color 0.15s;
+}
+.cat-pill.active { background: var(–red); color: white; }
+.items-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 10px;
+margin-bottom: 16px;
+max-height: 280px;
+overflow-y: auto;
+}
+.menu-item {
+background: var(–bg);
+border-radius: var(–radius);
+padding: 14px 10px;
+text-align: center;
+cursor: pointer;
+border: 2px solid transparent;
+transition: border-color 0.15s, background 0.15s;
+font-family: ‘Inter’, sans-serif;
+}
+.menu-item:hover  { border-color: var(–red-border); background: var(–red-light); }
+.menu-item:active { border-color: var(–red); transform: scale(0.96); }
+
+.cart-item-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 8px 0;
+border-bottom: 1px solid #f0f0f0;
+gap: 8px;
+font-family: ‘Inter’, sans-serif;
+}
+
+.btn-primary-modal {
+background: var(–red);
+color: white;
+border: none;
+padding: 14px;
+border-radius: var(–radius);
+font-weight: 800;
+width: 100%;
+margin-top: 12px;
+cursor: pointer;
+font-size: 0.95rem;
+font-family: ‘Inter’, sans-serif;
+transition: background 0.15s, transform 0.1s;
+}
+.btn-primary-modal:not(:disabled):hover  { background: var(–red-dark); }
+.btn-primary-modal:not(:disabled):active { transform: scale(0.97); }
+.btn-primary-modal:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── STUNNING POPUP ── */
+.stunning-popup-overlay {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0,0,0,0.7);
+backdrop-filter: blur(8px);
+z-index: 10000;
+display: flex;
+align-items: center;
+justify-content: center;
+animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+from { transform: translateY(40px); opacity: 0; }
+to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes pulseGlow {
+0%   { box-shadow: 0 0 0 0 rgba(227,6,19,0.4); }
+70%  { box-shadow: 0 0 0 15px rgba(227,6,19,0); }
+100% { box-shadow: 0 0 0 0 rgba(227,6,19,0); }
+}
+.stunning-popup {
+background: white;
+border-radius: 40px;
+max-width: 380px;
+width: 90%;
+text-align: center;
+padding: 32px 28px;
+animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+border: 2px solid var(–red);
+box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+}
+.stunning-popup-icon {
+width: 80px;
+height: 80px;
+background: linear-gradient(135deg, var(–red), var(–red-dark));
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 18px;
+animation: pulseGlow 1.5s infinite;
+}
+.stunning-popup-icon i { font-size: 38px; color: white; }
+.stunning-popup h3 { font-size: 1.4rem; font-weight: 900; margin-bottom: 10px; color: var(–text); letter-spacing: -0.5px; }
+.stunning-popup .popup-message { font-size: 0.88rem; color: var(–muted); margin-bottom: 22px; line-height: 1.5; font-weight: 500; }
+.stunning-popup-btn {
+background: var(–red);
+border: none;
+padding: 13px 28px;
+border-radius: 50px;
+font-weight: 800;
+font-size: 0.9rem;
+color: white;
+cursor: pointer;
+transition: background 0.2s, transform 0.1s;
+font-family: ‘Inter’, sans-serif;
+}
+.stunning-popup-btn:hover  { background: var(–red-dark); }
+.stunning-popup-btn:active { transform: scale(0.97); }
+
+.stunning-popup-success .stunning-popup-icon { background: linear-gradient(135deg, var(–green), #059669); }
+.stunning-popup-success { border-color: var(–green); }
+.stunning-popup-warning .stunning-popup-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stunning-popup-warning { border-color: #f59e0b; }
+.stunning-popup-info .stunning-popup-icon { background: linear-gradient(135deg, var(–blue), #2563eb); }
+.stunning-popup-info { border-color: var(–blue); }
+
+/* ── TOTAL ROW ── */
+.cart-total-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 0 0;
+margin-top: 4px;
+border-top: 2px solid var(–border);
+}
+.cart-total-label { font-size: 0.8rem; font-weight: 700; color: var(–muted); }
+.cart-total-value { font-size: 1.1rem; font-weight: 900; color: var(–red); letter-spacing: -0.5px; }
+
+/* ── PAID BADGE ── */
+.paid-badge {
+background: var(–green-light);
+color: #065f46;
+font-size: 0.68rem;
+font-weight: 700;
+padding: 2px 8px;
+border-radius: 30px;
+margin-left: 8px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+.dashboard { grid-template-columns: 260px 1fr 300px; }
+}
+@media (max-width: 860px) {
+.dashboard { grid-template-columns: 1fr; height: auto; overflow: auto; }
+.card { max-height: 500px; }
+.topbar { padding: 10px 16px; }
+}
+</style>
+
+</head>
+<body>
+
+<!-- TOP BAR -->
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">R</div>
+    <div class="topbar-title">Butcher <span>SmartQ</span> · Staff POS</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-time" id="liveTime">—</div>
+    <div class="admin-status" id="adminConnectionStatus" style="background:#f59e0b;">
+      <i class="fas fa-plug"></i>
+      <span id="adminStatusText">Default Menu</span>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard">
+
+  <!-- ── COLUMN 1: QUEUE ── -->
+
+  <div class="card">
+    <div class="card-header">
+      <span><i class="fas fa-users"></i> Waiting Line</span>
+      <button class="call-next-btn" id="globalCallNextBtn">
+        <i class="fas fa-phone"></i> Call Next
+      </button>
+    </div>
+    <div class="queue-list" id="queueListContainer">
+      <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <p>Queue is empty</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COLUMN 2: ACTIVE ORDER ── -->
+
+  <div class="card active-order-col">
+    <div class="card-header">
+      <span><i class="fas fa-cash-register"></i> Active Order</span>
+    </div>
+    <div class="active-ticket-banner" id="activeCustomerInfo">
+      <div>
+        <div class="active-ticket-badge" id="activeTicketNumber">—</div>
+        <div class="active-ticket-meta" id="activeOrderStatusMsg">Select a customer from the queue</div>
+      </div>
+    </div>
+    <div class="pos-categories" id="categoriesContainer"></div>
+    <div class="items-grid-pos" id="itemsGrid"></div>
+    <div class="cart-section">
+      <div class="cart-section-title"><i class="fas fa-shopping-cart"></i> Current Order</div>
+      <div id="cartItemsList"><div class="empty-state"><i class="fas fa-shopping-bag"></i><p>No items yet</p></div></div>
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-value" id="cartTotal">R0.00</span>
+      </div>
+    </div>
+    <div id="paymentWarning">⚠️ Complete payment before sending to kitchen</div>
+    <div class="action-buttons-pos">
+      <button class="btn-pos btn-card"    id="payCardBtn">   <i class="fas fa-credit-card"></i>  Card</button>
+      <button class="btn-pos btn-wallet"  id="payWalletBtn"> <i class="fas fa-wallet"></i>        Wallet</button>
+      <button class="btn-pos btn-kitchen" id="sendToKitchenBtn"><i class="fas fa-fire"></i>       Kitchen</button>
+    </div>
+  </div>
+
+  <!-- ── COLUMN 3: KITCHEN ORDERS ── -->
+
+  <div class="card">
+    <div class="order-tabs" id="orderTabs">
+      <button class="order-tab active" data-status="preparing">🔥 In Progress</button>
+      <button class="order-tab"        data-status="ready">    ✅ Ready</button>
+      <button class="order-tab"        data-status="completed">📦 Done</button>
+    </div>
+    <div class="order-list" id="kitchenOrdersList"></div>
+  </div>
+
+</div>
+
+<script>
+  // ── LIVE CLOCK ──
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('liveTime').textContent = now.toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit', hour12: false });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ── KEYS ──
+  const MENU_KEY            = "butcher_menu_config";
+  const MENU_LAST_UPDATE_KEY= "butcher_menu_last_update";
+  const QUEUE_KEY           = "butcher_shop_queue";
+  const ORDERS_KEY          = "butcher_shop_orders";
+
+  let menu = {};
+  const defaultMenu = {
+    meat:   [{ id:"ribeye", name:"Ribeye Steak", price:159 },{ id:"beef_sausage", name:"Beef Sausage", price:89 },{ id:"lamb_chop", name:"Lamb Chop", price:199 },{ id:"bacon_pack", name:"Bacon 500g", price:79 }],
+    meals:  [{ id:"steak_combo", name:"Steak + Chips", price:189 },{ id:"boerewors_roll", name:"Boerewors Roll", price:65 },{ id:"barbecue_platter", name:"BBQ Platter", price:299 }],
+    sides:  [{ id:"chips", name:"Chips", price:25 },{ id:"salad", name:"Fresh Salad", price:32 },{ id:"pap_sheba", name:"Pap & Sheba", price:28 }],
+    drinks: [{ id:"coke", name:"Coca-Cola", price:18 },{ id:"water", name:"Still Water", price:12 },{ id:"beer", name:"Castle Lager", price:28 }]
+  };
+
+  function loadMenuFromStorage() {
+    const saved = localStorage.getItem(MENU_KEY);
+    if (saved) { menu = JSON.parse(saved); updateAdminStatus(true); }
+    else        { menu = JSON.parse(JSON.stringify(defaultMenu)); updateAdminStatus(false); }
+    refreshMenuUI();
+  }
+
+  function updateAdminStatus(isConnected) {
+    const statusText = document.getElementById('adminStatusText');
+    const statusDiv  = document.getElementById('adminConnectionStatus');
+    if (isConnected) { statusText.innerText = 'Admin Connected'; statusDiv.style.background = '#10b981'; }
+    else             { statusText.innerText = 'Default Menu';    statusDiv.style.background = '#f59e0b'; }
+  }
+
+  function refreshMenuUI() {
+    if (document.getElementById('categoriesContainer')) { renderMenuAndCart(); renderQueueList(); }
+  }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === MENU_KEY) { loadMenuFromStorage(); showStunningPopup('Menu Updated', 'The menu has been updated by Admin.', 'info', 1500); }
+    if (e.key === QUEUE_KEY || e.key === ORDERS_KEY) { refreshAll(); }
+  });
+
+  function getCategoryDisplayName(key) {
+    const names = { meat:'MEAT', meals:'MEALS', sides:'SIDES', drinks:'DRINKS' };
+    return names[key] || key.toUpperCase();
+  }
+
+  function getQueue()   { return JSON.parse(localStorage.getItem(QUEUE_KEY)   || '[]'); }
+  function saveQueue(q) { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
+  function getOrders()  { return JSON.parse(localStorage.getItem(ORDERS_KEY)  || '[]'); }
+  function saveOrders(o){ localStorage.setItem(ORDERS_KEY, JSON.stringify(o)); }
+
+  let currentActiveTicket = null, currentCart = [], currentOrderPaid = false, currentOrderLocked = false;
+  let activeCategory = "meat";
+
+  // ── STUNNING POPUP ──
+  function showStunningPopup(title, message, type = 'success', autoClose = 2000) {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'stunning-popup-overlay';
+      const iconMap  = { success:'fa-check-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle', error:'fa-times-circle' };
+      const classMap = { success:'stunning-popup-success', warning:'stunning-popup-warning', info:'stunning-popup-info' };
+      overlay.innerHTML = `
+        <div class="stunning-popup ${classMap[type]||''}">
+          <div class="stunning-popup-icon"><i class="fas ${iconMap[type]||'fa-check-circle'}"></i></div>
+          <h3>${title}</h3>
+          <div class="popup-message">${message}</div>
+          <button class="stunning-popup-btn" id="stunningPopupCloseBtn">Got it</button>
+        </div>`;
+      document.body.appendChild(overlay);
+      const closePopup = () => { overlay.remove(); resolve(); };
+      overlay.querySelector('#stunningPopupCloseBtn').addEventListener('click', closePopup);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closePopup(); });
+      if (autoClose && type !== 'error') setTimeout(() => { if (document.body.contains(overlay)) closePopup(); }, autoClose);
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function timeAgo(isoStr) {
+    if (!isoStr) return '';
+    const diff = Math.floor((Date.now() - new Date(isoStr)) / 60000);
+    if (diff < 1)  return 'just now';
+    if (diff === 1) return '1 min ago';
+    return `${diff} min ago`;
+  }
+
+  function refreshAll() { renderQueueList(); renderMenuAndCart(); renderKitchenOrders(); updateActiveDisplay(); }
+
+  // ── QUEUE LIST ──
+  function renderQueueList() {
+    const queue     = getQueue();
+    const container = document.getElementById('queueListContainer');
+    if (!queue.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>Queue is empty</p></div>';
+      return;
+    }
+    container.innerHTML = queue.map((ticket, idx) => {
+      const hasOrder   = getOrders().some(o => o.ticketNumber === ticket.ticketNumber);
+      const statusClass = ticket.called ? 'badge-called' : 'badge-waiting';
+      const statusText  = ticket.called ? 'Called'       : 'Waiting';
+      const isActive    = currentActiveTicket?.ticketNumber === ticket.ticketNumber;
+      return `
+        <div class="queue-item ${isActive ? 'active' : ''}" data-ticket-idx="${idx}">
+          <div class="queue-ticket">
+            <span class="ticket-num">${escapeHtml(ticket.ticketNumber)}</span>
+            <span class="badge ${statusClass}">${statusText}</span>
+          </div>
+          <div class="queue-meta">${timeAgo(ticket.timestamp)}</div>
+          ${hasOrder ? '<div style="margin-bottom:4px;"><span class="badge badge-order">📋 Pre-order placed</span></div>' : ''}
+          <div class="btn-icon-group">
+            <button class="btn-sm btn-sm-call call-ticket" data-ticket="${escapeHtml(ticket.ticketNumber)}"><i class="fas fa-phone"></i> Call</button>
+            <button class="btn-sm btn-sm-skip skip-ticket" data-ticket="${escapeHtml(ticket.ticketNumber)}"><i class="fas fa-forward"></i> Skip</button>
+          </div>
+        </div>`;
+    }).join('');
+    document.querySelectorAll('.call-ticket').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); callTicket(btn.dataset.ticket); }));
+    document.querySelectorAll('.skip-ticket').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); skipTicket(btn.dataset.ticket); }));
+    document.querySelectorAll('.queue-item').forEach(el => el.addEventListener('click', () => { const idx = el.dataset.ticketIdx; const q = getQueue(); if (q[idx]) selectTicket(q[idx]); }));
+  }
+
+  // ── PREORDER CONFIRMATION MODAL ──
+  function openPreorderConfirmation(ticket) {
+    const orders = getOrders();
+    const existingOrder = orders.find(o => o.ticketNumber === ticket.ticketNumber);
+    let preorderCart = existingOrder?.items || [];
+    let preorderCategory = activeCategory;
+    const modal = document.createElement('div');
+    modal.className = 'preorder-modal';
+
+    function renderModal() {
+      const categoriesHtml = Object.keys(menu).map(cat =>
+        `<span class="cat-pill ${preorderCategory === cat ? 'active' : ''}" data-cat="${cat}">${getCategoryDisplayName(cat)}</span>`
+      ).join('');
+      const items = menu[preorderCategory] || [];
+      const itemsHtml = items.map(item =>
+        `<div class="menu-item" data-item='${JSON.stringify(item)}'><div style="font-weight:700;font-size:0.82rem;margin-bottom:4px;">${escapeHtml(item.name)}</div><div style="color:var(--red);font-weight:800;">R${item.price}</div></div>`
+      ).join('');
+      const cartTotal  = preorderCart.reduce((s,i) => s + i.price * i.quantity, 0);
+      const cartHtml   = preorderCart.map((it, idx) =>
+        `<div class="cart-item-row"><span><strong>${escapeHtml(it.name)}</strong> x${it.quantity}</span><span style="font-weight:800;">R${it.price * it.quantity}</span><button class="remove-item" data-idx="${idx}" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:14px;">🗑️</button></div>`
+      ).join('');
+
+      modal.innerHTML = `
+        <div class="preorder-container">
+          <button class="close-modal">&times;</button>
+          <h3 style="font-size:1.1rem;font-weight:900;letter-spacing:-0.5px;margin-bottom:4px;">📝 Order — ${escapeHtml(ticket.ticketNumber)}</h3>
+          <p style="font-size:0.78rem;color:var(--muted);font-weight:500;margin-bottom:0;">${escapeHtml(ticket.customerName || 'Guest')} · ${escapeHtml(ticket.whatsapp || '')}</p>
+          <div class="category-row">${categoriesHtml}</div>
+          <div class="items-grid" id="preorderItems">${itemsHtml}</div>
+          <div style="border-top:2px solid var(--border);margin-top:12px;padding-top:14px;">
+            <strong style="font-size:0.82rem;font-weight:800;margin-bottom:10px;display:block;">🛒 Order Summary</strong>
+            <div id="preorderCart">${cartHtml || '<div style="color:#bbb;font-size:0.8rem;padding:10px 0;">Empty — tap items above to add</div>'}</div>
+            <div style="text-align:right;font-weight:900;font-size:1.05rem;color:var(--red);margin:10px 0;">R${cartTotal}</div>
+            <input type="text" id="preorderNote" placeholder="Special instructions" style="width:100%;padding:10px 14px;border-radius:12px;border:2px solid #e8e8e8;margin:10px 0;font-size:0.85rem;font-family:Inter,sans-serif;outline:none;" value="${existingOrder?.items?.[0]?.notes || ''}">
+            <button id="confirmOrderBtn" class="btn-primary-modal" ${preorderCart.length === 0 ? 'disabled' : ''}>Confirm Order → Send to POS</button>
+          </div>
+        </div>`;
+
+      modal.querySelectorAll('.cat-pill').forEach(btn => btn.addEventListener('click', () => { preorderCategory = btn.dataset.cat; renderModal(); }));
+      modal.querySelectorAll('.menu-item').forEach(el => el.addEventListener('click', () => {
+        const item = JSON.parse(el.dataset.item);
+        const existing = preorderCart.find(i => i.id === item.id);
+        if (existing) existing.quantity += 1;
+        else preorderCart.push({ ...item, quantity: 1, notes: "" });
+        renderModal();
+      }));
+      modal.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', () => { preorderCart.splice(parseInt(btn.dataset.idx), 1); renderModal(); }));
+      modal.querySelector('.close-modal').onclick = () => modal.remove();
+      modal.querySelector('#confirmOrderBtn')?.addEventListener('click', async () => {
+        if (preorderCart.length === 0) { await showStunningPopup('Empty Order', 'Please add items before confirming', 'warning', 2000); return; }
+        const note = document.getElementById('preorderNote')?.value || '';
+        let orders = getOrders();
+        const idx = orders.findIndex(o => o.ticketNumber === ticket.ticketNumber);
+        if (idx !== -1) { orders[idx].items = preorderCart.map(i => ({ ...i, notes: i.notes || note })); orders[idx].total = preorderCart.reduce((s,i) => s + i.price * i.quantity, 0); orders[idx].updatedAt = new Date().toISOString(); }
+        else { orders.push({ ticketNumber: ticket.ticketNumber, customerName: ticket.customerName, items: preorderCart.map(i => ({ ...i, notes: note })), total: preorderCart.reduce((s,i) => s + i.price * i.quantity, 0), paid: false, kitchenStatus: 'new', createdAt: new Date().toISOString() }); }
+        saveOrders(orders);
+        modal.remove();
+        await showStunningPopup('Order Confirmed', `✅ Order confirmed for ${ticket.ticketNumber}! Ready for payment.`, 'success', 2000);
+        selectTicket(ticket); refreshAll();
+      });
+    }
+    renderModal();
+    document.body.appendChild(modal);
+  }
+
+  function callTicket(ticketNum) {
+    let queue = getQueue();
+    const idx = queue.findIndex(t => t.ticketNumber === ticketNum);
+    if (idx !== -1) { queue[idx].called = true; saveQueue(queue); refreshAll(); selectTicket(queue[idx]); openPreorderConfirmation(queue[idx]); }
+  }
+
+  function skipTicket(ticketNum) {
+    let queue = getQueue();
+    const newQueue = queue.filter(t => t.ticketNumber !== ticketNum);
+    saveQueue(newQueue);
+    if (currentActiveTicket?.ticketNumber === ticketNum) { currentActiveTicket = null; currentCart = []; }
+    refreshAll();
+  }
+
+  async function callNext() {
+    let queue = getQueue();
+    if (!queue.length) { await showStunningPopup('No Customers', 'There are no customers waiting in line', 'info', 2000); return; }
+    queue[0].called = true;
+    saveQueue(queue);
+    refreshAll();
+    selectTicket(queue[0]);
+    openPreorderConfirmation(queue[0]);
+  }
+
+  function selectTicket(ticket) {
+    currentActiveTicket = ticket;
+    const orders = getOrders();
+    const existingOrder = orders.find(o => o.ticketNumber === ticket.ticketNumber);
+    if (existingOrder && existingOrder.items) {
+      currentCart = existingOrder.items.map(it => ({ ...it }));
+      currentOrderPaid   = existingOrder.paid || false;
+      currentOrderLocked = (existingOrder.kitchenStatus === 'preparing' || existingOrder.kitchenStatus === 'ready');
+    } else {
+      currentCart = []; currentOrderPaid = false; currentOrderLocked = false;
+    }
+    updateActiveDisplay();
+    renderMenuAndCart();
+  }
+
+  function updateActiveDisplay() {
+    document.getElementById('activeTicketNumber').innerText = currentActiveTicket?.ticketNumber || '—';
+    const msg = currentOrderLocked ? 'In Kitchen' : (currentCart.length ? `${currentCart.length} item${currentCart.length>1?'s':''}` : 'Select a customer from the queue');
+    document.getElementById('activeOrderStatusMsg').innerText = msg;
+    if (currentOrderPaid && currentActiveTicket) {
+      const badge = document.getElementById('activeTicketNumber');
+      if (!badge.querySelector('.paid-badge')) badge.insertAdjacentHTML('beforeend', '<span class="paid-badge">Paid</span>');
+    }
+  }
+
+  function renderMenuAndCart() {
+    const catsHtml = Object.keys(menu).map(cat =>
+      `<button class="cat-btn ${activeCategory === cat ? 'active' : ''}" data-cat="${cat}">${getCategoryDisplayName(cat)}</button>`
+    ).join('');
+    document.getElementById('categoriesContainer').innerHTML = catsHtml;
+    document.querySelectorAll('.cat-btn').forEach(btn => btn.addEventListener('click', () => { activeCategory = btn.dataset.cat; renderMenuAndCart(); }));
+
+    const items = menu[activeCategory] || [];
+    document.getElementById('itemsGrid').innerHTML = items.map(item =>
+      `<div class="item-card ${currentOrderLocked ? 'locked' : ''}" data-item='${JSON.stringify(item)}'>
+        <div class="item-name">${escapeHtml(item.name)}</div>
+        <div class="item-price">R${item.price}</div>
+      </div>`
+    ).join('');
+    document.querySelectorAll('.item-card').forEach(card => card.addEventListener('click', () => {
+      if (!currentOrderLocked) {
+        const item = JSON.parse(card.dataset.item);
+        const existing = currentCart.find(i => i.id === item.id);
+        if (existing) existing.quantity++; else currentCart.push({ ...item, quantity: 1, notes: "" });
+        renderMenuAndCart();
+      }
+    }));
+
+    if (!currentCart.length) {
+      document.getElementById('cartItemsList').innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>No items yet</p></div>';
+      document.getElementById('cartTotal').innerHTML = 'R0.00';
+      return;
+    }
+    let total = 0;
+    document.getElementById('cartItemsList').innerHTML = currentCart.map((it, idx) => {
+      total += it.price * it.quantity;
+      return `<div class="cart-item">
+        <div>
+          <div class="cart-item-name">${escapeHtml(it.name)}</div>
+          <div class="cart-item-qty">×${it.quantity}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="cart-item-price-right">R${it.price * it.quantity}</span>
+          <button class="remove-item" data-idx="${idx}" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:15px;">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('cartTotal').innerHTML = `R${total.toFixed(2)}`;
+    document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', () => { currentCart.splice(parseInt(btn.dataset.idx),1); renderMenuAndCart(); }));
+  }
+
+  async function markAsPaid(method) {
+    if (!currentActiveTicket || !currentCart.length) return;
+    currentOrderPaid = true;
+    await showStunningPopup('Payment Confirmed', `✅ ${method} payment processed!`, 'success', 1800);
+    renderMenuAndCart();
+    updateActiveDisplay();
+  }
+
+  async function sendToKitchen() {
+    if (!currentActiveTicket) return;
+    if (!currentCart.length) { await showStunningPopup('No Items', 'Please add items before sending to kitchen', 'warning', 2000); return; }
+    if (!currentOrderPaid)   { document.getElementById('paymentWarning').style.display = 'block'; setTimeout(() => document.getElementById('paymentWarning').style.display='none', 2500); await showStunningPopup('Payment Required', 'Complete payment before sending to kitchen', 'warning', 2000); return; }
+    let orders = getOrders();
+    const idx = orders.findIndex(o => o.ticketNumber === currentActiveTicket.ticketNumber);
+    if (idx !== -1) { orders[idx].items = currentCart; orders[idx].total = currentCart.reduce((s,i) => s + i.price * i.quantity, 0); orders[idx].paid = true; orders[idx].kitchenStatus = "preparing"; orders[idx].updatedAt = new Date().toISOString(); }
+    else { orders.push({ ticketNumber: currentActiveTicket.ticketNumber, items: currentCart, total: currentCart.reduce((s,i) => s + i.price * i.quantity, 0), paid: true, kitchenStatus: "preparing", createdAt: new Date().toISOString() }); }
+    saveOrders(orders);
+    currentOrderLocked = true;
+    await showStunningPopup('Order Sent to Kitchen!', `🔥 Order for ${currentActiveTicket.ticketNumber} is now preparing.`, 'success', 2000);
+    renderKitchenOrders();
+    refreshAll();
+    const updatedQueue  = getQueue();
+    const filteredQueue = updatedQueue.filter(t => t.ticketNumber !== currentActiveTicket?.ticketNumber);
+    saveQueue(filteredQueue);
+    if (filteredQueue.length > 0) {
+      const nextTicket  = filteredQueue[0];
+      nextTicket.called = true;
+      saveQueue([nextTicket, ...filteredQueue.slice(1)]);
+      refreshAll();
+      selectTicket(nextTicket);
+      openPreorderConfirmation(nextTicket);
+      await showStunningPopup('Next Customer Called', `📞 Auto-called: ${nextTicket.ticketNumber}`, 'info', 2500);
+    } else {
+      currentActiveTicket = null; currentCart = []; currentOrderPaid = false; currentOrderLocked = false;
+      refreshAll();
+      await showStunningPopup('Queue Complete', '👋 No more customers. Great work!', 'success', 2500);
+    }
+  }
+
+  function renderKitchenOrders() {
+    const orders    = getOrders();
+    const activeTab = document.querySelector('.order-tab.active')?.dataset.status || "preparing";
+    const filtered  = orders.filter(o => o.kitchenStatus === activeTab);
+    const container = document.getElementById('kitchenOrdersList');
+    if (!filtered.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No orders here</p></div>';
+      return;
+    }
+    container.innerHTML = filtered.map(order => {
+      const borderClass = order.kitchenStatus === 'preparing' ? 'status-preparing' : order.kitchenStatus === 'ready' ? 'status-ready' : 'status-completed';
+      const dotClass    = order.kitchenStatus === 'preparing' ? 'dot-preparing' : 'dot-ready';
+      const itemsPreview = (order.items || []).map(i => `${i.name}${i.quantity > 1 ? ` ×${i.quantity}` : ''}`).join(', ');
+      const readyBtn     = order.kitchenStatus === 'preparing' ? `<button class="mark-ready" data-ticket="${order.ticketNumber}"><i class="fas fa-check"></i> Mark Ready</button>` : '';
+      const collectBtn   = order.kitchenStatus === 'ready'     ? `<button class="mark-collected" data-ticket="${order.ticketNumber}"><i class="fas fa-box"></i> Collected</button>` : '';
+      return `
+        <div class="order-card ${borderClass}">
+          <div class="order-header">
+            <div>
+              <div class="order-ticket-num">${escapeHtml(order.ticketNumber)}</div>
+              <div class="order-meta">
+                <span class="status-dot ${dotClass}"></span>
+                ${(order.items||[]).length} item${(order.items||[]).length !== 1 ? 's' : ''} · ${timeAgo(order.updatedAt || order.createdAt)}
+              </div>
+            </div>
+            <span style="font-weight:800;color:var(--red);font-size:0.95rem;">R${(order.total||0).toFixed(2)}</span>
+          </div>
+          <div class="order-items-preview">${escapeHtml(itemsPreview)}</div>
+          <div class="order-actions">${readyBtn}${collectBtn}</div>
+        </div>`;
+    }).join('');
+    document.querySelectorAll('.mark-ready').forEach(btn => btn.addEventListener('click', () => updateOrderStatus(btn.dataset.ticket, 'ready')));
+    document.querySelectorAll('.mark-collected').forEach(btn => btn.addEventListener('click', () => updateOrderStatus(btn.dataset.ticket, 'completed')));
+  }
+
+  async function updateOrderStatus(ticketNum, status) {
+    let orders = getOrders();
+    const idx  = orders.findIndex(o => o.ticketNumber === ticketNum);
+    if (idx !== -1) {
+      orders[idx].kitchenStatus = status;
+      orders[idx].updatedAt     = new Date().toISOString();
+      saveOrders(orders);
+      if (status === 'completed') {
+        let q = getQueue();
+        q = q.filter(t => t.ticketNumber !== ticketNum);
+        saveQueue(q);
+        await showStunningPopup('Order Collected', `✅ Order ${ticketNum} has been collected!`, 'success', 2000);
+      } else if (status === 'ready') {
+        await showStunningPopup('Order Ready!', `🍽️ Order ${ticketNum} is ready for collection!`, 'success', 2000);
+      }
+      refreshAll();
+    }
+  }
+
+  document.getElementById('globalCallNextBtn').addEventListener('click', callNext);
+  document.getElementById('payCardBtn').addEventListener('click', () => markAsPaid('Card'));
+  document.getElementById('payWalletBtn').addEventListener('click', () => markAsPaid('Wallet'));
+  document.getElementById('sendToKitchenBtn').addEventListener('click', sendToKitchen);
+  document.querySelectorAll('.order-tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderKitchenOrders();
+  }));
+
+  window.addEventListener('storage', () => refreshAll());
+
+  function init() {
+    loadMenuFromStorage();
+    refreshAll();
+    setInterval(refreshAll, 3000);
+    setInterval(() => loadMenuFromStorage(), 2000);
+  }
+  init();
+</script>
+
+</body>
+</html>
