@@ -241,3 +241,17 @@ async function init() {
 init();
 window.toggleTicketFields = toggleTicketFields;
 window.confirmAddEvent = confirmAddEvent;
+async function testSupabase() {
+    const { data, error } = await window.supabaseClient
+        .from('events')
+        .insert([{ name: "iPhone Test Event" }])
+        .select();
+
+    if (error) {
+        alert("❌ ERROR: " + error.message);
+        console.log(error);
+    } else {
+        alert("✅ SUCCESS: Event created");
+        console.log(data);
+    }
+}
