@@ -1792,42 +1792,32 @@
     document.getElementById('shopModalOverlay')?.addEventListener('click', (e) => { if (e.target === document.getElementById('shopModalOverlay')) { hideShopModal(); showMyTicketsModal(); } });
     
     async function init() {
-        // 1. Try Supabase first (shared source of truth with event-manager)
+        // Events come exclusively from Supabase. Local "sold" counts are preserved per device
+        // so the buy flow keeps decrementing remaining tickets between page loads.
         const supabaseEvents = await loadEventsFromSupabase();
-        if (supabaseEvents.length > 0) {
-            // Preserve any local "sold" counters from previous purchases on this device
-            const localStored = localStorage.getItem(EVENTS_KEY);
-            const localEvents = localStored ? JSON.parse(localStored) : [];
-            events = supabaseEvents.map(ev => {
-                const prior = localEvents.find(le => le.id === ev.id);
-                if (prior && prior.ticketTypes) {
-                    for (const k of Object.keys(ev.ticketTypes)) {
-                        if (prior.ticketTypes[k] && typeof prior.ticketTypes[k].sold === 'number') {
-                            ev.ticketTypes[k].sold = prior.ticketTypes[k].sold;
-                        }
+        const localStored = localStorage.getItem(EVENTS_KEY);
+        const localEvents = localStored ? JSON.parse(localStored) : [];
+        events = supabaseEvents.map(ev => {
+            const prior = localEvents.find(le => le.id === ev.id);
+            if (prior && prior.ticketTypes) {
+                for (const k of Object.keys(ev.ticketTypes)) {
+                    if (prior.ticketTypes[k] && typeof prior.ticketTypes[k].sold === 'number') {
+                        ev.ticketTypes[k].sold = prior.ticketTypes[k].sold;
                     }
                 }
-                return ev;
-            });
-            saveEvents();
-            console.log('✅ Loaded', events.length, 'events from Supabase');
-        } else {
-            // 2. Fallback to localStorage
-            loadEvents();
-            // 3. Final fallback: demo event so the page never breaks
-            if (events.length === 0) {
-                const demoEvent = { id: 'evt_demo_001', name: 'Rands 11th Birthday Celebration', date: new Date(Date.now()+86400000).toISOString().split('T')[0], time: '18:00', location: 'Rands Cape Town', status: 'active', ticketTypes: { earlyBird: { price: 250, capacity: 200, sold: 45 }, general: { price: 350, capacity: 500, sold: 120 }, vip: { price: 600, capacity: 100, sold: 30 } } };
-                events = [demoEvent];
-                saveEvents();
             }
-        }
-        selectedEventId = events.find(e => e.status === 'active')?.id || events[0]?.id;
+            return ev;
+        });
+        saveEvents();
+        console.log('Loaded', events.length, 'events from Supabase');
+
+        selectedEventId = events.find(e => e.status === 'active')?.id || events[0]?.id || null;
         setupCartSidebar();
         updateCartUI();
         updateWalletStats();
         document.getElementById('deletePastBtn').addEventListener('click', deletePastEventTickets);
         if (!isShopAccessible()) { setTimeout(() => { showShopBlockedModal(); }, 100); } else { showStore(); }
-        window.addEventListener('storage', (e) => { if(e.key === EVENTS_KEY){ loadEvents(); if(document.getElementById('storePanel').style.display !== 'none') { if (isShopAccessible()) populateEventSelectorStore(); else renderStoreTickets(); } updateWalletStats(); } if(e.key === TICKETS_KEY) updateWalletStats(); });
+        window.addEventListener('storage', (e) => { if(e.key === TICKETS_KEY) updateWalletStats(); });
         if (typeof loadBottomNav === 'function') loadBottomNav();
     }
     init();
