@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -1392,6 +1393,55 @@
     let events = [];
     let selectedEventId = null;
     let cart = [];
+
+    // ===== Supabase: shared connection (matches event-manager.js) =====
+    const SUPABASE_URL = 'https://fqbcidcezfprranfxhyj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxYmNpZGNlemZwcnJhbmZ4aHlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjY0ODgsImV4cCI6MjA5MzIwMjQ4OH0.eGCEE-lA8yLGjU1nFXv_A1RjbWvRbb5Mfm8FMzVRgHI';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Load events from Supabase and map them to the structure the ticket store expects.
+    // Default ticket types (price/capacity) match event-manager.js so the buy flow works.
+    async function loadEventsFromSupabase() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('events')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) {
+                console.error('Supabase load error:', error);
+                return [];
+            }
+            if (!data || data.length === 0) return [];
+            return data.map(supEvent => {
+                const ticketTypes = {
+                    earlyBird: { price: 250, capacity: 200, sold: 0 },
+                    general:   { price: 350, capacity: 400, sold: 0 },
+                    vip:       { price: 550, capacity: 80,  sold: 0 }
+                };
+                if (supEvent.description) {
+                    const ebMatch = supEvent.description.match(/EarlyBird:\s*R(\d+)/i);
+                    const gnMatch = supEvent.description.match(/General:\s*R(\d+)/i);
+                    const vipMatch = supEvent.description.match(/VIP:\s*R(\d+)/i);
+                    if (ebMatch) ticketTypes.earlyBird.price = parseInt(ebMatch[1]);
+                    if (gnMatch) ticketTypes.general.price = parseInt(gnMatch[1]);
+                    if (vipMatch) ticketTypes.vip.price = parseInt(vipMatch[1]);
+                }
+                return {
+                    id: supEvent.id,
+                    name: supEvent.name,
+                    date: supEvent.start_time
+                        ? supEvent.start_time.split('T')[0]
+                        : new Date().toISOString().split('T')[0],
+                    location: supEvent.location || 'Rands Cape Town',
+                    status: 'active',
+                    ticketTypes
+                };
+            });
+        } catch (err) {
+            console.error('Failed to load from Supabase:', err);
+            return [];
+        }
+    }
     
     // Get current user name from localStorage - use name, not number
     let currentUserName = localStorage.getItem('rands_current_user_name') || localStorage.getItem('rands_current_user') || 'Thabo';
@@ -1741,12 +1791,35 @@
     document.getElementById('modalCloseBtn')?.addEventListener('click', () => { hideShopModal(); showMyTicketsModal(); });
     document.getElementById('shopModalOverlay')?.addEventListener('click', (e) => { if (e.target === document.getElementById('shopModalOverlay')) { hideShopModal(); showMyTicketsModal(); } });
     
-    function init() {
-        loadEvents();
-        if (events.length === 0) {
-            const demoEvent = { id: 'evt_demo_001', name: 'Rands 11th Birthday Celebration', date: new Date(Date.now()+86400000).toISOString().split('T')[0], time: '18:00', location: 'Rands Cape Town', status: 'active', ticketTypes: { earlyBird: { price: 250, capacity: 200, sold: 45 }, general: { price: 350, capacity: 500, sold: 120 }, vip: { price: 600, capacity: 100, sold: 30 } } };
-            events = [demoEvent];
+    async function init() {
+        // 1. Try Supabase first (shared source of truth with event-manager)
+        const supabaseEvents = await loadEventsFromSupabase();
+        if (supabaseEvents.length > 0) {
+            // Preserve any local "sold" counters from previous purchases on this device
+            const localStored = localStorage.getItem(EVENTS_KEY);
+            const localEvents = localStored ? JSON.parse(localStored) : [];
+            events = supabaseEvents.map(ev => {
+                const prior = localEvents.find(le => le.id === ev.id);
+                if (prior && prior.ticketTypes) {
+                    for (const k of Object.keys(ev.ticketTypes)) {
+                        if (prior.ticketTypes[k] && typeof prior.ticketTypes[k].sold === 'number') {
+                            ev.ticketTypes[k].sold = prior.ticketTypes[k].sold;
+                        }
+                    }
+                }
+                return ev;
+            });
             saveEvents();
+            console.log('✅ Loaded', events.length, 'events from Supabase');
+        } else {
+            // 2. Fallback to localStorage
+            loadEvents();
+            // 3. Final fallback: demo event so the page never breaks
+            if (events.length === 0) {
+                const demoEvent = { id: 'evt_demo_001', name: 'Rands 11th Birthday Celebration', date: new Date(Date.now()+86400000).toISOString().split('T')[0], time: '18:00', location: 'Rands Cape Town', status: 'active', ticketTypes: { earlyBird: { price: 250, capacity: 200, sold: 45 }, general: { price: 350, capacity: 500, sold: 120 }, vip: { price: 600, capacity: 100, sold: 30 } } };
+                events = [demoEvent];
+                saveEvents();
+            }
         }
         selectedEventId = events.find(e => e.status === 'active')?.id || events[0]?.id;
         setupCartSidebar();
