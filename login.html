@@ -624,11 +624,11 @@ to   { opacity: 1; transform: translateY(0); }
       });
     }
     
+    // MODIFIED: Redirect to register.html without demo message
     if (registerLink) {
       registerLink.addEventListener('click', (e) => {
         e.preventDefault();
-        setAuthMessage('🎟️ Head to registration — demo mode, redirect would happen here.', true);
-        setTimeout(() => hideAuthMessage(), 2500);
+        window.location.href = 'register.html';
       });
     }
     
