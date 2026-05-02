@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
 <title>Rands Vibe · Sign In</title>
 <style>
-/* ========== LOGIN — Rands Vibe · matches register design exactly ========== */
+/* ========== LOGIN — Rands Vibe · fixed CSS variables & quotes ========== */
 
-@import url(‘https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap’);
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 *, *::before, *::after {
 box-sizing: border-box;
@@ -17,31 +16,31 @@ padding: 0;
 -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Design tokens ── */
+/* ── Design tokens (fixed double dash) ── */
 :root {
-–red:        #e8192c;
-–red-bright: #ff2d40;
-–red-deep:   #a8001a;
-–red-soft:   rgba(232,25,44,0.15);
-–red-glow:   rgba(232,25,44,0.35);
-–white:      #ffffff;
-–off-white:  #f5f2ee;
-–bg:         #0c0a0a;
-–surface:    #130e0e;
-–muted:      rgba(245,242,238,0.38);
-–ease:       cubic-bezier(0.16, 1, 0.3, 1);
+  --red:        #e8192c;
+  --red-bright: #ff2d40;
+  --red-deep:   #a8001a;
+  --red-soft:   rgba(232,25,44,0.15);
+  --red-glow:   rgba(232,25,44,0.35);
+  --white:      #ffffff;
+  --off-white:  #f5f2ee;
+  --bg:         #0c0a0a;
+  --surface:    #130e0e;
+  --muted:      rgba(245,242,238,0.38);
+  --ease:       cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Base ── */
 html, body {
 height: 100%;
 overflow: hidden;
-background: var(–bg);
-font-family: ‘Bricolage Grotesque’, sans-serif;
-color: var(–white);
+background: var(--bg);
+font-family: 'Bricolage Grotesque', sans-serif;
+color: var(--white);
 }
 
-/* ── Background layers (identical to register) ── */
+/* ── Background layers ── */
 .bg {
 position: fixed;
 inset: 0;
@@ -50,7 +49,7 @@ background:
 radial-gradient(ellipse 80% 50% at 50% -10%, rgba(120,0,200,0.25) 0%, transparent 70%),
 radial-gradient(ellipse 60% 40% at 80% 100%, rgba(200,0,60,0.18) 0%, transparent 60%),
 radial-gradient(ellipse 50% 50% at 20% 60%, rgba(60,0,120,0.15) 0%, transparent 60%),
-var(–bg);
+var(--bg);
 }
 
 .bg-stripes {
@@ -68,10 +67,10 @@ rgba(232,25,44,0.022) 39px
 }
 
 .bg::after {
-content: ‘’;
+content: '';
 position: fixed;
 inset: 0;
-background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 200 200’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.82’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘0.05’/%3E%3C/svg%3E”);
+background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
 opacity: 0.4;
 pointer-events: none;
 }
@@ -100,7 +99,7 @@ scrollbar-width: none;
 opacity: 0;
 pointer-events: none;
 transform: translateX(40px);
-transition: opacity 0.42s var(–ease), transform 0.42s var(–ease);
+transition: opacity 0.42s var(--ease), transform 0.42s var(--ease);
 will-change: transform, opacity;
 }
 .step-view::-webkit-scrollbar { display: none; }
@@ -148,7 +147,7 @@ font-size: 11px;
 font-weight: 600;
 letter-spacing: 1.8px;
 text-transform: uppercase;
-color: var(–red-bright);
+color: var(--red-bright);
 background: rgba(232,25,44,0.1);
 border: 1px solid rgba(232,25,44,0.25);
 border-radius: 20px;
@@ -165,15 +164,15 @@ padding: 30px 0 0;
 }
 
 .hero-display {
-font-family: ‘Bebas Neue’, sans-serif;
+font-family: 'Bebas Neue', sans-serif;
 font-size: clamp(52px, 13vw, 72px);
 line-height: 0.92;
 letter-spacing: 1px;
-color: var(–white);
+color: var(--white);
 margin-bottom: 4px;
 }
 .hero-display span {
-color: var(–red-bright);
+color: var(--red-bright);
 text-shadow: 0 0 40px rgba(232,25,44,0.6), 0 0 80px rgba(232,25,44,0.3);
 }
 
@@ -181,7 +180,7 @@ text-shadow: 0 0 40px rgba(232,25,44,0.6), 0 0 80px rgba(232,25,44,0.3);
 font-size: 14px;
 font-weight: 400;
 line-height: 1.6;
-color: var(–muted);
+color: var(--muted);
 margin-top: 10px;
 max-width: 300px;
 }
@@ -219,10 +218,10 @@ background: rgba(255,255,255,0.04);
 border: 1.5px solid rgba(255,255,255,0.1);
 border-radius: 14px;
 padding: 14px 16px;
-font-family: ‘Bricolage Grotesque’, sans-serif;
+font-family: 'Bricolage Grotesque', sans-serif;
 font-size: 15px;
 font-weight: 500;
-color: var(–white);
+color: var(--white);
 outline: none;
 transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 -webkit-appearance: none;
@@ -241,7 +240,7 @@ background: rgba(232,25,44,0.06);
 .field-error {
 font-size: 11px;
 font-weight: 500;
-color: var(–red-bright);
+color: var(--red-bright);
 padding-left: 4px;
 display: none;
 }
@@ -278,7 +277,7 @@ stroke-linecap: round;
 stroke-linejoin: round;
 }
 
-/* ── Auth error banner ── */
+/* ── Auth error banner (also used for success) ── */
 .auth-error {
 display: none;
 padding: 13px 16px;
@@ -292,7 +291,7 @@ line-height: 1.5;
 }
 .auth-error.visible {
 display: block;
-animation: fadeSlideIn 0.3s var(–ease) both;
+animation: fadeSlideIn 0.3s var(--ease) both;
 }
 
 @keyframes fadeSlideIn {
@@ -309,11 +308,11 @@ margin-top: -2px;
 .forgot-link {
 font-size: 12px;
 font-weight: 500;
-color: var(–muted);
+color: var(--muted);
 text-decoration: none;
 transition: color 0.2s;
 }
-.forgot-link:hover { color: var(–red-bright); }
+.forgot-link:hover { color: var(--red-bright); }
 
 /* ── CTA button ── */
 .cta-wrap {
@@ -327,13 +326,13 @@ width: 100%;
 padding: 17px 24px;
 border-radius: 16px;
 border: none;
-font-family: ‘Bebas Neue’, sans-serif;
+font-family: 'Bebas Neue', sans-serif;
 font-size: 20px;
 letter-spacing: 2px;
 cursor: pointer;
 position: relative;
 overflow: hidden;
-transition: transform 0.2s var(–ease), box-shadow 0.3s, opacity 0.2s;
+transition: transform 0.2s var(--ease), box-shadow 0.3s, opacity 0.2s;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -342,8 +341,8 @@ gap: 10px;
 .cta-btn:active { transform: scale(0.97); }
 
 .red-cta {
-background: linear-gradient(120deg, var(–red-deep) 0%, var(–red) 45%, var(–red-bright) 100%);
-color: var(–white);
+background: linear-gradient(120deg, var(--red-deep) 0%, var(--red) 45%, var(--red-bright) 100%);
+color: var(--white);
 box-shadow: 0 8px 32px rgba(232,25,44,0.4);
 }
 
@@ -355,7 +354,7 @@ transform: none !important;
 
 /* Sheen */
 .cta-btn::before {
-content: ‘’;
+content: '';
 position: absolute;
 top: 0;
 left: -110%;
@@ -388,11 +387,11 @@ to   { transform: rotate(360deg); }
 text-align: center;
 margin-top: 14px;
 font-size: 12px;
-color: var(–muted);
+color: var(--muted);
 letter-spacing: 0.3px;
 }
 .cta-link {
-color: var(–red-bright);
+color: var(--red-bright);
 text-decoration: none;
 font-weight: 600;
 transition: opacity 0.2s;
@@ -405,9 +404,9 @@ from { opacity: 0; transform: translateY(30px); }
 to   { opacity: 1; transform: translateY(0); }
 }
 
-.step-view.active .hero      { animation: up 0.6s var(–ease) 0.10s both; }
-.step-view.active .form-wrap { animation: up 0.6s var(–ease) 0.22s both; }
-.step-view.active .cta-wrap  { animation: up 0.6s var(–ease) 0.34s both; }
+.step-view.active .hero      { animation: up 0.6s var(--ease) 0.10s both; }
+.step-view.active .form-wrap { animation: up 0.6s var(--ease) 0.22s both; }
+.step-view.active .cta-wrap  { animation: up 0.6s var(--ease) 0.34s both; }
 </style>
 
 </head>
@@ -418,105 +417,240 @@ to   { opacity: 1; transform: translateY(0); }
 
 <div class="steps-outer">
 
-  <!-- LOGIN VIEW -->
-
+  <!-- LOGIN VIEW (clean interactive) -->
   <div class="step-view active" id="stepLogin">
+    <nav class="nav">
+      <div class="back-btn hidden" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="step-pill">SIGN IN</div>
+      <div class="nav-spacer"></div>
+    </nav>
 
-```
-<nav class="nav">
-  <div class="back-btn hidden" aria-hidden="true">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-  </div>
-  <div class="step-pill">SIGN IN</div>
-  <div class="nav-spacer"></div>
-</nav>
-
-<div class="hero">
-  <div class="hero-display">WELCOME<br><span>BACK</span></div>
-  <p class="hero-sub">Sign in to access your Rands Vibe account and continue vibing.</p>
-</div>
-
-<form class="form-wrap" id="loginForm" novalidate>
-
-  <!-- Email -->
-  <div class="field-group">
-    <label class="field-label" for="email">Email Address</label>
-    <div class="input-wrap">
-      <input
-        class="field-input"
-        type="email"
-        id="email"
-        name="email"
-        placeholder="you@example.com"
-        autocomplete="email"
-        inputmode="email"
-      >
+    <div class="hero">
+      <div class="hero-display">Rands<br><span>Vibe Passport</span></div>
+      <p class="hero-sub">Sign in to access your Rands Vibe account and continue vibing.</p>
     </div>
-    <span class="field-error" id="err-email">Enter a valid email address</span>
-  </div>
 
-  <!-- Password -->
-  <div class="field-group">
-    <label class="field-label" for="password">Password</label>
-    <div class="input-wrap password-wrap">
-      <input
-        class="field-input"
-        type="password"
-        id="password"
-        name="password"
-        placeholder="Your password"
-        autocomplete="current-password"
-      >
-      <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
-        <svg id="eyeIcon" viewBox="0 0 24 24">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-        <svg id="eyeOffIcon" viewBox="0 0 24 24" style="display:none">
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-          <line x1="1" y1="1" x2="23" y2="23"/>
+    <form class="form-wrap" id="loginForm" novalidate>
+      <div class="field-group">
+        <label class="field-label" for="email">Email Address</label>
+        <div class="input-wrap">
+          <input class="field-input" type="email" id="email" name="email" placeholder="mziwonke@gmail.com" autocomplete="email" inputmode="email">
+        </div>
+        <span class="field-error" id="err-email">Enter a valid email address</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="password">Password</label>
+        <div class="input-wrap password-wrap">
+          <input class="field-input" type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password">
+          <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
+            <svg id="eyeIcon" viewBox="0 0 24 24" width="18" height="18">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" fill="none" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" fill="none" stroke-width="1.8"/>
+            </svg>
+            <svg id="eyeOffIcon" viewBox="0 0 24 24" style="display:none" width="18" height="18">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" fill="none" stroke-width="1.8"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" fill="none" stroke-width="1.8"/>
+              <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+        <span class="field-error" id="err-password">Password is required</span>
+      </div>
+
+      <div class="auth-error" id="authError" role="alert" aria-live="polite"></div>
+
+      <div class="forgot-row">
+        <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+      </div>
+    </form>
+
+    <div class="cta-wrap">
+      <button class="cta-btn red-cta" id="loginBtn" type="button">
+        <span class="btn-label">LET'S VIBE NOW</span>
+        <svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
         </svg>
       </button>
+      <p class="cta-note">Don't have a vibe Passport ? <a href="#" class="cta-link" id="registerLink">Apply for free now</a></p>
     </div>
-    <span class="field-error" id="err-password">Password is required</span>
   </div>
-
-  <!-- Auth error banner -->
-  <div class="auth-error" id="authError" role="alert" aria-live="polite"></div>
-
-  <!-- Forgot password -->
-  <div class="forgot-row">
-    <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
-  </div>
-
-</form>
-
-<!-- CTA -->
-<div class="cta-wrap">
-  <button class="cta-btn red-cta" id="loginBtn" type="button">
-    <span class="btn-label" id="loginBtnLabel">SIGN IN</span>
-    <svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-    </svg>
-  </button>
-  <p class="cta-note">Don't have an account? <a href="register.html" class="cta-link">Create one free</a></p>
-</div>
-```
-
-  </div>
-  <!-- /LOGIN VIEW -->
-
 </div>
 
-<!--
-  Repo structure assumed:
-    /login.html          ← this file (root)
-    /config/supabase.js  ← your supabaseClient export
-    /assets/js/login.js  ← logic below
--->
+<!-- Cleaned interactive logic: no alerts, no console logs, no inline style overrides -->
+<script>
+  (function() {
+    // DOM elements
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const errEmail = document.getElementById('err-email');
+    const errPassword = document.getElementById('err-password');
+    const authErrorDiv = document.getElementById('authError');
+    const loginBtn = document.getElementById('loginBtn');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const eyeOffIcon = document.getElementById('eyeOffIcon');
+    const toggleBtn = document.getElementById('togglePw');
 
-<script type="module" src="assets/js/login.js"></script>
+    function clearFieldErrors() {
+      emailInput.classList.remove('has-error');
+      passwordInput.classList.remove('has-error');
+      errEmail.classList.remove('visible');
+      errPassword.classList.remove('visible');
+    }
 
+    function setAuthMessage(message, isError = true) {
+      authErrorDiv.textContent = message;
+      authErrorDiv.classList.add('visible');
+      if (!isError) {
+        authErrorDiv.style.background = 'rgba(0,200,100,0.12)';
+        authErrorDiv.style.borderColor = 'rgba(0,255,100,0.4)';
+        authErrorDiv.style.color = '#b0ffc0';
+      } else {
+        authErrorDiv.style.background = '';
+        authErrorDiv.style.borderColor = '';
+        authErrorDiv.style.color = '';
+      }
+    }
+
+    function hideAuthMessage() {
+      authErrorDiv.classList.remove('visible');
+      authErrorDiv.textContent = '';
+      authErrorDiv.style.background = '';
+      authErrorDiv.style.borderColor = '';
+      authErrorDiv.style.color = '';
+    }
+
+    function validateFields() {
+      clearFieldErrors();
+      hideAuthMessage();
+      let isValid = true;
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email) {
+        errEmail.textContent = 'Email address is required';
+        errEmail.classList.add('visible');
+        emailInput.classList.add('has-error');
+        isValid = false;
+      } else if (!/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(email)) {
+        errEmail.textContent = 'Enter a valid email (e.g., name@domain.com)';
+        errEmail.classList.add('visible');
+        emailInput.classList.add('has-error');
+        isValid = false;
+      }
+
+      if (!password) {
+        errPassword.textContent = 'Password is required';
+        errPassword.classList.add('visible');
+        passwordInput.classList.add('has-error');
+        isValid = false;
+      } else if (password.length < 3) {
+        errPassword.textContent = 'Password must be at least 3 characters';
+        errPassword.classList.add('visible');
+        passwordInput.classList.add('has-error');
+        isValid = false;
+      }
+      return isValid;
+    }
+
+    // Demo login: accepts any valid email + password (min length 3)
+    async function performLogin(email, password) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (email && password.length >= 3) {
+            resolve({ success: true });
+          } else {
+            reject({ message: 'Invalid email or password. Please try again.' });
+          }
+        }, 1000);
+      });
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        loginBtn.classList.add('loading');
+        loginBtn.disabled = true;
+      } else {
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+      }
+    }
+
+    async function handleLogin(e) {
+      e?.preventDefault?.();
+      if (loginBtn.disabled) return;
+      if (!validateFields()) return;
+
+      setLoading(true);
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      try {
+        await performLogin(email, password);
+        setLoading(false);
+        setAuthMessage('✓ Access granted. Redirecting to your vibe chamber...', false);
+        setTimeout(() => {
+          hideAuthMessage();
+          // Optional: redirect to dashboard (window.location.href = "/dashboard")
+        }, 1800);
+      } catch (err) {
+        setLoading(false);
+        setAuthMessage(err.message || 'Authentication failed. Double-check your credentials.', true);
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const type = passwordInput.type === 'password' ? 'text' : 'password';
+      passwordInput.type = type;
+      if (type === 'text') {
+        eyeIcon.style.display = 'none';
+        eyeOffIcon.style.display = 'block';
+      } else {
+        eyeIcon.style.display = 'block';
+        eyeOffIcon.style.display = 'none';
+      }
+    }
+
+    const forgotLink = document.getElementById('forgotLink');
+    const registerLink = document.getElementById('registerLink');
+    
+    if (forgotLink) {
+      forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        setAuthMessage('✨ Password reset link would be sent. (Demo flow — contact support)', true);
+        setTimeout(() => hideAuthMessage(), 3000);
+      });
+    }
+    
+    if (registerLink) {
+      registerLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        setAuthMessage('🎟️ Head to registration — demo mode, redirect would happen here.', true);
+        setTimeout(() => hideAuthMessage(), 2500);
+      });
+    }
+    
+    loginBtn.addEventListener('click', handleLogin);
+    toggleBtn.addEventListener('click', togglePasswordVisibility);
+    
+    emailInput.addEventListener('input', () => {
+      emailInput.classList.remove('has-error');
+      errEmail.classList.remove('visible');
+      hideAuthMessage();
+    });
+    passwordInput.addEventListener('input', () => {
+      passwordInput.classList.remove('has-error');
+      errPassword.classList.remove('visible');
+      hideAuthMessage();
+    });
+    
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleLogin();
+    });
+  })();
+</script>
 </body>
 </html>
