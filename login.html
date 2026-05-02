@@ -16,7 +16,7 @@ padding: 0;
 -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Design tokens (fixed double dash) ── */
+/* ── Design tokens ── */
 :root {
   --red:        #e8192c;
   --red-bright: #ff2d40;
@@ -417,7 +417,7 @@ to   { opacity: 1; transform: translateY(0); }
 
 <div class="steps-outer">
 
-  <!-- LOGIN VIEW (clean interactive) -->
+  <!-- LOGIN VIEW -->
   <div class="step-view active" id="stepLogin">
     <nav class="nav">
       <div class="back-btn hidden" aria-hidden="true">
@@ -469,7 +469,7 @@ to   { opacity: 1; transform: translateY(0); }
 
     <div class="cta-wrap">
       <button class="cta-btn red-cta" id="loginBtn" type="button">
-        <span class="btn-label">LET'S VIBE NOW</span>
+        <span class="btn-label" id="loginBtnLabel">SIGN IN</span>
         <svg class="btn-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
         </svg>
@@ -479,178 +479,8 @@ to   { opacity: 1; transform: translateY(0); }
   </div>
 </div>
 
-<!-- Cleaned interactive logic: no alerts, no console logs, no inline style overrides -->
-<script>
-  (function() {
-    // DOM elements
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const errEmail = document.getElementById('err-email');
-    const errPassword = document.getElementById('err-password');
-    const authErrorDiv = document.getElementById('authError');
-    const loginBtn = document.getElementById('loginBtn');
-    const eyeIcon = document.getElementById('eyeIcon');
-    const eyeOffIcon = document.getElementById('eyeOffIcon');
-    const toggleBtn = document.getElementById('togglePw');
+<!-- Load external login module (no inline script) -->
+<script type="module" src="assets/js/login.js"></script>
 
-    function clearFieldErrors() {
-      emailInput.classList.remove('has-error');
-      passwordInput.classList.remove('has-error');
-      errEmail.classList.remove('visible');
-      errPassword.classList.remove('visible');
-    }
-
-    function setAuthMessage(message, isError = true) {
-      authErrorDiv.textContent = message;
-      authErrorDiv.classList.add('visible');
-      if (!isError) {
-        authErrorDiv.style.background = 'rgba(0,200,100,0.12)';
-        authErrorDiv.style.borderColor = 'rgba(0,255,100,0.4)';
-        authErrorDiv.style.color = '#b0ffc0';
-      } else {
-        authErrorDiv.style.background = '';
-        authErrorDiv.style.borderColor = '';
-        authErrorDiv.style.color = '';
-      }
-    }
-
-    function hideAuthMessage() {
-      authErrorDiv.classList.remove('visible');
-      authErrorDiv.textContent = '';
-      authErrorDiv.style.background = '';
-      authErrorDiv.style.borderColor = '';
-      authErrorDiv.style.color = '';
-    }
-
-    function validateFields() {
-      clearFieldErrors();
-      hideAuthMessage();
-      let isValid = true;
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      if (!email) {
-        errEmail.textContent = 'Email address is required';
-        errEmail.classList.add('visible');
-        emailInput.classList.add('has-error');
-        isValid = false;
-      } else if (!/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(email)) {
-        errEmail.textContent = 'Enter a valid email (e.g., name@domain.com)';
-        errEmail.classList.add('visible');
-        emailInput.classList.add('has-error');
-        isValid = false;
-      }
-
-      if (!password) {
-        errPassword.textContent = 'Password is required';
-        errPassword.classList.add('visible');
-        passwordInput.classList.add('has-error');
-        isValid = false;
-      } else if (password.length < 3) {
-        errPassword.textContent = 'Password must be at least 3 characters';
-        errPassword.classList.add('visible');
-        passwordInput.classList.add('has-error');
-        isValid = false;
-      }
-      return isValid;
-    }
-
-    // Demo login: accepts any valid email + password (min length 3)
-    async function performLogin(email, password) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (email && password.length >= 3) {
-            resolve({ success: true });
-          } else {
-            reject({ message: 'Invalid email or password. Please try again.' });
-          }
-        }, 1000);
-      });
-    }
-
-    function setLoading(isLoading) {
-      if (isLoading) {
-        loginBtn.classList.add('loading');
-        loginBtn.disabled = true;
-      } else {
-        loginBtn.classList.remove('loading');
-        loginBtn.disabled = false;
-      }
-    }
-
-    async function handleLogin(e) {
-      e?.preventDefault?.();
-      if (loginBtn.disabled) return;
-      if (!validateFields()) return;
-
-      setLoading(true);
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      try {
-        await performLogin(email, password);
-        setLoading(false);
-        setAuthMessage('✓ Access granted. Redirecting to your vibe chamber...', false);
-        setTimeout(() => {
-          hideAuthMessage();
-          // Optional: redirect to dashboard (window.location.href = "/dashboard")
-        }, 1800);
-      } catch (err) {
-        setLoading(false);
-        setAuthMessage(err.message || 'Authentication failed. Double-check your credentials.', true);
-      }
-    }
-
-    function togglePasswordVisibility() {
-      const type = passwordInput.type === 'password' ? 'text' : 'password';
-      passwordInput.type = type;
-      if (type === 'text') {
-        eyeIcon.style.display = 'none';
-        eyeOffIcon.style.display = 'block';
-      } else {
-        eyeIcon.style.display = 'block';
-        eyeOffIcon.style.display = 'none';
-      }
-    }
-
-    const forgotLink = document.getElementById('forgotLink');
-    const registerLink = document.getElementById('registerLink');
-    
-    if (forgotLink) {
-      forgotLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        setAuthMessage('✨ Password reset link would be sent. (Demo flow — contact support)', true);
-        setTimeout(() => hideAuthMessage(), 3000);
-      });
-    }
-    
-    // MODIFIED: Redirect to register.html without demo message
-    if (registerLink) {
-      registerLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'register.html';
-      });
-    }
-    
-    loginBtn.addEventListener('click', handleLogin);
-    toggleBtn.addEventListener('click', togglePasswordVisibility);
-    
-    emailInput.addEventListener('input', () => {
-      emailInput.classList.remove('has-error');
-      errEmail.classList.remove('visible');
-      hideAuthMessage();
-    });
-    passwordInput.addEventListener('input', () => {
-      passwordInput.classList.remove('has-error');
-      errPassword.classList.remove('visible');
-      hideAuthMessage();
-    });
-    
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      handleLogin();
-    });
-  })();
-</script>
 </body>
 </html>
