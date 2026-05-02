@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Vibe Passport | Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:       #D42B2B;
+      --red-dark:  #A81E1E;
+      --red-light: #F9DADA;
+      --white:     #FFFFFF;
+      --off-white: #FDF5F5;
+      --g100:      #F5F5F5;
+      --g300:      #D4D4D4;
+      --g500:      #8A8A8A;
+      --g700:      #444444;
+      --black:     #1A1A1A;
+      --rsm:       10px;
+      --rmd:       18px;
+      --rlg:       28px;
+      --shadow:    0 20px 60px rgba(212,43,43,0.18), 0 4px 16px rgba(0,0,0,0.10);
+      --sbtn:      0 4px 18px rgba(212,43,43,0.35);
+      --fd:        'Bebas Neue', sans-serif;
+      --fb:        'Nunito', sans-serif;
+      --tr:        0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── FIX 1: body must NOT have overflow:hidden — pin pad needs scroll on short screens */
+    html {
+      height: 100%;
+      font-family: var(--fb);
+    }
+    body {
+      min-height: 100%;
+      min-height: 100dvh;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 10%, rgba(212,43,43,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 85% 90%, rgba(212,43,43,0.09) 0%, transparent 70%),
+        linear-gradient(145deg, #fff5f5 0%, #fdf0f0 40%, #fff 100%);
+      background-attachment: fixed;
+    }
+
+    .scene {
+      min-height: 100dvh;
+      display: flex;
+      align-items: flex-start;   /* ── FIX 2: flex-start, not center — card must not get clipped */
+      justify-content: center;
+      padding: 20px 16px 48px;
+    }
+
+    /* ── FIX 3: card overflow must be visible — overflow:hidden was swallowing buttons */
+    .card {
+      background: var(--white);
+      border-radius: var(--rlg);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 400px;
+      overflow: visible;
+      animation: slideUp .5s cubic-bezier(.22,1,.36,1) both;
+      border: 1px solid rgba(212,43,43,0.07);
+    }
+
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(36px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* ── HEADER: keep its own border-radius + overflow for the red background */
+    .card-header {
+      background: linear-gradient(145deg, var(--red) 0%, var(--red-dark) 100%);
+      padding: 26px 24px 22px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--rlg) var(--rlg) 0 0;
+    }
+
+    .card-header::before {
+      content:''; position:absolute; inset:0;
+      background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.13) 0%, transparent 60%);
+      pointer-events:none;
+    }
+    .card-header::after {
+      content:''; position:absolute; inset:0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events:none;
+    }
+
+    /* ── LOGO — touch events handled in JS via touchstart/touchend */
+    .logo-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      /* ── FIX 4: touch-action:none stops the browser eating touch events for scroll */
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .logo-ring {
+      width: 78px; height: 78px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      backdrop-filter: blur(4px);
+      transition: transform var(--tr);
+      pointer-events: none; /* clicks handled on logo-wrap */
+    }
+
+    .logo-ring.pressed { transform: scale(0.88); }
+
+    .logo-ring img {
+      width: 50px; height: 50px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      pointer-events: none;
+    }
+
+    .logo-fallback {
+      font-size: 30px;
+      color: var(--white);
+      display: none;
+      pointer-events: none;
+    }
+
+    .tap-ripple {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .tap-ripple span {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.6);
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    .logo-ring.tapped .tap-ripple span {
+      animation: ripple .45s ease-out forwards;
+    }
+    @keyframes ripple { to { opacity:0; transform:scale(1.6); } }
+
+    .tap-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      background: var(--white);
+      color: var(--red);
+      font-size: 10px;
+      font-weight: 900;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity .2s, transform .2s;
+      z-index: 2;
+    }
+    .tap-badge.visible { opacity:1; transform:scale(1); }
+
+    .brand-name {
+      font-family: var(--fd);
+      font-size: 1.9rem;
+      letter-spacing: 2px;
+      color: var(--white);
+      line-height: 1;
+      position: relative; z-index: 1;
+    }
+    .brand-tagline {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-top: 4px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── BODY */
+    .card-body { padding: 22px 20px 18px; }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .field-group { margin-bottom: 12px; }
+
+    .field-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--g500);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--g100);
+      border: 2px solid transparent;
+      border-radius: var(--rsm);
+      transition: border-color var(--tr), background var(--tr);
+    }
+    .input-wrap:focus-within {
+      border-color: var(--red);
+      background: var(--white);
+    }
+    .input-wrap .fi {
+      padding: 0 8px 0 12px;
+      color: var(--g500);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .input-wrap:focus-within .fi { color: var(--red); }
+
+    .phone-prefix {
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--g700);
+      padding-right: 8px;
+      border-right: 2px solid var(--g300);
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .input-field {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 13px 12px 13px 0;
+      font-family: var(--fb);
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: var(--black);
+      outline: none;
+    }
+    .input-field::placeholder { color: var(--g300); font-weight: 500; }
+
+    .select-field {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 13px 12px 13px 0;
+      font-family: var(--fb);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--black);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+    }
+
+    .pw-toggle {
+      padding: 0 12px;
+      color: var(--g500);
+      cursor: pointer;
+      font-size: 13px;
+      transition: color var(--tr);
+    }
+    .pw-toggle:hover { color: var(--red); }
+
+    /* ── PIN DISPLAY */
+    .pin-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--g500);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .pin-display {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .pin-dot {
+      width: 17px; height: 17px;
+      border-radius: 50%;
+      border: 2.5px solid var(--g300);
+      background: transparent;
+      transition: background var(--tr), border-color var(--tr), transform .15s;
+    }
+    .pin-dot.filled {
+      background: var(--red);
+      border-color: var(--red);
+      transform: scale(1.2);
+    }
+    .pin-dot.error {
+      background: #E53E3E;
+      border-color: #E53E3E;
+      animation: shake .4s ease;
+    }
+    @keyframes shake {
+      0%,100% { transform:translateX(0); }
+      25%      { transform:translateX(-5px); }
+      75%      { transform:translateX(5px); }
+    }
+
+    /* ── FIX 5: PIN PAD — touch-action:manipulation removes 300ms delay on mobile */
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+
+    .pin-key {
+      min-height: 54px;
+      background: var(--g100);
+      border: 2px solid transparent;
+      border-radius: var(--rsm);
+      font-family: var(--fd);
+      font-size: 1.45rem;
+      color: var(--black);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      /* ── FIX 6: THE most critical fix — removes 300ms tap delay on iOS/Android */
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: background var(--tr), color var(--tr), transform .1s, border-color var(--tr);
+      position: relative;
+      overflow: hidden;
+      /* ── FIX 7: prevent text selection on rapid taps */
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* ── FIX 8: use :active for immediate visual feedback — no JS needed for highlight */
+    .pin-key:active {
+      background: var(--red-light);
+      color: var(--red);
+      border-color: var(--red);
+      transform: scale(0.91);
+    }
+
+    .pin-key.zero { grid-column: 1; }
+    .pin-key.del  { grid-column: 3; font-size: 1.1rem; color: var(--g500); }
+    .pin-key.del:active { color: var(--red); }
+
+    /* ── BUTTONS */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: var(--rmd);
+      font-family: var(--fb);
+      font-size: 0.93rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform var(--tr), box-shadow var(--tr);
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-red {
+      background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+      color: var(--white);
+      box-shadow: var(--sbtn);
+      margin-top: 8px;
+    }
+    .btn-red:hover { box-shadow: 0 6px 24px rgba(212,43,43,0.45); }
+
+    .btn-outline {
+      background: var(--white);
+      color: var(--red);
+      border: 2px solid var(--red);
+      margin-top: 10px;
+    }
+    .btn-outline:hover { background: var(--red-light); }
+
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 14px 0 0;
+      color: var(--g500);
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+    .divider::before, .divider::after {
+      content:''; flex:1; height:1px; background:var(--g300);
+    }
+
+    .error-msg {
+      color: var(--red);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 6px 0 2px;
+      display: none;
+    }
+    .lock-timer {
+      background: var(--red-light);
+      color: var(--red-dark);
+      border-left: 3px solid var(--red);
+      border-radius: var(--rsm);
+      padding: 9px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 6px 0;
+      display: none;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 24px 16px;
+      border-top: 1px solid var(--g100);
+      border-radius: 0 0 var(--rlg) var(--rlg);
+      background: var(--off-white);
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22C55E;
+      animation: pdot 2s ease-in-out infinite;
+    }
+    @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .powered-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--g500);
+    }
+
+    /* ── MODAL BACKDROP */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── ADMIN MODAL — scrollable so staff 8-key pad fits on small phones */
+    .admin-modal {
+      background: var(--white);
+      border-radius: var(--rlg) var(--rlg) 0 0;
+      width: 100%;
+      max-width: 480px;
+      max-height: 92dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), 24px);
+      transform: translateY(100%);
+      transition: transform .4s cubic-bezier(.22,1,.36,1);
+    }
+    .modal-backdrop.open .admin-modal { transform: translateY(0); }
+
+    .admin-modal-header {
+      padding: 12px 18px 12px;
+      position: sticky; top: 0;
+      background: var(--white);
+      z-index: 2;
+      border-bottom: 1px solid var(--g100);
+    }
+
+    .modal-handle {
+      width: 38px; height: 4px;
+      background: var(--g300);
+      border-radius: 99px;
+      margin: 0 auto 10px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: var(--g100);
+      border: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--g700);
+      cursor: pointer;
+      font-size: 13px;
+      touch-action: manipulation;
+      transition: background var(--tr), color var(--tr);
+    }
+    .modal-close:hover { background: var(--red-light); color: var(--red); }
+
+    .modal-tabs {
+      display: flex;
+      gap: 5px;
+      background: var(--g100);
+      border-radius: var(--rsm);
+      padding: 4px;
+      margin-top: 6px;
+    }
+
+    .modal-tab {
+      flex: 1;
+      padding: 9px 4px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-family: var(--fb);
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--g500);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      gap: 4px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: background var(--tr), color var(--tr);
+    }
+    .modal-tab.active {
+      background: var(--white);
+      color: var(--red);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .admin-modal-body { padding: 16px 18px 8px; }
+
+    .staff-pin-display {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      margin: 10px 0 14px;
+      flex-wrap: wrap;
+    }
+    .staff-pin-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--g300);
+      background: transparent;
+      transition: background var(--tr), border-color var(--tr), transform .15s;
+    }
+    .staff-pin-dot.filled {
+      background: var(--red);
+      border-color: var(--red);
+      transform: scale(1.2);
+    }
+
+    .hidden { display: none !important; }
+
+    .spinner {
+      width: 17px; height: 17px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spinner.active { display: block; }
+
+    #toast {
+      position: fixed;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--black);
+      color: var(--white);
+      padding: 11px 20px;
+      border-radius: var(--rmd);
+      font-size: 0.83rem;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity .3s, transform .3s;
+      z-index: 999;
+      pointer-events: none;
+      max-width: calc(100vw - 48px);
+      text-align: center;
+      white-space: normal;
+    }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    #toast.success { background:#16a34a; }
+    #toast.error   { background:var(--red-dark); }
+  </style>
+
+</head>
+<body>
+
+<div class="scene">
+  <div class="card" id="mainCard">
+
+```
+<div class="card-header">
+  <div class="logo-wrap" id="logoWrap">
+    <div class="logo-ring" id="logoRing">
+      <img src="images/rands-logo2.png" alt="Vibe Passport"
+           onerror="this.style.display='none';this.parentElement.querySelector('.logo-fallback').style.display='flex';">
+      <span class="logo-fallback"><i class="fas fa-passport"></i></span>
+      <div class="tap-ripple"><span></span></div>
+    </div>
+    <div class="tap-badge" id="tapBadge"></div>
+  </div>
+  <div class="brand-name">Vibe Passport</div>
+  <div class="brand-tagline">Your Digital Vibe Experience</div>
+</div>
+
+<div class="card-body">
+  <p class="section-label">Sign In to Your Vibe</p>
+
+  <div class="field-group">
+    <div class="field-label">Phone Number</div>
+    <div class="input-wrap">
+      <i class="fi fas fa-phone"></i>
+      <span class="phone-prefix">+27</span>
+      <input type="tel" id="customerPhone" class="input-field"
+             placeholder="8x xxx xxxx" maxlength="10"
+             autocomplete="off" inputmode="numeric" />
+    </div>
+  </div>
+
+  <div class="pin-label">Enter Your 4-Digit PIN</div>
+  <div class="pin-display">
+    <div class="pin-dot" id="cdot-0"></div>
+    <div class="pin-dot" id="cdot-1"></div>
+    <div class="pin-dot" id="cdot-2"></div>
+    <div class="pin-dot" id="cdot-3"></div>
+  </div>
+
+  <div class="pin-pad" id="customerPinPad">
+    <button class="pin-key" data-k="1">1</button>
+    <button class="pin-key" data-k="2">2</button>
+    <button class="pin-key" data-k="3">3</button>
+    <button class="pin-key" data-k="4">4</button>
+    <button class="pin-key" data-k="5">5</button>
+    <button class="pin-key" data-k="6">6</button>
+    <button class="pin-key" data-k="7">7</button>
+    <button class="pin-key" data-k="8">8</button>
+    <button class="pin-key" data-k="9">9</button>
+    <button class="pin-key zero" data-k="0">0</button>
+    <button class="pin-key del" data-k="del"><i class="fas fa-delete-left"></i></button>
+  </div>
+
+  <input type="password" id="customerPinHidden" style="display:none;" maxlength="4" autocomplete="off" />
+
+  <div id="pinError" class="error-msg"></div>
+  <div id="lockTimer" class="lock-timer"></div>
+
+  <button class="btn btn-red" id="loginBtn">
+    <div class="spinner" id="loginSpinner"></div>
+    <i class="fas fa-arrow-right-to-bracket" id="loginIcon"></i>
+    <span>Enter My Vibe</span>
+  </button>
+
+  <div class="divider"><span>Don't have an account?</span></div>
+  <button class="btn btn-outline" id="createAccountBtn">
+    <i class="fas fa-user-plus"></i>
+    <span>Create New Account</span>
+  </button>
+</div>
+
+<div class="card-footer">
+  <div class="status-dot"></div>
+  <span class="powered-tag">Secure · Encrypted · Local</span>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ADMIN / STAFF MODAL -->
+
+<div class="modal-backdrop" id="adminBackdrop">
+  <div class="admin-modal" id="adminModal">
+
+```
+<div class="admin-modal-header">
+  <div class="modal-handle"></div>
+  <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+
+  <div class="modal-tabs">
+    <button class="modal-tab active" data-role="super" id="tabSuper">
+      <i class="fas fa-crown"></i> Super
+    </button>
+    <button class="modal-tab" data-role="tenant" id="tabTenant">
+      <i class="fas fa-building"></i> Tenant
+    </button>
+    <button class="modal-tab hidden" data-role="staff" id="tabStaff">
+      <i class="fas fa-users"></i> Staff
+    </button>
+  </div>
+</div>
+
+<div class="admin-modal-body">
+  <p class="section-label" id="adminFormLabel">Super Admin Login</p>
+
+  <div class="field-group hidden" id="venueGroup">
+    <div class="field-label">Select Venue</div>
+    <div class="input-wrap">
+      <i class="fi fas fa-store"></i>
+      <select class="select-field" id="tenantDropdown">
+        <option value="">— Choose Venue —</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="emailPasswordSection">
+    <div class="field-group">
+      <div class="field-label">Email Address</div>
+      <div class="input-wrap">
+        <i class="fi fas fa-envelope"></i>
+        <input type="email" id="adminEmail" class="input-field"
+               placeholder="Enter your email" autocomplete="off" />
+      </div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">Password</div>
+      <div class="input-wrap">
+        <i class="fi fas fa-lock"></i>
+        <input type="password" id="adminPassword" class="input-field"
+               placeholder="Enter password" autocomplete="off" />
+        <span class="pw-toggle" id="pwToggle"><i class="fas fa-eye"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="staffSection" class="hidden">
+    <div class="pin-label">Enter Your 8-Digit Staff PIN</div>
+    <div class="staff-pin-display" id="staffPinDisplay">
+      <div class="staff-pin-dot" id="sdot-0"></div>
+      <div class="staff-pin-dot" id="sdot-1"></div>
+      <div class="staff-pin-dot" id="sdot-2"></div>
+      <div class="staff-pin-dot" id="sdot-3"></div>
+      <div class="staff-pin-dot" id="sdot-4"></div>
+      <div class="staff-pin-dot" id="sdot-5"></div>
+      <div class="staff-pin-dot" id="sdot-6"></div>
+      <div class="staff-pin-dot" id="sdot-7"></div>
+    </div>
+    <div class="pin-pad" id="staffPinPad">
+      <button class="pin-key" data-k="1">1</button>
+      <button class="pin-key" data-k="2">2</button>
+      <button class="pin-key" data-k="3">3</button>
+      <button class="pin-key" data-k="4">4</button>
+      <button class="pin-key" data-k="5">5</button>
+      <button class="pin-key" data-k="6">6</button>
+      <button class="pin-key" data-k="7">7</button>
+      <button class="pin-key" data-k="8">8</button>
+      <button class="pin-key" data-k="9">9</button>
+      <button class="pin-key zero" data-k="0">0</button>
+      <button class="pin-key del" data-k="del"><i class="fas fa-delete-left"></i></button>
+    </div>
+    <input type="password" id="staffPinHidden" style="display:none;" maxlength="8" autocomplete="off" />
+  </div>
+
+  <div id="adminError" class="error-msg"></div>
+
+  <button class="btn btn-red" id="adminLoginBtn" style="margin-top:14px; margin-bottom:4px;">
+    <div class="spinner" id="adminSpinner"></div>
+    <i class="fas fa-arrow-right-to-bracket" id="adminIcon"></i>
+    <span id="adminBtnText">Login</span>
+  </button>
+</div>
+```
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="config/route.js" onerror="void 0;"></script>
+
+<script src="assets/js/data.js" onerror="void 0;"></script>
+
+<script type="module" src="assets/js/login.js"></script>
+
+</body>
+</html>
