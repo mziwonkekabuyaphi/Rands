@@ -111,32 +111,6 @@
     </style>
 </head>
 <body>
-<script src="route.js"></script>
-<script>
-    // Session check for Tenant Admin
-    (function() {
-        const session = localStorage.getItem('rands_session');
-        if (!session) {
-            window.location.href = 'login.html';
-            return;
-        }
-        try {
-            const sessionData = JSON.parse(session);
-            if (sessionData.role !== 'tenant_admin') {
-                window.location.href = 'login.html';
-                return;
-            }
-            // Set tenant ID from session data
-            if (sessionData.tenantId) {
-                window.__tenantId = sessionData.tenantId;
-                window.__tenantName = sessionData.businessName || sessionData.name || 'Demo Venue';
-                window.__adminName = sessionData.name || 'Admin';
-            }
-        } catch(e) {
-            window.location.href = 'login.html';
-        }
-    })();
-</script>
 <div id="app">
     <aside class="sidebar" :class="{ open: sidebarOpen }">
         <div class="sidebar-header">
@@ -197,7 +171,7 @@
                 </div>
                 <div v-else class="settings-panel" style="text-align:center; padding:20px;"><i class="fas fa-user-clock" style="font-size:32px; color:#cbd5e1;"></i><p style="margin-top:8px;">No staff currently on shift</p></div>
                 <div class="section-header"><h2>Recent Staff Activity</h2></div>
-                <div class="table-wrapper"><table class="data-table"><thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Today's Hours</th></tr></thead><tbody><tr v-for="staff in staffList.slice(0,5)" :key="staff.id"><td><strong>{{ staff.name }}</strong></div><td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></div><td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></div><td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</div></tr><tr v-if="staffList.length === 0"><td colspan="4" style="text-align:center;">No staff members yet</td></tr></tbody>}</div>
+                <div class="table-wrapper"><table class="data-table"><thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Today's Hours</th></tr></thead><tbody><tr v-for="staff in staffList.slice(0,5)" :key="staff.id"><td><strong>{{ staff.name }}</strong></div><td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></div><td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></div><td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</div><tr><tr v-if="staffList.length === 0"><td colspan="4" style="text-align:center;">No staff members yet</td></tr></tbody></table></div>
             </div>
 
             <!-- PRIVATE LABEL -> VENUE BRANDING -->
@@ -216,7 +190,7 @@
             <div v-for="module in enabledModulesList" :key="'staff_' + module.id" v-if="currentSection === 'module_' + module.id && module.name === 'Staff Management'">
                 <div class="section-header"><h2><i class="fas fa-users"></i> Staff Management</h2><button class="btn-outline" @click="currentSection = 'dashboard'">Back</button></div>
                 <div class="tabs-container"><button class="tab-button" :class="{ active: staffModuleTab === 'accounts' }" @click="staffModuleTab = 'accounts'"><i class="fas fa-id-card"></i> Staff Accounts</button><button class="tab-button" :class="{ active: staffModuleTab === 'attendance' }" @click="staffModuleTab = 'attendance'"><i class="fas fa-clock"></i> Attendance</button><button class="tab-button" :class="{ active: staffModuleTab === 'activity' }" @click="staffModuleTab = 'activity'"><i class="fas fa-chart-line"></i> Activity</button><button class="tab-button" :class="{ active: staffModuleTab === 'reports' }" @click="staffModuleTab = 'reports'"><i class="fas fa-file-alt"></i> Reports</button></div>
-                <div v-if="staffModuleTab === 'accounts'"><div style="display: flex; justify-content: flex-end; margin-bottom:20px;"><button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff</button></div><div class="stats-grid" style="margin-bottom:24px;"><div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.length }}</div><div>Total Staff</div></div><div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Active').length }}</div><div>Active</div></div><div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Inactive').length }}</div><div>Inactive</div></div></div><div class="table-wrapper"><table class="data-table"><thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th><th>Today's Hours</th><th>Actions</th></tr></thead><tbody><tr v-for="staff in staffList" :key="staff.id"><td><strong>{{ staff.name }}</strong></div><td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></div><td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></div><td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></div><td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</div><td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="color:#f59e0b;"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="color:#E30613;"></i><i class="fas" :class="staff.status === 'Active' ? 'fa-toggle-on' : 'fa-toggle-off'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer;"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="color:#dc2626;"></i></div></div><tr><tr v-if="staffList.length===0"><td colspan="6" style="text-align:center;">No staff members</td></tr></tbody>}</div></div>
+                <div v-if="staffModuleTab === 'accounts'"><div style="display: flex; justify-content: flex-end; margin-bottom:20px;"><button class="btn-primary" @click="openCreateStaffModal"><i class="fas fa-plus"></i> Add Staff</button></div><div class="stats-grid" style="margin-bottom:24px;"><div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.length }}</div><div>Total Staff</div></div><div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Active').length }}</div><div>Active</div></div><div class="staff-stat-card"><div class="staff-stat-number">{{ staffList.filter(s => s.status === 'Inactive').length }}</div><div>Inactive</div></div></div><div class="table-wrapper"><table class="data-table"><thead><tr><th>Name</th><th>Role</th><th>Username</th><th>Status</th><th>Today's Hours</th><th>Actions</th></tr></thead><tbody><tr v-for="staff in staffList" :key="staff.id"><td><strong>{{ staff.name }}</strong></div><td><span class="role-badge" :class="getRoleClass(staff.role)">{{ getRoleDisplay(staff.role) }}</span></div><td><span class="credential-cell">{{ staff.username }}<i class="fas fa-copy copy-icon" @click="copyToClipboard(staff.username)"></i></span></div><td><span class="status-badge" :class="staff.status === 'Active' ? 'status-active' : 'status-inactive'">{{ staff.status }}</span></div><td>{{ getStaffTodayHours(staff.id).toFixed(1) }}h</div><td><div class="action-icons"><i class="fas fa-edit" @click="editStaff(staff)" style="color:#f59e0b;"></i><i class="fas fa-key" @click="resetStaffPassword(staff)" style="color:#E30613;"></i><i class="fas" :class="staff.status === 'Active' ? 'fa-toggle-on' : 'fa-toggle-off'" @click="toggleStaffStatus(staff.id)" style="cursor:pointer;"></i><i class="fas fa-trash-alt" @click="deleteStaff(staff.id)" style="color:#dc2626;"></i></div></div><tr><tr v-if="staffList.length===0"><td colspan="6" style="text-align:center;">No staff members</td></tr></tbody></table></div></div>
                 <div v-if="staffModuleTab === 'attendance'"><div class="stats-grid"><div class="stat-card"><div class="stat-number">{{ activeShiftsList.length }}</div><div>On Shift</div></div><div class="stat-card"><div class="stat-number">{{ totalHoursToday.toFixed(1) }}h</div><div>Total Hours Today</div></div><div class="stat-card"><div class="stat-number">{{ avgHoursPerStaff.toFixed(1) }}h</div><div>Avg Hours/Staff</div></div></div><div class="section-header"><h3>Currently Active Shifts</h3></div><div class="modules-container"><div v-for="shift in activeShiftsList" class="module-card-item active-staff-card"><div class="module-info"><h4><i class="fas fa-user-circle"></i> {{ shift.staff_name }}</h4><p>Started: {{ formatDateTime(shift.login_time) }} | Duration: {{ calculateDuration(shift.login_time) }}</p><p>Role: {{ getRoleDisplay(shift.staff_role) }}</p></div><button class="force-logout-btn" @click="forceLogout(shift)">Force Logout</button></div><div v-if="activeShiftsList.length===0" class="settings-panel" style="text-align:center;">No active shifts</div></div></div>
                 <div v-if="staffModuleTab === 'activity'" class="settings-panel" style="text-align:center; padding:60px;"><i class="fas fa-chart-line fa-3x" style="color:#E30613;"></i><h3 style="margin-top:12px;">Real-time Activity</h3><p>Staff actions will appear here</p></div>
                 <div v-if="staffModuleTab === 'reports'" class="settings-panel" style="text-align:center; padding:60px;"><button class="btn-primary" @click="exportAttendanceReport"><i class="fas fa-download"></i> Export Report</button></div>
@@ -230,78 +204,131 @@
     <!-- MODALS -->
     <div class="modal-mask" :class="{ active: showStaffModal }"><div class="modal-container"><h3>{{ isEditing ? 'Edit Staff' : 'Add Staff' }}</h3><div class="form-group"><label>Full Name</label><input class="form-control" v-model="staffForm.name"></div><div class="form-group"><label>Username</label><input class="form-control" v-model="staffForm.username"></div><div class="form-group"><label>Password</label><input type="password" class="form-control" v-model="staffForm.password"></div><div class="form-group"><label>Role</label><select class="form-control" v-model="staffForm.role"><option value="boxoffice">Box Office</option><option value="hospitality">Hospitality</option><option value="shishamaster">Shisha Master</option><option value="gatecontrol">Gate Control</option><option value="support">Support Staff</option><option value="venuemanager">Venue Manager</option></select></div><div class="modal-buttons" style="display:flex; gap:12px; margin-top:20px;"><button class="btn-outline" @click="closeStaffModal">Cancel</button><button class="btn-primary" @click="saveStaff">Save</button></div></div></div>
     <div class="modal-mask" :class="{ active: showResetModal }"><div class="modal-container"><h3>Reset Password</h3><p>New password for <strong>{{ resettingStaff?.name }}</strong></p><input type="password" class="form-control" v-model="newPassword" placeholder="New password (min 4 chars)"><div style="display:flex; gap:12px; margin-top:16px;"><button class="btn-outline" @click="showResetModal = false">Cancel</button><button class="btn-primary" @click="confirmResetPassword">Reset</button></div></div></div>
-    <div class="modal-mask" :class="{ active: showShiftHistoryModal }"><div class="modal-container" style="max-width:700px;"><h3>Shift History</h3><div class="table-wrapper" style="max-height:300px; overflow:auto;"><table class="data-table"><thead><tr><th>Date</th><th>Login</th><th>Hours</th></tr></thead><tbody><tr v-for="shift in staffShiftHistory"><td>{{ formatDate(shift.login_time) }}</div><td>{{ formatTime(shift.login_time) }}</div><td>{{ shift.hours_worked?.toFixed(1) || '-' }}h</div></tr><tr v-if="staffShiftHistory.length===0"><td colspan="3">No history</td></tr></tbody>}</div><button class="modal-btn" style="margin-top:20px;" @click="showShiftHistoryModal = false">Close</button></div></div>
+    <div class="modal-mask" :class="{ active: showShiftHistoryModal }"><div class="modal-container" style="max-width:700px;"><h3>Shift History</h3><div class="table-wrapper" style="max-height:300px; overflow:auto;"><table class="data-table"><thead><tr><th>Date</th><th>Login</th><th>Hours</th></tr></thead><tbody><tr v-for="shift in staffShiftHistory"><td>{{ formatDate(shift.login_time) }}</td><td>{{ formatTime(shift.login_time) }}</td><td>{{ shift.hours_worked?.toFixed(1) || '-' }}h</td></tr><tr v-if="staffShiftHistory.length===0"><td colspan="3">No history</td></tr></tbody></table></div><button class="modal-btn" style="margin-top:20px;" @click="showShiftHistoryModal = false">Close</button></div></div>
     <div class="modal-mask" :class="{ active: showInfoModal }"><div class="modal-container"><div class="modal-icon"><i :class="infoIcon" :style="{ color: infoIconColor }"></i></div><h3>{{ infoTitle }}</h3><p>{{ infoMessage }}</p><button class="modal-btn" @click="showInfoModal = false">Got it</button></div></div>
 </div>
 
-<script>
-    const STORAGE_KEYS = { STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules', SHIFTS: 'qless_shifts' };
-    new Vue({
-        el: '#app',
-        data: {
-            sidebarOpen: false, currentSection: 'dashboard', tenantId: 1, tenantName: 'Demo Venue', adminName: 'Admin',
-            branding: { primaryColor: '#E30613', logoUrl: '', faviconUrl: '' }, tenantModules: [], staffList: [], showStaffModal: false,
-            showResetModal: false, showInfoModal: false, showShiftHistoryModal: false, isEditing: false, editingStaffId: null,
-            staffForm: { name: '', username: '', password: '', role: 'boxoffice' }, resettingStaff: null, newPassword: '',
-            infoTitle: '', infoMessage: '', infoIcon: 'fas fa-check-circle', infoIconColor: '#E30613', selectedStaff: null, staffShiftHistory: [],
-            coreNavItems: [{ id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' }],
-            shifts: [], attendanceFilter: { role: '' }, totalHoursToday: 0, avgHoursPerStaff: 0, staffModuleTab: 'accounts'
-        },
-        computed: {
-            tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
-            adminInitial() { return this.adminName ? this.adminName.charAt(0).toUpperCase() : 'A'; },
-            currentSectionTitle() { if(this.currentSection.startsWith('module_')){ const mod = this.enabledModulesList.find(m => 'module_'+m.id === this.currentSection); return mod ? this.getModuleDisplayName(mod.name) : 'Module'; } if(this.currentSection === 'settings') return 'Settings'; return 'Dashboard'; },
-            enabledModulesList() { return this.tenantModules.filter(m => m.enabled === true); },
-            activeShiftsList() { return this.shifts.filter(s => s.status === 'active' && s.tenant_id === this.tenantId).map(s => { const staff = this.staffList.find(st => st.id === s.staff_id); return { ...s, staff_name: staff?.name || 'Unknown', staff_role: staff?.role || 'unknown' }; }); }
-        },
-        methods: {
-            getModuleDisplayName(name) { if(name === 'Private Label') return 'Venue Branding'; return name; },
-            getModuleIcon(name) { if(name === 'Private Label') return 'fas fa-palette'; if(name === 'Staff Management') return 'fas fa-users'; return 'fas fa-cube'; },
-            getRoleDisplay(r) { const roles={boxoffice:'Box Office',hospitality:'Hospitality',shishamaster:'Shisha Master',gatecontrol:'Gate Control',support:'Support Staff',venuemanager:'Venue Manager'}; return roles[r]||r; },
-            getRoleClass(role) { const classes={boxoffice:'role-boxoffice',hospitality:'role-hospitality',shishamaster:'role-shishamaster',gatecontrol:'role-gatecontrol',support:'role-support',venuemanager:'role-venuemanager'}; return classes[role]||''; },
-            getStaffTodayHours(id) { const staffShifts = this.shifts.filter(s => s.staff_id === id && new Date(s.login_time).setHours(0,0,0,0) === new Date().setHours(0,0,0,0)); let hours=0; staffShifts.forEach(s=>{ if(s.hours_worked) hours+=s.hours_worked; else if(s.status==='active') hours+=(new Date()-new Date(s.login_time))/(1000*60*60); }); return hours; },
-            formatTime(d){ return d?new Date(d).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'-'; },
-            formatDateTime(d){ return d?new Date(d).toLocaleString():'-'; },
-            formatDate(d){ return d?new Date(d).toLocaleDateString():'-'; },
-            calculateDuration(loginTime){ const diff = Math.floor((new Date() - new Date(loginTime)) / 60000); return `${Math.floor(diff/60)}h ${diff%60}m`; },
-            copyToClipboard(t){ navigator.clipboard.writeText(t); this.showStunningAlert('Copied!', 'Text copied to clipboard', 'fas fa-copy', '#10b981'); },
-            showStunningAlert(title, msg, icon, color){ this.infoTitle=title; this.infoMessage=msg; this.infoIcon=icon; this.infoIconColor=color; this.showInfoModal=true; },
-            handleNavClick(item){ this.currentSection=item.id; this.closeSidebar(); },
-            goToModuleSection(module){ this.currentSection='module_'+module.id; if(module.name==='Staff Management') this.staffModuleTab='accounts'; this.closeSidebar(); },
-            closeSidebar(){ if(window.innerWidth<=768) this.sidebarOpen=false; },
-            loadData() { 
-                // Use tenant ID from session if available
-                if (window.__tenantId) this.tenantId = window.__tenantId;
-                if (window.__tenantName) this.tenantName = window.__tenantName;
-                if (window.__adminName) this.adminName = window.__adminName;
-                
-                const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF)||'[]'); this.staffList = allStaff.filter(s=>s.tenantId===this.tenantId);
-                const allShifts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS)||'[]'); this.shifts = allShifts.filter(s=>s.tenant_id===this.tenantId);
-                const modulesMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES)||'{}'); this.tenantModules = modulesMap[this.tenantId] || [{id:1,name:'Staff Management',enabled:true},{id:2,name:'Private Label',enabled:true}];
-                const savedBrand = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`); if(savedBrand){ const b=JSON.parse(savedBrand); this.tenantName=b.tenantName||this.tenantName; this.branding=b.branding||{primaryColor:'#E30613',logoUrl:'',faviconUrl:''}; }
-                this.calcTotals();
-            },
-            calcTotals(){ let todayTotal=0; this.shifts.forEach(s=>{ if(new Date(s.login_time).setHours(0,0,0,0)===new Date().setHours(0,0,0,0)){ if(s.hours_worked) todayTotal+=s.hours_worked; else if(s.status==='active') todayTotal+=(new Date()-new Date(s.login_time))/(1000*60*60); } }); this.totalHoursToday=todayTotal; this.avgHoursPerStaff=this.staffList.length?todayTotal/this.staffList.length:0; },
-            saveShifts(){ const all=JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS)||'[]'); const filtered=all.filter(s=>s.tenant_id!==this.tenantId); localStorage.setItem(STORAGE_KEYS.SHIFTS,JSON.stringify([...filtered,...this.shifts])); },
-            forceLogout(shift){ if(!confirm(`Force logout ${shift.staff_name}?`)) return; const idx=this.shifts.findIndex(s=>s.shift_id===shift.shift_id); if(idx!==-1){ const hrs=(new Date()-new Date(shift.login_time))/(1000*60*60); this.shifts[idx].logout_time=new Date().toISOString(); this.shifts[idx].status='completed'; this.shifts[idx].hours_worked=hrs; this.saveShifts(); this.showStunningAlert('Force Logout',`${shift.staff_name} logged out. Hours: ${hrs.toFixed(2)}h`,'fas fa-sign-out-alt','#10b981'); this.calcTotals(); } },
-            saveBranding(){ const data={tenantName:this.tenantName,branding:this.branding}; localStorage.setItem(`qless_tenant_branding_${this.tenantId}`,JSON.stringify(data)); this.showStunningAlert('Branding Saved','Venue identity updated','fas fa-palette','#E30613'); },
-            openCreateStaffModal(){ this.isEditing=false; this.editingStaffId=null; this.staffForm={name:'',username:'',password:'',role:'boxoffice'}; this.showStaffModal=true; },
-            editStaff(s){ this.isEditing=true; this.editingStaffId=s.id; this.staffForm={name:s.name,username:s.username,password:s.password,role:s.role}; this.showStaffModal=true; },
-            saveStaff(){ if(!this.staffForm.name||!this.staffForm.username||!this.staffForm.password) return this.showStunningAlert('Missing','All fields required','fas fa-exclamation','#dc2626'); if(this.staffForm.password.length<4) return this.showStunningAlert('Weak','Password min 4 chars','fas fa-lock','#dc2626'); if(this.staffList.find(s=>s.username===this.staffForm.username&&s.id!==this.editingStaffId)) return this.showStunningAlert('Duplicate','Username exists','fas fa-user','#dc2626'); if(this.isEditing&&this.editingStaffId){ const idx=this.staffList.findIndex(s=>s.id===this.editingStaffId); if(idx!==-1) this.staffList[idx]={...this.staffList[idx],...this.staffForm}; } else this.staffList.push({id:Date.now(),tenantId:this.tenantId,...this.staffForm,status:'Active',createdAt:new Date().toISOString()}); this.saveStaffToStorage(); this.closeStaffModal(); this.showStunningAlert('Success',this.isEditing?'Staff updated':'Staff created','fas fa-user-check','#10b981'); },
-            closeStaffModal(){ this.showStaffModal=false; this.staffForm={name:'',username:'',password:'',role:'boxoffice'}; },
-            saveStaffToStorage(){ const all=JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF)||'[]'); const others=all.filter(s=>s.tenantId!==this.tenantId); localStorage.setItem(STORAGE_KEYS.STAFF,JSON.stringify([...others,...this.staffList])); this.calcTotals(); },
-            toggleStaffStatus(id){ const s=this.staffList.find(s=>s.id===id); if(s){ s.status=s.status==='Active'?'Inactive':'Active'; this.saveStaffToStorage(); this.showStunningAlert('Status Updated',`${s.name} is now ${s.status}`,'fas fa-toggle-on','#10b981'); } },
-            deleteStaff(id){ const s=this.staffList.find(s=>s.id===id); if(s&&confirm(`Delete ${s.name}?`)){ this.staffList=this.staffList.filter(s=>s.id!==id); this.saveStaffToStorage(); this.showStunningAlert('Deleted','Staff removed','fas fa-trash','#dc2626'); } },
-            resetStaffPassword(staff){ this.resettingStaff=staff; this.newPassword=''; this.showResetModal=true; },
-            confirmResetPassword(){ if(!this.newPassword||this.newPassword.length<4) return this.showStunningAlert('Invalid','Min 4 characters','fas fa-exclamation','#dc2626'); const s=this.staffList.find(s=>s.id===this.resettingStaff.id); if(s){ s.password=this.newPassword; this.saveStaffToStorage(); this.showStunningAlert('Password Reset',`New password: ${this.newPassword}`,'fas fa-key','#E30613'); } this.showResetModal=false; },
-            exportAttendanceReport(){ this.showStunningAlert('Report Ready','Attendance data exported','fas fa-download','#10b981'); },
-            logout(){ localStorage.removeItem('rands_session'); sessionStorage.clear(); window.location.href='login.html'; }
-        },
-        mounted() {
-            this.loadData();
-            setInterval(()=>{ this.loadData(); }, 5000);
+<script type="module">
+    import { supabase } from '/config/supabase.js';
+
+    let currentUser = null;
+    let currentTenantId = null;
+
+    async function checkAuth() {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+            window.location.href = '/login.html';
+            return false;
         }
-    });
+        
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role, tenant_id')
+            .eq('id', session.user.id)
+            .single();
+        
+        if (error || !profile) {
+            await supabase.auth.signOut();
+            window.location.href = '/login.html';
+            return false;
+        }
+        
+        if (profile.role !== 'tenant_admin') {
+            window.location.href = '/login.html';
+            return false;
+        }
+        
+        currentUser = session.user;
+        currentTenantId = profile.tenant_id;
+        
+        window.__tenantId = currentTenantId;
+        window.__tenantName = 'Demo Venue';
+        window.__adminName = session.user.email?.split('@')[0] || 'Admin';
+        
+        return true;
+    }
+
+    const initApp = async () => {
+        const authenticated = await checkAuth();
+        if (!authenticated) return;
+        startVueApp();
+    };
+    
+    function startVueApp() {
+        const STORAGE_KEYS = { STAFF: 'qless_staff', TENANT_MODULES: 'qless_tenant_modules', SHIFTS: 'qless_shifts' };
+        
+        new Vue({
+            el: '#app',
+            data: {
+                sidebarOpen: false, currentSection: 'dashboard', tenantId: 1, tenantName: 'Demo Venue', adminName: 'Admin',
+                branding: { primaryColor: '#E30613', logoUrl: '', faviconUrl: '' }, tenantModules: [], staffList: [], showStaffModal: false,
+                showResetModal: false, showInfoModal: false, showShiftHistoryModal: false, isEditing: false, editingStaffId: null,
+                staffForm: { name: '', username: '', password: '', role: 'boxoffice' }, resettingStaff: null, newPassword: '',
+                infoTitle: '', infoMessage: '', infoIcon: 'fas fa-check-circle', infoIconColor: '#E30613', selectedStaff: null, staffShiftHistory: [],
+                coreNavItems: [{ id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' }],
+                shifts: [], attendanceFilter: { role: '' }, totalHoursToday: 0, avgHoursPerStaff: 0, staffModuleTab: 'accounts'
+            },
+            computed: {
+                tenantInitial() { return this.tenantName ? this.tenantName.charAt(0).toUpperCase() : 'R'; },
+                adminInitial() { return this.adminName ? this.adminName.charAt(0).toUpperCase() : 'A'; },
+                currentSectionTitle() { if(this.currentSection.startsWith('module_')){ const mod = this.enabledModulesList.find(m => 'module_'+m.id === this.currentSection); return mod ? this.getModuleDisplayName(mod.name) : 'Module'; } if(this.currentSection === 'settings') return 'Settings'; return 'Dashboard'; },
+                enabledModulesList() { return this.tenantModules.filter(m => m.enabled === true); },
+                activeShiftsList() { return this.shifts.filter(s => s.status === 'active' && s.tenant_id === this.tenantId).map(s => { const staff = this.staffList.find(st => st.id === s.staff_id); return { ...s, staff_name: staff?.name || 'Unknown', staff_role: staff?.role || 'unknown' }; }); }
+            },
+            methods: {
+                getModuleDisplayName(name) { if(name === 'Private Label') return 'Venue Branding'; return name; },
+                getModuleIcon(name) { if(name === 'Private Label') return 'fas fa-palette'; if(name === 'Staff Management') return 'fas fa-users'; return 'fas fa-cube'; },
+                getRoleDisplay(r) { const roles={boxoffice:'Box Office',hospitality:'Hospitality',shishamaster:'Shisha Master',gatecontrol:'Gate Control',support:'Support Staff',venuemanager:'Venue Manager'}; return roles[r]||r; },
+                getRoleClass(role) { const classes={boxoffice:'role-boxoffice',hospitality:'role-hospitality',shishamaster:'role-shishamaster',gatecontrol:'role-gatecontrol',support:'role-support',venuemanager:'role-venuemanager'}; return classes[role]||''; },
+                getStaffTodayHours(id) { const staffShifts = this.shifts.filter(s => s.staff_id === id && new Date(s.login_time).setHours(0,0,0,0) === new Date().setHours(0,0,0,0)); let hours=0; staffShifts.forEach(s=>{ if(s.hours_worked) hours+=s.hours_worked; else if(s.status==='active') hours+=(new Date()-new Date(s.login_time))/(1000*60*60); }); return hours; },
+                formatTime(d){ return d?new Date(d).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'-'; },
+                formatDateTime(d){ return d?new Date(d).toLocaleString():'-'; },
+                formatDate(d){ return d?new Date(d).toLocaleDateString():'-'; },
+                calculateDuration(loginTime){ const diff = Math.floor((new Date() - new Date(loginTime)) / 60000); return `${Math.floor(diff/60)}h ${diff%60}m`; },
+                copyToClipboard(t){ navigator.clipboard.writeText(t); this.showStunningAlert('Copied!', 'Text copied to clipboard', 'fas fa-copy', '#10b981'); },
+                showStunningAlert(title, msg, icon, color){ this.infoTitle=title; this.infoMessage=msg; this.infoIcon=icon; this.infoIconColor=color; this.showInfoModal=true; },
+                handleNavClick(item){ this.currentSection=item.id; this.closeSidebar(); },
+                goToModuleSection(module){ this.currentSection='module_'+module.id; if(module.name==='Staff Management') this.staffModuleTab='accounts'; this.closeSidebar(); },
+                closeSidebar(){ if(window.innerWidth<=768) this.sidebarOpen=false; },
+                loadData() { 
+                    if (window.__tenantId) this.tenantId = window.__tenantId;
+                    if (window.__tenantName) this.tenantName = window.__tenantName;
+                    if (window.__adminName) this.adminName = window.__adminName;
+                    
+                    const allStaff = JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF)||'[]'); this.staffList = allStaff.filter(s=>s.tenantId===this.tenantId);
+                    const allShifts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS)||'[]'); this.shifts = allShifts.filter(s=>s.tenant_id===this.tenantId);
+                    const modulesMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.TENANT_MODULES)||'{}'); this.tenantModules = modulesMap[this.tenantId] || [{id:1,name:'Staff Management',enabled:true},{id:2,name:'Private Label',enabled:true}];
+                    const savedBrand = localStorage.getItem(`qless_tenant_branding_${this.tenantId}`); if(savedBrand){ const b=JSON.parse(savedBrand); this.tenantName=b.tenantName||this.tenantName; this.branding=b.branding||{primaryColor:'#E30613',logoUrl:'',faviconUrl:''}; }
+                    this.calcTotals();
+                },
+                calcTotals(){ let todayTotal=0; this.shifts.forEach(s=>{ if(new Date(s.login_time).setHours(0,0,0,0)===new Date().setHours(0,0,0,0)){ if(s.hours_worked) todayTotal+=s.hours_worked; else if(s.status==='active') todayTotal+=(new Date()-new Date(s.login_time))/(1000*60*60); } }); this.totalHoursToday=todayTotal; this.avgHoursPerStaff=this.staffList.length?todayTotal/this.staffList.length:0; },
+                saveShifts(){ const all=JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS)||'[]'); const filtered=all.filter(s=>s.tenant_id!==this.tenantId); localStorage.setItem(STORAGE_KEYS.SHIFTS,JSON.stringify([...filtered,...this.shifts])); },
+                forceLogout(shift){ if(!confirm(`Force logout ${shift.staff_name}?`)) return; const idx=this.shifts.findIndex(s=>s.shift_id===shift.shift_id); if(idx!==-1){ const hrs=(new Date()-new Date(shift.login_time))/(1000*60*60); this.shifts[idx].logout_time=new Date().toISOString(); this.shifts[idx].status='completed'; this.shifts[idx].hours_worked=hrs; this.saveShifts(); this.showStunningAlert('Force Logout',`${shift.staff_name} logged out. Hours: ${hrs.toFixed(2)}h`,'fas fa-sign-out-alt','#10b981'); this.calcTotals(); } },
+                saveBranding(){ const data={tenantName:this.tenantName,branding:this.branding}; localStorage.setItem(`qless_tenant_branding_${this.tenantId}`,JSON.stringify(data)); this.showStunningAlert('Branding Saved','Venue identity updated','fas fa-palette','#E30613'); },
+                openCreateStaffModal(){ this.isEditing=false; this.editingStaffId=null; this.staffForm={name:'',username:'',password:'',role:'boxoffice'}; this.showStaffModal=true; },
+                editStaff(s){ this.isEditing=true; this.editingStaffId=s.id; this.staffForm={name:s.name,username:s.username,password:s.password,role:s.role}; this.showStaffModal=true; },
+                saveStaff(){ if(!this.staffForm.name||!this.staffForm.username||!this.staffForm.password) return this.showStunningAlert('Missing','All fields required','fas fa-exclamation','#dc2626'); if(this.staffForm.password.length<4) return this.showStunningAlert('Weak','Password min 4 chars','fas fa-lock','#dc2626'); if(this.staffList.find(s=>s.username===this.staffForm.username&&s.id!==this.editingStaffId)) return this.showStunningAlert('Duplicate','Username exists','fas fa-user','#dc2626'); if(this.isEditing&&this.editingStaffId){ const idx=this.staffList.findIndex(s=>s.id===this.editingStaffId); if(idx!==-1) this.staffList[idx]={...this.staffList[idx],...this.staffForm}; } else this.staffList.push({id:Date.now(),tenantId:this.tenantId,...this.staffForm,status:'Active',createdAt:new Date().toISOString()}); this.saveStaffToStorage(); this.closeStaffModal(); this.showStunningAlert('Success',this.isEditing?'Staff updated':'Staff created','fas fa-user-check','#10b981'); },
+                closeStaffModal(){ this.showStaffModal=false; this.staffForm={name:'',username:'',password:'',role:'boxoffice'}; },
+                saveStaffToStorage(){ const all=JSON.parse(localStorage.getItem(STORAGE_KEYS.STAFF)||'[]'); const others=all.filter(s=>s.tenantId!==this.tenantId); localStorage.setItem(STORAGE_KEYS.STAFF,JSON.stringify([...others,...this.staffList])); this.calcTotals(); },
+                toggleStaffStatus(id){ const s=this.staffList.find(s=>s.id===id); if(s){ s.status=s.status==='Active'?'Inactive':'Active'; this.saveStaffToStorage(); this.showStunningAlert('Status Updated',`${s.name} is now ${s.status}`,'fas fa-toggle-on','#10b981'); } },
+                deleteStaff(id){ const s=this.staffList.find(s=>s.id===id); if(s&&confirm(`Delete ${s.name}?`)){ this.staffList=this.staffList.filter(s=>s.id!==id); this.saveStaffToStorage(); this.showStunningAlert('Deleted','Staff removed','fas fa-trash','#dc2626'); } },
+                resetStaffPassword(staff){ this.resettingStaff=staff; this.newPassword=''; this.showResetModal=true; },
+                confirmResetPassword(){ if(!this.newPassword||this.newPassword.length<4) return this.showStunningAlert('Invalid','Min 4 characters','fas fa-exclamation','#dc2626'); const s=this.staffList.find(s=>s.id===this.resettingStaff.id); if(s){ s.password=this.newPassword; this.saveStaffToStorage(); this.showStunningAlert('Password Reset',`New password: ${this.newPassword}`,'fas fa-key','#E30613'); } this.showResetModal=false; },
+                exportAttendanceReport(){ this.showStunningAlert('Report Ready','Attendance data exported','fas fa-download','#10b981'); },
+                async logout() { 
+                    await supabase.auth.signOut();
+                    window.location.href = '/login.html';
+                }
+            },
+            mounted() {
+                this.loadData();
+                setInterval(()=>{ this.loadData(); }, 5000);
+            }
+        });
+    }
+    
+    initApp();
 </script>
 </body>
 </html>
