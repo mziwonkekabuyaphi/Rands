@@ -6,19 +6,13 @@
     <title>Your Vibe Passport | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- FIXED: external CSS path updated to login.css as per instructions -->
     <link rel="stylesheet" href="./assets/css/login.css">
 </head>
 <body>
 
-<!-- ═══════════════════════════════════
-     CUSTOMER CARD
-═══════════════════════════════════ -->
-
+<!-- CUSTOMER CARD -->
 <div class="card">
-
     <div class="card-header">
-        <!-- Tappable logo — 5 taps OR long-press (different results) -->
         <div class="logo-wrap" id="logoWrap">
             <div class="logo-icon" id="logoIcon">
                 <img src="images/rands-logo2.png" alt="Vibe Passport Logo">
@@ -49,7 +43,6 @@
             </div>
         </div>
 
-        <!-- PIN label -->
         <div class="field-label" style="text-align:center; margin-bottom:10px;">Enter Your 4-Digit PIN</div>
 
         <!-- PIN dots -->
@@ -75,25 +68,17 @@
             <button class="pin-key del" data-k="del"><i class="fas fa-delete-left"></i></button>
         </div>
 
-        <!-- Hidden PIN input for JS targeting (required by spec) -->
         <input type="password" id="pin" style="display: none;" maxlength="4" autocomplete="off">
 
-        <!-- Error message container (initially hidden) -->
         <div id="pinError" class="error-message" style="color: #e53e3e; font-size: 0.8rem; margin: 8px 0 12px 0; font-weight: 500; display: none; text-align: center;"></div>
-
-        <!-- Lock timer container (initially hidden) -->
         <div id="lockTimer" class="lock-timer" style="color: #c53030; background-color: #fff5f5; padding: 10px 12px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 0.9rem; margin: 0 0 16px 0; border-left: 3px solid #e53e3e; display: none;"></div>
 
-        <!-- Login btn - ID changed to 'loginBtn' as required -->
         <button class="btn btn-green" id="loginBtn">
             <i class="fas fa-arrow-right-to-bracket"></i>
             <span>Enter My Vibe</span>
         </button>
 
-        <!-- Divider -->
         <div class="divider"><span>Don't have an account?</span></div>
-
-        <!-- Create account -->
         <button class="btn btn-red" id="createAccountBtn">
             <i class="fas fa-user-plus"></i>
             <span>Create New Account</span>
@@ -104,29 +89,21 @@
         <div class="status-dot"></div>
         <span class="powered-tag">Secure · Encrypted · Local</span>
     </div>
-
 </div>
 
-<!-- ═══════════════════════════════════
-     ADMIN / STAFF MODAL (dynamic tabs)
-═══════════════════════════════════ -->
-
+<!-- ADMIN / STAFF MODAL -->
 <div class="modal-backdrop" id="adminBackdrop">
     <div class="admin-modal" id="adminModal">
-
         <div class="admin-modal-header">
             <div class="modal-handle"></div>
             <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
             <div class="modal-tabs" id="modalTabsContainer">
-                <!-- Super tab -->
                 <button class="modal-tab" data-role="super_administrator" id="tabSuper">
                     <i class="fas fa-crown"></i> Super
                 </button>
-                <!-- Tenant tab -->
                 <button class="modal-tab" data-role="tenant_admin" id="tabTenant">
                     <i class="fas fa-building"></i> Tenant
                 </button>
-                <!-- Staff tab -->
                 <button class="modal-tab" data-role="staff" id="tabStaff">
                     <i class="fas fa-users"></i> Staff
                 </button>
@@ -147,17 +124,18 @@
                 </div>
             </div>
 
+            <!-- Email field (changed from Username) -->
             <div class="field-group">
-                <div class="field-label">Username</div>
+                <div class="field-label">Email Address</div>
                 <div class="input-wrap">
-                    <i class="fi fas fa-user"></i>
-                    <input type="text" id="adminUsername" class="input-field"
-                           placeholder="Enter username" autocomplete="off">
+                    <i class="fi fas fa-envelope"></i>
+                    <input type="email" id="adminUsername" class="input-field"
+                           placeholder="Enter your email" autocomplete="off">
                 </div>
             </div>
 
             <div class="field-group">
-                <div class="field-label">Password / PIN</div>
+                <div class="field-label">Password</div>
                 <div class="input-wrap">
                     <i class="fi fas fa-lock"></i>
                     <input type="password" id="adminPassword" class="input-field"
@@ -172,21 +150,19 @@
                 <span id="adminBtnText">Login</span>
             </button>
         </div>
-
     </div>
 </div>
 
 <div id="toast"></div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     EXTERNAL SCRIPTS — UPDATED PATHS ACCORDING TO YOUR INSTRUCTIONS
-     config/supabase.js , config/route.js , assets/js/data.js , assets/js/login.js
-     Maintaining load order: Supabase client -> route helpers -> data layer -> login logic
-══════════════════════════════════════════════════════════════════ -->
-<script src="config/supabase.js"></script>
+<!-- SCRIPTS -->
+<!-- Regular scripts (non‑module) -->
 <script src="config/route.js"></script>
 <script src="assets/js/data.js"></script>
-<script src="assets/js/login.js" defer></script>
+
+<!-- Supabase client and login logic as ES modules (order matters) -->
+<script type="module" src="config/supabase.js"></script>
+<script type="module" src="assets/js/login.js"></script>
 
 </body>
 </html>
