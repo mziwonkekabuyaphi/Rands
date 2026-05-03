@@ -77,7 +77,7 @@ color: var(--white);
 @keyframes sheen { to { left: 160%; } }
 .cta-note { text-align: center; margin-top: 10px; font-size: 11px; color: var(--muted); letter-spacing: 0.3px; }
 
-/* STEP 1 cards (unchanged – abbreviated) */
+/* STEP 1 cards */
 .cards-wrap { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 14px; margin-top: 26px; }
 .acc-card { position: relative; overflow: hidden; border-radius: 22px; padding: 22px 20px 20px; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.08); background: var(--surface); transition: border-color 0.3s, transform 0.22s var(--ease), box-shadow 0.3s; user-select: none; }
 .acc-card:active { transform: scale(0.975); }
@@ -123,7 +123,7 @@ color: var(--white);
 .compare-btn { background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 6px; padding: 6px 0; transition: color 0.2s; }
 .compare-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
-/* STEP 2 form (unchanged) */
+/* STEP 2 form */
 .form-wrap { width: 100%; max-width: 420px; margin-top: 28px; display: flex; flex-direction: column; gap: 14px; }
 .field-group { display: flex; flex-direction: column; gap: 6px; }
 .field-row { display: flex; gap: 12px; }
@@ -142,7 +142,7 @@ color: var(--white);
 .terms-text { font-size: 12px; line-height: 1.6; color: var(--muted); }
 .terms-text a { color: var(--red-bright); text-decoration: none; }
 
-/* STEP 3 virtual card (unchanged) and detail list modified */
+/* STEP 3 virtual card and detail list */
 .confirm-wrap { width: 100%; max-width: 420px; margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
 .card-stage { margin: 0 auto; width: var(--card-w); height: var(--card-h); animation: dropIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both, floatCard 4s ease-in-out 1s infinite; position: relative; }
 @keyframes dropIn { 0% { transform: translateY(-100px) scale(0.9); opacity: 0; } 65% { transform: translateY(12px) scale(1.01); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
@@ -169,7 +169,7 @@ color: var(--white);
 .card-expiry { font-family: 'Space Mono', monospace; font-size: clamp(10px, 2.5vw, 13px); color: rgba(255,255,255,0.7); }
 .visa-text { font-family: 'Outfit', sans-serif; font-size: clamp(18px, 5vw, 26px); font-weight: 800; font-style: italic; background: linear-gradient(135deg, #fff 20%, rgba(255,255,255,0.65)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-/* Updated detail list: Wallet ID and Account number only */
+/* Detail list: Wallet ID and Account number only */
 .detail-list { display: flex; flex-direction: column; gap: 0; background: rgba(255,255,255,0.03); border-radius: 20px; padding: 0 16px; }
 .detail-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .detail-row:last-child { border-bottom: none; }
@@ -187,7 +187,7 @@ color: var(--white);
 .edit-link { background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 5px; padding: 6px 0; transition: color 0.2s; }
 .edit-link svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
-/* Success screen (unchanged) */
+/* Success screen */
 .success-wrap { width: 100%; max-width: 420px; margin-top: 40px; display: flex; flex-direction: column; align-items: center; }
 .success-ring { width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 24px; }
 .success-ring::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: conic-gradient(var(--red-bright) 0%, rgba(232,25,44,0.2) 60%, transparent 100%); animation: spin 3s linear infinite; }
@@ -201,7 +201,7 @@ color: var(--white);
 .success-pill { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 30px; font-size: 12px; font-weight: 600; background: rgba(232,25,44,0.1); border: 1px solid rgba(232,25,44,0.2); color: rgba(255,180,185,0.9); }
 .success-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red-bright); box-shadow: 0 0 5px var(--red-bright); }
 
-/* Bottom sheet (unchanged) */
+/* Bottom sheet */
 .backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 .backdrop.open { opacity: 1; pointer-events: all; }
 .sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 51; background: #160d0d; border-radius: 26px 26px 0 0; border-top: 1px solid rgba(232,25,44,0.2); padding: 0 20px max(28px, env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.45s var(--ease); max-height: 78dvh; overflow-y: auto; }
@@ -217,6 +217,22 @@ color: var(--white);
 .val { font-family: 'Space Mono', monospace; font-size: 12px !important; }
 
 @keyframes up { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .hero-display { font-size: 42px; }
+  .field-row { flex-direction: column; gap: 14px; }
+  .price-tag { font-size: 28px; }
+  .card-name { font-size: 20px; }
+  .card-stage { width: 90vw; height: auto; aspect-ratio: 1 / 0.628; }
+  .detail-list { padding: 0 12px; }
+  .detail-key, .detail-val { font-size: 11px; }
+  .amount-price { font-size: 24px; }
+  .success-title { font-size: 36px; }
+  .success-pill { padding: 5px 10px; font-size: 10px; }
+  .sheet-title { font-size: 22px; }
+  .cmp-table th, .cmp-table td { font-size: 10px; padding: 6px; }
+}
 </style>
 </head>
 <body>
@@ -226,7 +242,7 @@ color: var(--white);
 
 <div class="steps-outer">
 
-  <!-- STEP 1 — PICK YOUR PASS (unchanged) -->
+  <!-- STEP 1 — PICK YOUR PASS -->
   <div class="step-view active" id="step1">
     <div class="nav"><div class="back-btn hidden" id="s1Back"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><div class="step-pill" id="s1Pill">Step 1 of 3</div><div class="nav-spacer"></div></div>
     <div class="hero" style="opacity:0;transform:translateY(22px);animation:up 0.7s var(--ease) 0.1s forwards;"><div class="hero-display">PICK<br>YOUR <span>PASS</span></div><p class="hero-sub">Choose how you want to experience events. Upgrade or switch whenever you want.</p><div class="progress-track"><div class="progress-fill" id="progressFill" style="width:33%;animation:none;transition:width 0.6s var(--ease);"></div></div><div class="progress-label"><span id="progressLabel">Account type</span><span id="progressStep">Step 1 / 3</span></div></div>
@@ -238,7 +254,7 @@ color: var(--white);
     <div class="cta-wrap" style="opacity:0;animation:up 0.5s var(--ease) 0.66s forwards;"><button class="cta-btn free-cta" id="s1Cta"><span id="s1CtaText">GET STARTED FREE</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button><div class="cta-note" id="s1CtaNote">No credit card needed · Takes 2 minutes</div></div>
   </div>
 
-  <!-- STEP 2 — YOUR DETAILS (unchanged) -->
+  <!-- STEP 2 — YOUR DETAILS -->
   <div class="step-view" id="step2">
     <div class="nav"><div class="back-btn" id="s2Back"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><div class="step-pill">Step 2 of 3</div><div class="nav-spacer"></div></div>
     <div class="hero"><div class="hero-display">YOUR<br><span>DETAILS</span></div><p class="hero-sub">Fill in your info to create your account. All fields are required.</p><div class="progress-track"><div class="progress-fill" style="width:66%;"></div></div><div class="progress-label"><span>Personal info</span><span>Step 2 / 3</span></div></div>
@@ -254,12 +270,11 @@ color: var(--white);
     <div class="cta-wrap" style="margin-top:24px;"><button class="cta-btn red-cta" id="s2Cta"><span>REVIEW &amp; CONFIRM</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button><div class="cta-note">Your data is encrypted and never sold</div></div>
   </div>
 
-  <!-- STEP 3 — CONFIRM & CREATE (detail list changed to Wallet ID & Account number) -->
+  <!-- STEP 3 — CONFIRM & CREATE -->
   <div class="step-view" id="step3">
     <div class="nav"><div class="back-btn" id="s3Back"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><div class="step-pill">Step 3 of 3</div><div class="nav-spacer"></div></div>
     <div class="hero"><div class="hero-display">ALMOST<br><span>THERE</span></div><p class="hero-sub">Review your details before we create your account.</p><div class="progress-track"><div class="progress-fill" style="width:99%;"></div></div><div class="progress-label"><span>Confirm details</span><span>Step 3 / 3</span></div></div>
     <div class="confirm-wrap">
-      <!-- Virtual card (unchanged) -->
       <div class="card-stage" id="cardStage">
         <div class="card-shadow"></div>
         <div class="card-flipper">
@@ -273,7 +288,6 @@ color: var(--white);
           </div>
         </div>
       </div>
-      <!-- Detail list: Wallet ID and Account number (both = phone number) -->
       <div class="detail-list">
         <div class="detail-row">
           <div class="detail-key"><svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 5.5 8 12 8 12s8-6.5 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg> Wallet ID</div>
@@ -290,7 +304,7 @@ color: var(--white);
     <div class="cta-wrap" style="margin-top:8px;"><button class="cta-btn red-cta" id="s3Cta"><span id="s3CtaText">Start Vibing Now</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button><div class="cta-note" id="s3CtaNote">One tap to lock in your pass</div></div>
   </div>
 
-  <!-- STEP 4 — SUCCESS SCREEN (unchanged, redirects to onboarding.html) -->
+  <!-- STEP 4 — SUCCESS SCREEN -->
   <div class="step-view" id="stepSuccess">
     <div class="nav"><div class="back-btn hidden"></div><div class="step-pill" style="background:rgba(61,220,132,0.1);border-color:rgba(61,220,132,0.25);color:#3ddc84;">Done!</div><div class="nav-spacer"></div></div>
     <div class="success-wrap" style="margin-top:40px;"><div class="success-ring"><div class="success-icon" id="successIcon">🎟️</div></div><div class="success-title">YOU'RE<br><span>IN!</span></div><p class="success-sub" id="successSub">Welcome aboard, <strong>friend</strong>! Your General Account is ready to go.</p><div class="success-pill-row" id="successPills"><div class="success-pill"><div class="success-pill-dot"></div>Browse events</div><div class="success-pill"><div class="success-pill-dot"></div>Buy tickets</div><div class="success-pill"><div class="success-pill-dot"></div>Digital wallet</div></div><div class="cta-wrap" style="width:100%;max-width:420px;"><button class="cta-btn red-cta" id="exploreBtn"><span>EXPLORE EVENTS</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div></div>
@@ -304,234 +318,23 @@ color: var(--white);
   <div class="sheet-handle"></div>
   <div class="sheet-title">COMPARE <span>PASSES</span></div>
   <table class="cmp-table"><thead><tr><th>What you get</th><th>General</th><th>VIP Xperience</th></tr></thead><tbody>
-    <tr><td>Account fee</td><td class="val">Free</td><td class="val">R50 once</td></tr>
-    <tr><td>Browse events</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-    <tr><td>Buy tickets</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-    <tr><td>Digital wallet</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-    <tr><td>Event reminders</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-    <tr><td>Skip the queue</td><td class="no">✗</td><td class="yes">✓</td></tr>
-    <tr><td>Exclusive events</td><td class="no">✗</td><td class="yes">✓</td></tr>
-    <tr><td>Backstage access</td><td class="no">✗</td><td class="yes">✓</td></tr>
-    <tr><td>VIP lounges</td><td class="no">✗</td><td class="yes">✓</td></tr>
-    <tr><td>Red metal card</td><td class="no">✗</td><td class="yes">✓</td></tr>
-    <tr><td>Priority support</td><td class="no">✗</td><td class="yes">✓</td></tr>
-    <tr><td>Early ticket access</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    <tr><td class="val">Account fee</td><td class="val">Free</td><td class="val">R50 once</td></tr>
+    <tr><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+    <tr><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+    <tr><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+    <tr><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+    <tr><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    <tr><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    <tr><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    <tr><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    <tr><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    <tr><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    <tr><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
   </tbody></table>
 </div>
 
-<script>
-// ========== ALL JAVASCRIPT REMAINS UNCHANGED except the populateStep3 function to update the new detail rows ==========
-const state = {
-  passType: 'general',
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  pin: '',
-  termsAccepted: false,
-};
-
-let currentStep = 1;
-
-function goToStep(n) {
-  const views = { 1: document.getElementById('step1'), 2: document.getElementById('step2'), 3: document.getElementById('step3'), 4: document.getElementById('stepSuccess') };
-  const from = views[currentStep];
-  const to   = views[n];
-  if (!from || !to) return;
-  const forward = n > currentStep;
-  from.classList.remove('active');
-  from.classList.add(forward ? 'exit-left' : 'enter-right');
-  to.style.transition = 'none';
-  to.classList.remove('active', 'exit-left', 'enter-right');
-  to.classList.add(forward ? 'enter-right' : 'exit-left');
-  to.offsetHeight;
-  to.style.transition = '';
-  requestAnimationFrame(() => {
-    to.classList.remove('enter-right', 'exit-left');
-    to.classList.add('active');
-    to.scrollTop = 0;
-  });
-  setTimeout(() => from.classList.remove('exit-left', 'enter-right', 'active'), 420);
-  currentStep = n;
-}
-
-// STEP 1
-const cardGeneral = document.getElementById('cardGeneral');
-const cardVip = document.getElementById('cardVip');
-const s1Cta = document.getElementById('s1Cta');
-const s1CtaText = document.getElementById('s1CtaText');
-const s1CtaNote = document.getElementById('s1CtaNote');
-const compareBtn = document.getElementById('compareBtn');
-const sheet = document.getElementById('sheet');
-const backdrop = document.getElementById('backdrop');
-
-function selectPass(type) {
-  state.passType = type;
-  cardGeneral.classList.toggle('selected', type === 'general');
-  cardVip.classList.toggle('selected', type === 'vip');
-  if (type === 'general') {
-    s1Cta.className = 'cta-btn free-cta';
-    s1CtaText.textContent = 'GET STARTED FREE';
-    s1CtaNote.textContent = 'No credit card needed · Takes 2 minutes';
-  } else {
-    s1Cta.className = 'cta-btn vip-cta';
-    s1CtaText.textContent = 'UNLOCK VIP XPERIENCE';
-    s1CtaNote.textContent = 'One-time R50 · Yours forever';
-  }
-}
-cardGeneral.addEventListener('click', () => selectPass('general'));
-cardVip.addEventListener('click', () => selectPass('vip'));
-setTimeout(() => selectPass('general'), 500);
-
-s1Cta.addEventListener('click', () => {
-  s1Cta.style.transform = 'scale(0.96)';
-  setTimeout(() => { s1Cta.style.transform = ''; }, 160);
-  setTimeout(() => goToStep(2), 180);
-});
-
-compareBtn.addEventListener('click', () => { sheet.classList.add('open'); backdrop.classList.add('open'); });
-backdrop.addEventListener('click', () => { sheet.classList.remove('open'); backdrop.classList.remove('open'); });
-
-// STEP 2
-document.getElementById('s2Back').addEventListener('click', () => goToStep(1));
-const termsCheck = document.getElementById('termsCheck');
-function toggleTerms() {
-  state.termsAccepted = !state.termsAccepted;
-  termsCheck.classList.toggle('checked', state.termsAccepted);
-  termsCheck.setAttribute('aria-checked', state.termsAccepted);
-  if (state.termsAccepted) hideError('terms');
-}
-termsCheck.addEventListener('click', toggleTerms);
-termsCheck.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleTerms(); } });
-
-function showError(id) { const el = document.getElementById('err-'+id); if(el) el.classList.add('visible'); const inp = document.getElementById(id); if(inp) inp.classList.add('has-error'); }
-function hideError(id) { const el = document.getElementById('err-'+id); if(el) el.classList.remove('visible'); const inp = document.getElementById(id); if(inp) inp.classList.remove('has-error'); }
-function clearAllErrors() { document.querySelectorAll('.field-error').forEach(e => e.classList.remove('visible')); document.querySelectorAll('.field-input, .field-select').forEach(e => e.classList.remove('has-error')); }
-
-['firstName','lastName','email','phone','pin','confirmPin'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', () => hideError(id));
-  if(el) el.addEventListener('change', () => hideError(id));
-});
-
-function validateStep2() {
-  clearAllErrors();
-  let ok = true;
-  const firstName = document.getElementById('firstName').value.trim();
-  const lastName  = document.getElementById('lastName').value.trim();
-  const email     = document.getElementById('email').value.trim();
-  const phone     = document.getElementById('phone').value.trim();
-  const pin       = document.getElementById('pin').value.trim();
-  const confirmPin = document.getElementById('confirmPin').value.trim();
-  if (!firstName)   { showError('firstName'); ok = false; }
-  if (!lastName)    { showError('lastName');  ok = false; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email'); ok = false; }
-  if (!phone || !/^\d{10}$/.test(phone)) { showError('phone'); ok = false; }
-  if (!pin || !/^\d{4}$/.test(pin)) { showError('pin'); ok = false; }
-  if (pin !== confirmPin) { showError('confirmPin'); ok = false; }
-  if (!state.termsAccepted) { showError('terms'); ok = false; }
-  if (ok) {
-    state.firstName = firstName;
-    state.lastName  = lastName;
-    state.email     = email;
-    state.phone     = phone;
-    state.pin       = pin;
-  }
-  return ok;
-}
-
-document.getElementById('s2Cta').addEventListener('click', () => {
-  if (!validateStep2()) return;
-  populateStep3();
-  goToStep(3);
-});
-
-// CARD GENERATION & GRADIENT (unchanged)
-const CARD_GRADIENTS = [
-  'linear-gradient(135deg, #1a0038, #2d0050)',
-  'linear-gradient(135deg, #0a0a0a, #1a1a1a, #2a2a2a)',
-  'linear-gradient(135deg, #3b1e1e, #5e2a2a, #8b3c3c)',
-  'linear-gradient(135deg, #0b3b2f, #1b5e4a, #2b8e6e)',
-  'linear-gradient(135deg, #1e2a5e, #2a3f7e, #3c5a9e)',
-  'linear-gradient(135deg, #4a0e4e, #6b2e7a, #8e4ea6)',
-  'linear-gradient(135deg, #2c2c2c, #4a4a4a, #6e6e6e)'
-];
-
-function generateCardNumber(phoneDigits) {
-  let digits = phoneDigits.replace(/\D/g, '');
-  if (digits.length !== 10) digits = digits.padEnd(10, '0').slice(0,10);
-  const last9 = digits.slice(1);
-  const BIN = "5399213";
-  const fullCardDigits = BIN + last9;
-  return fullCardDigits.match(/.{1,4}/g).join(' ');
-}
-
-function getCardColorIndex(phoneDigits) {
-  let hash = 0;
-  for (let i = 0; i < phoneDigits.length; i++) {
-    hash = ((hash << 5) - hash) + phoneDigits.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash) % CARD_GRADIENTS.length;
-}
-
-// STEP 3 population (updated to show Wallet ID and Account number = phone)
-const s3Cta = document.getElementById('s3Cta');
-const s3Note = document.getElementById('s3CtaNote');
-function populateStep3() {
-  const isVip = state.passType === 'vip';
-  const fullName = `${state.firstName} ${state.lastName}`.toUpperCase();
-  const amountRow = document.getElementById('amountRow');
-  amountRow.classList.toggle('is-vip', isVip);
-  document.getElementById('amountPrice').textContent = isVip ? 'R50' : 'FREE';
-  s3Cta.className = isVip ? 'cta-btn vip-cta' : 'cta-btn free-cta';
-  document.getElementById('s3CtaText').textContent = 'Start Vibing Now';
-  s3Note.textContent = isVip ? 'One-time R50 · Yours forever' : 'Free forever · No card needed';
-
-  // Set Wallet ID and Account number (both = phone number)
-  const phoneNumber = state.phone;
-  document.getElementById('walletIdDisplay').innerText = phoneNumber;
-  document.getElementById('accountNumberDisplay').innerText = phoneNumber;
-
-  // Virtual card details
-  const phoneDigits = state.phone.replace(/\D/g, '');
-  const cardNumber = generateCardNumber(phoneDigits);
-  const expiry = new Date();
-  expiry.setFullYear(expiry.getFullYear() + 3);
-  const expMonth = String(expiry.getMonth() + 1).padStart(2, '0');
-  const expYear = String(expiry.getFullYear()).slice(-2);
-  document.getElementById('dynamicCardNumber').innerText = cardNumber;
-  document.getElementById('dynamicCardHolder').innerText = fullName;
-  document.getElementById('dynamicExpiry').innerText = `${expMonth}/${expYear}`;
-  const cardColorIndex = getCardColorIndex(phoneDigits);
-  document.getElementById('dynamicCardFront').style.background = CARD_GRADIENTS[cardColorIndex];
-}
-
-document.getElementById('s3Back').addEventListener('click', () => goToStep(2));
-document.getElementById('editLink').addEventListener('click', () => goToStep(2));
-
-document.getElementById('s3Cta').addEventListener('click', () => {
-  const btn = document.getElementById('s3Cta');
-  btn.style.transform = 'scale(0.96)';
-  btn.disabled = true;
-  btn.querySelector('span').textContent = 'CREATING…';
-  setTimeout(() => {
-    btn.style.transform = '';
-    const isVip = state.passType === 'vip';
-    document.getElementById('successIcon').innerHTML = isVip ? '🔥' : '🎟️';
-    document.getElementById('successSub').innerHTML = `Welcome aboard, <strong>${state.firstName}</strong>! Your ${isVip ? 'VIP Xperience' : 'General Account'} is ready.`;
-    const successPills = document.getElementById('successPills');
-    successPills.innerHTML = isVip
-      ? `<div class="success-pill"><div class="success-pill-dot"></div>Skip the queue</div><div class="success-pill"><div class="success-pill-dot"></div>Exclusive events</div><div class="success-pill"><div class="success-pill-dot"></div>Red metal card</div>`
-      : `<div class="success-pill"><div class="success-pill-dot"></div>Browse events</div><div class="success-pill"><div class="success-pill-dot"></div>Buy tickets</div><div class="success-pill"><div class="success-pill-dot"></div>Digital wallet</div>`;
-    goToStep(4);
-  }, 900);
-});
-
-document.getElementById('exploreBtn').addEventListener('click', () => {
-  window.location.href = 'onboarding.html';
-});
-</script>
+<!-- Link to external JavaScript file -->
+<script type="module" src="assets/js/register.js"></script>
 
 </body>
 </html>
