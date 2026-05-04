@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Rands Vibe Passport | Digital Wallet</title>
+    <title>Vibe Pass | Digital Wallet</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,15 +18,15 @@
         .stunning-header::after { content: ''; position: absolute; bottom: -20px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
         .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; position: relative; z-index: 2; }
         .logo-badge { display: flex; align-items: center; gap: 12px; }
-        .logo-container { display: flex; flex-direction: column; align-items: flex-start; }
-        .logo-image { height: 55px; width: auto; max-width: 200px; object-fit: contain; display: block; }
-        .logo-text-below { margin-top: 6px; text-align: left; }
-        .logo-text-below h2 { font-size: 1rem; font-weight: 700; color: white; letter-spacing: -0.3px; line-height: 1.2; }
-        .logo-text-below p { font-size: 0.55rem; color: rgba(255,255,255,0.8); line-height: 1.2; }
+        .logo-container { display: flex; flex-direction: row; align-items: center; gap: 12px; }
+        .logo-image { height: 50px; width: auto; max-width: 200px; object-fit: contain; display: block; }
+        .logo-text-side { display: flex; flex-direction: column; align-items: flex-start; }
+        .logo-text-side h2 { font-size: 1rem; font-weight: 700; color: white; letter-spacing: -0.3px; line-height: 1.2; }
+        .logo-text-side p { font-size: 0.55rem; color: rgba(255,255,255,0.8); line-height: 1.2; }
         .header-icons { display: flex; align-items: center; gap: 12px; }
-        .icon-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); width: 44px; height: 44px; border-radius: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.2); }
+        .icon-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); width: 36px; height: 36px; border-radius: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.2); }
         .icon-btn:active { transform: scale(0.94); }
-        .icon-btn i { font-size: 1.2rem; color: white; }
+        .icon-btn i { font-size: 1rem; color: white; }
         .welcome-section { margin-bottom: 24px; position: relative; z-index: 2; }
         .greeting { font-size: 0.85rem; font-weight: 900; color: rgba(255,255,255,1); letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .user-name { font-size: 1.3rem; font-weight: 500; color: white; margin-top: 4px; text-transform: lowercase; }
@@ -43,12 +43,12 @@
         .action-icon-bg i { font-size: 1.3rem; color: white; }
         .action-text h4 { font-size: 1rem; font-weight: 700; color: #1e293b; }
         .action-text p { font-size: 0.65rem; color: #94a3b8; }
-        .action-row-secondary { display: flex; gap: 20px; justify-content: center; }
+        .action-row-secondary { display: flex; gap: 20px; justify-content: center; margin-bottom: 8px; }
         .action-pill { flex: 1; background: white; border-radius: 60px; padding: 14px 12px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); border: 1px solid #f0f4fa; }
         .action-pill:active { transform: scale(0.96); background: #fef2f2; border-color: #E30613; }
         .action-pill i { font-size: 1.1rem; color: #E30613; }
         .action-pill span { font-weight: 600; font-size: 0.85rem; color: #1e293b; }
-        .service-bar { padding: 16px 20px 0 20px; margin-top: 8px; }
+        .service-bar { padding: 8px 20px 0 20px; margin-top: 0; }
         .service-title { font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
         .service-grid { display: flex; gap: 12px; justify-content: space-between; }
         .service-card { flex: 1; background: #f8fafd; border-radius: 24px; padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s ease; border: 1px solid #eef2f8; }
@@ -59,17 +59,13 @@
         .vibe-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
         .vibe-header h3 { font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #E30613, #ff6b6b); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: -0.2px; }
         .vibe-header span { font-size: 0.7rem; font-weight: 600; background: #f1f5f9; padding: 4px 10px; border-radius: 30px; color: #E30613; }
-        .vibe-card { background: linear-gradient(145deg, #0f172a, #1e293b); border-radius: 32px; padding: 20px; border: 1px solid rgba(227, 6, 19, 0.3); box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.3); transition: all 0.3s ease; }
+        .vibe-card { background: linear-gradient(145deg, #0f172a, #1e293b); border-radius: 32px; padding: 20px; border: 1px solid rgba(227, 6, 19, 0.3); box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.3); transition: all 0.3s ease; margin-bottom: 20px; }
         .vibe-meter-container { margin-bottom: 20px; }
-        .vibe-stats { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 8px; color: #94a3b8; }
+        .vibe-stats { display: flex; justify-content: flex-start; font-size: 0.7rem; margin-bottom: 8px; color: #94a3b8; }
+        .vibe-stats span { margin-right: auto; }
         .vibe-bar-bg { background: #334155; border-radius: 60px; height: 12px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
         .vibe-bar-fill { width: 37.4%; height: 100%; background: linear-gradient(90deg, #E30613, #ff8c00, #ffd700); border-radius: 60px; transition: width 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1); position: relative; box-shadow: 0 0 8px #ff8c00; }
-        .vibe-milestones { display: flex; justify-content: space-between; margin-top: 16px; margin-bottom: 20px; gap: 8px; }
-        .milestone { flex: 1; text-align: center; background: rgba(255,255,255,0.05); border-radius: 20px; padding: 8px 4px; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); }
-        .milestone.unlocked { background: linear-gradient(135deg, rgba(227,6,19,0.2), rgba(255,140,0,0.1)); border-color: #E30613; box-shadow: 0 0 12px rgba(227,6,19,0.3); }
-        .milestone .milestone-icon { font-size: 1.2rem; display: block; margin-bottom: 4px; }
-        .milestone .milestone-label { font-size: 0.6rem; font-weight: 700; color: #cbd5e1; }
-        .milestone.unlocked .milestone-label { color: #ffd700; }
+        .vibe-milestones { display: none; }
         .vibe-action-btn { background: rgba(227,6,19,0.9); border: none; width: 100%; padding: 12px; border-radius: 60px; font-weight: 700; font-size: 0.8rem; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.2s; margin-top: 8px; }
         .vibe-action-btn:active { transform: scale(0.96); background: #E30613; }
         .led-banner-btn { background: rgba(255, 140, 0, 0.85); border: none; width: 100%; padding: 12px; border-radius: 60px; font-weight: 700; font-size: 0.8rem; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
@@ -166,7 +162,7 @@
         }
     </style>
 
-    <!-- Styles for the imported flip card from card.html (with transparency fix and persistence) -->
+    <!-- Styles for the imported flip card -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
@@ -177,7 +173,7 @@
         }
 
         .card-section {
-            padding: 20px 20px 4px 20px;
+            padding: 4px 20px 4px 20px;
         }
         .card-section-title {
             font-size: 0.7rem;
@@ -185,7 +181,7 @@
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
         .card-stage {
@@ -308,27 +304,37 @@
         }
         .card-back::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 80% 20%, rgba(200,40,60,0.12) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 80%, rgba(255,70,90,0.1) 0%, transparent 50%); border-radius: var(--r); z-index: 1; pointer-events: none; }
         .card-back-content { position: relative; z-index: 3; height: 100%; display: flex; flex-direction: column; }
-        .mag-stripe { width: 100%; height: 14%; background: linear-gradient(180deg, #1a0a0a 0%, #2d1515 40%, #0f0303 100%); margin-top: 12%; position: relative; overflow: hidden; }
+        .mag-stripe { width: 100%; height: 12%; background: linear-gradient(180deg, #1a0a0a 0%, #2d1515 40%, #0f0303 100%); margin-top: 8%; position: relative; overflow: hidden; }
         .mag-stripe::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 3px); }
-        .barcode-area { padding: 0; margin: 6% 0 0; }
-        .barcode-wrap { width: 100%; height: clamp(36px, 10vw, 52px); background: rgba(255,255,245,0.96); position: relative; overflow: hidden; display: flex; align-items: stretch; }
+        .barcode-area { padding: 0; margin: 2% 0 0; }
+        .barcode-wrap { width: 100%; height: clamp(32px, 8vw, 44px); background: rgba(255,255,245,0.96); position: relative; overflow: hidden; display: flex; align-items: stretch; }
         .barcode-inner { display: flex; width: 100%; height: 100%; gap: 0; }
         .bar { height: 100%; background: #1a1a1a; flex-shrink: 0; }
         .bar.tall { height: 100%; }
         .bar.short { height: 75%; align-self: center; }
-        .barcode-number { text-align: center; font-family: 'Space Mono', monospace; font-size: clamp(6px, 1.8vw, 9px); letter-spacing: 3px; color: rgba(255,255,255,0.3); margin-top: 4px; padding: 0 6%; }
-        .card-back-mid { flex: 1; padding: 4% 6%; display: flex; flex-direction: column; justify-content: flex-end; }
-        .signature-strip { background: linear-gradient(90deg, #f8f4e8, #e8e2d4); border-radius: 3px; height: clamp(20px, 5.5vw, 30px); position: relative; overflow: hidden; margin-bottom: 8%; }
+        .phone-number-display {
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(13px, 3.2vw, 16px);
+            letter-spacing: 2px;
+            color: #1a1a1a;
+            font-weight: 700;
+            background: rgba(255,255,245,0.96);
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-top: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .card-back-mid { flex: 1; padding: 3% 6% 4% 6%; display: flex; flex-direction: column; justify-content: flex-end; }
+        .signature-strip { background: linear-gradient(90deg, #f8f4e8, #e8e2d4); border-radius: 3px; height: clamp(20px, 5.5vw, 30px); position: relative; overflow: hidden; margin-bottom: 6%; }
         .signature-strip::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(160,120,100,0.5), rgba(160,120,100,0.5) 2px, rgba(200,180,160,0.2) 2px, rgba(200,180,160,0.2) 5px); }
         .signature-text { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-family: 'Space Mono', monospace; font-size: clamp(9px, 2.5vw, 12px); color: #2a1a10; font-weight: 700; letter-spacing: 3px; z-index: 1; }
-        .back-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+        .back-bottom { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; }
         .back-logo { font-family: 'Outfit', sans-serif; font-size: clamp(8px, 2.2vw, 12px); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); }
         .cvv-block { text-align: right; }
         .cvv-label { font-size: clamp(6px, 1.5vw, 8px); letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); font-weight: 400; margin-bottom: 2px; }
         .cvv-value { font-family: 'Space Mono', monospace; font-size: clamp(12px, 3.2vw, 17px); font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 3px; }
-        .tap-hint { margin-top: 12px; font-size: 11px; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .tap-hint svg { width: 14px; height: 14px; fill: rgba(255,255,255,0.25); }
-        .color-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); padding: 8px 20px; border-radius: 40px; font-size: 12px; letter-spacing: 0.5px; color: #ffaaaa; border: 1px solid rgba(255,120,120,0.5); pointer-events: none; z-index: 200; transition: opacity 0.2s; white-space: nowrap; font-weight: 500; }
+        .color-toast { display: none; }
 
         @media (max-width: 480px) { .card-stage { width: 90vw; height: auto; aspect-ratio: 1 / 0.628; } }
     </style>
@@ -338,10 +344,10 @@
     <div class="wallet-container" id="walletHomeContainer">
         <div class="stunning-header">
             <div class="header-top-row">
-                <div class="logo-badge"><div class="logo-container"><img src="images/rands-logo3.png" alt="Rands Vibe Passport" class="logo-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 60\'%3E%3Crect width=\'200\' height=\'60\' fill=\'%23E30613\'/%3E%3Ctext x=\'15\' y=\'38\' font-size=\'24\' text-anchor=\'start\' fill=\'white\' font-weight=\'bold\'%3ERands%3C/text%3E%3Ctext x=\'95\' y=\'38\' font-size=\'20\' text-anchor=\'start\' fill=\'%23FFD700\'%3EVibe%3C/text%3E%3C/svg%3E'"><div class="logo-text-below"><h2>Rands Vibe Passport</h2><p>Your Digital Lifestyle Wallet</p></div></div></div>
-                <div class="header-icons"><div class="icon-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i></div></div>
+                <div class="logo-badge"><div class="logo-container"><img src="images/rands-logo3.png" alt="Vibe Pass" class="logo-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 60\'%3E%3Crect width=\'200\' height=\'60\' fill=\'%23E30613\'/%3E%3Ctext x=\'15\' y=\'38\' font-size=\'24\' text-anchor=\'start\' fill=\'white\' font-weight=\'bold\'%3EVibe%3C/text%3E%3Ctext x=\'85\' y=\'38\' font-size=\'18\' text-anchor=\'start\' fill=\'%23FFD700\'%3EPass%3C/text%3E%3C/svg%3E'"><div class="logo-text-side"><h2>Vibe Pass</h2><p>Your Digital Lifestyle Wallet</p></div></div></div>
+                <div class="header-icons"><div class="icon-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></div></div>
             </div>
-            <div class="welcome-section"><div class="greeting">Wamkelekile,</div><div class="user-name">Mziwonke 👋</div></div>
+            <div class="welcome-section"><div class="greeting">Wamkelekile,</div><div class="user-name" id="userNameDisplay">Mziwonke 👋</div></div>
             <div class="header-balance-card"><div class="balance-label">Total Balance</div><div class="balance-amount">R 12,580.50</div><div class="balance-sub">Available for cashless spending and Tickets</div></div>
         </div>
         <div class="quick-actions">
@@ -355,7 +361,7 @@
             </div>
         </div>
 
-        <!-- ====== IMPORTED FLIP CARD FROM card.html (with persistence) ====== -->
+        <!-- ====== IMPORTED FLIP CARD ====== -->
         <div class="card-section">
             <div class="card-section-title"><i class="fas fa-credit-card" style="margin-right:6px;color:#E30613;"></i> Your Passport Card</div>
             <div class="card-stage" id="cardStage">
@@ -366,8 +372,8 @@
                         <div class="card-content">
                             <div class="card-top">
                                 <div>
-                                    <div class="card-name">Rands Vibe Passport</div>
-                                    <div class="card-name-sub">#See Your Vibe</div>
+                                    <div class="card-name">Vibe Pass</div>
+                                    <div class="card-name-sub">#Feel The Energy</div>
                                 </div>
                                 <div class="contactless">
                                     <svg viewBox="0 0 40 40" fill="none">
@@ -383,11 +389,11 @@
                                 <div class="card-number">1234&nbsp;&nbsp;5678&nbsp;&nbsp;9012&nbsp;&nbsp;3456</div>
                             </div>
                             <div class="card-bottom">
-                                <div class="card-holder-block">
+                                <div>
                                     <div class="card-holder-label">Card Holder</div>
-                                    <div class="card-holder-name">Alex Rands</div>
+                                    <div class="card-holder-name">MZIWONKE</div>
                                 </div>
-                                <div class="card-expiry-block">
+                                <div>
                                     <div class="card-holder-label">Expires</div>
                                     <div class="card-expiry">08/29</div>
                                 </div>
@@ -405,14 +411,14 @@
                                 <div class="barcode-wrap">
                                     <div class="barcode-inner" id="barcodeInner"></div>
                                 </div>
-                                <div class="barcode-number">4729 0183 6640 2957 3841</div>
+                                <div class="phone-number-display" id="accountPhoneNumber">063 571 3652</div>
                             </div>
                             <div class="card-back-mid">
                                 <div class="signature-strip">
                                     <div class="signature-text">AUTHORIZED</div>
                                 </div>
                                 <div class="back-bottom">
-                                    <div class="back-logo">Rands Vibe</div>
+                                    <div class="back-logo">Vibe Pass</div>
                                     <div class="cvv-block">
                                         <div class="cvv-label">CVV</div>
                                         <div class="cvv-value">742</div>
@@ -423,10 +429,6 @@
                     </div>
                 </div>
             </div>
-            <div class="tap-hint">
-                <svg viewBox="0 0 24 24"><path d="M9 11V6a3 3 0 0 1 6 0v5m-8 0h10l1 9H8l1-9z"/></svg>
-                Tap to flip · Long press → random colors (saved)
-            </div>
         </div>
         <!-- ====== END IMPORTED CARD ====== -->
 
@@ -435,15 +437,17 @@
             <div class="service-grid">
                 <div class="service-card"><i class="fas fa-crown"></i><span>VVIP Tab</span></div>
                 <div class="service-card"><i class="fas fa-smoking"></i><span>Smoke Hookah</span></div>
-                <div class="service-card"><i class="fas fa-lock"></i><span>Booze Lockers</span></div>
+                <div class="service-card"><i class="fas fa-credit-card"></i><span>Pay Now</span></div>
             </div>
         </div>
         <div class="vibe-section">
             <div class="vibe-header"><h3><i class="fas fa-charging-station"></i> LIVE VIBE METER</h3><span>Event Day</span></div>
             <div class="vibe-card">
-                <div class="vibe-meter-container"><div class="vibe-stats"><span>🔥 Crowd Energy</span><span><span class="checkin-count">187</span> / 500 checked in</span></div><div class="vibe-bar-bg"><div class="vibe-bar-fill"></div></div></div>
-                <div class="vibe-milestones"><div class="milestone unlocked"><i class="fas fa-music milestone-icon"></i><span class="milestone-label">100 🎵 DJ Drop</span></div><div class="milestone"><i class="fas fa-champagne-glasses milestone-icon"></i><span class="milestone-label">250 🍾 Free Round</span></div><div class="milestone"><i class="fas fa-crown milestone-icon"></i><span class="milestone-label">500 👑 VVIP Upgrade</span></div></div>
-                <button class="vibe-action-btn"><i class="fas fa-fingerprint"></i> CHECK IN TO EVENT <i class="fas fa-arrow-right"></i></button>
+                <div class="vibe-meter-container">
+                    <div class="vibe-stats"><span>🔥 Crowd Energy</span></div>
+                    <div class="vibe-bar-bg"><div class="vibe-bar-fill"></div></div>
+                </div>
+                <button class="vibe-action-btn"><i class="fas fa-fingerprint"></i> CHECK IN AT RANDS <i class="fas fa-arrow-right"></i></button>
                 <button class="led-banner-btn" onclick="window.location.href='festival-banner.html'"><i class="fas fa-lightbulb"></i> LED BANNER MODE <i class="fas fa-arrow-right"></i></button>
                 <p style="font-size: 0.6rem; text-align: center; margin-top: 12px; color: #94a3b8;">Each check-in raises the vibe → free stuff for everyone!</p>
             </div>
@@ -462,7 +466,7 @@
 </div>
 
 <script>
-    // ========== BARCODE GENERATION (from card.html) ==========
+    // ========== BARCODE GENERATION ==========
     const barcodeInner = document.getElementById('barcodeInner');
     if (barcodeInner) {
         const seed = [1,0,1,1,0,1,0,0,1,1,1,0,0,1,0,1,0,1,1,0,0,1,1,0,1,0,1,1,0,0,1,0,0,1,1,0,1,0,0,1,1,0,0,1,0,1,0,0,1,1,0,1,1,0,0,1,0,1,1,0,0,1,0,1,0,0,1,1,0,0,1,0,1,0,0,1,1,0,1,1,0,0,1,0,0,1,1,0,1,0,1,1,0,0,1,0,1,0,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1];
@@ -494,33 +498,52 @@
         });
     }
 
-    // ========== COLOR PERSISTENCE KEYS ==========
+    // ========== LOAD USER PHONE NUMBER ==========
+    function loadUserPhoneNumber() {
+        const accounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
+        const currentUserId = localStorage.getItem('rands_current_user');
+        let userPhone = '063 571 3652';
+        
+        if (currentUserId && accounts.length) {
+            const user = accounts.find(acc => acc.id == currentUserId);
+            if (user && user.phone) {
+                userPhone = user.phone;
+            } else if (user && user.id) {
+                userPhone = user.id;
+            }
+        } else if (accounts.length > 0) {
+            userPhone = accounts[0].phone || accounts[0].id || '063 571 3652';
+        }
+        
+        if (userPhone.match(/^\d+$/)) {
+            userPhone = userPhone.replace(/(\d{3})(?=\d)/g, '$1 ');
+        }
+        
+        const phoneDisplay = document.getElementById('accountPhoneNumber');
+        if (phoneDisplay) {
+            phoneDisplay.textContent = userPhone;
+        }
+    }
+    
+    loadUserPhoneNumber();
+
+    // ========== COLOR PERSISTENCE ==========
     const STORAGE_KEY_FRONT = 'rvp_card_front_gradient';
     const STORAGE_KEY_BACK = 'rvp_card_back_gradient';
-
-    // ========== DEFAULT GRADIENTS (Signature Red) ==========
     const DEFAULT_FRONT_GRADIENT = "linear-gradient(135deg, #8B0000 0%, #C41E3A 15%, #DC143C 30%, #B22222 50%, #8B0000 70%, #5C0A0A 85%, #3D0000 100%)";
     const DEFAULT_BACK_GRADIENT = "linear-gradient(135deg, #2a0000 0%, #4a0a0a 30%, #2d0000 55%, #5c0c0c 80%, #1a0000 100%)";
 
-    // ========== LOAD SAVED COLORS ON PAGE LOAD ==========
     function loadSavedColors() {
         const savedFront = localStorage.getItem(STORAGE_KEY_FRONT);
         const savedBack = localStorage.getItem(STORAGE_KEY_BACK);
-        
-        if (savedFront && cardFront) {
-            cardFront.style.background = savedFront;
-        } else if (cardFront) {
-            cardFront.style.background = DEFAULT_FRONT_GRADIENT;
-        }
-        
-        if (savedBack && cardBackEl) {
-            cardBackEl.style.background = savedBack;
-        } else if (cardBackEl) {
-            cardBackEl.style.background = DEFAULT_BACK_GRADIENT;
-        }
+        const cardFront = document.getElementById('cardFront');
+        const cardBack = document.getElementById('cardBack');
+        if (savedFront && cardFront) cardFront.style.background = savedFront;
+        else if (cardFront) cardFront.style.background = DEFAULT_FRONT_GRADIENT;
+        if (savedBack && cardBack) cardBack.style.background = savedBack;
+        else if (cardBack) cardBack.style.background = DEFAULT_BACK_GRADIENT;
     }
 
-    // ========== SAVE COLORS TO LOCALSTORAGE ==========
     function saveColors(frontGradient, backGradient) {
         if (frontGradient) localStorage.setItem(STORAGE_KEY_FRONT, frontGradient);
         if (backGradient) localStorage.setItem(STORAGE_KEY_BACK, backGradient);
@@ -562,9 +585,9 @@
         });
     }
 
-    // ========== LONG PRESS COLOR RANDOMIZER WITH PERSISTENCE ==========
+    // ========== LONG PRESS COLOR RANDOMIZER ==========
     const cardFront = document.getElementById('cardFront');
-    const cardBackEl = document.getElementById('cardBack');
+    const cardBack = document.getElementById('cardBack');
     let pressTimer = null;
 
     function randomFrontGradient() {
@@ -579,55 +602,24 @@
         const lit1 = 25 + Math.random() * 28;
         const lit2 = 20 + Math.random() * 22;
         const lit3 = 15 + Math.random() * 24;
-        return `linear-gradient(135deg, 
-            hsl(${hue1}, ${sat1}%, ${lit1}%) 0%, 
-            hsl(${hue2}, ${sat2}%, ${lit2}%) 25%, 
-            hsl(${hue3}, ${sat3}%, ${lit3}%) 50%, 
-            hsl(${hue4}, ${sat1 - 10}%, ${lit1 - 5}%) 75%, 
-            hsl(${hue5}, ${sat2 - 5}%, ${lit2 - 4}%) 100%)`;
+        return `linear-gradient(135deg, hsl(${hue1}, ${sat1}%, ${lit1}%) 0%, hsl(${hue2}, ${sat2}%, ${lit2}%) 25%, hsl(${hue3}, ${sat3}%, ${lit3}%) 50%, hsl(${hue4}, ${sat1 - 10}%, ${lit1 - 5}%) 75%, hsl(${hue5}, ${sat2 - 5}%, ${lit2 - 4}%) 100%)`;
     }
     
     function randomBackGradient() {
         const hueA = Math.floor(Math.random() * 360);
         const hueB = (hueA + 50) % 360;
         const hueC = (hueB + 70) % 360;
-        return `linear-gradient(135deg, 
-            hsl(${hueA}, 68%, 10%) 0%, 
-            hsl(${hueB}, 62%, 16%) 30%, 
-            hsl(${hueC}, 72%, 8%) 55%, 
-            hsl(${(hueA + 120) % 360}, 68%, 12%) 80%, 
-            hsl(${(hueB + 90) % 360}, 65%, 6%) 100%)`;
-    }
-    
-    function showColorToast(message) {
-        let toast = document.querySelector('.color-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.className = 'color-toast';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = message;
-        toast.style.opacity = '1';
-        if (window.toastTimeout) clearTimeout(window.toastTimeout);
-        window.toastTimeout = setTimeout(() => {
-            toast.style.opacity = '0';
-        }, 2000);
+        return `linear-gradient(135deg, hsl(${hueA}, 68%, 10%) 0%, hsl(${hueB}, 62%, 16%) 30%, hsl(${hueC}, 72%, 8%) 55%, hsl(${(hueA + 120) % 360}, 68%, 12%) 80%, hsl(${(hueB + 90) % 360}, 65%, 6%) 100%)`;
     }
     
     function randomizeCardColors() {
-        if (!cardFront || !cardBackEl) return;
+        if (!cardFront || !cardBack) return;
         const newFront = randomFrontGradient();
         const newBack = randomBackGradient();
         cardFront.style.background = newFront;
-        cardBackEl.style.background = newBack;
-        
-        // Save to localStorage
+        cardBack.style.background = newBack;
         saveColors(newFront, newBack);
-        
-        if (window.navigator && window.navigator.vibrate) {
-            window.navigator.vibrate(30);
-        }
-        showColorToast('🎨 New random gradient saved!');
+        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
     }
     
     function startLongPress(e) {
@@ -635,17 +627,12 @@
         pressTimer = setTimeout(() => {
             randomizeCardColors();
             if (cardStage) cardStage.classList.add('long-press-active');
-            setTimeout(() => {
-                if (cardStage) cardStage.classList.remove('long-press-active');
-            }, 280);
+            setTimeout(() => { if (cardStage) cardStage.classList.remove('long-press-active'); }, 280);
         }, 380);
     }
     
     function cancelLongPress() {
-        if (pressTimer) {
-            clearTimeout(pressTimer);
-            pressTimer = null;
-        }
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
         if (cardStage) cardStage.classList.remove('long-press-active');
     }
     
@@ -658,12 +645,24 @@
         cardStage.addEventListener('touchcancel', cancelLongPress);
     }
     
-    // Load saved colors when page loads
-    loadSavedColors();
+    // ========== LOGOUT FUNCTIONALITY ==========
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Logout from Vibe Pass?\n\nYour session will be cleared.')) {
+                localStorage.removeItem('rands_current_user');
+                localStorage.removeItem('rands_accounts_v2');
+                localStorage.removeItem('rands_payment_request');
+                localStorage.removeItem('rands_payment_approved');
+                localStorage.removeItem('rands_refund_requests');
+                localStorage.removeItem('vvip_bands');
+                sessionStorage.clear();
+                window.location.reload();
+            }
+        });
+    }
     
-    setTimeout(() => {
-        showColorToast('❤️ #See Your Vibe — Colors saved for next time!');
-    }, 800);
+    loadSavedColors();
 </script>
 
 <script src="assets/js/home.js"></script>
