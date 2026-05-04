@@ -7,6 +7,67 @@ function showScrollableAlert(message, title = 'Notice') {
     overlay.classList.add('active');
 }
 
+// ====== VIRTUAL PASSPORT CARD — DATA BINDING ======
+function safeGet(obj, key) {
+    try { 
+        return (obj && obj[key]) ? String(obj[key]) : null; 
+    } catch(e) { 
+        return null; 
+    }
+}
+
+function bindCard() {
+    var user = window.currentUser || null;
+    var lsPrefix = 'rvp_';
+    
+    var domName = (function () {
+        var el = document.querySelector('.user-name');
+        return el ? el.textContent.replace(/[\u{1F44B}\s]/gu, '').trim() : null;
+    })();
+    
+    var firstName = safeGet(user, 'firstName')
+                 || localStorage.getItem(lsPrefix + 'firstName')
+                 || domName
+                 || 'CARDHOLDER';
+    
+    var lastName = safeGet(user, 'lastName')
+                || localStorage.getItem(lsPrefix + 'lastName')
+                || '';
+    
+    var fullName = (firstName + ' ' + lastName).trim().toUpperCase();
+    
+    var cardNumber = safeGet(user, 'cardNumber')
+                  || localStorage.getItem(lsPrefix + 'cardNumber')
+                  || (function () {
+                       var seed = fullName.split('').reduce(function(a, c) { 
+                           return a + c.charCodeAt(0); 
+                       }, 0);
+                       var rng = function(min, max) {
+                           seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+                           return min + Math.abs(seed) % (max - min + 1);
+                       };
+                       return [rng(1000, 9999), rng(1000, 9999), rng(1000, 9999), rng(1000, 9999)].join(' ');
+                   })();
+    
+    var expiry = safeGet(user, 'cardExpiry')
+              || localStorage.getItem(lsPrefix + 'cardExpiry')
+              || (function () {
+                   var d = new Date();
+                   var mm = String(d.getMonth() + 1).padStart(2, '0');
+                   var yy = String(d.getFullYear() + 5).slice(-2);
+                   return mm + '/' + yy;
+                 })();
+    
+    var elHolder = document.getElementById('rvpCardHolder');
+    var elNumber = document.getElementById('rvpCardNumber');
+    var elExpiry = document.getElementById('rvpCardExpiry');
+    
+    if (elHolder) elHolder.textContent = fullName;
+    if (elNumber) elNumber.textContent = cardNumber;
+    if (elExpiry) elExpiry.textContent = expiry;
+}
+// ====== END VIRTUAL PASSPORT CARD JS ======
+
 new Vue({
     el: '#walletApp',
     data: {
@@ -23,6 +84,13 @@ new Vue({
         this.loadCurrentUser();
         this.listenForKioskPayments();
         this.startPolling();
+        // Bind virtual passport card after user is loaded
+        this.$nextTick(() => {
+            if (this.currentUser) {
+                window.currentUser = this.currentUser;
+                bindCard();
+            }
+        });
     },
     beforeDestroy() { if (this.pollingInterval) clearInterval(this.pollingInterval); },
     methods: {
@@ -52,7 +120,7 @@ new Vue({
                 this.showAlert(data?.error || "Failed to load wallet");
                 return null;
             }
-            return data; // { wallet, transactions }
+            return data;
         },
         async callWalletTransaction({ type, amount, reference = null, description = null }) {
             const token = this.getJwt();
@@ -74,7 +142,7 @@ new Vue({
                 this.showAlert(data?.error || "Transaction failed");
                 return null;
             }
-            return data; // { transaction: tx }
+            return data;
         },
         loadCurrentUser() {
             let currentUserId = localStorage.getItem('rands_current_user');
@@ -82,16 +150,37 @@ new Vue({
             if(!currentUserId && accounts.length) currentUserId = accounts[0].id;
             if(!accounts.length) accounts.push({ id: "0635713652", name: "Mziwonke KaBuyaphi", balance: 12580.50, status: "Active" });
             let user = accounts.find(acc => acc.id == currentUserId) || accounts[0];
-            if(user) { this.currentUser = user; this.userName = user.name.split(' ')[0]; this.balance = user.balance || 0; this.walletAccountId = user.id; }
+            if(user) { 
+                this.currentUser = user; 
+                this.userName = user.name.split(' ')[0]; 
+                this.balance = user.balance || 0; 
+                this.walletAccountId = user.id;
+                // Update window.currentUser for card binding
+                window.currentUser = {
+                    firstName: this.userName,
+                    lastName: user.name.split(' ').slice(1).join(' ') || '',
+                    cardNumber: localStorage.getItem('rvp_cardNumber') || null,
+                    cardExpiry: localStorage.getItem('rvp_cardExpiry') || null
+                };
+            }
             localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts));
             if(!localStorage.getItem('rands_current_user') && user) localStorage.setItem('rands_current_user', user.id);
-            const nameEl = document.querySelector('.user-name'); if(nameEl) nameEl.innerHTML = this.userName + ' 👋';
+            const nameEl = document.querySelector('.user-name'); 
+            if(nameEl) nameEl.innerHTML = this.userName + ' 👋';
+            // Bind card after user is loaded
+            bindCard();
         },
         updateAccountBalance() {
             if(this.currentUser) {
                 let accounts = JSON.parse(localStorage.getItem('rands_accounts_v2') || '[]');
                 const idx = accounts.findIndex(acc => acc.id == this.currentUser.id);
-                if(idx !== -1) { accounts[idx].balance = this.balance; localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts)); this.currentUser.balance = this.balance; }
+                if(idx !== -1) { 
+                    accounts[idx].balance = this.balance; 
+                    localStorage.setItem('rands_accounts_v2', JSON.stringify(accounts)); 
+                    this.currentUser.balance = this.balance;
+                    // Update window.currentUser for card binding
+                    if (window.currentUser) window.currentUser.balance = this.balance;
+                }
             }
         },
         startPolling() {
@@ -135,12 +224,8 @@ new Vue({
         async approvePayment() {
             if (!this.securityPin || this.securityPin.length < 4) { this.showAlert("Enter 4-digit PIN"); return; }
             
-            // Keep your existing PIN check behavior (UI-only).
-            
             if (this.securityPin === "1989" || this.securityPin.length === 4) {
                 if (!this.currentKioskRequest) { this.showAlert("No payment request"); return; }
-                
-                // Optional: still do a client-side check using current displayed balance
                 
                 if (this.balance < this.pendingPayment.amount) {
                     this.showAlert("Insufficient balance");
@@ -157,9 +242,7 @@ new Vue({
                     description: `Kiosk payment (${req.from ?? 'Kiosk'})`
                 });
                 
-                if (!result) return; // error already shown
-                
-                // Clear UI/local request state
+                if (!result) return;
                 
                 localStorage.removeItem('rands_payment_request');
                 localStorage.setItem('rands_payment_approved', JSON.stringify({
@@ -167,8 +250,6 @@ new Vue({
                     approved: true,
                     timestamp: Date.now()
                 }));
-                
-                // Refresh balance from server
                 
                 const me = await this.callWalletMe();
                 if (me?.wallet) this.balance = me.wallet.balance ?? 0;
@@ -270,3 +351,10 @@ new Vue({
         closeModal() { this.paymentModalVisible = false; this.securityPin = ""; }
     }
 });
+
+// Ensure card binding runs when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindCard);
+} else {
+    bindCard();
+}
