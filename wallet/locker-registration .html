@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Rands Locker · Pre‑register Your Items</title>
+    <!-- Fonts & Icons (matching Order page) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --red: #E30613;
+            --red-dark: #a0010e;
+            --red-deep: #8A0009;
+            --red-glow: rgba(227,6,19,0.18);
+            --red-subtle: rgba(227,6,19,0.06);
+            --ink: #1e293b;
+            --ink-muted: #334155;
+            --slate: #475569;
+            --mist: #94a3b8;
+            --bone: #f8fafd;
+            --white: #ffffff;
+            --card-bg: #ffffff;
+            --border: rgba(0,0,0,0.07);
+            --border-strong: #eef2f8;
+            --shadow-soft: 0 8px 20px -6px rgba(0,0,0,0.12);
+            --shadow-card: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-float: 0 16px 48px rgba(0,0,0,0.14);
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 28px;
+            --radius-full: 9999px;
+            --transition: all 0.22s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        body {
+            background: var(--bone);
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding-bottom: 40px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== HEADER (full width, matches Order page) ========== */
+        .site-header {
+            background: linear-gradient(145deg, var(--red) 0%, var(--red-dark) 100%);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            border-radius: 0 0 28px 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            width: 100%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .brand-text h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.2px;
+        }
+
+        .brand-text p {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-icon {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .header-icon:active {
+            transform: scale(0.94);
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ========== HERO TITLE (consistent with kiosk) ========== */
+        .smartq-title {
+            text-align: center;
+            padding: 24px 20px 16px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .smartq-title h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+        }
+
+        .smartq-title h2 span {
+            color: var(--red);
+        }
+
+        .smartq-title p {
+            font-size: 0.85rem;
+            color: var(--mist);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* ========== MAIN CONTAINER (max-width, centered) ========== */
+        .kiosk-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ========== CARDS (matching Order page) ========== */
+        .join-panel, .serving-panel {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-strong);
+        }
+
+        .panel-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--mist);
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--slate);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+        }
+
+        .form-group label i {
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            background: var(--bone);
+            transition: var(--transition);
+            font-weight: 500;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--red);
+            background: var(--white);
+        }
+
+        .pin-hint {
+            font-size: 0.7rem;
+            color: var(--mist);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        /* BUTTON STYLES (matching Order page checkout-btn) */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--red), var(--red-dark));
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: var(--radius-full);
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: var(--bone);
+            border: 2px solid var(--border-strong);
+            color: var(--ink);
+            padding: 14px;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.97);
+            background: var(--red-subtle);
+            border-color: var(--red);
+        }
+
+        /* Item basket area (redesigned to match modern cards) */
+        .selected-items {
+            background: var(--red-subtle);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-top: 16px;
+            border: 2px solid #ffd0d3;
+            transition: var(--transition);
+        }
+
+        .cart-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--red);
+            margin-bottom: 12px;
+        }
+
+        .cart-items-list {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            gap: 10px;
+            border: 1px solid var(--border-strong);
+            flex-wrap: wrap;
+        }
+
+        .cart-item-info {
+            flex: 2;
+            min-width: 100px;
+        }
+
+        .cart-item-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--ink);
+        }
+
+        .cart-item-price {
+            font-size: 0.7rem;
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            background: var(--bone);
+            border: 1px solid var(--border-strong);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .qty-btn:active {
+            transform: scale(0.9);
+            background: var(--border-strong);
+        }
+
+        .qty-value {
+            font-weight: 800;
+            min-width: 24px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .cart-item-total {
+            font-weight: 800;
+            color: var(--red);
+            min-width: 60px;
+            text-align: right;
+            font-size: 0.85rem;
+        }
+
+        .remove-item {
+            background: none;
+            border: none;
+            color: #f44336;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 6px;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .remove-item:active {
+            opacity: 1;
+            transform: scale(0.9);
+        }
+
+        .cart-total {
+            text-align: right;
+            font-weight: 900;
+            font-size: 1.2rem;
+            padding-top: 12px;
+            border-top: 2px solid var(--border-strong);
+            color: var(--red);
+            letter-spacing: -0.5px;
+            margin-top: 8px;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            padding: 24px;
+            color: var(--mist);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .small-note {
+            background: #fff9e6;
+            border-left: 4px solid var(--red);
+            padding: 14px 16px;
+            border-radius: var(--radius-lg);
+            font-size: 0.75rem;
+            color: var(--slate);
+            margin-top: 12px;
+        }
+
+        /* ========== MODAL (matching Order page style) ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 400px;
+            padding: 28px 24px;
+            text-align: center;
+            border: 1px solid var(--border-strong);
+            box-shadow: var(--shadow-float);
+            transform: scale(0.95);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-card h3 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--ink);
+        }
+
+        .modal-card p {
+            font-size: 0.85rem;
+            color: var(--slate);
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .product-card-item {
+            background: var(--bone);
+            border-radius: var(--radius-lg);
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .product-card-item:active {
+            transform: scale(0.96);
+            background: var(--red-subtle);
+            border-color: var(--red);
+        }
+
+        .product-name {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            color: var(--red);
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .modal-close-btn {
+            background: var(--bone);
+            border: 1px solid var(--border-strong);
+            padding: 12px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        /* Animations (matching existing pages) */
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            80% { transform: scale(1.02); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .basket-highlight {
+            animation: bounceIn 0.35s ease;
+            background: #e8f5e9 !important;
+        }
+
+        @keyframes flashGreen {
+            0% { background-color: white; }
+            50% { background-color: #ffe0e3; }
+            100% { background-color: white; }
+        }
+
+        .item-flash {
+            animation: flashGreen 0.4s ease;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -70px) scale(1.3); opacity: 0; }
+        }
+
+        .floating-plus {
+            position: fixed;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--red);
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            pointer-events: none;
+            z-index: 10001;
+            animation: floatUp 0.6s ease-out forwards;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--ink);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            z-index: 11000;
+            transition: transform 0.25s ease;
+            opacity: 0;
+            pointer-events: none;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            background: var(--red);
+        }
+
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--mist);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 550px) {
+            .cart-item-row {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .cart-item-quantity {
+                justify-content: center;
+            }
+            .cart-item-total {
+                text-align: center;
+            }
+            .remove-item {
+                align-self: center;
+            }
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER (matches Order page exactly, with "X" close icon) ========== -->
+<header class="site-header">
+    <div class="brand" onclick="window.location.href='index.html'">
+        <div class="brand-logo"><i class="fas fa-locker"></i></div>
+        <div class="brand-text">
+            <h1>Rands Locker</h1>
+            <p>Secure Vault</p>
+        </div>
+    </div>
+    <div class="header-right">
+        <!-- "X" icon that redirects to home.html as requested -->
+        <div class="header-icon" onclick="window.location.href='home.html'"><i class="fas fa-times"></i></div>
+    </div>
+</header>
+
+<!-- TITLE (consistent with SmartQ title) -->
+<div class="smartq-title">
+    <h2>🔐 <span>Pre-register</span> Items</h2>
+    <p>Create your vault & store valuables</p>
+</div>
+
+<div class="kiosk-container">
+    <!-- SELECT ITEMS CARD -->
+    <div class="join-panel">
+        <div class="panel-label"><i class="fas fa-shopping-basket"></i> Step 1 — Basket</div>
+        <button id="openProductModalBtn" class="btn-primary" style="background: #4caf50; margin-bottom: 16px;">
+            <i class="fas fa-plus-circle"></i> Add Product / Browse Items
+        </button>
+        <div class="selected-items" id="selectedItemsContainer">
+            <div class="cart-header"><i class="fas fa-shopping-cart"></i> Your Items</div>
+            <div class="cart-items-list" id="selectedItemsList">
+                <div class="empty-cart-message"><i class="fas fa-box-open"></i> No items selected yet</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE VAULT CARD -->
+    <div class="join-panel">
+        <div class="panel-label"><i class="fas fa-shield-alt"></i> Step 2 — Vault credentials</div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-user"></i> Full name</label>
+            <input type="text" id="preName" placeholder="e.g., Mziwonke KaBuyaphi" autocomplete="name">
+        </div>
+        <div class="form-group">
+            <label><i class="fab fa-whatsapp"></i> WhatsApp number</label>
+            <input type="tel" id="prePhone" placeholder="0635713652" autocomplete="tel">
+            <div class="pin-hint"><i class="fas fa-info-circle"></i> You'll need this + PIN to access your vault</div>
+        </div>
+        <div class="form-group">
+            <label><i class="fas fa-key"></i> Create PIN (4-6 digits)</label>
+            <input type="password" id="prePin" placeholder="Enter secure PIN" maxlength="6" inputmode="numeric" pattern="\d*">
+            <div class="pin-hint"><i class="fas fa-lock"></i> Choose a unique 4-6 digit PIN</div>
+        </div>
+        <button id="createVaultBtn" class="btn-primary"><i class="fas fa-unlock-alt"></i> Create New Vault</button>
+        <div class="small-note">
+            <i class="fas fa-credit-card"></i> <strong>How it works:</strong> After registration, bring your PIN and WhatsApp number to the counter. Staff will assign a physical locker.
+        </div>
+    </div>
+</div>
+
+<div class="footer">Created by <span style="color:var(--red); font-weight:600;">Mziwonke KaBuyaphi</span> | Two‑Factor Security Ready</div>
+
+<!-- Toast message -->
+<div id="toastMessage" class="toast-notification">✨ Item added</div>
+
+<!-- Product Picker Modal -->
+<div id="productPickerModal" class="modal-overlay">
+    <div class="modal-card">
+        <h3><i class="fas fa-boxes"></i> Select Products</h3>
+        <p>Tap any item to add to basket</p>
+        <div id="productModalGrid" class="product-grid"></div>
+        <button class="modal-close-btn" id="closeProductModalBtn">Close</button>
+    </div>
+</div>
+
+<!-- Generic Alert Modal -->
+<div id="customModal" class="modal-overlay">
+    <div class="modal-card">
+        <h3 id="modalTitle">Notice</h3>
+        <p id="modalMessage">Message goes here</p>
+        <button class="modal-close-btn" id="modalOkBtn">Got it</button>
+    </div>
+</div>
+
+<script>
+    // ========== ALL ORIGINAL FUNCTIONALITY PRESERVED - NO CODE BROKEN ==========
+    // Only UI updated, no business logic removed.
+
+    let productsWithValues = {};
+    
+    function loadProductsFromAdminInventory() {
+        const storedInventory = localStorage.getItem('rands_inventory_items');
+        if (storedInventory && JSON.parse(storedInventory).length > 0) {
+            const inventory = JSON.parse(storedInventory);
+            productsWithValues = {};
+            inventory.forEach(item => {
+                productsWithValues[item.name] = item.price;
+            });
+            return true;
+        } else {
+            productsWithValues = {
+                "Heineken Beer 6-pack": 89.99, "Castle Lager 6-pack": 79.99, "Black Label 6-pack": 79.99,
+                "Jameson Whiskey 750ml": 329.99, "Jack Daniels 750ml": 399.99, "Johnnie Walker Black 12yr": 499.99,
+                "Smirnoff Vodka 1L": 189.99, "Absolut Vodka 1L": 219.99, "Gordon's Gin 1L": 199.99,
+                "Bombay Sapphire 1L": 279.99, "Captain Morgan Rum 1L": 219.99, "Bacardi Rum 1L": 209.99,
+                "Amarula Cream 750ml": 159.99, "Jägermeister 700ml": 249.99, "Savanna Dry 6-pack": 99.99,
+                "Hunters Dry 6-pack": 99.99, "Red Wine (Robertson)": 89.99, "White Wine (Robertson)": 89.99,
+                "Champagne (Moet)": 549.99, "Prosecco": 149.99
+            };
+            return false;
+        }
+    }
+    
+    let selectedItems = [];
+    
+    function escapeHtml(str) { 
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) { 
+            if (m === '&') return '&amp;'; 
+            if (m === '<') return '&lt;'; 
+            if (m === '>') return '&gt;'; 
+            return m; 
+        }); 
+    }
+    
+    function showToast(message) { 
+        const toast = document.getElementById('toastMessage'); 
+        if (!toast) return; 
+        toast.innerText = message; 
+        toast.classList.remove('show'); 
+        void toast.offsetWidth; 
+        toast.classList.add('show'); 
+        setTimeout(() => toast.classList.remove('show'), 1500); 
+    }
+    
+    function showFloatingPlus(x, y) {
+        const plus = document.createElement('div');
+        plus.className = 'floating-plus';
+        plus.innerHTML = '+1';
+        plus.style.left = x + 'px';
+        plus.style.top = y + 'px';
+        document.body.appendChild(plus);
+        setTimeout(() => plus.remove(), 600);
+    }
+    
+    function addProduct(productName) {
+        const existingIndex = selectedItems.findIndex(i => i.name === productName);
+        if (existingIndex !== -1) { 
+            selectedItems[existingIndex].quantity += 1; 
+        } else { 
+            selectedItems.push({ name: productName, quantity: 1 }); 
+        }
+        updateSelectedItemsDisplay();
+        showToast(`✓ Added ${productName}`);
+        
+        const basket = document.getElementById('selectedItemsContainer');
+        basket.classList.add('basket-highlight');
+        setTimeout(() => basket.classList.remove('basket-highlight'), 400);
+        
+        setTimeout(() => {
+            const rows = document.querySelectorAll('.cart-item-row');
+            if (existingIndex !== -1 && rows[existingIndex]) {
+                rows[existingIndex].classList.add('item-flash');
+                setTimeout(() => rows[existingIndex].classList.remove('item-flash'), 500);
+            } else if (rows[rows.length - 1]) {
+                rows[rows.length - 1].classList.add('item-flash');
+                setTimeout(() => rows[rows.length - 1].classList.remove('item-flash'), 500);
+            }
+        }, 50);
+        
+        if (window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate(50);
+        }
+    }
+    
+    function increaseQuantity(index) { 
+        if (selectedItems[index]) { 
+            selectedItems[index].quantity += 1; 
+            updateSelectedItemsDisplay(); 
+            const rows = document.querySelectorAll('.cart-item-row');
+            if (rows[index]) {
+                rows[index].classList.add('item-flash');
+                setTimeout(() => rows[index].classList.remove('item-flash'), 300);
+            }
+            showToast(`✓ ${selectedItems[index].name} qty: ${selectedItems[index].quantity}`);
+        } 
+    }
+    
+    function decreaseQuantity(index) { 
+        if (selectedItems[index]) { 
+            if (selectedItems[index].quantity > 1) { 
+                selectedItems[index].quantity -= 1; 
+                showToast(`↘️ ${selectedItems[index].name} qty: ${selectedItems[index].quantity}`);
+            } else { 
+                selectedItems.splice(index, 1); 
+                showToast(`🗑️ Removed item`);
+            }
+            updateSelectedItemsDisplay(); 
+        } 
+    }
+    
+    function removeSelectedItem(index) { 
+        const itemName = selectedItems[index]?.name;
+        selectedItems.splice(index, 1); 
+        updateSelectedItemsDisplay(); 
+        showToast(`🗑️ Removed ${itemName || 'item'}`); 
+    }
+    
+    function updateSelectedItemsDisplay() {
+        const container = document.getElementById('selectedItemsList');
+        if (!container) return;
+        if (selectedItems.length === 0) { 
+            container.innerHTML = '<div class="empty-cart-message"><i class="fas fa-bag-shopping"></i> Your basket is empty<br>Tap "Add Product" to begin</div>'; 
+            return; 
+        }
+        let html = '';
+        selectedItems.forEach((item, idx) => { 
+            const price = productsWithValues[item.name] || 0;
+            const subtotal = price * item.quantity;
+            html += `<div class="cart-item-row">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${escapeHtml(item.name)}</div>
+                    <div class="cart-item-price">R${price.toFixed(2)} each</div>
+                </div>
+                <div class="cart-item-quantity">
+                    <button class="qty-btn" onclick="decreaseQuantity(${idx})">−</button>
+                    <span class="qty-value">${item.quantity}</span>
+                    <button class="qty-btn" onclick="increaseQuantity(${idx})">+</button>
+                </div>
+                <div class="cart-item-total">R${subtotal.toFixed(2)}</div>
+                <button class="remove-item" onclick="removeSelectedItem(${idx})"><i class="fas fa-trash-alt"></i></button>
+            </div>`; 
+        });
+        const totalValue = selectedItems.reduce((sum, item) => sum + ((productsWithValues[item.name] || 0) * item.quantity), 0);
+        html += `<div class="cart-total">Total: R${totalValue.toFixed(2)}</div>`;
+        container.innerHTML = html;
+    }
+    
+    function calculateRegistrationValue(itemsArray) {
+        let total = 0;
+        for (let item of itemsArray) {
+            const price = productsWithValues[item.name] || 0;
+            total += price * item.quantity;
+        }
+        return total;
+    }
+    
+    function showModal(title, message, redirect = false) {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalTitle').innerHTML = title;
+        document.getElementById('modalMessage').innerHTML = message;
+        modal.classList.add('active');
+        const okBtn = document.getElementById('modalOkBtn');
+        const oldClick = okBtn.onclick;
+        okBtn.onclick = () => {
+            modal.classList.remove('active');
+            if (redirect) window.location.href = 'index.html';
+        };
+        modal.onclick = (e) => { if (e.target === modal) { modal.classList.remove('active'); if (redirect) window.location.href = 'index.html'; } };
+    }
+    
+    function createNewVault() {
+        const name = document.getElementById('preName').value.trim(); 
+        const phone = document.getElementById('prePhone').value.trim();
+        const customPin = document.getElementById('prePin').value.trim();
+        
+        if (!name) { showModal('Missing name', 'Please enter your full name.'); return; }
+        if (!phone) { showModal('Missing phone', 'Please enter your WhatsApp number.'); return; }
+        if (!customPin || customPin.length < 4 || customPin.length > 6 || !/^\d+$/.test(customPin)) { 
+            showModal('Invalid PIN', 'PIN must be 4-6 digits and contain only numbers.'); 
+            return; 
+        }
+        if (selectedItems.length === 0) { showModal('No items', 'Please select at least one item to store.'); return; }
+        
+        const existingRegs = JSON.parse(localStorage.getItem('randsPreRegistered') || '[]');
+        if (existingRegs.some(reg => reg.phone === phone)) {
+            showModal('Vault Exists', 'This phone number already has a vault.');
+            return;
+        }
+        
+        const itemsString = selectedItems.map(i => `${i.name} x${i.quantity}`).join(', ');
+        const totalValue = calculateRegistrationValue(selectedItems);
+        
+        const preReg = { 
+            id: Date.now(), 
+            name, 
+            phone, 
+            items: itemsString, 
+            pin: customPin, 
+            status: "Pre-registered", 
+            timestamp: new Date().toISOString(),
+            itemsArray: [...selectedItems],
+            totalValue: totalValue
+        };
+        existingRegs.push(preReg); 
+        localStorage.setItem('randsPreRegistered', JSON.stringify(existingRegs));
+        
+        let itemsListHtml = '<ul style="text-align:left;">';
+        selectedItems.forEach(item => {
+            const price = productsWithValues[item.name] || 0;
+            itemsListHtml += `<li>${item.name} x${item.quantity} = R${(price * item.quantity).toFixed(2)}</li>`;
+        });
+        itemsListHtml += '</ul>';
+        showModal('Vault Created!', `✅ New vault created successfully!<br><br>
+            <strong>Your PIN:</strong> ${customPin}<br>
+            <strong>WhatsApp:</strong> ${phone}<br><br>
+            <strong>📦 Items:</strong><br>${itemsListHtml}
+            <strong>💰 Total Value:</strong> R${totalValue.toFixed(2)}<br><br>
+            ⚠️ Keep your PIN safe! Bring it to the counter.<br><br>
+            <strong>Redirecting to homepage...</strong>`, true);
+        
+        selectedItems = []; 
+        updateSelectedItemsDisplay(); 
+        document.getElementById('preName').value = ''; 
+        document.getElementById('prePhone').value = '';
+        document.getElementById('prePin').value = '';
+    }
+    
+    function openProductModal() { 
+        const grid = document.getElementById('productModalGrid');
+        grid.innerHTML = '';
+        for (let product of Object.keys(productsWithValues)) {
+            const price = productsWithValues[product];
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card-item';
+            productCard.innerHTML = `<div class="product-name">${escapeHtml(product)}</div><div class="product-price">R${price.toFixed(2)}</div>`;
+            productCard.onclick = (e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                showFloatingPlus(x, y);
+                addProduct(product);
+            };
+            grid.appendChild(productCard);
+        }
+        document.getElementById('productPickerModal').classList.add('active');
+    }
+    
+    function closeProductModal() { 
+        document.getElementById('productPickerModal').classList.remove('active'); 
+    }
+    
+    // Event binding and initialization
+    loadProductsFromAdminInventory();
+    window.addProduct = addProduct;
+    window.increaseQuantity = increaseQuantity;
+    window.decreaseQuantity = decreaseQuantity;
+    window.removeSelectedItem = removeSelectedItem;
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('openProductModalBtn').addEventListener('click', openProductModal);
+        document.getElementById('closeProductModalBtn').addEventListener('click', closeProductModal);
+        document.getElementById('createVaultBtn').addEventListener('click', createNewVault);
+        updateSelectedItemsDisplay();
+        setInterval(() => loadProductsFromAdminInventory(), 3000);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Rands Locker · Unlock & Collect</title>
+    <!-- Fonts & Icons (matching Order page) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --red: #E30613;
+            --red-dark: #a0010e;
+            --red-deep: #8A0009;
+            --red-glow: rgba(227,6,19,0.18);
+            --red-subtle: rgba(227,6,19,0.06);
+            --ink: #1e293b;
+            --ink-muted: #334155;
+            --slate: #475569;
+            --mist: #94a3b8;
+            --bone: #f8fafd;
+            --white: #ffffff;
+            --card-bg: #ffffff;
+            --border: rgba(0,0,0,0.07);
+            --border-strong: #eef2f8;
+            --shadow-soft: 0 8px 20px -6px rgba(0,0,0,0.12);
+            --shadow-card: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-float: 0 16px 48px rgba(0,0,0,0.14);
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 28px;
+            --radius-full: 9999px;
+            --transition: all 0.22s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        body {
+            background: var(--bone);
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding-bottom: 40px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== HEADER (full width, matches Order page) ========== */
+        .site-header {
+            background: linear-gradient(145deg, var(--red) 0%, var(--red-dark) 100%);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            border-radius: 0 0 28px 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            width: 100%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .brand-text h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.2px;
+        }
+
+        .brand-text p {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-icon {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .header-icon:active {
+            transform: scale(0.94);
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ========== HERO TITLE (consistent with kiosk) ========== */
+        .smartq-title {
+            text-align: center;
+            padding: 24px 20px 16px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .smartq-title h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+        }
+
+        .smartq-title h2 span {
+            color: var(--red);
+        }
+
+        .smartq-title p {
+            font-size: 0.85rem;
+            color: var(--mist);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* ========== MAIN CONTAINER (max-width, centered) ========== */
+        .kiosk-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ========== CARDS (matching Order page) ========== */
+        .join-panel, .serving-panel {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-strong);
+            position: relative;
+        }
+
+        .panel-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--mist);
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--slate);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+        }
+
+        .form-group label i {
+            color: var(--red);
+            font-size: 1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            background: var(--bone);
+            transition: var(--transition);
+            font-weight: 500;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--red);
+            background: var(--white);
+        }
+
+        .pin-hint {
+            font-size: 0.7rem;
+            color: var(--mist);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        /* PIN Display (readonly) */
+        .pin-display {
+            font-size: 28px;
+            letter-spacing: 8px;
+            text-align: center;
+            font-weight: 700;
+            font-family: monospace;
+            background: var(--bone);
+        }
+
+        /* ========== KEYPAD (matching modern style) ========== */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .key {
+            background: var(--bone);
+            border: 2px solid var(--border-strong);
+            padding: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .key:active {
+            transform: scale(0.94);
+            background: var(--red-subtle);
+            border-color: var(--red);
+        }
+
+        .key.red {
+            background: #ffebee;
+            color: var(--red);
+            border-color: #ffcdd2;
+        }
+
+        .key.red:active {
+            background: #ffe0e0;
+        }
+
+        .key.green {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #c8e6c9;
+        }
+
+        .key.green:active {
+            background: #c8e6c9;
+        }
+
+        /* ========== BUTTON STYLES (matching Order page) ========== */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--red), var(--red-dark));
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: var(--radius-full);
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: var(--bone);
+            border: 2px solid var(--border-strong);
+            color: var(--ink);
+            padding: 14px;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.97);
+            background: var(--red-subtle);
+            border-color: var(--red);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        /* ========== RESULT AREA (matching card style) ========== */
+        .result-area {
+            margin-top: 20px;
+        }
+
+        .customer-found, .customer-not-found, .pending-message {
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            border: 1px solid var(--border-strong);
+            background: var(--white);
+        }
+
+        .customer-found {
+            border-left: 6px solid #22c55e;
+            background: #f0fdf4;
+        }
+
+        .customer-not-found {
+            border-left: 6px solid var(--red);
+            background: #fff5f5;
+        }
+
+        .pending-message {
+            border-left: 6px solid #f59e0b;
+            background: #fffbeb;
+        }
+
+        .item-list {
+            text-align: left;
+            margin: 15px 0;
+            background: var(--bone);
+            padding: 12px;
+            border-radius: var(--radius-md);
+        }
+
+        /* ========== MODAL (matching Order page style) ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 400px;
+            padding: 28px 24px;
+            text-align: center;
+            border: 1px solid var(--border-strong);
+            box-shadow: var(--shadow-float);
+            transform: scale(0.95);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-card h3 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--ink);
+        }
+
+        .modal-card p {
+            font-size: 0.85rem;
+            color: var(--slate);
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .modal-close-btn {
+            background: var(--bone);
+            border: 1px solid var(--border-strong);
+            padding: 12px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            margin-top: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--mist);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 550px) {
+            .keypad {
+                gap: 10px;
+            }
+            .key {
+                padding: 14px;
+                font-size: 20px;
+            }
+            .pin-display {
+                font-size: 22px;
+                letter-spacing: 6px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER (matches Order page exactly, with "X" close icon) ========== -->
+<header class="site-header">
+    <div class="brand" onclick="window.location.href='index.html'">
+        <div class="brand-logo"><i class="fas fa-locker"></i></div>
+        <div class="brand-text">
+            <h1>Rands Locker</h1>
+            <p>Secure Vault</p>
+        </div>
+    </div>
+    <div class="header-right">
+        <!-- "X" icon that redirects to home.html -->
+        <div class="header-icon" onclick="window.location.href='home.html'"><i class="fas fa-times"></i></div>
+    </div>
+</header>
+
+<!-- TITLE (consistent with SmartQ title) -->
+<div class="smartq-title">
+    <h2>🔓 <span>Unlock</span> Locker</h2>
+    <p>Enter credentials to collect your items</p>
+</div>
+
+<div class="kiosk-container">
+    <!-- Unlock Card -->
+    <div class="join-panel">
+        <div class="panel-label"><i class="fas fa-key"></i> Access your vault</div>
+        
+        <div class="form-group">
+            <label><i class="fab fa-whatsapp"></i> WhatsApp Number</label>
+            <input type="tel" id="whatsappInput" placeholder="e.g., 0635713652" autocomplete="off">
+            <div class="pin-hint"><i class="fas fa-info-circle"></i> The number used during registration</div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-lock"></i> Your PIN (4-6 digits)</label>
+            <input type="text" id="pinDisplay" class="pin-display" readonly maxlength="6" placeholder="______">
+            <div class="pin-hint"><i class="fas fa-keyboard"></i> Enter the PIN you created during registration</div>
+        </div>
+
+        <!-- Modern Keypad -->
+        <div class="keypad">
+            <button class="key" onclick="addDigit(1)">1</button>
+            <button class="key" onclick="addDigit(2)">2</button>
+            <button class="key" onclick="addDigit(3)">3</button>
+            <button class="key" onclick="addDigit(4)">4</button>
+            <button class="key" onclick="addDigit(5)">5</button>
+            <button class="key" onclick="addDigit(6)">6</button>
+            <button class="key" onclick="addDigit(7)">7</button>
+            <button class="key" onclick="addDigit(8)">8</button>
+            <button class="key" onclick="addDigit(9)">9</button>
+            <button class="key red" onclick="clearPIN()"><i class="fas fa-backspace"></i></button>
+            <button class="key" onclick="addDigit(0)">0</button>
+            <button class="key green" onclick="submitPIN()"><i class="fas fa-check"></i></button>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-secondary" onclick="goToWallet()"><i class="fas fa-arrow-left"></i> Back to Wallet</button>
+            <button class="btn-primary" onclick="submitPIN()"><i class="fas fa-unlock-alt"></i> Unlock Now</button>
+        </div>
+
+        <div id="resultArea" class="result-area"></div>
+    </div>
+</div>
+
+<div class="footer">Created by <span style="color:var(--red); font-weight:600;">Mziwonke KaBuyaphi</span> | Two‑Factor Security Ready</div>
+
+<!-- Modal (matching Order page style) -->
+<div id="customModal" class="modal-overlay">
+    <div class="modal-card">
+        <h3 id="modalTitle">Notice</h3>
+        <p id="modalMessage">Message goes here</p>
+        <button class="modal-close-btn" id="modalOkBtn">Got it</button>
+    </div>
+</div>
+
+<script>
+    // ========== ALL ORIGINAL FUNCTIONALITY PRESERVED - NO CODE BROKEN ==========
+    // Only UI updated, no business logic removed.
+
+    let currentPIN = '';
+    let pendingUnlockId = null;
+    let pollInterval = null;
+
+    function addDigit(d) {
+        if (currentPIN.length < 6) {
+            currentPIN += d;
+            document.getElementById('pinDisplay').value = currentPIN;
+        }
+    }
+
+    function clearPIN() {
+        currentPIN = '';
+        document.getElementById('pinDisplay').value = '';
+    }
+
+    function showModal(title, message, onCloseRedirect = false) {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalTitle').innerHTML = title;
+        document.getElementById('modalMessage').innerHTML = message;
+        modal.classList.add('active');
+        
+        const okBtn = document.getElementById('modalOkBtn');
+        const oldClick = okBtn.onclick;
+        okBtn.onclick = () => {
+            modal.classList.remove('active');
+            if (onCloseRedirect) {
+                goToWallet();
+            }
+        };
+        modal.onclick = (e) => { if (e.target === modal) { modal.classList.remove('active'); if (onCloseRedirect) goToWallet(); } };
+    }
+
+    function submitPIN() {
+        const phone = document.getElementById('whatsappInput').value.trim();
+        const pin = currentPIN;
+
+        if (!phone) {
+            showModal('Missing Info', 'Please enter your WhatsApp number.');
+            return;
+        }
+        
+        if (pin.length < 4 || pin.length > 6) {
+            showModal('Invalid PIN', 'PIN must be between 4 and 6 digits. Please enter the PIN you created during registration.');
+            return;
+        }
+
+        const stored = localStorage.getItem('rands_lockers');
+        if (!stored) {
+            showModal('No Data', 'No lockers found. Please register first.');
+            return;
+        }
+
+        const lockers = JSON.parse(stored);
+        const matchedLocker = lockers.find(l => l.status === "Occupied" && l.phone === phone && l.pin === pin);
+
+        if (!matchedLocker) {
+            document.getElementById('resultArea').innerHTML = `
+                <div class="customer-not-found">
+                    <i class="fas fa-times-circle" style="font-size: 2rem; color: var(--red); margin-bottom: 10px; display: inline-block;"></i>
+                    <h3 style="color: var(--red);">❌ Access Denied</h3>
+                    <p>No locker found with this WhatsApp number and PIN combination.<br>Please verify your credentials.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Build items display
+        let itemsHtml = '';
+        if (matchedLocker.items && Array.isArray(matchedLocker.items)) {
+            itemsHtml = '<ul style="margin-top: 8px; padding-left: 20px;">';
+            matchedLocker.items.forEach(item => {
+                itemsHtml += `<li>${item.name} x${item.quantity}</li>`;
+            });
+            itemsHtml += '</ul>';
+        } else if (matchedLocker.itemsText) {
+            itemsHtml = `<p>${matchedLocker.itemsText}</p>`;
+        }
+
+        document.getElementById('resultArea').innerHTML = `
+            <div class="pending-message">
+                <i class="fas fa-clock" style="font-size: 2rem; color: #f59e0b; margin-bottom: 10px; display: inline-block;"></i>
+                <h3>⏳ Awaiting Staff Confirmation</h3>
+                <p>Your request has been sent to the staff. Please wait while they verify and unlock your locker.</p>
+                <p><strong><i class="fas fa-locker"></i> Locker #${matchedLocker.id}</strong><br>
+                Items: ${matchedLocker.itemsText || 'See below'}</p>
+                ${itemsHtml ? `<div class="item-list">${itemsHtml}</div>` : ''}
+                <p>This page will automatically update when the locker is ready.</p>
+            </div>
+        `;
+
+        const pendingRequest = {
+            id: Date.now(),
+            lockerId: matchedLocker.id,
+            customer: matchedLocker.customer,
+            phone: matchedLocker.phone,
+            pin: matchedLocker.pin,
+            items: matchedLocker.items,
+            itemsText: matchedLocker.itemsText,
+            balance: matchedLocker.balance,
+            timestamp: new Date().toISOString()
+        };
+
+        let pendingRequests = JSON.parse(localStorage.getItem('rands_pending_unlocks') || '[]');
+        if (!pendingRequests.some(req => req.lockerId === pendingRequest.lockerId)) {
+            pendingRequests.push(pendingRequest);
+            localStorage.setItem('rands_pending_unlocks', JSON.stringify(pendingRequests));
+        }
+
+        pendingUnlockId = pendingRequest.id;
+
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(checkUnlockStatus, 2000);
+    }
+
+    function checkUnlockStatus() {
+        const pendingRequests = JSON.parse(localStorage.getItem('rands_pending_unlocks') || '[]');
+        const ourRequest = pendingRequests.find(req => req.id === pendingUnlockId);
+        if (!ourRequest) {
+            clearInterval(pollInterval);
+            const stored = localStorage.getItem('rands_lockers');
+            if (stored) {
+                const lockers = JSON.parse(stored);
+                const locker = lockers.find(l => l.id === ourRequest?.lockerId);
+                if (!locker || locker.status === "Available") {
+                    document.getElementById('resultArea').innerHTML = `
+                        <div class="customer-found">
+                            <i class="fas fa-check-circle" style="font-size: 2.5rem; color: #22c55e; margin-bottom: 10px; display: inline-block;"></i>
+                            <h3 style="color: #22c55e;">✅ Locker Unlocked!</h3>
+                            <p>Your locker has been unlocked. Please collect your items.</p>
+                            <button onclick="goToWallet()" class="btn-primary" style="margin-top: 12px; background: #22c55e;"><i class="fas fa-arrow-left"></i> Back to Wallet</button>
+                        </div>
+                    `;
+                    showModal('Success', 'Your locker has been unlocked. Thank you!', true);
+                } else {
+                    document.getElementById('resultArea').innerHTML = `
+                        <div class="customer-not-found">
+                            <i class="fas fa-ban" style="font-size: 2rem; color: var(--red); margin-bottom: 10px; display: inline-block;"></i>
+                            <h3 style="color: var(--red);">⚠️ Request Cancelled</h3>
+                            <p>The unlock request was cancelled. Please try again or contact staff.</p>
+                        </div>
+                    `;
+                }
+            }
+            pendingUnlockId = null;
+        }
+    }
+
+    function goToWallet() {
+        window.location.href = 'wallet.html';
+    }
+
+    // Make functions global
+    window.addDigit = addDigit;
+    window.clearPIN = clearPIN;
+    window.submitPIN = submitPIN;
+    window.goToWallet = goToWallet;
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', function() {
+        if (pollInterval) clearInterval(pollInterval);
+    });
+</script>
+</body>
+</html>
