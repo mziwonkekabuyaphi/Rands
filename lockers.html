@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Rands Locker · Keep or Collect</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #f5f5f5;
+            color: #1e1e1e;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: #c62828;
+            color: white;
+            padding: 18px 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo img {
+            max-height: 50px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .header-title h1 {
+            font-size: 26px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .header-title p {
+            font-size: 15px;
+            opacity: 0.95;
+            margin-top: 6px;
+        }
+        main {
+            flex: 1;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 16px;
+            width: 100%;
+        }
+        .choice-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .choice-card {
+            background: white;
+            border-radius: 32px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .choice-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+            border-color: #c62828;
+        }
+        .choice-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .choice-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #b71c1c;
+            margin-bottom: 12px;
+        }
+        .choice-desc {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .choice-button {
+            background: #b71c1c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-block;
+        }
+        .choice-button:hover {
+            background: #8e1414;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+        .back-link a {
+            color: #b71c1c;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+        }
+        .back-link a:hover {
+            opacity: 0.8;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+        .footer span {
+            color: #b71c1c;
+            font-weight: 600;
+        }
+
+        /* Modal Styles for My Booze Vault */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            max-width: 500px;
+            width: 90%;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-top: 6px solid #b71c1c;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            color: #b71c1c;
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+        }
+        .modal-content p {
+            margin: 16px 0;
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .modal-content button {
+            background: #b71c1c;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+        .modal-content button:hover {
+            background: #8e1414;
+        }
+
+        /* My Booze Vault Section Styles */
+        .my-vault-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            z-index: 1500;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .my-vault-header {
+            background: #c62828;
+            color: white;
+            padding: 18px 16px;
+            text-align: center;
+            border-radius: 28px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .close-vault-btn {
+            position: absolute;
+            right: 20px;
+            top: 18px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-vault-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .my-vault-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .my-vault-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #b71c1c;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .my-vault-section label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .my-vault-section input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 60px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            outline: none;
+            background: #fafafa;
+        }
+        .my-vault-section input:focus {
+            border-color: #b71c1c;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(215, 45, 45, 0.2);
+        }
+        .my-vault-section button {
+            background: #b71c1c;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+        }
+        .my-vault-section button:hover {
+            background: #8e1414;
+        }
+        .balance-result {
+            background: #2c3e50;
+            color: #f1c40f;
+            padding: 20px;
+            border-radius: 28px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .balance-result-amount {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        .items-details {
+            margin-top: 15px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .items-details p {
+            margin: 5px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+            padding: 6px 0;
+        }
+        .add-more-section {
+            background: #fff8e1;
+            border-left: 6px solid #ff9800;
+        }
+        .success-badge {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 20px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .choice-title { font-size: 24px; }
+            .choice-icon { font-size: 48px; }
+            .logo img { max-height: 40px; }
+            header { gap: 8px; }
+            .balance-result-amount { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="images/rands-logo2.png" alt="Rands Logo" onerror="this.style.display='none'">
+    </div>
+    <div class="header-title">
+        <h1>Rands Locker</h1>
+        <p>Secure storage for your beverages</p>
+    </div>
+</header>
+<main>
+    <div class="choice-container">
+        <div class="choice-card" onclick="goToKeep()">
+            <div class="choice-icon">📥</div>
+            <div class="choice-title">Keep Items</div>
+            <div class="choice-desc">Store your alcohol securely in a virtual locker. Select items, choose a locker, and set your WhatsApp + PIN.</div>
+            <div class="choice-button">Store Now →</div>
+        </div>
+
+        <div class="choice-card" onclick="goToCollect()">
+            <div class="choice-icon">🔓</div>
+            <div class="choice-title">Collect Items</div>
+            <div class="choice-desc">Already stored your items? Enter your WhatsApp and PIN to unlock your locker and collect.</div>
+            <div class="choice-button">Collect →</div>
+        </div>
+
+        <div class="choice-card" onclick="openMyBoozeVault()">
+            <div class="choice-icon">🍾</div>
+            <div class="choice-title">My Booze Vault</div>
+            <div class="choice-desc">Check your vault balance and add more items to your existing vault using your phone number and PIN.</div>
+            <div class="choice-button">View Vault →</div>
+        </div>
+    </div>
+    <div class="back-link">
+        🔙 <a href="#" onclick="goToWallet()">Back to Wallet</a>
+    </div>
+</main>
+<div class="footer">
+    Created by <span>Mziwonke KaBuyaphi</span> | 🔐 Two‑Factor Security
+</div>
+
+<!-- My Booze Vault Full Page Container -->
+<div id="myBoozeVaultContainer" class="my-vault-container">
+    <div class="my-vault-header">
+        <h2>🍾 My Booze Vault</h2>
+        <p>Manage your stored items and vault balance</p>
+        <button class="close-vault-btn" onclick="closeMyBoozeVault()">✕</button>
+    </div>
+
+    <!-- SECTION 3: Your Vault Balance -->
+    <div class="my-vault-section">
+        <h2>💰 Your Vault Balance</h2>
+        <p style="margin-bottom: 12px; color: #2e7d32;">Enter your phone number and PIN to view your stored items and total value.</p>
+        
+        <div style="margin-bottom: 20px;">
+            <label for="vaultPhone">Phone Number</label>
+            <input type="tel" id="vaultPhone" placeholder="e.g., 0635713652" value="">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label for="vaultPin">Your PIN</label>
+            <input type="password" id="vaultPin" placeholder="Enter your 4-6 digit PIN" maxlength="6" inputmode="numeric">
+        </div>
+        
+        <button id="checkVaultBalanceBtn">🔍 Check My Balance</button>
+        
+        <div id="vaultBalanceResult" style="display: none; margin-top: 20px;">
+            <div class="balance-result">
+                <div class="balance-result-label" style="font-size: 0.85rem; text-transform: uppercase; opacity: 0.8;">YOUR VAULT VALUE</div>
+                <div class="balance-result-amount" id="vaultBalanceAmount">R 0.00</div>
+            </div>
+            <div class="items-details" id="vaultItemsList">
+                <p style="color: #666;">Your items will appear here...</p>
+            </div>
+            <button id="clearVaultResultBtn" style="background: #6c757d; margin-top: 12px; width: auto; padding: 8px 20px;">Clear</button>
+        </div>
+    </div>
+
+    <!-- SECTION 4: Your vault - Add more items -->
+    <div class="my-vault-section add-more-section">
+        <h2>📦 Add More Items to Your Vault</h2>
+        <p style="margin-bottom: 16px; color: #e65100;">Enter your phone number and PIN to add more items to your existing vault.</p>
+        
+        <div style="margin-bottom: 20px;">
+            <label for="addMorePhone">Phone Number</label>
+            <input type="tel" id="addMorePhone" placeholder="e.g., 0635713652" value="">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label for="addMorePin">Your PIN</label>
+            <input type="password" id="addMorePin" placeholder="Enter your 4-6 digit PIN" maxlength="6" inputmode="numeric">
+        </div>
+        <button id="accessAddMoreVaultBtn" style="background: #ff9800;">🔓 Access My Vault</button>
+        
+        <div id="addMoreVaultInfo" style="display: none; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 20px;">
+            <p><strong>✅ Vault accessed!</strong> Your current items are shown below. Use the "Add Items" button above to add more.</p>
+            <div id="addMoreItemsList" style="margin-top: 10px; font-size: 14px;"></div>
+        </div>
+    </div>
+
+    <!-- Item selection for adding more -->
+    <div class="my-vault-section">
+        <h2>🛒 Select Items to Add</h2>
+        <div id="addMoreProductGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;"></div>
+        <div class="selected-items" style="background: #f0f0f0; padding: 15px; border-radius: 20px; margin-top: 20px; max-height: 250px; overflow-y: auto;">
+            <h4>📦 Items to add:</h4>
+            <div id="addMoreSelectedList"><p style="color: #999; text-align: center;">No items selected yet</p></div>
+        </div>
+        <button id="confirmAddToVaultBtn" style="margin-top: 15px; background: #4caf50; display: none;">➕ Add Selected Items to My Vault</button>
+    </div>
+</div>
+
+<!-- Modal for alerts -->
+<div id="customModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Notice</h3>
+        <p id="modalMessage">Message goes here</p>
+        <button onclick="closeModal()">OK</button>
+    </div>
+</div>
+
+<script>
+    // Product list with values
+    const productsWithValues = {
+        "Heineken Beer 6-pack": 89.99, "Castle Lager 6-pack": 79.99, "Black Label 6-pack": 79.99,
+        "Jameson Whiskey 750ml": 329.99, "Jack Daniels 750ml": 399.99, "Johnnie Walker Black 12yr": 499.99,
+        "Smirnoff Vodka 1L": 189.99, "Absolut Vodka 1L": 219.99, "Gordon's Gin 1L": 199.99,
+        "Bombay Sapphire 1L": 279.99, "Captain Morgan Rum 1L": 219.99, "Bacardi Rum 1L": 209.99,
+        "Amarula Cream 750ml": 159.99, "Jägermeister 700ml": 249.99, "Savanna Dry 6-pack": 99.99,
+        "Hunters Dry 6-pack": 99.99, "Red Wine (Robertson)": 89.99, "White Wine (Robertson)": 89.99,
+        "Champagne (Moet)": 549.99, "Prosecco": 149.99
+    };
+
+    let addMoreSelectedItems = [];
+    let currentAddMoreVault = null;
+
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+
+    function showModal(title, message) { 
+        document.getElementById('modalTitle').innerText = title; 
+        document.getElementById('modalMessage').innerHTML = message; 
+        document.getElementById('customModal').style.display = 'flex'; 
+    }
+    function closeModal() { document.getElementById('customModal').style.display = 'none'; }
+
+    // Navigation functions
+    function goToKeep() { window.location.href = 'pre-registration.html'; }
+    function goToCollect() { window.location.href = 'customer-unlock-vault.html'; }
+    function goToWallet() { window.location.href = 'wallet.html'; }
+    function openMyBoozeVault() { document.getElementById('myBoozeVaultContainer').style.display = 'block'; }
+    function closeMyBoozeVault() { 
+        document.getElementById('myBoozeVaultContainer').style.display = 'none';
+        // Reset states
+        addMoreSelectedItems = [];
+        currentAddMoreVault = null;
+        updateAddMoreSelectedDisplay();
+        document.getElementById('addMoreVaultInfo').style.display = 'none';
+        document.getElementById('confirmAddToVaultBtn').style.display = 'none';
+        document.getElementById('vaultBalanceResult').style.display = 'none';
+    }
+
+    // Calculate total value
+    function calculateRegistrationValue(itemsString) {
+        let total = 0;
+        const itemsParts = itemsString.split(',');
+        for (let part of itemsParts) {
+            const match = part.match(/(.+?)\s*x(\d+)/);
+            if (match) {
+                const productName = match[1].trim();
+                const qty = parseInt(match[2], 10);
+                const price = productsWithValues[productName] || 0;
+                total += price * qty;
+            }
+        }
+        return total;
+    }
+
+    function itemsToString(items) { return items.map(i => `${i.name} x${i.quantity}`).join(', '); }
+    function stringToItems(itemsString) {
+        const items = [];
+        const parts = itemsString.split(',');
+        for (let part of parts) {
+            const match = part.match(/(.+?)\s*x(\d+)/);
+            if (match) items.push({ name: match[1].trim(), quantity: parseInt(match[2], 10) });
+        }
+        return items;
+    }
+
+    // SECTION 3: Check Vault Balance
+    function checkVaultBalance() {
+        const phone = document.getElementById('vaultPhone').value.trim();
+        const pin = document.getElementById('vaultPin').value.trim();
+        
+        if (!phone) { showModal("Missing Info", "Please enter your phone number."); return; }
+        if (!pin) { showModal("Missing Info", "Please enter your PIN."); return; }
+        if (pin.length < 4 || pin.length > 6 || !/^\d+$/.test(pin)) { showModal("Invalid PIN", "PIN must be 4-6 digits."); return; }
+        
+        const preRegistrations = JSON.parse(localStorage.getItem('randsPreRegistered') || '[]');
+        const found = preRegistrations.find(reg => reg.phone === phone && reg.pin === pin);
+        
+        const resultContainer = document.getElementById('vaultBalanceResult');
+        const balanceAmountSpan = document.getElementById('vaultBalanceAmount');
+        const itemsListDiv = document.getElementById('vaultItemsList');
+        
+        if (found) {
+            const totalValue = calculateRegistrationValue(found.items);
+            balanceAmountSpan.textContent = `R ${totalValue.toFixed(2)}`;
+            
+            let itemsHtml = `<p style="font-weight: 600; margin-bottom: 8px;">📦 Your stored items:</p>`;
+            const itemsParts = found.items.split(',');
+            for (let part of itemsParts) {
+                const match = part.match(/(.+?)\s*x(\d+)/);
+                if (match) {
+                    const productName = match[1].trim();
+                    const qty = match[2];
+                    const price = productsWithValues[productName] || 0;
+                    itemsHtml += `<p>• ${productName} x${qty} — R ${(price * parseInt(qty, 10)).toFixed(2)}</p>`;
+                }
+            }
+            itemsHtml += `<p style="margin-top: 10px; font-size: 12px; color: #666;">Status: ${found.status || "Pre-registered"} | Registered: ${new Date(found.timestamp).toLocaleDateString()}</p>`;
+            itemsListDiv.innerHTML = itemsHtml;
+            resultContainer.style.display = 'block';
+        } else {
+            showModal("Not Found", "No vault found with the provided phone number and PIN.");
+            resultContainer.style.display = 'none';
+        }
+    }
+
+    function clearVaultResult() {
+        document.getElementById('vaultBalanceResult').style.display = 'none';
+        document.getElementById('vaultPhone').value = '';
+        document.getElementById('vaultPin').value = '';
+    }
+
+    // SECTION 4: Add more items to vault
+    function accessAddMoreVault() {
+        const phone = document.getElementById('addMorePhone').value.trim();
+        const pin = document.getElementById('addMorePin').value.trim();
+        
+        if (!phone) { showModal("Missing Info", "Please enter your phone number."); return; }
+        if (!pin) { showModal("Missing Info", "Please enter your PIN."); return; }
+        if (pin.length < 4 || pin.length > 6 || !/^\d+$/.test(pin)) { showModal("Invalid PIN", "PIN must be 4-6 digits."); return; }
+        
+        const preRegistrations = JSON.parse(localStorage.getItem('randsPreRegistered') || '[]');
+        const found = preRegistrations.find(reg => reg.phone === phone && reg.pin === pin);
+        
+        if (found) {
+            currentAddMoreVault = found;
+            const items = stringToItems(found.items);
+            let itemsHtml = '<p style="font-weight: 600;">📦 Current items in your vault:</p>';
+            for (let item of items) {
+                const price = productsWithValues[item.name] || 0;
+                itemsHtml += `<p>• ${item.name} x${item.quantity} — R ${(price * item.quantity).toFixed(2)}</p>`;
+            }
+            itemsHtml += `<p style="margin-top: 8px;"><strong>Total Value: R ${calculateRegistrationValue(found.items).toFixed(2)}</strong></p>`;
+            document.getElementById('addMoreItemsList').innerHTML = itemsHtml;
+            document.getElementById('addMoreVaultInfo').style.display = 'block';
+            document.getElementById('confirmAddToVaultBtn').style.display = 'block';
+            renderAddMoreProductGrid();
+        } else {
+            showModal("Access Denied", "No vault found with the provided phone number and PIN.");
+            currentAddMoreVault = null;
+            document.getElementById('addMoreVaultInfo').style.display = 'none';
+            document.getElementById('confirmAddToVaultBtn').style.display = 'none';
+        }
+    }
+
+    function renderAddMoreProductGrid() {
+        const grid = document.getElementById('addMoreProductGrid');
+        grid.innerHTML = '';
+        for (let product of Object.keys(productsWithValues)) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.style.cssText = 'background:#fafafa;border-radius:24px;padding:12px;text-align:center;border:1px solid #eee;cursor:pointer;';
+            card.innerHTML = `<div style="font-weight:600;margin-bottom:10px;">${escapeHtml(product)}</div><button style="background:#4caf50;border:none;padding:8px 16px;border-radius:40px;color:white;cursor:pointer;width:100%;" onclick="addToAddMoreSelection('${escapeHtml(product)}')">➕ Add</button>`;
+            grid.appendChild(card);
+        }
+    }
+
+    function addToAddMoreSelection(productName) {
+        const existing = addMoreSelectedItems.find(i => i.name === productName);
+        if (existing) existing.quantity += 1;
+        else addMoreSelectedItems.push({ name: productName, quantity: 1 });
+        updateAddMoreSelectedDisplay();
+    }
+
+    function increaseAddMoreQty(index) { addMoreSelectedItems[index].quantity += 1; updateAddMoreSelectedDisplay(); }
+    function decreaseAddMoreQty(index) { 
+        if (addMoreSelectedItems[index].quantity > 1) addMoreSelectedItems[index].quantity -= 1;
+        else addMoreSelectedItems.splice(index, 1);
+        updateAddMoreSelectedDisplay();
+    }
+    function removeAddMoreItem(index) { addMoreSelectedItems.splice(index, 1); updateAddMoreSelectedDisplay(); }
+
+    function updateAddMoreSelectedDisplay() {
+        const container = document.getElementById('addMoreSelectedList');
+        if (!container) return;
+        if (addMoreSelectedItems.length === 0) { container.innerHTML = '<p style="color: #999; text-align: center;">No items selected yet</p>'; return; }
+        let html = '';
+        addMoreSelectedItems.forEach((item, idx) => {
+            html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #ddd;background:white;margin-bottom:5px;border-radius:40px;">
+                        <span style="font-weight:600;flex:2;">${escapeHtml(item.name)}</span>
+                        <div style="display:flex;gap:5px;align-items:center;flex:1;">
+                            <button style="background:#b71c1c;color:white;border:none;width:30px;height:30px;border-radius:30px;cursor:pointer;" onclick="decreaseAddMoreQty(${idx})">−</button>
+                            <span style="font-weight:bold;min-width:30px;text-align:center;">${item.quantity}</span>
+                            <button style="background:#b71c1c;color:white;border:none;width:30px;height:30px;border-radius:30px;cursor:pointer;" onclick="increaseAddMoreQty(${idx})">+</button>
+                        </div>
+                        <div style="background:#ffe0e0;color:#b71c1c;cursor:pointer;width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-left:10px;" onclick="removeAddMoreItem(${idx})">✖</div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function confirmAddToVault() {
+        if (!currentAddMoreVault) { showModal("No Vault", "Please access your vault first."); return; }
+        if (addMoreSelectedItems.length === 0) { showModal("No Items", "Please select items to add."); return; }
+        
+        const existingItems = stringToItems(currentAddMoreVault.items);
+        for (let newItem of addMoreSelectedItems) {
+            const existing = existingItems.find(i => i.name === newItem.name);
+            if (existing) existing.quantity += newItem.quantity;
+            else existingItems.push({ name: newItem.name, quantity: newItem.quantity });
+        }
+        
+        const updatedItemsString = itemsToString(existingItems);
+        const totalValue = calculateRegistrationValue(updatedItemsString);
+        
+        const allRegs = JSON.parse(localStorage.getItem('randsPreRegistered') || '[]');
+        const index = allRegs.findIndex(reg => reg.id === currentAddMoreVault.id);
+        if (index !== -1) {
+            allRegs[index].items = updatedItemsString;
+            allRegs[index].timestamp = new Date().toISOString();
+            localStorage.setItem('randsPreRegistered', JSON.stringify(allRegs));
+            currentAddMoreVault = allRegs[index];
+            
+            // Update display
+            const items = stringToItems(updatedItemsString);
+            let itemsHtml = '<p style="font-weight: 600;">📦 Updated items in your vault:</p>';
+            for (let item of items) {
+                const price = productsWithValues[item.name] || 0;
+                itemsHtml += `<p>• ${item.name} x${item.quantity} — R ${(price * item.quantity).toFixed(2)}</p>`;
+            }
+            itemsHtml += `<p style="margin-top: 8px;"><strong>Total Value: R ${totalValue.toFixed(2)}</strong></p>`;
+            document.getElementById('addMoreItemsList').innerHTML = itemsHtml;
+            
+            addMoreSelectedItems = [];
+            updateAddMoreSelectedDisplay();
+            showModal("Items Added!", `✅ Successfully added items to your vault!\n\nNew Total Value: R ${totalValue.toFixed(2)}`);
+        }
+    }
+
+    // Expose functions globally
+    window.goToKeep = goToKeep;
+    window.goToCollect = goToCollect;
+    window.goToWallet = goToWallet;
+    window.openMyBoozeVault = openMyBoozeVault;
+    window.closeMyBoozeVault = closeMyBoozeVault;
+    window.checkVaultBalance = checkVaultBalance;
+    window.clearVaultResult = clearVaultResult;
+    window.accessAddMoreVault = accessAddMoreVault;
+    window.confirmAddToVault = confirmAddToVault;
+    window.addToAddMoreSelection = addToAddMoreSelection;
+    window.increaseAddMoreQty = increaseAddMoreQty;
+    window.decreaseAddMoreQty = decreaseAddMoreQty;
+    window.removeAddMoreItem = removeAddMoreItem;
+    window.showModal = showModal;
+    window.closeModal = closeModal;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('checkVaultBalanceBtn')?.addEventListener('click', checkVaultBalance);
+        document.getElementById('clearVaultResultBtn')?.addEventListener('click', clearVaultResult);
+        document.getElementById('accessAddMoreVaultBtn')?.addEventListener('click', accessAddMoreVault);
+        document.getElementById('confirmAddToVaultBtn')?.addEventListener('click', confirmAddToVault);
+        renderAddMoreProductGrid();
+        updateAddMoreSelectedDisplay();
+    });
+</script>
+</body>
+</html>
